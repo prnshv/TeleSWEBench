@@ -1,6 +1,6 @@
 # TeleSWEBench
 
-TeleSWEBench is a benchmark for **734 telecom software-engineering tasks** across three difficulty levels easy, medium, and hard. It runs agent-assisted coding tools against the srsRAN Project codebase, records patches and logs, and supports **localization** metrics plus **TeleJudge** scoring.
+TeleSWEBench is a benchmark for **734 telecom software-engineering tasks** across three difficulty levels: easy, medium, and hard. It runs agent-assisted coding tools against the `srsRAN Project` codebase, records patches and logs, and supports **localization** metrics plus **TeleJudge** scoring.
 
 ## Quick start
 
