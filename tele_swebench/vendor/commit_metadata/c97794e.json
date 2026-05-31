@@ -1,0 +1,29 @@
+{
+  "commit_id": "c97794e7828a7fb07a638dc1640a44369ceaa1dc",
+  "commit_sha_short": "c97794e",
+  "commit_folder": "c97794e",
+  "commit_message": "ran: review DCI size config validation related",
+  "commit_message_first_line": "ran: review DCI size config validation related",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/c97794e7828a7fb07a638dc1640a44369ceaa1dc",
+  "commit_date": "2024-09-24T10:08:40Z",
+  "parent_sha": "b35ba3bee51cbd4b5eecd69bfd450b1de511c831",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b35ba3bee51cbd4b5eecd69bfd450b1de511c831",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -503,10 +503,18 @@ static dci_1_1_size dci_f1_1_bits_before_padding(const dci_size_config& dci_conf\n   return sizes;\n }\n \n-static void assert_dci_size_config(const dci_size_config& config)\n+static void assert_dci_size_config(const dci_size_config& dci_sz_cfg)\n {\n-  error_type<std::string> error = validate_dci_size_config(config);\n-  srsran_assert(error.has_value(), \"Invalid DCI size configuration: {}\", error.error());\n+  [[maybe_unused]] std::string error_msg;\n+  [[maybe_unused]] auto        validate_dci_sz_cfg = [&dci_sz_cfg, &error_msg]() {\n+    error_type<std::string> dci_size_valid = validate_dci_size_config(dci_sz_cfg);\n+    bool                    is_success     = dci_size_valid.has_value();\n+    if (!is_success) {\n+      error_msg = dci_size_valid.error();\n+    }\n+    return is_success;\n+  };\n+  srsran_assert(validate_dci_sz_cfg(), \"Invalid DCI size configuration: {}\", error_msg);\n }\n \n dci_sizes srsran::get_dci_sizes(const dci_size_config& config)",
+      "additions": 11,
+      "deletions": 3,
+      "changes": 14
+    },
+    {
+      "filename": "lib/scheduler/config/ue_configuration.cpp",
+      "patch": "@@ -568,6 +568,20 @@ static void generate_crnti_monitored_pdcch_candidates(bwp_info& bwp_cfg, rnti_t\n \n ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n \n+static void assert_dci_size_config(search_space_id ss_id, const dci_size_config& dci_sz_cfg)\n+{\n+  [[maybe_unused]] std::string error_msg;\n+  [[maybe_unused]] auto        validate_dci_sz_cfg = [&dci_sz_cfg, &error_msg]() {\n+    error_type<std::string> dci_size_valid = validate_dci_size_config(dci_sz_cfg);\n+    bool                    is_success     = dci_size_valid.has_value();\n+    if (!is_success) {\n+      error_msg = dci_size_valid.error();\n+    }\n+    return is_success;\n+  };\n+  srsran_assert(validate_dci_sz_cfg(), \"Invalid DCI size configuration for SearchSpace={}: {}\", ss_id, error_msg);\n+}\n+\n ue_cell_configuration::ue_cell_configuration(rnti_t                     crnti_,\n                                              const cell_configuration&  cell_cfg_common_,\n                                              const serving_cell_config& serv_cell_cfg_,\n@@ -619,17 +633,13 @@ void ue_cell_configuration::reconfigure(const serving_cell_config& cell_cfg_ded_\n \n   // Compute DCI sizes\n   for (search_space_info& ss : search_spaces) {\n+    // Generate DCI size calculation parameters.\n     ss.dci_sz_cfg = get_dci_size_config(*this, multi_cells_configured, ss.cfg->get_id());\n \n     // Verify the DCI size configuration is valid.\n-    const error_type<std::string> dci_size_valid = validate_dci_size_config(ss.dci_sz_cfg);\n-    if (!dci_size_valid.has_value()) {\n-      srsran_assert(!dci_size_valid.has_value(),\n-                    \"Invalid DCI size configuration for SearchSpace={}: {}\",\n-                    ss.cfg->get_id(),\n-                    dci_size_valid.error());\n-    }\n+    assert_dci_size_config(ss.cfg->get_id(), ss.dci_sz_cfg);\n \n+    // Calculate DCI sizes.\n     ss.dci_sz = get_dci_sizes(ss.dci_sz_cfg);\n   }\n ",
+      "additions": 17,
+      "deletions": 7,
+      "changes": 24
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\c97794e.json"
+}

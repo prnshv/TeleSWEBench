@@ -1,0 +1,134 @@
+{
+  "commit_id": "69b7936ab64d383eabbfc9a029fbe20ea51d0b6c",
+  "commit_sha_short": "69b7936",
+  "commit_folder": "69b7936",
+  "commit_message": "du-high: remove du timer executor and use app-level one instead",
+  "commit_message_first_line": "du-high: remove du timer executor and use app-level one instead",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/69b7936ab64d383eabbfc9a029fbe20ea51d0b6c",
+  "commit_date": "2025-08-27T09:58:04Z",
+  "parent_sha": "46f5de47772f5d8370a947d3585e9fb13a5e4f19",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/46f5de47772f5d8370a947d3585e9fb13a5e4f19",
+  "code_changes": [
+    {
+      "filename": "apps/du/du.cpp",
+      "patch": "@@ -301,7 +301,7 @@ int main(int argc, char** argv)\n       create_f1c_client_gateway(du_cfg.f1ap_cfg.cu_cp_address,\n                                 du_cfg.f1ap_cfg.bind_address,\n                                 *epoll_broker,\n-                                workers.get_du_high_executor_mapper().sctp_gw_reader(),\n+                                workers.get_du_high_executor_mapper().f1c_rx_executor(),\n                                 *du_pcaps.f1ap);\n \n   // Create F1-U GW.\n@@ -327,7 +327,7 @@ int main(int argc, char** argv)\n         f1u_gw_config,\n         *epoll_broker,\n         workers.get_du_high_executor_mapper().ue_mapper().mac_ul_pdu_executor(to_du_ue_index(0)),\n-        workers.get_du_high_executor_mapper().udp_gw_reader());\n+        workers.get_du_high_executor_mapper().f1u_rx_executor());\n     if (not sock_cfg.five_qi.has_value()) {\n       f1u_gw_maps.default_gws.push_back(std::move(f1u_gw));\n     } else {\n@@ -343,7 +343,7 @@ int main(int argc, char** argv)\n   std::unique_ptr<e2_connection_client> e2_gw = create_e2_gateway_client(\n       generate_e2_client_gateway_config(o_du_app_unit->get_o_du_high_unit_config().e2_cfg.base_cfg,\n                                         *epoll_broker,\n-                                        workers.get_du_high_executor_mapper().sctp_gw_reader(),\n+                                        workers.get_du_high_executor_mapper().e2_rx_executor(),\n                                         *du_pcaps.e2ap,\n                                         E2_DU_PPID));\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "apps/gnb/gnb.cpp",
+      "patch": "@@ -416,7 +416,7 @@ int main(int argc, char** argv)\n   std::unique_ptr<e2_connection_client> e2_gw_du = create_e2_gateway_client(\n       generate_e2_client_gateway_config(o_du_app_unit->get_o_du_high_unit_config().e2_cfg.base_cfg,\n                                         *epoll_broker,\n-                                        workers.get_du_high_executor_mapper().sctp_gw_reader(),\n+                                        workers.get_du_high_executor_mapper().e2_rx_executor(),\n                                         *du_pcaps.e2ap,\n                                         E2_DU_PPID));\n   std::unique_ptr<e2_connection_client> e2_gw_cu_cp = create_e2_gateway_client(",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/du/du_high/du_high_executor_mapper.h",
+      "patch": "@@ -88,17 +88,17 @@ class du_high_executor_mapper\n   /// \\brief Retrieve DU control executor.\n   virtual task_executor& du_control_executor() = 0;\n \n-  /// \\brief Retrieve DU timer tick dispatching executor.\n-  virtual task_executor& du_timer_executor() = 0;\n-\n   /// \\brief Retrieve E2 control executor.\n   virtual task_executor& du_e2_executor() = 0;\n \n-  /// \\brief Retrieve executor used for reading messages from the F1-C or E2 SCTP sockets.\n-  virtual task_executor& sctp_gw_reader() = 0;\n+  /// \\brief Retrieve executor used for reading messages from the F1-C SCTP socket.\n+  virtual task_executor& f1c_rx_executor() = 0;\n+\n+  /// \\brief Retrieve executor used for reading messages from the E2 SCTP socket.\n+  virtual task_executor& e2_rx_executor() = 0;\n \n   /// \\brief Retrieve executor used for reading messages from the F1-U UDP sockets.\n-  virtual task_executor& udp_gw_reader() = 0;\n+  virtual task_executor& f1u_rx_executor() = 0;\n };\n \n /// Configuration of DU-high executor mapper.",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/mac/mac_config.h",
+      "patch": "@@ -54,7 +54,6 @@ struct mac_config {\n   srs_du::du_high_ue_executor_mapper&   ue_exec_mapper;\n   srs_du::du_high_cell_executor_mapper& cell_exec_mapper;\n   task_executor&                        ctrl_exec;\n-  task_executor&                        timer_exec;\n   mac_result_notifier&                  phy_notifier;\n   mac_expert_config                     mac_cfg;\n   mac_pcap&                             pcap;",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/du_high_executor_mapper.cpp",
+      "patch": "@@ -415,7 +415,6 @@ class du_high_executor_mapper_impl final : public du_high_executor_mapper\n   explicit du_high_executor_mapper_impl(const du_high_executor_config& config) :\n     raw_non_rt_hi_prio_exec(*config.ctrl_executors.pool_executor),\n     raw_low_prio_exec(*config.ue_executors.f1u_reader_executor),\n-    tick_exec(create_time_exec(config)),\n     cell_mapper_ptr(create_du_high_cell_executor_mapper(config)),\n     ue_mapper_ptr(create_du_high_ue_executor_mapper(config)),\n     ctrl_mapper(config.ctrl_executors, config.trace_exec_tasks, config.metrics_period)\n@@ -425,41 +424,16 @@ class du_high_executor_mapper_impl final : public du_high_executor_mapper\n   du_high_cell_executor_mapper& cell_mapper() override { return *cell_mapper_ptr; }\n   du_high_ue_executor_mapper&   ue_mapper() override { return *ue_mapper_ptr; }\n   task_executor&                du_control_executor() override { return ctrl_mapper.ctrl_exec; }\n-  task_executor&                du_timer_executor() override { return tick_exec; }\n   task_executor&                du_e2_executor() override { return ctrl_mapper.e2_exec; }\n-  task_executor&                sctp_gw_reader() override { return raw_non_rt_hi_prio_exec; }\n-  task_executor&                udp_gw_reader() override { return raw_low_prio_exec; }\n+  task_executor&                f1c_rx_executor() override { return raw_non_rt_hi_prio_exec; }\n+  task_executor&                e2_rx_executor() override { return raw_non_rt_hi_prio_exec; }\n+  task_executor&                f1u_rx_executor() override { return raw_low_prio_exec; }\n \n private:\n-  task_executor& create_time_exec(const du_high_executor_config& config)\n-  {\n-    // Create a strand pointing to the same pool used by the control executors.\n-    tick_strand =\n-        std::make_unique<tick_strand_type>(config.ctrl_executors.pool_executor, config.ctrl_executors.task_queue_size);\n-    task_executor& base_time_exec = *tick_strand;\n-\n-    // Decorate base_time_exec.\n-    return decorator.decorate(base_time_exec,\n-                              false,\n-                              config.trace_exec_tasks,\n-                              // Throttle the timer tick caller in non-RT mode\n-                              config.is_rt_mode_enabled ? std::nullopt : std::optional<unsigned>(1),\n-                              config.metrics_period,\n-                              config.trace_exec_tasks or config.metrics_period ? \"du_timer_exec\" : \"\");\n-  }\n-\n-  /// Decorator for executors.\n-  executor_decorator decorator;\n-\n   /// Raw control-plane executor.\n   task_executor& raw_non_rt_hi_prio_exec;\n   task_executor& raw_low_prio_exec;\n \n-  /// Strand used to tick the application timers.\n-  std::unique_ptr<tick_strand_type> tick_strand;\n-  /// Decorated tick_executor.\n-  task_executor& tick_exec;\n-\n   std::unique_ptr<du_high_cell_executor_mapper> cell_mapper_ptr;\n   std::unique_ptr<du_high_ue_executor_mapper>   ue_mapper_ptr;\n   ctrl_executor_mapper                          ctrl_mapper;",
+      "additions": 3,
+      "deletions": 29,
+      "changes": 32
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.cpp",
+      "patch": "@@ -61,7 +61,6 @@ du_high_impl::du_high_impl(const du_high_configuration& config_, const du_high_d\n                                       dependencies.exec_mapper->ue_mapper(),\n                                       dependencies.exec_mapper->cell_mapper(),\n                                       dependencies.exec_mapper->du_control_executor(),\n-                                      dependencies.exec_mapper->du_timer_executor(),\n                                       *dependencies.phy_adapter,\n                                       cfg.ran.mac_cfg,\n                                       *dependencies.mac_p,",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -587,7 +587,6 @@ std::unique_ptr<mac_interface> srsran::srs_du::create_du_high_mac(const mac_conf\n                                               mac_cfg.ue_exec_mapper,\n                                               mac_cfg.cell_exec_mapper,\n                                               mac_cfg.ctrl_exec,\n-                                              mac_cfg.timer_exec,\n                                               mac_testmode->get_phy_notifier(),\n                                               mac_cfg.mac_cfg,\n                                               mac_cfg.pcap,",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_config.h",
+      "patch": "@@ -28,14 +28,11 @@ struct mac_control_config {\n     unsigned                  max_nof_ue_events;\n   };\n \n-  mac_ul_ccch_notifier&                 event_notifier;\n-  srs_du::du_high_ue_executor_mapper&   ue_exec_mapper;\n-  srs_du::du_high_cell_executor_mapper& cell_exec_mapper;\n-  task_executor&                        ctrl_exec;\n-  task_executor&                        timer_exec;\n-  mac_clock_controller&                 time_source;\n-  metrics_config                        metrics;\n-  srslog::basic_logger&                 logger = srslog::fetch_basic_logger(\"MAC\", true);\n+  mac_ul_ccch_notifier& event_notifier;\n+  task_executor&        ctrl_exec;\n+  mac_clock_controller& time_source;\n+  metrics_config        metrics;\n+  srslog::basic_logger& logger = srslog::fetch_basic_logger(\"MAC\", true);\n };\n \n } // namespace srsran",
+      "additions": 5,
+      "deletions": 8,
+      "changes": 13
+    },
+    {
+      "filename": "lib/mac/mac_impl.cpp",
+      "patch": "@@ -34,10 +34,7 @@ mac_impl::mac_impl(const mac_config& params) :\n                         params.pcap,\n                         params.timers.get_timer_manager()}),\n   ctrl_unit(mac_control_config{params.ul_ccch_notifier,\n-                               params.ue_exec_mapper,\n-                               params.cell_exec_mapper,\n                                params.ctrl_exec,\n-                               params.timer_exec,\n                                params.timers,\n                                mac_control_config::metrics_config{params.metrics.period,\n                                                                   params.metrics.notifier,",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "tests/benchmarks/du_high/du_high_benchmark.cpp",
+      "patch": "@@ -1123,7 +1123,7 @@ class du_high_bench\n   std::unique_ptr<test_helpers::du_high_worker_manager> workers;\n   std::unique_ptr<io_broker>                            broker{create_io_broker(io_broker_type::epoll)};\n   std::unique_ptr<mac_clock_controller>                 timer_ctrl{\n-      srs_du::create_du_high_clock_controller(timers, *broker, workers->get_exec_mapper().du_timer_executor())};\n+      srs_du::create_du_high_clock_controller(timers, *broker, workers->timer_executor())};\n   null_mac_pcap                 mac_pcap;\n   null_rlc_pcap                 rlc_pcap;\n   std::unique_ptr<du_high_impl> du_hi;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/test_utils/du_high_env_simulator.cpp",
+      "patch": "@@ -206,7 +206,7 @@ du_high_env_simulator::du_high_env_simulator(du_high_env_sim_params params) :\n \n du_high_env_simulator::du_high_env_simulator(const du_high_configuration& du_hi_cfg_, bool active_cells_on_start) :\n   broker(create_io_broker(io_broker_type::epoll)),\n-  timer_ctrl(srs_du::create_du_high_clock_controller(timers, *broker, workers.exec_mapper->du_timer_executor())),\n+  timer_ctrl(srs_du::create_du_high_clock_controller(timers, *broker, workers.high_prio_exec)),\n   cu_notifier(workers.test_worker, active_cells_on_start),\n   du_metrics(workers.test_worker),\n   du_high_cfg(du_hi_cfg_),",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high_cu/cu_du_test.cpp",
+      "patch": "@@ -103,7 +103,7 @@ class cu_du_test : public ::testing::Test\n   timer_manager                         timers;\n   std::unique_ptr<io_broker>            broker{create_io_broker(io_broker_type::epoll)};\n   std::unique_ptr<mac_clock_controller> timer_ctrl{\n-      srs_du::create_du_high_clock_controller(timers, *broker, workers.exec_mapper->du_timer_executor())};\n+      srs_du::create_du_high_clock_controller(timers, *broker, workers.high_prio_exec)};\n   srslog::basic_logger&  test_logger = srslog::fetch_basic_logger(\"TEST\");\n   f1c_test_local_gateway f1c_gw{};\n   f1u_test_local_gateway f1u_gw{};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high_cu/du_high_cu_test_simulator.cpp",
+      "patch": "@@ -77,8 +77,7 @@ du_high_cu_test_simulator::du_high_cu_test_simulator(const du_high_cu_cp_test_si\n   logger(srslog::fetch_basic_logger(\"TEST\")),\n   workers(cfg.dus.size(), timers),\n   broker(create_io_broker(io_broker_type::epoll)),\n-  timer_ctrl(\n-      srs_du::create_du_high_clock_controller(timers, *broker, workers.dus[0]->get_exec_mapper().du_timer_executor()))\n+  timer_ctrl(srs_du::create_du_high_clock_controller(timers, *broker, workers.dus[0]->timer_executor()))\n {\n   // Prepare CU-CP config.\n   srs_cu_cp::cu_cp_configuration cu_cfg = config_helpers::make_default_cu_cp_config();",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/test_doubles/du/test_du_high_worker_manager.cpp",
+      "patch": "@@ -102,6 +102,8 @@ class multithreaded_du_high_executor_mapper final : public test_helpers::du_high\n \n   du_high_executor_mapper& get_exec_mapper() override { return *exec_mapper; }\n \n+  task_executor& timer_executor() override { return high_prio_exec; }\n+\n private:\n   // instantiated workers.\n   priority_task_worker_pool                          worker_pool;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/du/test_du_high_worker_manager.h",
+      "patch": "@@ -28,6 +28,8 @@ class du_high_worker_manager\n   virtual void stop() = 0;\n \n   virtual srs_du::du_high_executor_mapper& get_exec_mapper() = 0;\n+\n+  virtual task_executor& timer_executor() = 0;\n };\n \n struct du_high_worker_config {",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ctrl_test.cpp",
+      "patch": "@@ -44,9 +44,6 @@ class mac_controller_test : public ::testing::Test\n   mac_scheduler_dummy_adapter              sched_cfg_adapter;\n   dummy_mac_metrics_notifier               mac_notifier;\n   mac_control_config                       maccfg{du_mng_notifier,\n-                            ul_exec_mapper,\n-                            dl_exec_mapper,\n-                            worker,\n                             worker,\n                             clock_ctrl,\n                             mac_control_config::metrics_config{std::chrono::milliseconds{1000}, mac_notifier}};",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ue_create_test.cpp",
+      "patch": "@@ -76,9 +76,6 @@ class mac_ue_create_procedure_test : public testing::Test\n \n   // Create a MAC config object.\n   mac_control_config          mac_cfg{du_mng_notif,\n-                             ul_exec_mapper,\n-                             dl_exec_mapper,\n-                             worker,\n                              worker,\n                              clock_ctrl,\n                              mac_control_config::metrics_config{.mac_notifier = mac_notifier}};",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 17,
+  "commit_details_path": ".\\commit_metadata\\69b7936.json"
+}

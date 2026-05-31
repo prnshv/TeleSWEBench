@@ -1,0 +1,50 @@
+{
+  "commit_id": "0f5159e6887449a17fcf0a4f52eac3081a7e37a4",
+  "commit_sha_short": "0f5159e",
+  "commit_folder": "0f5159e",
+  "commit_message": "app: verify that band and dl_arfcn are consistent with one another",
+  "commit_message_first_line": "app: verify that band and dl_arfcn are consistent with one another",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/0f5159e6887449a17fcf0a4f52eac3081a7e37a4",
+  "commit_date": "2023-02-15T19:36:09Z",
+  "parent_sha": "7f3586ac07cfaefbf9f880c0bd8b8ee90f07e566",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7f3586ac07cfaefbf9f880c0bd8b8ee90f07e566",
+  "code_changes": [
+    {
+      "filename": "apps/gnb/gnb_appconfig.h",
+      "patch": "@@ -110,7 +110,7 @@ struct base_cell_appconfig {\n   /// Downlink arfcn.\n   unsigned dl_arfcn = 536020;\n   /// NR band.\n-  nr_band band = nr_band::n7;\n+  optional<nr_band> band;\n   /// Channel bandwidth in MHz.\n   bs_channel_bandwidth_fr1 channel_bw_mhz = bs_channel_bandwidth_fr1::MHz20;\n   /// Number of antennas in downlink.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/gnb_appconfig_translators.cpp",
+      "patch": "@@ -37,18 +37,16 @@ std::vector<du_cell_config> srsgnb::generate_du_cell_config(const gnb_appconfig&\n     param.scs_common                     = base_cell.common_scs;\n     param.channel_bw_mhz                 = base_cell.channel_bw_mhz;\n     param.dl_arfcn                       = base_cell.dl_arfcn;\n-    param.band                           = base_cell.band;\n+    param.band = base_cell.band.has_value() ? *base_cell.band : band_helper::get_band_from_dl_arfcn(base_cell.dl_arfcn);\n     // Enable CSI-RS if the PDSCH mcs is dynamic (fixed_ue_mcs is empty).\n     param.csi_rs_enabled = not cell.cell.pdsch_cfg.fixed_ue_mcs.has_value();\n \n     unsigned nof_crbs = band_helper::get_n_rbs_from_bw(\n-        base_cell.channel_bw_mhz,\n-        param.scs_common,\n-        param.band.has_value() ? band_helper::get_freq_range(param.band.value()) : frequency_range::FR1);\n+        base_cell.channel_bw_mhz, param.scs_common, band_helper::get_freq_range(*param.band));\n \n     static const uint8_t                              ss0_idx      = 0;\n     optional<band_helper::ssb_coreset0_freq_location> ssb_freq_loc = band_helper::get_ssb_coreset0_freq_location(\n-        base_cell.dl_arfcn, base_cell.band, nof_crbs, base_cell.common_scs, base_cell.common_scs, ss0_idx);\n+        base_cell.dl_arfcn, *param.band, nof_crbs, base_cell.common_scs, base_cell.common_scs, ss0_idx);\n \n     if (!ssb_freq_loc.has_value()) {\n       report_error(\"Unable to derive a valid SSB pointA and k_SSB for cell id ({}).\\n\", cell.pci);",
+      "additions": 3,
+      "deletions": 5,
+      "changes": 8
+    },
+    {
+      "filename": "apps/gnb/gnb_appconfig_validators.cpp",
+      "patch": "@@ -87,7 +87,11 @@ static bool validate_base_cell_appconfig(const base_cell_appconfig& config)\n     return false;\n   }\n   if (config.nof_antennas_ul != 1) {\n-    fmt::print(\"Currently, only one UL antenna is supported..\\n\", config.nof_antennas_ul);\n+    fmt::print(\"Currently, only one UL antenna is supported.\\n\", config.nof_antennas_ul);\n+    return false;\n+  }\n+  if (config.band.has_value() and not band_helper::is_dl_arfcn_valid_given_band(*config.band, config.dl_arfcn)) {\n+    fmt::print(\"Chosen band={} does not include chosen DL ARFCN={}.\\n\", *config.band, config.dl_arfcn);\n     return false;\n   }\n ",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsgnb/ran/band_helper.h",
+      "patch": "@@ -95,6 +95,12 @@ duplex_mode get_duplex_mode(nr_band band);\n /// \\return    The band number if the ARFCN is bounded in a band, UINT16_MAX otherwise.\n nr_band get_band_from_dl_arfcn(uint32_t arfcn);\n \n+/// \\brief     Checks whether a Downlink ARFCN is valid for a given band.\n+/// \\param[in] band Given NR band.\n+/// \\param[in] arfcn Given Downlink ARFCN.\n+/// \\return    True if band includes Downlink ARFCN. False, otherwise.\n+bool is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn);\n+\n /// @brief Get the respective UL ARFCN of a DL ARFCN.\n ///\n /// For paired spectrum (FDD) the function returns the respective ARFCN in the same band.",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -292,6 +292,17 @@ nr_band srsgnb::band_helper::get_band_from_dl_arfcn(uint32_t arfcn)\n   return nr_band::invalid;\n }\n \n+bool srsgnb::band_helper::is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn)\n+{\n+  for (const nr_band_raster& raster_band : nr_band_table_fr1) {\n+    if (raster_band.band == band) {\n+      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n+             (arfcn % raster_band.dl_nref_step == 0);\n+    }\n+  }\n+  return false;\n+}\n+\n uint32_t srsgnb::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn)\n {\n   // NOTE: The procedure implemented in this function is implementation-defined.",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\0f5159e.json"
+}

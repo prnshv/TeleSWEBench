@@ -1,0 +1,50 @@
+{
+  "commit_id": "5530d825683303fe68fd2274e94fed2574a2ad9c",
+  "commit_sha_short": "5530d82",
+  "commit_folder": "5530d82",
+  "commit_message": "mac: fix stray metric report during mac destruction",
+  "commit_message_first_line": "mac: fix stray metric report during mac destruction",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5530d825683303fe68fd2274e94fed2574a2ad9c",
+  "commit_date": "2025-05-14T14:53:43Z",
+  "parent_sha": "d08d5230fab15673e44609ae47a12dded2d40f56",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/d08d5230fab15673e44609ae47a12dded2d40f56",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/config/sched_config_manager.h",
+      "patch": "@@ -67,6 +67,9 @@ class ue_config_delete_event\n \n   void reset();\n \n+  /// Called when notifying the sched_config_manager is not desired.\n+  void release() { parent = nullptr; }\n+\n   du_ue_index_t ue_index() const { return ue_idx; }\n \n private:",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -58,6 +58,12 @@ cell_metrics_handler::cell_metrics_handler(\n   rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n }\n \n+cell_metrics_handler::~cell_metrics_handler()\n+{\n+  // Avoid reporting on destruction.\n+  next_report.release();\n+}\n+\n void cell_metrics_handler::handle_ue_creation(du_ue_index_t ue_index, rnti_t rnti, pci_t pcell_pci)\n {\n   if (not connected()) {",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -165,6 +165,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   explicit cell_metrics_handler(\n       const cell_configuration&                                                      cell_cfg_,\n       const std::optional<sched_cell_configuration_request_message::metrics_config>& metrics_cfg);\n+  ~cell_metrics_handler();\n \n   /// \\brief Register creation of a UE.\n   void handle_ue_creation(du_ue_index_t ue_index, rnti_t rnti, pci_t pcell_pci) override;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_repository.cpp",
+      "patch": "@@ -19,6 +19,13 @@ ue_repository::ue_repository() : logger(srslog::fetch_basic_logger(\"SCHED\")), ue\n   rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n }\n \n+ue_repository::~ue_repository()\n+{\n+  for (auto& u : ues_to_rem) {\n+    u.second.release();\n+  }\n+}\n+\n /// \\brief This function checks whether it is safe to remove a UE. Currently we verify that the UE has no DL or UL\n /// HARQ awaiting an ACK.\n static bool is_ue_ready_for_removal(ue& u)",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_repository.h",
+      "patch": "@@ -28,6 +28,7 @@ class ue_repository\n   using const_iterator = ue_list::const_iterator;\n \n   explicit ue_repository();\n+  ~ue_repository();\n \n   /// \\brief Mark start of new slot and update UEs states.\n   void slot_indication(slot_point sl_tx);",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\5530d82.json"
+}

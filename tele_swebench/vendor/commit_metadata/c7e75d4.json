@@ -1,0 +1,29 @@
+{
+  "commit_id": "c7e75d43bfef7b8e11b2703e61111d6010f64563",
+  "commit_sha_short": "c7e75d4",
+  "commit_folder": "c7e75d4",
+  "commit_message": "adt: methods to check the capacity and current size of the byte buffer pool",
+  "commit_message_first_line": "adt: methods to check the capacity and current size of the byte buffer pool",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/c7e75d43bfef7b8e11b2703e61111d6010f64563",
+  "commit_date": "2024-07-30T14:06:05Z",
+  "parent_sha": "f54f6071b6f5961d817018f4b18adc8b54066d8d",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/f54f6071b6f5961d817018f4b18adc8b54066d8d",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -29,6 +29,13 @@ size_t byte_buffer_segment_pool_default_segment_size();\n void init_byte_buffer_segment_pool(std::size_t nof_segments,\n                                    std::size_t memory_block_size = byte_buffer_segment_pool_default_segment_size());\n \n+/// \\brief Get total capacity of the byte buffer segment pool in terms of segments.\n+size_t get_byte_buffer_segment_pool_capacity();\n+\n+/// \\brief Get an estimate of the number of segments of the byte buffer segment pool that are currently available for\n+/// allocation in the caller thread.\n+size_t get_byte_buffer_segment_pool_current_size_approx();\n+\n /// \\brief Non-owning view to a byte sequence.\n ///\n /// The underlying byte sequence is not contiguous in memory. Instead, it is represented as an intrusive linked list of",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -41,6 +41,18 @@ void srsran::init_byte_buffer_segment_pool(std::size_t nof_segments, std::size_t\n   report_fatal_error_if_not(memory_block_size > 64U, \"memory blocks must be larger than the segment control header\");\n }\n \n+size_t srsran::get_byte_buffer_segment_pool_capacity()\n+{\n+  auto& pool = detail::byte_buffer_segment_pool::get_instance();\n+  return pool.nof_memory_blocks();\n+}\n+\n+size_t srsran::get_byte_buffer_segment_pool_current_size_approx()\n+{\n+  auto& pool = detail::byte_buffer_segment_pool::get_instance();\n+  return pool.get_central_cache_approx_size() + pool.get_local_cache_size();\n+}\n+\n // ------- byte_buffer class -------\n \n void byte_buffer::control_block::destroy_node(node_t* node) const",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\c7e75d4.json"
+}

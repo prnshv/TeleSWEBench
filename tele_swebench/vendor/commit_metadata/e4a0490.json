@@ -1,0 +1,71 @@
+{
+  "commit_id": "e4a0490e25241de7698d54102ec9eeef26d858a5",
+  "commit_sha_short": "e4a0490",
+  "commit_folder": "e4a0490",
+  "commit_message": "du: remove option to set UL ARFCN in config\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "du: remove option to set UL ARFCN in config",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e4a0490e25241de7698d54102ec9eeef26d858a5",
+  "commit_date": "2024-10-02T08:59:52Z",
+  "parent_sha": "97a2ddd13634e135734c7fea572875d6f8dda7d3",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/97a2ddd13634e135734c7fea572875d6f8dda7d3",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config.h",
+      "patch": "@@ -547,10 +547,6 @@ struct du_high_unit_base_cell_config {\n   std::optional<unsigned> sector_id;\n   /// DL ARFCN of \"F_REF\", which is the RF reference frequency, as per TS 38.104, Section 5.4.2.1.\n   unsigned dl_f_ref_arfcn = 536020;\n-  /// UL ARFCN of \"F_REF\", which is the RF reference frequency, as per TS 38.104, Section 5.4.2.1.\n-  /// \\remark Only relevant for FDD bands. If set with TDD bands, it will be ignored.\n-  /// For FDD bands, if not set, the UL ARFCN will be computed automatically.\n-  std::optional<unsigned> ul_f_ref_arfcn = std::nullopt;\n   /// Common subcarrier spacing for the entire resource grid. It must be supported by the band SS raster.\n   subcarrier_spacing common_scs = subcarrier_spacing::kHz15;\n   /// NR band.",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_cli11_schema.cpp",
+      "patch": "@@ -1114,7 +1114,6 @@ static void configure_cli11_common_cell_args(CLI::App& app, du_high_unit_base_ce\n       ->capture_default_str()\n       ->check(CLI::Range(0U, (1U << 14) - 1U));\n   add_option(app, \"--dl_arfcn\", cell_params.dl_f_ref_arfcn, \"Downlink ARFCN\")->capture_default_str();\n-  add_option(app, \"--ul_arfcn\", cell_params.ul_f_ref_arfcn, \"Uplink ARFCN\")->capture_default_str();\n   add_auto_enum_option(app, \"--band\", cell_params.band, \"NR band\");\n   add_option_function<std::string>(\n       app,",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_translators.cpp",
+      "patch": "@@ -230,7 +230,6 @@ std::vector<srs_du::du_cell_config> srsran::generate_du_cell_config(const du_hig\n     param.scs_common                               = base_cell.common_scs;\n     param.channel_bw_mhz                           = base_cell.channel_bw_mhz;\n     param.dl_f_ref_arfcn                           = base_cell.dl_f_ref_arfcn;\n-    param.ul_f_ref_arfcn                           = base_cell.ul_f_ref_arfcn;\n     param.band                                     = *base_cell.band;\n     // Enable CSI-RS if the PDSCH mcs is dynamic (min_ue_mcs != max_ue_mcs).\n     param.csi_rs_enabled      = base_cell.csi_cfg.csi_rs_enabled;",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_validator.cpp",
+      "patch": "@@ -651,13 +651,12 @@ static bool validate_dl_ul_arfcn_and_band(const du_high_unit_base_cell_config& c\n       fmt::print(\"Invalid DL ARFCN={} for band {}. Cause: {}.\\n\", config.dl_f_ref_arfcn, band, ret.error());\n       return false;\n     }\n-    if (config.ul_f_ref_arfcn.has_value()) {\n-      ret =\n-          band_helper::is_ul_arfcn_valid_given_band(*config.band, config.ul_f_ref_arfcn.value(), config.channel_bw_mhz);\n-      if (not ret.has_value()) {\n-        fmt::print(\"Invalid UL ARFCN={} for band {}. Cause: {}.\\n\", config.dl_f_ref_arfcn, band, ret.error());\n-        return false;\n-      }\n+    // Check if also the corresponding UL ARFCN is valid.\n+    const uint32_t ul_arfcn = band_helper::get_ul_arfcn_from_dl_arfcn(config.dl_f_ref_arfcn, config.band.value());\n+    ret                     = band_helper::is_ul_arfcn_valid_given_band(*config.band, ul_arfcn, config.channel_bw_mhz);\n+    if (not ret.has_value()) {\n+      fmt::print(\"Invalid DL ARFCN={} for band {}. Cause: {}.\\n\", config.dl_f_ref_arfcn, band, ret.error());\n+      return false;\n     }\n   } else {\n     if (band == nr_band::invalid) {\n@@ -769,16 +768,16 @@ static bool validate_base_cell_unit_config(const du_high_unit_base_cell_config&\n     return false;\n   }\n \n-  const auto ssb_scs = band_helper::get_most_suitable_ssb_scs(\n-      band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn), config.common_scs);\n+  const nr_band band =\n+      config.band.has_value() ? config.band.value() : band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn);\n+  const auto ssb_scs = band_helper::get_most_suitable_ssb_scs(band, config.common_scs);\n   if (ssb_scs != config.common_scs) {\n     fmt::print(\"Common SCS {}kHz is not equal to SSB SCS {}kHz. Different SCS for common and SSB is not supported.\\n\",\n                scs_to_khz(config.common_scs),\n                scs_to_khz(ssb_scs));\n     return false;\n   }\n-  const nr_band band =\n-      config.band.has_value() ? config.band.value() : band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn);\n+\n   const unsigned nof_crbs =\n       band_helper::get_n_rbs_from_bw(config.channel_bw_mhz, config.common_scs, band_helper::get_freq_range(band));\n ",
+      "additions": 10,
+      "deletions": 11,
+      "changes": 21
+    },
+    {
+      "filename": "include/srsran/scheduler/config/cell_config_builder_params.h",
+      "patch": "@@ -31,11 +31,6 @@ struct cell_config_builder_params {\n   /// This ARFCN represents \"f_ref\" for DL, as per TS 38.104, Section 5.4.2.1. As per TS 38.104, Section 5.4.2.2,\n   /// \"f_ref\" maps to the central frequency of the band.\n   unsigned dl_f_ref_arfcn = 365000;\n-  /// This ARFCN represents \"f_ref\" for UL, as per TS 38.104, Section 5.4.2.1. As per TS 38.104, Section 5.4.2.2,\n-  /// \"f_ref\" maps to the central frequency of the band.\n-  /// \\remark Only relevant for FDD bands.\n-  /// If set, this value has been set by the application user.\n-  std::optional<unsigned> ul_f_ref_arfcn = std::nullopt;\n   /// <em>NR operating band<\\em>, as per Table 5.2-1 and 5.2-2, TS 38.104. If not specified, a valid band for the\n   /// provided DL ARFCN is automatically derived.\n   std::optional<nr_band> band;",
+      "additions": 0,
+      "deletions": 5,
+      "changes": 5
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -809,6 +809,16 @@ srsran::band_helper::is_ul_arfcn_valid_given_band(nr_band band, uint32_t arfcn_f\n \n   for (const nr_band_raster& raster_band : nr_band_table) {\n     if (raster_band.band == band and raster_band.delta_f_rast == band_delta_freq_raster) {\n+      // Check if the ARFCN doesn't exceed the band upper-bound for bands that support asymmetrical UL and DL channel\n+      // BWs.\n+      if ((band == nr_band::n66 or band == nr_band::n70 or band == nr_band::n92 or band == nr_band::n94) and\n+          (arfcn_f_ref < raster_band.ul_nref_first or arfcn_f_ref > raster_band.ul_nref_last)) {\n+        return make_unexpected(\n+            fmt::format(\"Asymmetrical UL and DL channel BWs are not supported. The UL ARFCN resulting from the DL \"\n+                        \"ARFCN for band n{} must not exceed the band upper-bound={}\",\n+                        band,\n+                        raster_band.ul_nref_last));\n+      }\n       if (arfcn_f_ref >= raster_band.ul_nref_first and arfcn_f_ref <= raster_band.ul_nref_last and\n           ((arfcn_f_ref - raster_band.ul_nref_first) % raster_band.ul_nref_step) == 0) {\n         return {};\n@@ -845,9 +855,11 @@ uint32_t srsran::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn, std:\n     if (b_it.band == operating_band) {\n       const uint32_t offset             = (dl_arfcn - b_it.dl_nref_first) / b_it.dl_nref_step;\n       const uint32_t candidate_ul_arfcn = b_it.ul_nref_first + offset * b_it.ul_nref_step;\n-      // For band n65, n66, n70, n92, n94, the UL spectrum is smaller than the corresponding DL spectrum, therefore we\n-      // need to cap the UL ARFCN to its upper-bound.\n-      return std::min(candidate_ul_arfcn, b_it.ul_nref_last);\n+      // For band n66, n70, n92, n94, the UL spectrum is smaller than the corresponding DL spectrum, as these bands\n+      // supports asymmetrical UL anc DL channel operations. However, the current GNB doesn't support this feature.\n+      // If the resulting UL ARFCN is outside the valid range, return 0.\n+      return (candidate_ul_arfcn >= b_it.ul_nref_first and candidate_ul_arfcn <= b_it.ul_nref_last) ? candidate_ul_arfcn\n+                                                                                                    : 0U;\n     }\n   }\n ",
+      "additions": 15,
+      "deletions": 3,
+      "changes": 18
+    },
+    {
+      "filename": "lib/scheduler/config/serving_cell_config_factory.cpp",
+      "patch": "@@ -89,9 +89,7 @@ static carrier_configuration make_default_carrier_configuration(const cell_confi\n     cfg.arfcn_f_ref = params.dl_f_ref_arfcn;\n     cfg.nof_ant     = params.nof_dl_ports;\n   } else {\n-    cfg.arfcn_f_ref = params.ul_f_ref_arfcn.has_value()\n-                          ? params.ul_f_ref_arfcn.value()\n-                          : band_helper::get_ul_arfcn_from_dl_arfcn(params.dl_f_ref_arfcn, cfg.band);\n+    cfg.arfcn_f_ref = band_helper::get_ul_arfcn_from_dl_arfcn(params.dl_f_ref_arfcn, cfg.band);\n     cfg.nof_ant     = 1;\n   }\n   const min_channel_bandwidth min_channel_bw = band_helper::get_min_channel_bw(cfg.band, params.scs_common);\n@@ -336,9 +334,7 @@ srsran::config_helpers::make_default_ul_config_common(const cell_config_builder_\n {\n   ul_config_common cfg{};\n   // This is the ARFCN of the UL f_ref, as per TS 38.104, Section 5.4.2.1.\n-  const uint32_t ul_arfcn                 = params.ul_f_ref_arfcn.has_value()\n-                                                ? params.ul_f_ref_arfcn.value()\n-                                                : band_helper::get_ul_arfcn_from_dl_arfcn(params.dl_f_ref_arfcn, params.band);\n+  const uint32_t ul_arfcn                 = band_helper::get_ul_arfcn_from_dl_arfcn(params.dl_f_ref_arfcn, params.band);\n   const double   ul_absolute_freq_point_a = band_helper::get_abs_freq_point_a_from_f_ref(\n       band_helper::nr_arfcn_to_freq(ul_arfcn), params.cell_nof_crbs, params.scs_common);\n   // \\c absolute_freq_point_a needs to be expressed as in ARFCN, as per \\c absoluteFrequencyPointA definition in 38.211,",
+      "additions": 2,
+      "deletions": 6,
+      "changes": 8
+    },
+    {
+      "filename": "tests/unittests/ran/band_helper_test.cpp",
+      "patch": "@@ -112,13 +112,16 @@ TEST(get_ul_arfcn_from_dl_arfcn, mixed_frequencies)\n   ASSERT_EQ(142600, get_ul_arfcn_from_dl_arfcn(153600, nr_band::n28));\n   ASSERT_EQ(144608, get_ul_arfcn_from_dl_arfcn(155608, nr_band::n28));\n \n-  // For n65, m66, n70, n92, n94, the UL spectrum is smaller than the DL spectrum. When we convert the DL ARFCN\n-  // upper-bound to the corresponding UL ARFCN, we need to cap the value to the UL spectrum upper-bound.\n-  ASSERT_EQ(402000, get_ul_arfcn_from_dl_arfcn(440000, nr_band::n65));\n-  ASSERT_EQ(356000, get_ul_arfcn_from_dl_arfcn(440000, nr_band::n66));\n-  ASSERT_EQ(342000, get_ul_arfcn_from_dl_arfcn(404000, nr_band::n70));\n-  ASSERT_EQ(172400, get_ul_arfcn_from_dl_arfcn(303400, nr_band::n92));\n-  ASSERT_EQ(183000, get_ul_arfcn_from_dl_arfcn(303400, nr_band::n94));\n+  // For n66, n70, n92, n94, the UL spectrum is smaller than the DL spectrum. When we convert the DL ARFCN\n+  // to the corresponding UL ARFCN, if the UL ARFCN exceeds the band upper-bound, we return 0.\n+  ASSERT_EQ(356000, get_ul_arfcn_from_dl_arfcn(436000, nr_band::n66));\n+  ASSERT_EQ(0, get_ul_arfcn_from_dl_arfcn(440000, nr_band::n66));\n+  ASSERT_EQ(342000, get_ul_arfcn_from_dl_arfcn(402000, nr_band::n70));\n+  ASSERT_EQ(0, get_ul_arfcn_from_dl_arfcn(404000, nr_band::n70));\n+  ASSERT_EQ(172400, get_ul_arfcn_from_dl_arfcn(292400, nr_band::n92));\n+  ASSERT_EQ(0, get_ul_arfcn_from_dl_arfcn(303400, nr_band::n92));\n+  ASSERT_EQ(183000, get_ul_arfcn_from_dl_arfcn(293400, nr_band::n94));\n+  ASSERT_EQ(0, get_ul_arfcn_from_dl_arfcn(303400, nr_band::n94));\n }\n \n TEST(test_get_abs_freq_point_a_arfcn, mixed_frequencies)",
+      "additions": 10,
+      "deletions": 7,
+      "changes": 17
+    }
+  ],
+  "num_files_changed": 8,
+  "commit_details_path": ".\\commit_metadata\\e4a0490.json"
+}

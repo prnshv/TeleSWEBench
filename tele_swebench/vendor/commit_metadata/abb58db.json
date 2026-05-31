@@ -1,0 +1,29 @@
+{
+  "commit_id": "abb58dba23a343c8252c73d4383b45e26fd0b67f",
+  "commit_sha_short": "abb58db",
+  "commit_folder": "abb58db",
+  "commit_message": "asn1: fix octet string from_number()",
+  "commit_message_first_line": "asn1: fix octet string from_number()",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/abb58dba23a343c8252c73d4383b45e26fd0b67f",
+  "commit_date": "2022-11-24T20:43:36Z",
+  "parent_sha": "822f59285c0e2265fb8c7ffe44d854a659a6c916",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/822f59285c0e2265fb8c7ffe44d854a659a6c916",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -923,8 +923,8 @@ uint64_t octet_string_helper::to_uint(const byte_buffer& buf)\n void octet_string_helper::to_octet_string(srsgnb::span<uint8_t> buf, uint64_t number)\n {\n   size_t nbytes = buf.size();\n-  if (nbytes < sizeof(number)) {\n-    log_error(\"uint64_t does not fit in an OCTET STRING of size={}\", nbytes);\n+  if ((1U << (8U * nbytes)) <= number) {\n+    log_error(\"Integer={} does not fit in an OCTET STRING of size={}\", number, nbytes);\n     return;\n   }\n   for (uint32_t i = 0; i < nbytes; ++i) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -219,6 +219,12 @@ void test_oct_string()\n   TESTASSERT_EQ(b.distance(), (int)(hexstr.size() * 8 / 2 + 9));\n   b.align_bytes_zero();\n   TESTASSERT(b.distance() == (int)(hexstr.size() * 8 / 2 + 16));\n+\n+  {\n+    fixed_octstring<1> small_octet_str;\n+    small_octet_str.from_number(255); // It should not assert.\n+    TESTASSERT_EQ(small_octet_str.to_number(), 255);\n+  }\n }\n \n void test_bitstring()",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\abb58db.json"
+}

@@ -1,0 +1,22 @@
+{
+  "commit_id": "dea4615779e519aa41cf44507e5ac231fc3c70e7",
+  "commit_sha_short": "dea4615",
+  "commit_folder": "dea4615",
+  "commit_message": "ran: review TPMI related",
+  "commit_message_first_line": "ran: review TPMI related",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/dea4615779e519aa41cf44507e5ac231fc3c70e7",
+  "commit_date": "2024-12-16T10:36:00Z",
+  "parent_sha": "b9ff97748667c6eca1382422a4fc3a95d599782d",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b9ff97748667c6eca1382422a4fc3a95d599782d",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pusch/pusch_tpmi_select.cpp",
+      "patch": "@@ -321,8 +321,7 @@ static void subchannel_matrix(cf_t out[N - 1][N - 1], const cf_t in[N][N], unsig\n       if (i_col == i_skip_col) {\n         continue;\n       }\n-      out[i_col_count][i_row_count] = in[i_col][i_row];\n-      i_col_count++;\n+      out[i_col_count++][i_row_count] = in[i_col][i_row];\n     }\n     ++i_row_count;\n   }\n@@ -352,6 +351,15 @@ cf_t det_channel_matrix<2>(const cf_t in[2][2])\n   return in[0][0] * in[1][1] - in[0][1] * in[1][0];\n }\n \n+// Calculate the determinant of a matrix of size 3.\n+template <>\n+cf_t det_channel_matrix<3>(const cf_t in[3][3])\n+{\n+  return in[0][0] * (in[1][1] * in[2][2] - in[1][2] * in[2][1]) +\n+         in[0][1] * (in[1][2] * in[2][0] - in[2][2] * in[1][0]) +\n+         in[0][2] * (in[1][0] * in[2][1] - in[1][1] * in[2][0]);\n+}\n+\n // Calculate the determinant of a matrix of size 1.\n template <>\n cf_t det_channel_matrix<1>(const cf_t in[1][1])\n@@ -380,7 +388,7 @@ float calculate_mean_layer_sinr(const precoding_weight_matrix& channel_weights,\n   cf_t                         temp_sub[NofLayers - 1][NofLayers - 1];\n   for (unsigned i = 0; i != NofLayers; ++i) {\n     subchannel_matrix(temp_sub, gram_matrix, i, i);\n-    inv_diagonal[i] = det_channel_matrix(temp_sub).real() / det;\n+    inv_diagonal[i] = det_channel_matrix<NofLayers - 1>(temp_sub).real() / det;\n   }\n \n   // Estimate noise variances.",
+      "additions": 11,
+      "deletions": 3,
+      "changes": 14
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\dea4615.json"
+}

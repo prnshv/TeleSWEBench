@@ -1,0 +1,22 @@
+{
+  "commit_id": "d2dc838fe1a66a72cb58cedf3a8cb329c428e959",
+  "commit_sha_short": "d2dc838",
+  "commit_folder": "d2dc838",
+  "commit_message": "band_helper: update comment",
+  "commit_message_first_line": "band_helper: update comment",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/d2dc838fe1a66a72cb58cedf3a8cb329c428e959",
+  "commit_date": "2023-03-14T18:20:44Z",
+  "parent_sha": "7ca2fa1f4d3212a5ab5c8ba7b27db2b7eca38991",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7ca2fa1f4d3212a5ab5c8ba7b27db2b7eca38991",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -769,7 +769,7 @@ unsigned srsran::band_helper::get_nof_coreset0_rbs_not_intersecting_ssb(unsigned\n n_ta_offset srsran::band_helper::get_ta_offset(nr_band band)\n {\n   if (get_freq_range(band) == frequency_range::FR1) {\n-    // assume no LTE-NR coexistence\n+    // Assume no LTE-NR coexistence.\n     return n_ta_offset::n25600;\n   } else {\n     return n_ta_offset::n13792;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\d2dc838.json"
+}

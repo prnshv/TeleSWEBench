@@ -1,0 +1,50 @@
+{
+  "commit_id": "a73c2d0d1f80907d2df4d5e0411d70e2aa4ae267",
+  "commit_sha_short": "a73c2d0",
+  "commit_folder": "a73c2d0",
+  "commit_message": "sched: fix mcs_tbs calculator bytes conversion\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "sched: fix mcs_tbs calculator bytes conversion",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a73c2d0d1f80907d2df4d5e0411d70e2aa4ae267",
+  "commit_date": "2023-02-15T17:11:39Z",
+  "parent_sha": "9228473f6f3e70e3cd5226acc3616ff8cc7c057e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9228473f6f3e70e3cd5226acc3616ff8cc7c057e",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/policy/scheduler_time_rr.cpp",
+      "patch": "@@ -162,6 +162,12 @@ static bool alloc_dl_ue(const ue&                    u,\n           return false;\n         }\n \n+        logger.debug(\"PDSCH - CQI={} MCS={} bytes={} TBS={}\",\n+                     ue_cc.get_latest_wb_cqi(),\n+                     mcs_prbs.mcs,\n+                     mcs_prbs.mcs,\n+                     mcs_prbs.tbs_bytes);\n+\n         const crb_interval ue_grant_crbs  = find_empty_interval_of_length(used_crbs, mcs_prbs.n_prbs, 0);\n         bool               are_crbs_valid = not ue_grant_crbs.empty(); // Cannot be empty.\n         if (is_retx) {",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -208,7 +208,7 @@ optional<sch_mcs_tbs_prbs> srsgnb::compute_dl_mcs_tbs(const pdsch_config_params&\n   }\n \n   optional<sch_mcs_tbs_prbs> output;\n-  const unsigned             tbs_bytes = tbs_bits * NOF_BITS_PER_BYTE;\n+  const unsigned             tbs_bytes = tbs_bits / NOF_BITS_PER_BYTE;\n   return output.emplace(sch_mcs_tbs_prbs{.mcs = mcs, .tbs = tbs_bytes});\n }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell.cpp",
+      "patch": "@@ -87,7 +87,7 @@ ue_cell::required_dl_prbs(unsigned time_resource, unsigned pending_bytes, dci_dl\n                                                                   pdsch_cfg.nof_layers});\n \n   const bwp_downlink_common& bwp_dl_cmn = ue_cfg.dl_bwp_common(active_bwp_id());\n-  return grant_prbs_mcs{mcs, std::min(prbs_tbs.nof_prbs, bwp_dl_cmn.generic_params.crbs.length())};\n+  return grant_prbs_mcs{mcs, std::min(prbs_tbs.nof_prbs, bwp_dl_cmn.generic_params.crbs.length()), prbs_tbs.tbs_bytes};\n }\n \n grant_prbs_mcs",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell.h",
+      "patch": "@@ -25,6 +25,7 @@ struct grant_prbs_mcs {\n   sch_mcs_index mcs;\n   /// Number of PRBs to be allocated for the UE's PUSCH.\n   unsigned n_prbs;\n+  unsigned tbs_bytes;\n };\n \n /// \\brief Context respective to a UE serving cell.\n@@ -64,9 +65,10 @@ class ue_cell\n \n   void set_latest_wb_cqi(bounded_bitset<uci_constants::MAX_NOF_CSI_PART1_OR_PART2_BITS> payload)\n   {\n-    ue_metrics.latest_wb_cqi = (static_cast<unsigned>(payload.test(0)) << 3) +\n-                               (static_cast<unsigned>(payload.test(1)) << 2) +\n-                               (static_cast<unsigned>(payload.test(2)) << 1) + (static_cast<unsigned>(payload.test(4)));\n+    ue_metrics.latest_wb_cqi = (static_cast<unsigned>(payload.test(payload.size() - 1)) << 3) +\n+                               (static_cast<unsigned>(payload.test(payload.size() - 2)) << 2) +\n+                               (static_cast<unsigned>(payload.test(payload.size() - 3)) << 1) +\n+                               (static_cast<unsigned>(payload.test(payload.size() - 4)));\n   }\n \n   /// \\brief Estimate the number of required DL PRBs to allocate the given number of bytes.",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -246,8 +246,8 @@ void ue_event_manager::handle_uci_indication(const uci_indication& ind)\n       }\n \n       // Process SRs.\n-      const size_t sr_bit_position_with_1_sr_bit = 0;\n-      if (pdu.sr_info.test(sr_bit_position_with_1_sr_bit)) {\n+      // const size_t sr_bit_position_with_1_sr_bit = 0;\n+      if (pdu.sr_info.size() > 0 and pdu.sr_info.test(pdu.sr_info.size() - 1)) {\n         common_events.emplace(ind.ucis[i].ue_index, [ue_index = ind.ucis[i].ue_index, this]() {\n           auto& u = ue_db[ue_index];\n \n@@ -262,7 +262,7 @@ void ue_event_manager::handle_uci_indication(const uci_indication& ind)\n       // Process CSI part 1 bits. NOTE: we assume there are only 4 bits, which represent the CQI.\n       if (pdu.csi_part1.size() > 0) {\n         cell_specific_events[ind.cell_index].emplace(\n-            ind.ucis[i].ue_index, [this, uci_sl = ind.slot_rx, csi_1_bits = pdu.csi_part1](ue_cell& ue_cc) {\n+            ind.ucis[i].ue_index, [this, uci_sl = ind.slot_rx, &csi_1_bits = pdu.csi_part1](ue_cell& ue_cc) {\n               ue_cc.set_latest_wb_cqi(csi_1_bits);\n             });\n       }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\a73c2d0.json"
+}

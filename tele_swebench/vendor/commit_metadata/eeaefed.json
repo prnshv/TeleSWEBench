@@ -1,0 +1,29 @@
+{
+  "commit_id": "eeaefedbb946dd4338787c943edd0ae75505ecf0",
+  "commit_sha_short": "eeaefed",
+  "commit_folder": "eeaefed",
+  "commit_message": "band_helper: rename unittest\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "band_helper: rename unittest",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/eeaefedbb946dd4338787c943edd0ae75505ecf0",
+  "commit_date": "2023-07-20T05:01:56Z",
+  "parent_sha": "8db358ac10970012b7d1909642bbf74bbbb58bcb",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/8db358ac10970012b7d1909642bbf74bbbb58bcb",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -134,7 +134,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 60;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-    // clang-format off\n+       // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/ssb_gscn_test.cpp",
+      "patch": "@@ -80,7 +80,7 @@ TEST(test_get_gscn_from_ss_ref, mixed_bands)\n   ASSERT_EQ(25107U, gscn.value());\n }\n \n-TEST(asd, asd)\n+TEST(test_is_gscn_valid_given_band, mixed_bands)\n {\n   ASSERT_FALSE(band_helper::is_gscn_valid_given_band(5300U, nr_band::n1, subcarrier_spacing::kHz15).is_error());\n   ASSERT_TRUE(band_helper::is_gscn_valid_given_band(5500U, nr_band::n1, subcarrier_spacing::kHz15).is_error());",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\eeaefed.json"
+}

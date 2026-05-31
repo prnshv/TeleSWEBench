@@ -1,0 +1,498 @@
+{
+  "commit_id": "da971ab4ff92372eb7bc21e83e607abf9946bc73",
+  "commit_sha_short": "da971ab",
+  "commit_folder": "da971ab",
+  "commit_message": "phy: remove mac dependency",
+  "commit_message_first_line": "phy: remove mac dependency",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/da971ab4ff92372eb7bc21e83e607abf9946bc73",
+  "commit_date": "2024-01-23T10:13:34Z",
+  "parent_sha": "5dd35b08e2c2e9a49fcf24bb6d19b8cf695e8614",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/5dd35b08e2c2e9a49fcf24bb6d19b8cf695e8614",
+  "code_changes": [
+    {
+      "filename": "include/srsran/fapi/messages.h",
+      "patch": "@@ -14,8 +14,6 @@\n #include \"srsran/ran/csi_rs/csi_rs_types.h\"\n #include \"srsran/ran/csi_rs/frequency_allocation_type.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/pdcch/coreset.h\"\n #include \"srsran/ran/pdcch/dci_packing.h\"\n@@ -28,6 +26,8 @@\n #include \"srsran/ran/pusch/pusch_context.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n #include \"srsran/ran/rnti.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/hal/phy/upper/channel_processors/hw_accelerator_pdsch_enc.h",
+      "patch": "@@ -15,8 +15,8 @@\n \n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/hal/hw_accelerator.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n namespace hal {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/hal/phy/upper/channel_processors/pusch/hw_accelerator_pusch_dec.h",
+      "patch": "@@ -14,8 +14,8 @@\n #pragma once\n \n #include \"srsran/hal/hw_accelerator.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n namespace hal {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/ldpc/ldpc.h",
+      "patch": "@@ -15,7 +15,7 @@\n /// according to TS38.212 Section 5.3.2.\n #pragma once\n \n-#include \"srsran/ran/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n #include \"srsran/support/math_utils.h\"\n #include \"srsran/support/units.h\"\n #include <array>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/codeblock_metadata.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/short/short_block_detector.h",
+      "patch": "@@ -15,7 +15,7 @@\n \n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n #include <memory>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/short/short_block_encoder.h",
+      "patch": "@@ -14,7 +14,7 @@\n #pragma once\n \n #include \"srsran/adt/span.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n #include <memory>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_modulation/demodulation_mapper.h",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/adt/complex.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_modulation/evm_calculator.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/adt/complex.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_modulation/modulation_mapper.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/adt/bit_buffer.h\"\n #include \"srsran/adt/complex.h\"\n #include \"srsran/adt/span.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pdsch_processor.h",
+      "patch": "@@ -17,8 +17,8 @@\n #include \"srsran/phy/upper/channel_coding/ldpc/ldpc.h\"\n #include \"srsran/phy/upper/dmrs_mapping.h\"\n #include \"srsran/phy/upper/rb_allocation.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n #include \"srsran/ran/pdsch/pdsch_context.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/slot_point.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pucch_processor.h",
+      "patch": "@@ -16,8 +16,8 @@\n #include \"srsran/phy/upper/channel_processors/pucch_processor_result.h\"\n #include \"srsran/phy/upper/channel_processors/pucch_uci_message.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n #include \"srsran/ran/pucch/pucch_context.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/slot_point.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_decoder.h",
+      "patch": "@@ -15,8 +15,8 @@\n \n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_demodulator.h",
+      "patch": "@@ -18,7 +18,7 @@\n #include \"srsran/phy/upper/dmrs_mapping.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n #include \"srsran/phy/upper/rb_allocation.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_processor.h",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/phy/upper/rb_allocation.h\"\n #include \"srsran/phy/upper/rx_buffer.h\"\n #include \"srsran/ran/pusch/pusch_context.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/ran/uci/uci_constants.h\"\n #include \"srsran/ran/uci/uci_part2_size_description.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/ulsch_demultiplex.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/phy/upper/dmrs_mapping.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n /// \\file\n /// \\brief Uplink Shared Channel demultiplexer interface declaration.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/uci/uci_decoder.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"uci_status.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/codeblock_metadata.h",
+      "patch": "@@ -18,7 +18,7 @@\n #include \"srsran/adt/static_vector.h\"\n // TODO(david,borja): fix dependency.\n #include \"srsran/phy/upper/channel_coding/ldpc/ldpc.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/sch/sch_constants.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/dlsch_info.h",
+      "patch": "@@ -13,9 +13,9 @@\n #include \"srsran/adt/bounded_bitset.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/dmrs.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/sch/sch_segmentation.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n #include \"srsran/support/units.h\"\n \n namespace srsran {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/pdsch_mcs.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/pusch_mcs.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/ulsch_info.h",
+      "patch": "@@ -14,9 +14,9 @@\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/dmrs.h\"\n-#include \"srsran/ran/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/ldpc_base_graph.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/sch/sch_segmentation.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n #include \"srsran/support/units.h\"\n \n namespace srsran {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/ran/resource_allocation/ofdm_symbol_range.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n+#include \"sliv.h\"\n #include \"srsran/adt/interval.h\"\n #include \"srsran/ran/frame_types.h\"\n-#include \"srsran/ran/sliv.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/sch/sch_mcs.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/adt/bounded_integer.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/sch/sch_segmentation.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/ldpc_base_graph.h\"\n+#include \"ldpc_base_graph.h\"\n #include \"srsran/support/units.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/sch/tbs_calculator.h",
+      "patch": "@@ -13,7 +13,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"sch_mcs.h\"\n \n #include <array>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/tdd/tdd_ul_dl_config.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n-#include \"srsran/ran/ofdm_symbol_range.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/config/bwp_configuration.h",
+      "patch": "@@ -16,13 +16,13 @@\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/frame_types.h\"\n-#include \"srsran/ran/ofdm_symbol_range.h\"\n #include \"srsran/ran/pcch/pcch_configuration.h\"\n #include \"srsran/ran/pdcch/coreset.h\"\n #include \"srsran/ran/pdcch/search_space.h\"\n #include \"srsran/ran/prach/rach_config_common.h\"\n #include \"srsran/ran/prach/restricted_set_config.h\"\n #include \"srsran/ran/pucch/pucch_configuration.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/resource_block.h\"\n #include \"srsran/scheduler/vrb_alloc.h\"\n #include <bitset>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/config/scheduler_expert_config.h",
+      "patch": "@@ -19,7 +19,7 @@\n #include \"srsran/ran/pdcch/aggregation_level.h\"\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/sib/sib_configuration.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/rnti.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_pucch_format.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n-#include \"srsran/ran/ofdm_symbol_range.h\"\n #include \"srsran/ran/pucch/pucch_configuration.h\"\n #include \"srsran/ran/pucch/pucch_mapping.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/resource_allocation/rb_interval.h\"\n #include \"srsran/ran/rnti.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_slot_handler.h",
+      "patch": "@@ -20,15 +20,15 @@\n #include \"srsran/ran/csi_rs/csi_rs_types.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/lcid.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n-#include \"srsran/ran/ofdm_symbol_range.h\"\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n #include \"srsran/ran/prach/prach_format_type.h\"\n #include \"srsran/ran/precoding/precoding_constants.h\"\n #include \"srsran/ran/pucch/pucch_mapping.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/rnti.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/scheduler/vrb_alloc.h",
+      "patch": "@@ -13,8 +13,8 @@\n #include \"resource_block_group.h\"\n #include \"srsran/adt/bounded_bitset.h\"\n #include \"srsran/ran/resource_allocation/rb_interval.h\"\n+#include \"srsran/ran/resource_allocation/sliv.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/ran/sliv.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/pdsch.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"srsran/fapi_adaptor/phy/messages/pdsch.h\"\n #include \"srsran/fapi_adaptor/precoding_matrix_repository.h\"\n #include \"srsran/ran/precoding/precoding_codebooks.h\"\n-#include \"srsran/ran/sch_dmrs_power.h\"\n+#include \"srsran/ran/sch/sch_dmrs_power.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/transmitter/ofh_data_flow_cplane_scheduling_commands.h",
+      "patch": "@@ -11,8 +11,8 @@\n #pragma once\n \n #include \"srsran/ofh/serdes/ofh_message_properties.h\"\n-#include \"srsran/ran/ofdm_symbol_range.h\"\n #include \"srsran/ran/prach/prach_subcarrier_spacing.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/slot_point.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/transmitter/ofh_data_flow_uplane_downlink_data.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/ofdm_symbol_range.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/slot_point.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_processor_impl.cpp",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/phy/upper/channel_processors/pusch/pusch_decoder_buffer.h\"\n #include \"srsran/phy/upper/unique_rx_buffer.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n-#include \"srsran/ran/sch_dmrs_power.h\"\n+#include \"srsran/ran/sch/sch_dmrs_power.h\"\n #include \"srsran/ran/uci/uci_formatters.h\"\n #include \"srsran/ran/uci/uci_part2_size_calculator.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/CMakeLists.txt",
+      "patch": "@@ -34,6 +34,7 @@ add_library(srsran_ran\n         pusch/ulsch_info.cpp\n         uci/uci_part2_size_calculator.cpp\n         band_helper.cpp\n+        sch/tbs_calculator.cpp\n         resource_allocation/resource_allocation_frequency.cpp\n         sch/sch_segmentation.cpp\n         ssb_freq_position_generator.cpp",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ran/resource_allocation/resource_allocation_frequency.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n-#include \"srsran/ran/sliv.h\"\n+#include \"srsran/ran/resource_allocation/sliv.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/sch/tbs_calculator.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"tbs_calculator.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/ran/resource_block.h\"\n #include \"srsran/support/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/CMakeLists.txt",
+      "patch": "@@ -29,7 +29,6 @@ set(SOURCES\n         support/pusch/pusch_default_time_allocation.cpp\n         support/pusch/pusch_dmrs_symbol_mask.cpp\n         support/mcs_tbs_calculator.cpp\n-        support/tbs_calculator.cpp\n         support/prbs_calculator.cpp\n         support/mcs_calculator.cpp\n         support/pdcch_aggregation_level_calculator.cpp",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.cpp",
+      "patch": "@@ -17,8 +17,8 @@\n #include \"../support/pdsch/pdsch_default_time_allocation.h\"\n #include \"../support/pdsch/pdsch_resource_allocation.h\"\n #include \"../support/sch_pdu_builder.h\"\n-#include \"../support/tbs_calculator.h\"\n #include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/compiler.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/config/serving_cell_config_factory.cpp",
+      "patch": "@@ -11,13 +11,13 @@\n #include \"srsran/scheduler/config/serving_cell_config_factory.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/duplex_mode.h\"\n-#include \"srsran/ran/ofdm_symbol_range.h\"\n #include \"srsran/ran/pdcch/pdcch_candidates.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_occasions.h\"\n #include \"srsran/ran/pdcch/search_space.h\"\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/ran/prach/prach_helper.h\"\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/scheduler/config/csi_helper.h\"\n #include \"srsran/srslog/srslog.h\"\n #include <set>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_calculator.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -11,11 +11,11 @@\n #include \"mcs_tbs_calculator.h\"\n #include \"dmrs_helpers.h\"\n #include \"sch_pdu_builder.h\"\n-#include \"tbs_calculator.h\"\n #include \"srsran/adt/variant.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/ran/uci/uci_mapping.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/adt/optional.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/outer_loop_link_adaptation.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"math.h\"\n #include \"srsran/adt/interval.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/prbs_calculator.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"prbs_calculator.h\"\n-#include \"tbs_calculator.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/prbs_calculator.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n-#include \"srsran/ran/modulation_scheme.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/support/math_utils.h\"\n \n namespace srsran {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/support/sch_pdu_builder.cpp",
+      "patch": "@@ -11,13 +11,13 @@\n #include \"../ue_scheduling/ue_channel_state_manager.h\"\n #include \"dmrs_helpers.h\"\n #include \"pdsch/pdsch_default_time_allocation.h\"\n-#include \"tbs_calculator.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/csi_report/csi_report_config_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pusch_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_pusch_size.h\"\n #include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/scheduler/config/serving_cell_config.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/harq_process.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n #include \"srsran/ran/rnti.h\"\n-#include \"srsran/ran/sch_mcs.h\"\n+#include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n #include \"srsran/scheduler/harq_id.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_srb0_scheduler.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"../support/dmrs_helpers.h\"\n #include \"../support/pdsch/pdsch_resource_allocation.h\"\n #include \"../support/prbs_calculator.h\"\n-#include \"../support/tbs_calculator.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/CMakeLists.txt",
+      "patch": "@@ -29,7 +29,7 @@ target_link_libraries(pdsch_processor_benchmark\n         srsran_channel_equalizer\n         srsran_channel_precoder\n         srsran_channel_processors\n-        srsran_sched\n+        srsran_ran\n         srslog\n         srsvec)\n add_test(pdsch_processor_benchmark pdsch_processor_benchmark -m silent -R 1 -B 1 -T 2 -P pdsch_scs15_5MHz_qpsk_min -t generic)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pdsch_encoder_hwacc_benchmark.cpp",
+      "patch": "@@ -14,12 +14,11 @@\n /// The benchmark compares the latency of a hardware-accelerated PDSCH encoder implementation to that of the generic\n /// one.\n \n-#include \"../../../../../lib/scheduler/support/tbs_calculator.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"srsran/phy/upper/tx_buffer_pool.h\"\n #include \"srsran/phy/upper/unique_tx_buffer.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/srsran_test.h\"\n #include \"srsran/support/test_utils.h\"\n #ifdef DPDK_FOUND",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pdsch_processor_benchmark.cpp",
+      "patch": "@@ -9,13 +9,13 @@\n  */\n \n #include \"../../../../unittests/phy/upper/channel_processors/pdsch_processor_test_doubles.h\"\n-#include \"../../../lib/scheduler/support/tbs_calculator.h\"\n #include \"srsran/phy/support/support_factories.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"srsran/phy/upper/tx_buffer_pool.h\"\n #include \"srsran/phy/upper/unique_tx_buffer.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n #include \"srsran/ran/precoding/precoding_codebooks.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/benchmark_utils.h\"\n #include \"srsran/support/executors/task_worker_pool.h\"\n #include \"srsran/support/srsran_test.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pusch/CMakeLists.txt",
+      "patch": "@@ -14,7 +14,6 @@ if (ENABLE_PUSCH_HWACC)\n     add_executable(pusch_decoder_hwacc_benchmark pusch_decoder_hwacc_benchmark.cpp)\n     set(PUSCH_DECODER_HWACC_BENCHMARK_LIBRARIES srsran_phy_support \n             srsran_channel_processors\n-            srsran_sched\n             srslog\n             srsvec)\n     if (DPDK_FOUND)\n@@ -30,7 +29,6 @@ set(PUSCH_PROCESSOR_LIBRARIES srsran_phy_support\n         srsran_channel_equalizer\n         srsran_channel_precoder\n         srsran_channel_processors\n-        srsran_sched\n         srslog\n         srsvec)\n ",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pusch/pusch_decoder_hwacc_benchmark.cpp",
+      "patch": "@@ -14,13 +14,12 @@\n /// The benchmark compares the latency of a hardware-accelerated PUSCH decoder implementation to that of the generic\n /// one.\n \n-#include \"../../../../../../lib/scheduler/support/tbs_calculator.h\"\n #include \"../../../../../unittests/phy/upper/channel_processors/pusch/pusch_decoder_notifier_spy.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/factories.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/pusch_decoder_buffer.h\"\n #include \"srsran/phy/upper/rx_buffer_pool.h\"\n #include \"srsran/phy/upper/unique_rx_buffer.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/test_utils.h\"\n #ifdef DPDK_FOUND\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc.h\"",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pusch/pusch_processor_benchmark.cpp",
+      "patch": "@@ -9,12 +9,12 @@\n  */\n \n #include \"../../../lib/phy/upper/rx_buffer_pool_impl.h\"\n-#include \"../../../lib/scheduler/support/tbs_calculator.h\"\n #include \"srsran/phy/support/resource_grid_reader.h\"\n #include \"srsran/phy/support/resource_grid_writer.h\"\n #include \"srsran/phy/support/support_factories.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/factories.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/pusch_processor_result_notifier.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/benchmark_utils.h\"\n #include \"srsran/support/complex_normal_random.h\"\n #include \"srsran/support/executors/task_worker_pool.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_coding/ldpc/ldpc_rate_matcher_test_data.h",
+      "patch": "@@ -13,7 +13,7 @@\n // This file was generated using the following MATLAB class on 14-09-2023 (seed 0):\n //   + \"srsLDPCRateMatcherUnittest.m\"\n \n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/support/file_vector.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_coding/short/short_block_detector_test_data.h",
+      "patch": "@@ -14,7 +14,7 @@\n //   + \"srsShortBlockDetectorUnittest.m\"\n \n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/support/file_vector.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_coding/short/short_block_encoder_test_data.h",
+      "patch": "@@ -13,7 +13,7 @@\n // This file was generated using the following MATLAB class on 14-09-2023 (seed 0):\n //   + \"srsShortBlockEncoderUnittest.m\"\n \n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/support/file_vector.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch/pusch_processor_unittest.cpp",
+      "patch": "@@ -18,7 +18,7 @@\n #include \"ulsch_demultiplex_test_doubles.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/factories.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n-#include \"srsran/ran/sch_dmrs_power.h\"\n+#include \"srsran/ran/sch/sch_dmrs_power.h\"\n #include \"srsran/srsvec/compare.h\"\n #include <fmt/ostream.h>\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/uci/uci_decoder_test_data.h",
+      "patch": "@@ -15,7 +15,7 @@\n \n #include \"srsran/phy/upper/channel_processors/uci/uci_decoder.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/ran/modulation_scheme.h\"\n+#include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/support/file_vector.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/CMakeLists.txt",
+      "patch": "@@ -29,6 +29,10 @@ gtest_discover_tests(csi_report_on_pusch_validator_test)\n add_library(du_test_suite ssb_coreset0_freq_pos_checker.cpp)\n target_link_libraries(du_test_suite srsran_ran gtest)\n \n+add_executable(tbs_calculator_test sch/tbs_calculator_test.cpp)\n+target_link_libraries(tbs_calculator_test srsran_sched srslog)\n+add_test_vector(tbs_calculator_test none \"\")\n+\n add_executable(test_ssb_coreset0_freq_pos_generator test_ssb_coreset0_freq_pos_generator.cpp)\n target_link_libraries(test_ssb_coreset0_freq_pos_generator srsran_support du_test_suite gtest gtest_main)\n add_test(test_ssb_coreset0_freq_pos_generator test_ssb_coreset0_freq_pos_generator)",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/ran/sch/tbs_calculator_test.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"tbs_calculator_test_data.h\"\n+#include \"tests/unittests/ran/sch/tbs_calculator_test_data.h\"\n #include \"srsran/support/srsran_test.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/sch/tbs_calculator_test_data.h",
+      "patch": "@@ -10,10 +10,10 @@\n \n #pragma once\n \n-// This file was generated using the following MATLAB class on 14-09-2023 (seed 0):\n+// This file was generated using the following MATLAB class on 21-01-2024 (seed 0):\n //   + \"srsTBSCalculatorUnittest.m\"\n \n-#include \"lib/scheduler/support/tbs_calculator.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include <vector>\n \n namespace srsran {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/CMakeLists.txt",
+      "patch": "@@ -30,10 +30,6 @@ add_executable(pusch_dmrs_symbol_mask_test pusch/pusch_dmrs_symbol_mask_test.cpp\n target_link_libraries(pusch_dmrs_symbol_mask_test srsran_sched srslog gtest gtest_main)\n add_test(pusch_dmrs_symbol_mask_test pusch_dmrs_symbol_mask_test)\n \n-add_executable(tbs_calculator_test tbs_calculator_test.cpp)\n-target_link_libraries(tbs_calculator_test srsran_sched srslog)\n-add_test_vector(tbs_calculator_test none \"\")\n-\n add_executable(prbs_calculator_test prbs_calculator_test.cpp)\n target_link_libraries(prbs_calculator_test srsran_sched srslog gtest gtest_main)\n add_test(prbs_calculator_test prbs_calculator_test)",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/mcs_tbs_calculator_test.cpp",
+      "patch": "@@ -11,10 +11,10 @@\n #include \"lib/scheduler/support/dmrs_helpers.h\"\n #include \"lib/scheduler/support/mcs_tbs_calculator.h\"\n #include \"lib/scheduler/support/sch_pdu_builder.h\"\n-#include \"lib/scheduler/support/tbs_calculator.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/ran/uci/uci_mapping.h\"\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/prbs_calculator_test.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"lib/scheduler/support/prbs_calculator.h\"\n-#include \"lib/scheduler/support/tbs_calculator.h\"\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n+#include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/support/srsran_test.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 69,
+  "commit_details_path": ".\\commit_metadata\\da971ab.json"
+}

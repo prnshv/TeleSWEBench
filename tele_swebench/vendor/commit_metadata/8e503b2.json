@@ -1,0 +1,22 @@
+{
+  "commit_id": "8e503b267d0d1fbfa948ccf0dd129e75f0dd5dee",
+  "commit_sha_short": "8e503b2",
+  "commit_folder": "8e503b2",
+  "commit_message": "sched: fix generation of PUSCH time domain allocation default A table",
+  "commit_message_first_line": "sched: fix generation of PUSCH time domain allocation default A table",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8e503b267d0d1fbfa948ccf0dd129e75f0dd5dee",
+  "commit_date": "2024-02-22T12:53:33Z",
+  "parent_sha": "c805e0f5b7ae9c901ba1bba57a729053c6cc9c05",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/c805e0f5b7ae9c901ba1bba57a729053c6cc9c05",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/pusch/pusch_default_time_allocation.cpp",
+      "patch": "@@ -118,7 +118,7 @@ srsran::pusch_default_time_allocations_default_A_table(cyclic_prefix cp, subcarr\n       pusch_default_time_allocation_config cfg = pusch_default_time_allocation_default_A_get(cp_, i, scs_);\n       table[i].k2                              = cfg.k2;\n       table[i].map_type                        = cfg.mapping_type;\n-      table[i].symbols                         = {cfg.start_symbol, cfg.duration};\n+      table[i].symbols                         = {cfg.start_symbol, cfg.start_symbol + cfg.duration};\n     }\n     return table;\n   };",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\8e503b2.json"
+}

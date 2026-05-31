@@ -1,0 +1,29 @@
+{
+  "commit_id": "2a7618f8155238babe6671658cb1454d6a53e709",
+  "commit_sha_short": "2a7618f",
+  "commit_folder": "2a7618f",
+  "commit_message": "support: change memory ordering for fail path of lockfree stack",
+  "commit_message_first_line": "support: change memory ordering for fail path of lockfree stack",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/2a7618f8155238babe6671658cb1454d6a53e709",
+  "commit_date": "2024-01-11T18:01:19Z",
+  "parent_sha": "9f370522ee8421df68c729a73014460d4b4245c4",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9f370522ee8421df68c729a73014460d4b4245c4",
+  "code_changes": [
+    {
+      "filename": "include/srsran/support/memory_pool/lockfree_object_pool.h",
+      "patch": "@@ -54,8 +54,9 @@ class lockfree_index_stack\n     // We use memory ordering \"acquire\" to form a \"synchronizes-with\" relationship with the release in push().\n     // The \"acquire\" ordering also ensures that the next_idx[old_top.index] read is not reordered to happen before the\n     // atomic operation.\n-    // In case of failure, \"top\" remains unchanged, so the operation can have \"relaxed\" ordering.\n-    while (not top.compare_exchange_weak(old_top, new_top, std::memory_order_acquire, std::memory_order_relaxed)) {\n+    // In case of failure, \"top\" remains unchanged, but we need to re-read the next_idx[] which could have changed due\n+    // to a concurrent push(). So, the operation can have \"acquired\" ordering.\n+    while (not top.compare_exchange_weak(old_top, new_top, std::memory_order_acquire, std::memory_order_acquire)) {\n       if (old_top.index == npos()) {\n         return npos();\n       }",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -45,14 +45,13 @@ namespace {\n struct memory_arena_linear_allocator {\n   /// Pointer to the memory block obtained from byte_buffer_segment_pool.\n   void* mem_block = nullptr;\n+  /// Size of the memory block in bytes.\n+  size_t mem_block_size;\n   /// Offset in bytes from the beginning of the memory block, determining where the next allocation will be made.\n   size_t offset = 0;\n \n-  memory_arena_linear_allocator() noexcept :\n-    mem_block([]() {\n-      static auto& pool = detail::get_default_byte_buffer_segment_pool();\n-      return pool.allocate_node(pool.memory_block_size());\n-    }())\n+  memory_arena_linear_allocator(void* mem_block_, size_t mem_block_size_) noexcept :\n+    mem_block(mem_block_), mem_block_size(mem_block_size_)\n   {\n   }\n \n@@ -65,7 +64,7 @@ struct memory_arena_linear_allocator {\n \n   bool empty() const { return mem_block == nullptr; }\n \n-  size_t space_left() const { return detail::get_default_byte_buffer_segment_pool().memory_block_size() - offset; }\n+  size_t space_left() const { return mem_block_size - offset; }\n };\n \n /// Allocator for byte_buffer control_block that will leverage the \\c memory_arena_linear_allocator.\n@@ -235,14 +234,20 @@ byte_buffer::node_t* byte_buffer::create_head_segment(size_t headroom)\n   static auto&        pool       = detail::get_default_byte_buffer_segment_pool();\n   static const size_t block_size = pool.memory_block_size();\n \n-  // Create control block using allocator.\n-  memory_arena_linear_allocator arena;\n-  if (arena.empty()) {\n+  // Allocate new node.\n+  void* mem_block = pool.allocate_node(block_size);\n+  if (mem_block == nullptr) {\n+    // Pool is depleted.\n     byte_buffer::warn_alloc_failure();\n     return nullptr;\n   }\n+\n+  // Create control block using allocator.\n+  memory_arena_linear_allocator arena{mem_block, block_size};\n   ctrl_blk_ptr = std::allocate_shared<control_block>(control_block_allocator<control_block>{arena});\n   if (ctrl_blk_ptr == nullptr) {\n+    byte_buffer::warn_alloc_failure();\n+    pool.deallocate_node(mem_block);\n     return nullptr;\n   }\n \n@@ -266,12 +271,14 @@ byte_buffer::node_t* byte_buffer::create_segment(size_t headroom)\n   static const size_t block_size = pool.memory_block_size();\n \n   // Allocate memory block.\n-  memory_arena_linear_allocator arena;\n-  if (arena.empty()) {\n+  void* mem_block = pool.allocate_node(block_size);\n+  if (mem_block == nullptr) {\n     byte_buffer::warn_alloc_failure();\n     return nullptr;\n   }\n-  void* segment_start = arena.allocate(sizeof(node_t), alignof(node_t));\n+\n+  memory_arena_linear_allocator arena{mem_block, block_size};\n+  void*                         segment_start = arena.allocate(sizeof(node_t), alignof(node_t));\n   srsran_assert(block_size > arena.offset, \"The memory block provided by the pool is too small\");\n   size_t segment_size  = block_size - arena.offset;\n   void*  payload_start = arena.allocate(segment_size, 1);",
+      "additions": 19,
+      "deletions": 12,
+      "changes": 31
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\2a7618f.json"
+}

@@ -1,0 +1,22 @@
+{
+  "commit_id": "6c0da481db143b991f919f077c690deab1cb8db9",
+  "commit_sha_short": "6c0da48",
+  "commit_folder": "6c0da48",
+  "commit_message": "asn1_utils,fixed_octstring: fix for size = 8",
+  "commit_message_first_line": "asn1_utils,fixed_octstring: fix for size = 8",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/6c0da481db143b991f919f077c690deab1cb8db9",
+  "commit_date": "2024-02-26T20:33:09Z",
+  "parent_sha": "e74856a7f8abf9b9f7871c3ee8e3c4d93a41805f",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/e74856a7f8abf9b9f7871c3ee8e3c4d93a41805f",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -929,7 +929,7 @@ uint64_t octet_string_helper::to_uint(const byte_buffer& buf)\n void octet_string_helper::to_octet_string(srsran::span<uint8_t> buf, uint64_t number)\n {\n   uint64_t nbytes = buf.size();\n-  if ((static_cast<uint64_t>(1U) << (8U * nbytes)) <= number) {\n+  if (nbytes < 8 and (static_cast<uint64_t>(1U) << (8U * nbytes)) <= number) {\n     log_error(\"Integer={} does not fit in an OCTET STRING of size={}\", number, nbytes);\n     return;\n   }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\6c0da48.json"
+}

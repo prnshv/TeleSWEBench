@@ -1,0 +1,29 @@
+{
+  "commit_id": "38d976065c36506f1d52529dcc435e43b6040a9f",
+  "commit_sha_short": "38d9760",
+  "commit_folder": "38d9760",
+  "commit_message": "band_helper: add function to retrieve n_ta_offset value from band",
+  "commit_message_first_line": "band_helper: add function to retrieve n_ta_offset value from band",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/38d976065c36506f1d52529dcc435e43b6040a9f",
+  "commit_date": "2023-03-14T18:20:44Z",
+  "parent_sha": "8e59cbe6e7f65e3d769e2990bc093a7a16d1eb43",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/8e59cbe6e7f65e3d769e2990bc093a7a16d1eb43",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -15,6 +15,7 @@\n \n #include \"srsran/adt/expected.h\"\n #include \"srsran/adt/optional.h\"\n+#include \"srsran/ran/n_ta_offset.h\"\n #include \"srsran/ran/ssb_properties.h\"\n #include <stdint.h>\n \n@@ -288,6 +289,11 @@ unsigned get_nof_coreset0_rbs_not_intersecting_ssb(unsigned              cset0_i\n                                                    ssb_offset_to_pointA  offset_to_point_A,\n                                                    ssb_subcarrier_offset k_ssb);\n \n+/// \\brief Returns the n_ta_offset for a given band.\n+/// \\param[in] band is <em>NR operating band<\\em>, as per TS 38.104, Table 5.2-1. Only FR1 values are supported.\n+/// \\return Value of n_ta_offset.\n+n_ta_offset get_ta_offset(nr_band band);\n+\n } // namespace band_helper\n \n } // namespace srsran",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -765,3 +765,13 @@ unsigned srsran::band_helper::get_nof_coreset0_rbs_not_intersecting_ssb(unsigned\n                                    crb_ssb_0 - cset0_cfg.offset + cset0_cfg.nof_rb_coreset};\n   return cset0_cfg.nof_rb_coreset - cset0_prbs.intersect(ssb_prbs).length();\n }\n+\n+n_ta_offset srsran::band_helper::get_ta_offset(nr_band band)\n+{\n+  if (get_freq_range(band) == frequency_range::FR1) {\n+    // assume no LTE-NR coexistence\n+    return n_ta_offset::n25600;\n+  } else {\n+    return n_ta_offset::n13792;\n+  }\n+}\n\\ No newline at end of file",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\38d9760.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "624df9b7586a12a0b0f388a9430b960135ed2d9f",
+  "commit_sha_short": "624df9b",
+  "commit_folder": "624df9b",
+  "commit_message": "ran: add helper functions to verify whether a valid CORESET#0 configuration exists given CORESET#0 index and SS#0 index",
+  "commit_message_first_line": "ran: add helper functions to verify whether a valid CORESET#0 configuration exists given CORESET#0 index and SS#0 index",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/624df9b7586a12a0b0f388a9430b960135ed2d9f",
+  "commit_date": "2023-06-26T05:39:38Z",
+  "parent_sha": "7b222d5b3508aa41b908040d150526cf0b64b786",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7b222d5b3508aa41b908040d150526cf0b64b786",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -363,6 +363,25 @@ unsigned get_nof_coreset0_rbs_not_intersecting_ssb(unsigned              cset0_i\n /// \\return Value of n_ta_offset.\n n_ta_offset get_ta_offset(nr_band band);\n \n+/// \\brief Verifies the validity of the combination of given CORESET#0 Index and SearchSpace#0 Index.\n+///\n+/// \\param[in] dl_arfcn is <em>DL-ARFCN<\\em> corresponding to \\f$F_{REF}\\f$, as per TS 38.104, Section 5.4.2.1.\n+/// \\param[in] nr_band is <em>NR operating band<\\em>, as per TS 38.104, Table 5.2-1. Only FR1 values are supported.\n+/// \\param[in] n_rbs is <em>Transmission bandwidth<\\em> or \\f$N_{RB}\\f$ in number of RBs, as per TS 38.104, Table 5.2-1.\n+/// \\param[in] scs_common is <em>subCarrierSpacingCommon<\\em>, as per TS 38.331.\n+/// \\param[in] scs_ssb is ssb subcarrier spacing.\n+/// \\param[in] ss0_idx SearchSpace#0 index.\n+/// \\param[in] cset0_idx CORESET#0 index.\n+/// \\return True if given Coreset0 and SS0 indices are valid and CORESET#0 CRBs do not intersect with the SSB. False,\n+/// otherwise.\n+bool is_ss0_and_coreset0_index_valid(unsigned           dl_arfcn,\n+                                     nr_band            band,\n+                                     unsigned           n_rbs,\n+                                     subcarrier_spacing scs_common,\n+                                     subcarrier_spacing scs_ssb,\n+                                     uint8_t            ss0_idx,\n+                                     unsigned           cset0_idx);\n+\n } // namespace band_helper\n \n } // namespace srsran",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -1304,3 +1304,34 @@ n_ta_offset srsran::band_helper::get_ta_offset(nr_band band)\n     return n_ta_offset::n13792;\n   }\n }\n+\n+bool srsran::band_helper::is_ss0_and_coreset0_index_valid(unsigned           dl_arfcn,\n+                                                          nr_band            band,\n+                                                          unsigned           n_rbs,\n+                                                          subcarrier_spacing scs_common,\n+                                                          subcarrier_spacing scs_ssb,\n+                                                          uint8_t            ss0_idx,\n+                                                          unsigned           cset0_idx)\n+{\n+  srsran_assert(scs_ssb < subcarrier_spacing::kHz60,\n+                \"Only 15kHz and 30kHz currently supported for SSB subcarrier spacing\");\n+\n+  // Get f_ref, point_A from dl_arfcn, band and bandwidth.\n+  ssb_freq_position_generator du_cfg{dl_arfcn, band, n_rbs, scs_common, scs_ssb};\n+\n+  // Iterate over different SSB candidates and verify the validity of CORESET#0 index.\n+  ssb_freq_location ssb = du_cfg.get_next_ssb_location();\n+  while (ssb.is_valid) {\n+    // Iterate over the searchSpace0_indices and corresponding configurations.\n+    optional<unsigned> coreset0_idx = get_coreset0_index(\n+        band, n_rbs, scs_common, scs_ssb, ssb.offset_to_point_A, ssb.k_ssb, du_cfg.get_ssb_first_symbol(), ss0_idx);\n+\n+    if (coreset0_idx.has_value() and coreset0_idx.value() == cset0_idx) {\n+      return true;\n+    }\n+\n+    ssb = du_cfg.get_next_ssb_location();\n+  }\n+\n+  return false;\n+}",
+      "additions": 31,
+      "deletions": 0,
+      "changes": 31
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\624df9b.json"
+}

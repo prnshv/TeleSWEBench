@@ -1,0 +1,43 @@
+{
+  "commit_id": "55c5c3eafa60101559b20394d45e61ccbaa93d6a",
+  "commit_sha_short": "55c5c3e",
+  "commit_folder": "55c5c3e",
+  "commit_message": "sched: fix ssb_positions_in_burst for rrc-reconf\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "sched: fix ssb_positions_in_burst for rrc-reconf",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/55c5c3eafa60101559b20394d45e61ccbaa93d6a",
+  "commit_date": "2024-04-30T09:19:53Z",
+  "parent_sha": "39896ff1b6240b6201b30b6009658af4afeec3e3",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/39896ff1b6240b6201b30b6009658af4afeec3e3",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -110,9 +110,13 @@ uint32_t freq_to_nr_arfcn(double freq);\n /// \\param[in] band NR Band number.\n /// \\param[in] scs SSB Subcarrier spacing.\n /// \\return    The SSB pattern case if band and subcarrier spacing match, \\c invalid otherwise.\n-/// \\remark    The functionr returns \\c invalid if the band has SUL duplexing.\n+/// \\remark    The function returns \\c invalid if the band has SUL duplexing.\n ssb_pattern_case get_ssb_pattern(nr_band band, subcarrier_spacing scs);\n \n+/// \\brief Returns the L_max length of the \\c ssb-PositionsInBurst, as per TS 38.213, Section 4.1 and TS 38.331,\n+/// \\c ServingCellConfigCommon.\n+uint8_t get_ssb_l_max(nr_band band, subcarrier_spacing scs, uint32_t nr_arfcn);\n+\n /// \\brief Selects the most suitable SSB subcarrier spacing valid for this band.\n ///\n /// The most suitable SSB subcarrier spacing will be the one matching with the common subcarrier spacing if possible,",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du_manager/converters/asn1_rrc_config_helpers.cpp",
+      "patch": "@@ -3101,10 +3101,23 @@ bool srsran::srs_du::calculate_reconfig_with_sync_diff(asn1::rrc_nr::recfg_with_\n         serving_cell_cfg_common_s::n_timing_advance_offset_opts::n39936;\n   }\n \n-  // TODO: check how to fill this field.\n+  // As per \\c ssb-PositionsInBurst, in \\c ServingCellConfigCommon, TS 38.331, the length of \\c ssb-PositionsInBurst\n+  // needs to be set according to TS 38.213, Section 4.1.\n   out.sp_cell_cfg_common.ssb_positions_in_burst_present = true;\n-  out.sp_cell_cfg_common.ssb_positions_in_burst.set_medium_bitmap().from_number(\n-      static_cast<uint64_t>(du_cell_cfg.ssb_cfg.ssb_bitmap) >> static_cast<uint64_t>(56U));\n+  const uint8_t l_max =\n+      band_helper::get_ssb_l_max(du_cell_cfg.dl_carrier.band,\n+                                 du_cell_cfg.ssb_cfg.scs,\n+                                 static_cast<uint32_t>(du_cell_cfg.dl_cfg_common.freq_info_dl.absolute_freq_point_a));\n+  srsran_assert(l_max == 4U or l_max == 8U or l_max == 64U, \"L_max value {} not valid\", l_max);\n+  if (l_max == 4U) {\n+    out.sp_cell_cfg_common.ssb_positions_in_burst.set_short_bitmap().from_number(\n+        static_cast<uint64_t>(du_cell_cfg.ssb_cfg.ssb_bitmap) >> static_cast<uint64_t>(60U));\n+  } else if (l_max == 8U) {\n+    out.sp_cell_cfg_common.ssb_positions_in_burst.set_medium_bitmap().from_number(\n+        static_cast<uint64_t>(du_cell_cfg.ssb_cfg.ssb_bitmap) >> static_cast<uint64_t>(56U));\n+  } else {\n+    out.sp_cell_cfg_common.ssb_positions_in_burst.set_long_bitmap().from_number(du_cell_cfg.ssb_cfg.ssb_bitmap);\n+  }\n \n   out.sp_cell_cfg_common.ssb_periodicity_serving_cell_present = true;\n   asn1::number_to_enum(out.sp_cell_cfg_common.ssb_periodicity_serving_cell,",
+      "additions": 16,
+      "deletions": 3,
+      "changes": 19
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -18,6 +18,7 @@\n #include \"srsran/ran/pdcch/pdcch_type0_css_occasions.h\"\n #include \"srsran/ran/ssb_gscn.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n+#include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n using namespace srsran;\n@@ -350,7 +351,7 @@ static const std::array<n_rb_per_scs, 15> tx_bw_config_fr1 = {{\n     // clang-format on\n }};\n \n-static const nr_band_raster fetch_band_raster(nr_band band, optional<delta_freq_raster> delta_freq_raster)\n+static nr_band_raster fetch_band_raster(nr_band band, optional<delta_freq_raster> delta_freq_raster)\n {\n   if (band == nr_band::n41 or band == nr_band::n48 or band == nr_band::n77 or band == nr_band::n78 or\n       band == nr_band::n79 or band == nr_band::n90 or band == nr_band::n104) {\n@@ -830,6 +831,29 @@ ssb_pattern_case srsran::band_helper::get_ssb_pattern(nr_band band, subcarrier_s\n   return ssb_pattern_case::invalid;\n }\n \n+uint8_t srsran::band_helper::get_ssb_l_max(nr_band band, subcarrier_spacing scs, uint32_t nr_arfcn)\n+{\n+  // As per TS 38.213, Section 4.1.\n+  switch (get_ssb_pattern(band, scs)) {\n+    case ssb_pattern_case::A:\n+    case ssb_pattern_case::C: {\n+      const uint32_t ssb_cut_off_freq =\n+          is_paired_spectrum(band) ? CUTOFF_FREQ_ARFCN_CASE_A_B_C : CUTOFF_FREQ_ARFCN_CASE_C_UNPAIRED;\n+      return (nr_arfcn <= ssb_cut_off_freq) ? 4U : 8U;\n+    }\n+    case ssb_pattern_case::B: {\n+      return 8U;\n+    }\n+    case ssb_pattern_case::D:\n+    case ssb_pattern_case::E: {\n+      return 64U;\n+    }\n+    default:\n+      srsran_assertion_failure(\"SSB pattern case is invalid\");\n+      return 64U;\n+  }\n+}\n+\n subcarrier_spacing srsran::band_helper::get_most_suitable_ssb_scs(nr_band band, subcarrier_spacing scs_common)\n {\n   subcarrier_spacing lowest_scs = subcarrier_spacing::invalid;",
+      "additions": 25,
+      "deletions": 1,
+      "changes": 26
+    },
+    {
+      "filename": "tests/unittests/ran/band_helper_test.cpp",
+      "patch": "@@ -631,4 +631,16 @@ TEST(test_is_valid_ssb_arfcn, mixed_bands)\n   ASSERT_FALSE(band_helper::is_ssb_arfcn_valid_given_band(755712U, nr_band::n46, subcarrier_spacing::kHz30).is_error());\n   // ARFCN 433970 is NOT a valid SSB ARFCN for n1, expect an error.\n   ASSERT_TRUE(band_helper::is_ssb_arfcn_valid_given_band(785856U, nr_band::n46, subcarrier_spacing::kHz30).is_error());\n-}\n\\ No newline at end of file\n+}\n+\n+TEST(test_get_ssb_l_max, test_different_ssb_cases)\n+{\n+  // Case A.\n+  ASSERT_EQ(4, band_helper::get_ssb_l_max(nr_band::n3, subcarrier_spacing::kHz15, 363640U));\n+  // Case B.\n+  ASSERT_EQ(8, band_helper::get_ssb_l_max(nr_band::n5, subcarrier_spacing::kHz30, 176800U));\n+  // Case C, f < f_cutoff.\n+  ASSERT_EQ(4, band_helper::get_ssb_l_max(nr_band::n50, subcarrier_spacing::kHz30, 296400U));\n+  // Case C, f > f_cutoff.\n+  ASSERT_EQ(8, band_helper::get_ssb_l_max(nr_band::n104, subcarrier_spacing::kHz30, 860000U));\n+}",
+      "additions": 13,
+      "deletions": 1,
+      "changes": 14
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\55c5c3e.json"
+}

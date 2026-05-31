@@ -1,0 +1,925 @@
+{
+  "commit_id": "aadb246d268caa88d0ee99aca5c1ace03e814fc6",
+  "commit_sha_short": "aadb246",
+  "commit_folder": "aadb246",
+  "commit_message": "all: remove stray semicolons",
+  "commit_message_first_line": "all: remove stray semicolons",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/aadb246d268caa88d0ee99aca5c1ace03e814fc6",
+  "commit_date": "2025-04-01T17:01:31Z",
+  "parent_sha": "d8aa46b62c32a2725ba74a99acefa232c8f26aa3",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/d8aa46b62c32a2725ba74a99acefa232c8f26aa3",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/bit_buffer.h",
+      "patch": "@@ -405,7 +405,7 @@ class static_bit_buffer : public bit_buffer\n \n   static_bit_buffer(static_bit_buffer& other) = delete;\n \n-  static_bit_buffer(static_bit_buffer&& other) : bit_buffer(buffer, other.size()){};\n+  static_bit_buffer(static_bit_buffer&& other) : bit_buffer(buffer, other.size()) {}\n \n   /// Resizes the bit buffer.\n   void resize(unsigned new_size)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/byte_buffer_view.h",
+      "patch": "@@ -85,7 +85,7 @@ class byte_buffer_view\n \n   /// Returns a non-owning list of segments that compose the byte_buffer.\n   /// The segments are not const, so that the callee can modify the bytes, but not layout of the buffer.\n-  byte_buffer_segment_span_range modifiable_segments() { return {it, length()}; };\n+  byte_buffer_segment_span_range modifiable_segments() { return {it, length()}; }\n \n   /// \\brief Equality comparison between byte buffer view and another range.\n   template <typename T>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -1571,9 +1571,9 @@ class real_s\n public:\n   float value;\n   real_s() = default;\n-  SRSASN_CODE pack(bit_ref& bref) const { return pack_unconstrained_real(bref, value, true); };\n-  SRSASN_CODE unpack(cbit_ref& bref) { return unpack_unconstrained_real(value, bref, true); };\n-  void        to_json(json_writer& j) const { j.write_float(value); };\n+  SRSASN_CODE pack(bit_ref& bref) const { return pack_unconstrained_real(bref, value, true); }\n+  SRSASN_CODE unpack(cbit_ref& bref) { return unpack_unconstrained_real(value, bref, true); }\n+  void        to_json(json_writer& j) const { j.write_float(value); }\n };\n \n /*******************",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/cu_cp/cu_cp_types.h",
+      "patch": "@@ -168,19 +168,19 @@ struct cu_cp_five_g_s_tmsi {\n   {\n     srsran_assert(five_g_s_tmsi.has_value(), \"five_g_s_tmsi is not set\");\n     return five_g_s_tmsi.value().to_uint64() >> 38U;\n-  };\n+  }\n \n   uint8_t get_amf_pointer() const\n   {\n     srsran_assert(five_g_s_tmsi.has_value(), \"five_g_s_tmsi is not set\");\n     return (five_g_s_tmsi.value().to_uint64() & 0x3f00000000) >> 32U;\n-  };\n+  }\n \n   uint32_t get_five_g_tmsi() const\n   {\n     srsran_assert(five_g_s_tmsi.has_value(), \"five_g_s_tmsi is not set\");\n     return (five_g_s_tmsi.value().to_uint64() & 0xffffffff);\n-  };\n+  }\n \n   uint64_t to_number() const { return five_g_s_tmsi->to_uint64(); }\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/cu_cp/up_context.h",
+      "patch": "@@ -45,7 +45,7 @@ struct up_drb_context {\n };\n \n struct up_pdu_session_context {\n-  up_pdu_session_context(pdu_session_id_t id_) : id(id_){};\n+  up_pdu_session_context(pdu_session_id_t id_) : id(id_) {}\n   pdu_session_id_t                   id = pdu_session_id_t::invalid;\n   std::map<drb_id_t, up_drb_context> drbs;\n };",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/f1u/local_connector/f1u_local_connector.h",
+      "patch": "@@ -156,7 +156,7 @@ class f1u_gateway_du_bearer : public srs_du::f1u_du_gateway_bearer\n       return;\n     }\n     notifier->on_new_pdu(std::move(msg));\n-  };\n+  }\n   bool                                       stopped = false;\n   srs_du::f1u_du_gateway_bearer_rx_notifier* f1u_rx  = nullptr;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/gateways/baseband/baseband_gateway.h",
+      "patch": "@@ -14,11 +14,11 @@ class baseband_gateway : public baseband_gateway_base\n public:\n   /// \\brief Gets the transmitter optimal buffer size.\n   /// \\return The optimal transmit buffer size if available. Otherwise, zero.\n-  virtual unsigned get_transmitter_optimal_buffer_size() const { return 0; };\n+  virtual unsigned get_transmitter_optimal_buffer_size() const { return 0; }\n \n   /// \\brief Gets the receiver optimal buffer size.\n   /// \\return The optimal receive buffer size if available. Otherwise, zero.\n-  virtual unsigned get_receiver_optimal_buffer_size() const { return 0; };\n+  virtual unsigned get_receiver_optimal_buffer_size() const { return 0; }\n \n   /// Gets the transmitter gateway.\n   virtual baseband_gateway_transmitter& get_transmitter() = 0;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/nru/nru_packing.h",
+      "patch": "@@ -79,6 +79,6 @@ struct formatter<srsran::nru_pdu_type> {\n       format_to(ctx.out(), \"{}\", options[nru_pdu_type_to_uint(pdu_type)]);\n     }\n     return format_to(ctx.out(), \"reserved ({})\", nru_pdu_type_to_uint(pdu_type));\n-  };\n+  }\n };\n } // namespace fmt",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ofh/ethernet/dpdk/dpdk_ethernet_rx_buffer.h",
+      "patch": "@@ -34,7 +34,7 @@ class dpdk_rx_buffer_impl : public rx_buffer\n   {\n     mbuf       = other.mbuf;\n     other.mbuf = nullptr;\n-  };\n+  }\n \n   /// Move assignment operator.\n   dpdk_rx_buffer_impl& operator=(dpdk_rx_buffer_impl&& other) noexcept",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ofh/ethernet/ethernet_unique_buffer.h",
+      "patch": "@@ -79,7 +79,7 @@ class unique_rx_buffer\n   constexpr unique_rx_buffer() noexcept : storage_ptr(&empty_object), buffer_ptr(nullptr) {}\n \n   /// Default destructor.\n-  ~unique_rx_buffer() { storage_ptr->destroy(&buffer); };\n+  ~unique_rx_buffer() { storage_ptr->destroy(&buffer); }\n \n   /// Copy constructor and copy assignment are deleted.\n   unique_rx_buffer(const unique_rx_buffer& other)      = delete;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pucch/pucch_format1_map.h",
+      "patch": "@@ -76,7 +76,7 @@ class pucch_format1_map\n   bool contains(unsigned initial_cyclic_shift, unsigned time_domain_occ) const noexcept\n   {\n     return map.contains(convert_coords_to_index(initial_cyclic_shift, time_domain_occ));\n-  };\n+  }\n \n   /// \\brief Constructs a new element of the map in-place.\n   /// \\return True if no collision was detected and the object was inserted. False, otherwise.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/log_likelihood_ratio.h",
+      "patch": "@@ -59,14 +59,14 @@ class log_likelihood_ratio\n   ///@{\n \n   /// Converts the LLR to a plain \\c value_type value.\n-  explicit constexpr operator value_type() const { return value; };\n+  explicit constexpr operator value_type() const { return value; }\n   /// Converts the LLR to a plain \\c value_type value.\n-  constexpr value_type to_value_type() const { return value; };\n+  constexpr value_type to_value_type() const { return value; }\n \n   /// Converts the LLR to a plain \\c int value.\n-  explicit constexpr operator int() const { return value; };\n+  explicit constexpr operator int() const { return value; }\n   /// Converts the LLR to a plain \\c int value.\n-  constexpr int to_int() const { return value; };\n+  constexpr int to_int() const { return value; }\n \n   /// \\brief Converts the LLR to a hard bit.\n   /// \\note By convention, the null LLR indeterminate case returns a 1 bit.",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/phy/upper/unique_rx_buffer.h",
+      "patch": "@@ -73,7 +73,7 @@ class unique_rx_buffer\n   {\n     ptr       = other.ptr;\n     other.ptr = nullptr;\n-  };\n+  }\n \n   /// Move assignment operator.\n   unique_rx_buffer& operator=(unique_rx_buffer&& other) noexcept",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pucch/pucch_info.h",
+      "patch": "@@ -241,6 +241,6 @@ inline unsigned format1_symb_to_spreading_factor(bounded_integer<unsigned, 4, 14\n {\n   // As per Table 6.3.2.4.1-1, TS 38.211.\n   return f1_symbols.to_uint() / 2;\n-};\n+}\n \n } // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/rb_id.h",
+      "patch": "@@ -100,7 +100,7 @@ class rb_id_t\n public:\n   rb_id_t() = default;\n   rb_id_t(srb_id_t srb_id_) : rb_type(rb_type_t::srb), srb_id(srb_id_) {}\n-  rb_id_t(drb_id_t drb_id_) : rb_type(rb_type_t::drb), drb_id(drb_id_){};\n+  rb_id_t(drb_id_t drb_id_) : rb_type(rb_type_t::drb), drb_id(drb_id_) {}\n \n   bool is_srb() { return rb_type == rb_type_t::srb; }\n   bool is_drb() { return rb_type == rb_type_t::drb; }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/rrc/meas_types.h",
+      "patch": "@@ -85,7 +85,7 @@ struct rrc_periodicity_and_offset {\n inline bool operator==(const rrc_periodicity_and_offset& lhs, const rrc_periodicity_and_offset& rhs)\n {\n   return lhs.periodicity == rhs.periodicity && lhs.offset == rhs.offset;\n-};\n+}\n \n struct rrc_ssb_mtc {\n   rrc_periodicity_and_offset periodicity_and_offset;\n@@ -95,7 +95,7 @@ struct rrc_ssb_mtc {\n inline bool operator==(const rrc_ssb_mtc& lhs, const rrc_ssb_mtc& rhs)\n {\n   return lhs.periodicity_and_offset == rhs.periodicity_and_offset && lhs.dur == rhs.dur;\n-};\n+}\n \n struct rrc_ss_rssi_meas {\n   uint64_t meas_slots;\n@@ -121,7 +121,7 @@ struct rrc_ssb_mtc2 {\n inline bool operator==(const rrc_ssb_mtc2& lhs, const rrc_ssb_mtc2& rhs)\n {\n   return lhs.periodicity == rhs.periodicity && lhs.pci_list == rhs.pci_list;\n-};\n+}\n \n struct rrc_ssb_to_measure {\n   enum class bitmap_type_t : uint8_t { /* uint8_t */ short_bitmap,",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/signal_observer.h",
+      "patch": "@@ -66,7 +66,7 @@ class signal_observer\n \n   /// \\brief Handles a signal that was dispatched by the signal_dispatcher.\n   /// \\param signal The signal that occured.\n-  void handle_signal(int signal) { callback(); };\n+  void handle_signal(int signal) { callback(); }\n \n private:\n   /// The signal dispatcher to which this observer is attached.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1756,7 +1756,7 @@ SRSASN_CODE pack_unconstrained_real(bit_ref& bref, float n, bool aligned)\n     bref.pack(octet, 8);\n   }\n   return SRSASN_SUCCESS;\n-};\n+}\n \n SRSASN_CODE unpack_unconstrained_real(float& n, cbit_ref& bref, bool aligned)\n {\n@@ -1828,6 +1828,6 @@ SRSASN_CODE unpack_unconstrained_real(float& n, cbit_ref& bref, bool aligned)\n   float*   bits_ptr  = (float*)&ieee_bits;\n   n                  = *bits_ptr;\n   return SRSASN_SUCCESS;\n-};\n+}\n \n } // namespace asn1",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp_impl.cpp",
+      "patch": "@@ -144,7 +144,7 @@ void cu_cp_impl::stop()\n ngap_message_handler* cu_cp_impl::get_ngap_message_handler(const plmn_identity& plmn)\n {\n   return ngap_db->find_ngap(plmn);\n-};\n+}\n \n bool cu_cp_impl::amfs_are_connected()\n {\n@@ -159,7 +159,7 @@ bool cu_cp_impl::amfs_are_connected()\n   }\n \n   return true;\n-};\n+}\n \n #ifndef SRSRAN_HAS_ENTERPRISE\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/cu_cp/cu_up_processor/cu_up_processor_impl.h",
+      "patch": "@@ -37,9 +37,9 @@ class cu_up_processor_impl : public cu_up_processor_impl_interface\n   void handle_cu_up_e1_setup_request(const cu_up_e1_setup_request& msg) override;\n \n   // getter functions\n-  cu_up_index_t                        get_cu_up_index() override { return context.cu_up_index; };\n-  cu_up_processor_context&             get_context() override { return context; };\n-  e1ap_message_handler&                get_e1ap_message_handler() override { return *e1ap; };\n+  cu_up_index_t                        get_cu_up_index() override { return context.cu_up_index; }\n+  cu_up_processor_context&             get_context() override { return context; }\n+  e1ap_message_handler&                get_e1ap_message_handler() override { return *e1ap; }\n   e1ap_bearer_context_manager&         get_e1ap_bearer_context_manager() override { return *e1ap; }\n   e1ap_bearer_context_removal_handler& get_e1ap_bearer_context_removal_handler() override { return *e1ap; }\n   e1ap_statistics_handler&             get_e1ap_statistics_handler() override { return *e1ap; }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/cu_cp/du_processor/du_processor_impl.h",
+      "patch": "@@ -40,11 +40,11 @@ class du_processor_impl : public du_processor, public du_metrics_handler, public\n \n   // getter functions\n \n-  f1ap_cu& get_f1ap_handler() override { return *f1ap; };\n+  f1ap_cu& get_f1ap_handler() override { return *f1ap; }\n \n-  rrc_du& get_rrc_du_handler() override { return *rrc; };\n+  rrc_du& get_rrc_du_handler() override { return *rrc; }\n \n-  size_t get_nof_ues() const { return ue_mng.get_nof_du_ues(cfg.du_index); };\n+  size_t get_nof_ues() const { return ue_mng.get_nof_du_ues(cfg.du_index); }\n \n   // du_processor_mobility_manager_interface\n   std::optional<nr_cell_global_id_t> get_cgi(pci_t pci) override;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/cu_cp/ue_manager/cu_cp_ue_impl.h",
+      "patch": "@@ -67,7 +67,7 @@ class cu_cp_ue : public cu_cp_ue_impl_interface\n   ue_index_t get_ue_index() const override { return ue_index; }\n \n   /// \\brief Get the PCI of the UE.\n-  [[nodiscard]] pci_t get_pci() const { return pci; };\n+  [[nodiscard]] pci_t get_pci() const { return pci; }\n \n   /// \\brief Get the C-RNTI of the UE.\n   [[nodiscard]] rnti_t get_c_rnti() const { return ue_ctxt.crnti; }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/up_resource_manager/up_resource_manager_impl.h",
+      "patch": "@@ -19,7 +19,7 @@ namespace srs_cu_cp {\n \n /// \\brief Update for a PDU session.\n struct up_pdu_session_context_update {\n-  up_pdu_session_context_update(pdu_session_id_t id_) : id(id_){};\n+  up_pdu_session_context_update(pdu_session_id_t id_) : id(id_) {}\n   pdu_session_id_t                   id;\n   std::map<drb_id_t, up_drb_context> drb_to_add;\n   std::map<drb_id_t, up_drb_context> drb_to_modify;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/drb_context.h",
+      "patch": "@@ -24,7 +24,7 @@ namespace srs_cu_up {\n \n /// \\brief DRB context with map to all QoS flows.\n struct drb_context {\n-  drb_context(const drb_id_t& drb_id_) : drb_id(drb_id_){};\n+  drb_context(const drb_id_t& drb_id_) : drb_id(drb_id_) {}\n \n   void stop()\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/pdu_session.h",
+      "patch": "@@ -41,7 +41,7 @@ struct pdu_session {\n     if (session.pdu_session_res_dl_ambr.has_value()) {\n       pdu_session_res_ambr = session.pdu_session_res_dl_ambr.value();\n     }\n-  };\n+  }\n   ~pdu_session() { stop(); }\n \n   void stop()",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/qos_flow_context.h",
+      "patch": "@@ -25,7 +25,7 @@ struct qos_flow_context {\n     five_qi                = qos_params.get_5qi();\n     srsran_assert(not qos_params.is_dyn_5qi(), \"Dynamic 5QI not supported.\");\n     srsran_assert(five_qi != five_qi_t::invalid, \"FiveQI must be set.\");\n-  };\n+  }\n \n   qos_flow_id_t qos_flow_id = qos_flow_id_t::invalid; // The QoS flow ID.\n   five_qi_t     five_qi     = five_qi_t::invalid;     // The FiveQI assigned to this flow.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/ue_context.h",
+      "patch": "@@ -152,9 +152,9 @@ class ue_context : public pdu_session_manager_ctrl\n   }\n   size_t get_nof_pdu_sessions() override { return pdu_session_manager.get_nof_pdu_sessions(); }\n \n-  [[nodiscard]] ue_index_t get_index() const { return index; };\n+  [[nodiscard]] ue_index_t get_index() const { return index; }\n \n-  [[nodiscard]] const cu_up_ue_logger& get_logger() const { return logger; };\n+  [[nodiscard]] const cu_up_ue_logger& get_logger() const { return logger; }\n \n   fifo_async_task_scheduler& task_sched;\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/cu_up/ue_manager.h",
+      "patch": "@@ -56,7 +56,7 @@ class ue_manager : public ue_manager_ctrl\n   ue_context*      add_ue(const ue_context_cfg& cfg) override;\n   async_task<void> remove_ue(ue_index_t ue_index) override;\n   ue_context*      find_ue(ue_index_t ue_index) override;\n-  size_t           get_nof_ues() const override { return ue_db.size(); };\n+  size_t           get_nof_ues() const override { return ue_db.size(); }\n \n   void schedule_ue_async_task(ue_index_t ue_index, async_task<void> task);\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/du_ue/du_ue_bearer_manager.h",
+      "patch": "@@ -29,7 +29,7 @@ class du_ue_bearer_manager\n \n   const slotted_id_table<srb_id_t, du_ue_srb, MAX_NOF_SRBS>& srbs() const { return srbs_; }\n   slotted_id_table<srb_id_t, du_ue_srb, MAX_NOF_SRBS>&       srbs() { return srbs_; }\n-  const std::map<drb_id_t, std::unique_ptr<du_ue_drb>>&      drbs() const { return drbs_; };\n+  const std::map<drb_id_t, std::unique_ptr<du_ue_drb>>&      drbs() const { return drbs_; }\n \n   std::optional<lcid_t> allocate_lcid() const;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/du_pucch_resource_manager.cpp",
+      "patch": "@@ -32,7 +32,7 @@ static bool csi_offset_exceeds_grant_cnt(unsigned                     offset_can\n   }\n \n   return false;\n-};\n+}\n \n // Helper that updates the starting PUCCH config with user-defined parameters.\n static pucch_config build_default_pucch_cfg(const pucch_config& pucch_cfg, const pucch_builder_params& user_params)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/e1ap_cu_cp_impl.cpp",
+      "patch": "@@ -299,7 +299,7 @@ void e1ap_cu_cp_impl::handle_bearer_context_inactivity_notification(\n           }))) {\n     logger.warning(\"ue={}: Dropping InactivityNotification. UE does not exist\", ue_ctxt.ue_ids.ue_index);\n   }\n-};\n+}\n \n void e1ap_cu_cp_impl::handle_successful_outcome(const asn1::e1ap::successful_outcome_s& outcome)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_entity.h",
+      "patch": "@@ -27,7 +27,7 @@ class e2_entity final : public e2_agent\n   // E2 Agent interface.\n   void          start() override;\n   void          stop() override;\n-  e2_interface& get_e2_interface() override { return *e2ap; };\n+  e2_interface& get_e2_interface() override { return *e2ap; }\n \n   void on_e2_disconnection() override;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_impl.h",
+      "patch": "@@ -41,8 +41,8 @@ class e2_impl final : public e2_interface\n           e2sm_manager&             e2sm_mngr_,\n           task_executor&            task_exec_);\n \n-  void start() override {};\n-  void stop() override {};\n+  void start() override {}\n+  void stop() override {}\n \n   /// E2 connection manager functions.\n   bool                                  handle_e2_tnl_connection_request() override;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_metric_defs.h",
+      "patch": "@@ -1690,7 +1690,7 @@ inline span<const e2sm_kpm_metric_t> get_e2sm_kpm_28_552_metrics()\n   {\"VR.VDiskUsageMean\", ANY, OM, INTEGER, \"%\", NO_LABEL, E2_NODE_LEVEL}}};\n   // clang-format on\n   return metrics;\n-};\n+}\n \n // E2SM_KPM O-RAN specific Measurements defined in O-RAN.WG3.E2SM-KPM-R003-v3.00\n inline span<const e2sm_kpm_metric_t> get_e2sm_kpm_oran_metrics()",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_report_service_impl.cpp",
+      "patch": "@@ -577,4 +577,4 @@ srsran::byte_buffer e2sm_kpm_report_service_style5::get_indication_message()\n   clear_collect_measurements();\n \n   return ind_msg_bytes;\n-};\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_rc/e2sm_rc_asn1_packer.cpp",
+      "patch": "@@ -71,7 +71,7 @@ e2sm_rc_asn1_packer::handle_packed_ric_control_request(const asn1::e2ap::ric_ctr\n         req->ric_ctrl_ack_request.value == asn1::e2ap::ric_ctrl_ack_request_e::ack;\n   }\n   return ric_control_request;\n-};\n+}\n \n e2_ric_control_response e2sm_rc_asn1_packer::pack_ric_control_response(const e2sm_ric_control_response& e2sm_response)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_rc/e2sm_rc_control_action_du_executor.cpp",
+      "patch": "@@ -76,7 +76,7 @@ e2sm_rc_control_action_2_6_du_executor::e2sm_rc_control_action_2_6_du_executor(\n   action_params.insert({11, \"Min PRB Policy Ratio\"});\n   action_params.insert({12, \"Max PRB Policy Ratio\"});\n   action_params.insert({13, \"Dedicated PRB Policy Ratio\"});\n-};\n+}\n \n void e2sm_rc_control_action_2_6_du_executor::parse_action_ran_parameter_value(\n     const ran_param_value_type_c&        ran_param,\n@@ -193,7 +193,7 @@ bool e2sm_rc_control_action_2_6_du_executor::ric_control_action_supported(const\n     }\n   };\n   return true;\n-};\n+}\n \n async_task<e2sm_ric_control_response>\n e2sm_rc_control_action_2_6_du_executor::execute_ric_control_action(const e2sm_ric_control_request& req)\n@@ -210,7 +210,7 @@ e2sm_rc_control_action_2_6_du_executor::execute_ric_control_action(const e2sm_ri\n         e2sm_ric_control_response e2_resp = convert_to_e2sm_response(ctrl_config, ctrl_response);\n         CORO_RETURN(e2_resp);\n       });\n-};\n+}\n \n srs_du::du_mac_sched_control_config\n e2sm_rc_control_action_2_6_du_executor::convert_to_du_config_request(const e2sm_ric_control_request& e2sm_req_)",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/f1ap_asn1_converters.h",
+      "patch": "@@ -86,7 +86,7 @@ inline void cu_to_du_rrc_info_to_asn1(asn1::f1ap::cu_to_du_rrc_info_s& asn1_cu_t\n     // need for gap ncsg info eutra\n     // cfg restrict info daps\n   }\n-};\n+}\n \n /// \\brief Convert scell to be setup/setup mod item to F1AP ASN.1.\n /// \\param[out] asn1_scell_to_be_setup_mod_item The ASN.1 struct to store the result.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/f1ap_cu_impl.h",
+      "patch": "@@ -60,7 +60,7 @@ class f1ap_cu_impl final : public f1ap_cu\n   void handle_message(const f1ap_message& msg) override;\n \n   // f1ap_statistics_handler functions.\n-  size_t get_nof_ues() const override { return ue_ctxt_list.size(); };\n+  size_t get_nof_ues() const override { return ue_ctxt_list.size(); }\n \n   // f1ap_ue_context_removal_handler functions.\n   void remove_ue_context(ue_index_t ue_index) override;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_pdu.h",
+      "patch": "@@ -105,7 +105,7 @@ inline const char* to_string(gtpu_extension_header_type type)\n     default:\n       return \"invalid\";\n   }\n-};\n+}\n \n // 00 Comprehension of this extension header is not required. An Intermediate Node shall forward it to any Receiver\n // Endpoint\n@@ -147,7 +147,7 @@ inline const char* to_string(gtpu_information_element_type type)\n     default:\n       return \"Reserved\";\n   }\n-};\n+}\n \n /// Base class for GTP-U extension headers\n struct gtpu_extension_header {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/gtpu/gtpu_tunnel_impl_ngu.h",
+      "patch": "@@ -41,7 +41,7 @@ class gtpu_tunnel_ngu_impl : public gtpu_tunnel_ngu\n     rx->stop();\n   }\n   gtpu_tunnel_common_rx_upper_layer_interface* get_rx_upper_layer_interface() final { return rx.get(); }\n-  gtpu_tunnel_ngu_tx_lower_layer_interface*    get_tx_lower_layer_interface() final { return tx.get(); };\n+  gtpu_tunnel_ngu_tx_lower_layer_interface*    get_tx_lower_layer_interface() final { return tx.get(); }\n \n private:\n   srslog::basic_logger& logger;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_tunnel_impl_nru.h",
+      "patch": "@@ -35,7 +35,7 @@ class gtpu_tunnel_nru_impl : public gtpu_tunnel_nru\n   ~gtpu_tunnel_nru_impl() override = default;\n \n   gtpu_tunnel_common_rx_upper_layer_interface* get_rx_upper_layer_interface() final { return rx.get(); }\n-  gtpu_tunnel_nru_tx_lower_layer_interface*    get_tx_lower_layer_interface() final { return tx.get(); };\n+  gtpu_tunnel_nru_tx_lower_layer_interface*    get_tx_lower_layer_interface() final { return tx.get(); }\n \n private:\n   srslog::basic_logger& logger;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/ngap_impl.h",
+      "patch": "@@ -65,7 +65,7 @@ class ngap_impl final : public ngap_interface\n   void                  handle_inter_cu_ho_rrc_recfg_complete(const ue_index_t           ue_index,\n                                                               const nr_cell_global_id_t& cgi,\n                                                               const unsigned             tac) override;\n-  const ngap_context_t& get_ngap_context() const override { return context; };\n+  const ngap_context_t& get_ngap_context() const override { return context; }\n   void             handle_ul_ue_associated_nrppa_transport(ue_index_t ue_index, const byte_buffer& nrppa_pdu) override;\n   async_task<void> handle_ul_non_ue_associated_nrppa_transport(const byte_buffer& nrppa_pdu) override;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/nru/nru_packing.cpp",
+      "patch": "@@ -136,7 +136,7 @@ bool nru_packing::unpack(nru_dl_user_data& dl_user_data, byte_buffer_view contai\n   }\n \n   return true;\n-};\n+}\n \n bool nru_packing::pack(byte_buffer& out_buf, const nru_dl_user_data& dl_user_data) const\n {\n@@ -208,7 +208,7 @@ bool nru_packing::pack(byte_buffer& out_buf, const nru_dl_user_data& dl_user_dat\n   }\n \n   return true;\n-};\n+}\n \n bool nru_packing::unpack(nru_dl_data_delivery_status& dl_data_delivery_status, byte_buffer_view container) const\n {\n@@ -340,7 +340,7 @@ bool nru_packing::unpack(nru_dl_data_delivery_status& dl_data_delivery_status, b\n   }\n \n   return true;\n-};\n+}\n \n bool nru_packing::pack(byte_buffer& out_buf, const nru_dl_data_delivery_status& dl_data_delivery_status) const\n {\n@@ -428,6 +428,6 @@ bool nru_packing::pack(byte_buffer& out_buf, const nru_dl_data_delivery_status&\n   }\n \n   return true;\n-};\n+}\n \n } // namespace srsran",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/ofh/receiver/ofh_sequence_id_checker_dummy_impl.h",
+      "patch": "@@ -20,7 +20,7 @@ class sequence_id_checker_dummy_impl : public sequence_id_checker\n {\n public:\n   // See interface for documentation.\n-  int update_and_compare_seq_id(unsigned eaxc, uint8_t seq_id) override { return 0; };\n+  int update_and_compare_seq_id(unsigned eaxc, uint8_t seq_id) override { return 0; }\n };\n \n } // namespace ofh",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_impl.h",
+      "patch": "@@ -68,11 +68,11 @@ class pdcp_entity_impl : public pdcp_entity\n     rx->set_status_handler(tx.get());\n   }\n   ~pdcp_entity_impl() override { stop(); }\n-  pdcp_tx_upper_control_interface& get_tx_upper_control_interface() final { return (*tx); };\n-  pdcp_tx_upper_data_interface&    get_tx_upper_data_interface() final { return (*tx); };\n-  pdcp_tx_lower_interface&         get_tx_lower_interface() final { return (*tx); };\n-  pdcp_rx_upper_control_interface& get_rx_upper_control_interface() final { return (*rx); };\n-  pdcp_rx_lower_interface&         get_rx_lower_interface() final { return (*rx); };\n+  pdcp_tx_upper_control_interface& get_tx_upper_control_interface() final { return (*tx); }\n+  pdcp_tx_upper_data_interface&    get_tx_upper_data_interface() final { return (*tx); }\n+  pdcp_tx_lower_interface&         get_tx_lower_interface() final { return (*tx); }\n+  pdcp_rx_upper_control_interface& get_rx_upper_control_interface() final { return (*rx); }\n+  pdcp_rx_lower_interface&         get_rx_lower_interface() final { return (*rx); }\n \n   void stop() override\n   {",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_tx.cpp",
+      "patch": "@@ -488,7 +488,7 @@ void pdcp_entity_tx::configure_security(security::sec_128_as_config sec_cfg,\n     logger.log_info(\"128 K_int: {}\", sec_cfg.k_128_int.value());\n   }\n   logger.log_info(\"128 K_enc: {}\", sec_cfg.k_128_enc);\n-};\n+}\n \n /*\n  * Status report and data recovery",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_tx.h",
+      "patch": "@@ -119,9 +119,9 @@ class pdcp_entity_tx final : public pdcp_entity_tx_rx_base,\n   {\n     reset();\n     st = st_;\n-  };\n+  }\n \n-  const pdcp_tx_state& get_state() const { return st; };\n+  const pdcp_tx_state& get_state() const { return st; }\n \n   uint32_t nof_pdus_in_window() const { return st.tx_next - st.tx_next_ack; }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/pdcp/pdcp_metrics_aggregator.h",
+      "patch": "@@ -32,7 +32,7 @@ class pdcp_metrics_aggregator\n \n   void push_rx_metrics(pdcp_rx_metrics_container m_rx_);\n \n-  const timer_duration& get_metrics_period() const { return metrics_period; };\n+  const timer_duration& get_metrics_period() const { return metrics_period; }\n \n private:\n   void push_report();",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/ofdm_demodulator_impl.h",
+      "patch": "@@ -59,7 +59,7 @@ class ofdm_symbol_demodulator_impl : public ofdm_symbol_demodulator\n \n   /// \\brief Gets the resource grid bandwidth in resource elements.\n   /// \\return The number of resource elements in the grid.\n-  unsigned get_rg_size() const { return rg_size; };\n+  unsigned get_rg_size() const { return rg_size; }\n \n   /// \\brief Gets the offset in samples to the start of (the cyclic prefix of) a given symbol.\n   /// \\param[in] symbol_index Indicates the symbol index within the subframe.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/resource_grid_mapper_impl.cpp",
+      "patch": "@@ -28,7 +28,7 @@ static const re_prb_mask& get_re_mask_type_1(unsigned cdm_group_id)\n        {false, true, false, true, false, true, false, true, false, true, false, true}}};\n \n   return re_mask_type1[cdm_group_id];\n-};\n+}\n \n // Optimized mapping for PDSCH DM-RS Type 1 mapped on contiguous RBs. It derives the CDM group ID of the input symbols\n // from the RE allocation pattern.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_clmul_impl.h",
+      "patch": "@@ -38,7 +38,7 @@ class crc_calculator_clmul_impl : public crc_calculator\n   crc_calculator_checksum_t calculate(const bit_buffer& data) const override;\n \n   // See interface for documentation.\n-  crc_generator_poly get_generator_poly() const override { return poly; };\n+  crc_generator_poly get_generator_poly() const override { return poly; }\n \n private:\n   /// Polynomial selection.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_neon_impl.h",
+      "patch": "@@ -38,7 +38,7 @@ class crc_calculator_neon_impl : public crc_calculator\n   crc_calculator_checksum_t calculate(const bit_buffer& data) const override;\n \n   // See interface for documentation.\n-  crc_generator_poly get_generator_poly() const override { return poly; };\n+  crc_generator_poly get_generator_poly() const override { return poly; }\n \n private:\n   /// Polynomial selection.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_avx512.cpp",
+      "patch": "@@ -252,4 +252,4 @@ void ldpc_decoder_avx512::compute_soft_bits(span<log_likelihood_ratio>       thi\n     soft_epi8        = _mm512_mask_blend_epi8(mask_epi8, soft_epi8, LLR_NEG_INFINITY_epi8());\n     this_soft_bits_avx512.set_at(i_block, soft_epi8);\n   }\n-};\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_impl.cpp",
+      "patch": "@@ -99,7 +99,7 @@ void ldpc_rate_dematcher_impl::rate_dematch(span<log_likelihood_ratio>       out\n     deinterleave_llrs(aux, input);\n     allot_llrs(output, aux);\n   }\n-};\n+}\n \n void ldpc_rate_dematcher_impl::combine_softbits(span<log_likelihood_ratio>       out,\n                                                 span<const log_likelihood_ratio> in0,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_segmenter_tx_impl.h",
+      "patch": "@@ -67,28 +67,28 @@ class ldpc_segmenter_tx_impl : public ldpc_segmenter_tx, private ldpc_segmenter_\n   codeblock_metadata get_cb_metadata(unsigned cb_index) const override;\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  unsigned get_nof_codeblocks() const override { return params.nof_segments; };\n+  unsigned get_nof_codeblocks() const override { return params.nof_segments; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n   units::bits get_cb_info_bits(unsigned cb_index) const override;\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  units::bits get_segment_length() const override { return params.segment_length; };\n+  units::bits get_segment_length() const override { return params.segment_length; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  units::bits get_cw_length() const override { return params.cw_length; };\n+  units::bits get_cw_length() const override { return params.cw_length; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  units::bits get_zero_pad() const override { return params.zero_pad; };\n+  units::bits get_zero_pad() const override { return params.zero_pad; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  units::bits get_tb_crc_bits() const override { return params.nof_tb_crc_bits; };\n+  units::bits get_tb_crc_bits() const override { return params.nof_tb_crc_bits; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  units::bits get_nof_filler_bits() const override { return params.nof_filler_bits; };\n+  units::bits get_nof_filler_bits() const override { return params.nof_filler_bits; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n-  unsigned get_nof_short_segments() const override { return params.nof_short_segments; };\n+  unsigned get_nof_short_segments() const override { return params.nof_short_segments; }\n \n   // See ldpc_segmenter_buffer interface for documentation.\n   unsigned get_rm_length(unsigned cb_index) const override;",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/short/short_block_detector_impl.cpp",
+      "patch": "@@ -40,7 +40,7 @@ static std::array<std::array<int8_t, MAX_BLOCK_LENGTH>, MAX_NOF_CODEWORDS_2> cre\n     std::transform(cdwd.cbegin(), cdwd.cend(), table[idx].begin(), [](uint8_t a) { return (1 - 2 * a); });\n   }\n   return table;\n-};\n+}\n \n const std::array<std::array<int8_t, MAX_BLOCK_LENGTH>, MAX_NOF_CODEWORDS_2> short_block_detector_impl::DETECT_TABLE =\n     create_lut();\n@@ -169,7 +169,7 @@ static void rate_dematch(span<log_likelihood_ratio> output, span<const log_likel\n     // Advance input.\n     input = input.last(input.size() - block_size);\n   }\n-};\n+}\n \n bool short_block_detector_impl::detect(span<uint8_t>                    output,\n                                        span<const log_likelihood_ratio> input,\n@@ -208,4 +208,4 @@ bool short_block_detector_impl::detect(span<uint8_t>                    output,\n   // TODO(david): Thresholds for the 1- and 2-bit cases are not meaningful.\n   constexpr std::array<double, MAX_MSG_LENGTH> THRESHOLDS = {0, 0, 12, 14, 16, 18, 20, 22, 24, 26, 29};\n   return (max_metric > THRESHOLDS[out_size - 1]);\n-};\n+}",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_impl.cpp",
+      "patch": "@@ -26,7 +26,7 @@ static log_likelihood_ratio demod_BPSK_symbol(cf_t z, float noise_var, float ran\n   }\n   float l_value = 2.0F * M_SQRT2f32 * (std::real(z) + std::imag(z)) / noise_var;\n   return log_likelihood_ratio::quantize(l_value, range_limit);\n-};\n+}\n \n static void\n demodulate_soft_BPSK(span<log_likelihood_ratio> llrs, span<const cf_t> symbols, span<const float> noise_vars)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/prach_detector_generic_impl.cpp",
+      "patch": "@@ -63,7 +63,7 @@ prach_detector_generic_impl::prach_detector_generic_impl(std::unique_ptr<dft_pro\n                 \"IDFT size for short preambles (i.e., {}) must be in range {}.\",\n                 idft_short->get_size(),\n                 idft_long_sz_range);\n-};\n+}\n \n prach_detection_result prach_detector_generic_impl::detect(const prach_buffer& input, const configuration& config)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_codeblock_decoder.h",
+      "patch": "@@ -56,7 +56,7 @@ class pusch_codeblock_decoder\n     srsran_assert(crc_set.crc16->get_generator_poly() == crc_generator_poly::CRC16, \"Wrong TB CRC calculator.\");\n     srsran_assert(crc_set.crc24A->get_generator_poly() == crc_generator_poly::CRC24A, \"Wrong TB CRC calculator.\");\n     srsran_assert(crc_set.crc24B->get_generator_poly() == crc_generator_poly::CRC24B, \"Wrong TB CRC calculator.\");\n-  };\n+  }\n \n   /// Selects the CRC calculator from a CRC polynomial.\n   crc_calculator* select_crc(crc_generator_poly poly)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_decoder_hw_impl.cpp",
+      "patch": "@@ -37,7 +37,7 @@ static unsigned get_tb_and_crc_size(unsigned tb_size, unsigned nof_cbs)\n   }\n \n   return tb_and_crc_size;\n-};\n+}\n \n // Returns, in order, the codeblock length, the message length and the number of data bits.\n // The message length is the number of systematic bits of the codeblock. This includes data and, if applicable, CRC,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_decoder_impl.h",
+      "patch": "@@ -84,7 +84,7 @@ class pusch_decoder_impl : public pusch_decoder, private pusch_decoder_buffer\n                     \"The number of PUSCH code block decoder in the pool (i.e., {}) must be greater than one.\",\n                     decoder_pool->capacity());\n     }\n-  };\n+  }\n \n   // See interface for the documentation.\n   pusch_decoder_buffer& new_data(span<uint8_t>           transport_block,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/uci/uci_decoder_impl.h",
+      "patch": "@@ -48,7 +48,7 @@ class uci_decoder_impl : public uci_decoder\n     srsran_assert(crc6->get_generator_poly() == crc_generator_poly::CRC6, \"Invalid CRC6 calculator.\");\n     srsran_assert(crc11, \"Invalid CRC11 calculator.\");\n     srsran_assert(crc11->get_generator_poly() == crc_generator_poly::CRC11, \"Invalid CRC11 calculator.\");\n-  };\n+  }\n \n   // See interface for the documentation.\n   uci_status decode(span<uint8_t> message, span<const log_likelihood_ratio> llr, const configuration& config) override;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/metrics/aggregators/pusch_processor_metrics_aggregator.h",
+      "patch": "@@ -85,10 +85,10 @@ class pusch_processor_metrics_aggregator : public pusch_processor_metric_notifie\n   double get_cpu_usage_us() const { return static_cast<double>(sum_used_cpu_time_ns) / 1000.0; }\n \n   /// Gets SINR in decibels as a result of channel estimation.\n-  float get_ch_est_sinr() const { return ch_est_sinr_db; };\n+  float get_ch_est_sinr() const { return ch_est_sinr_db; }\n \n   /// Gets EVM as a result of channel estimation.\n-  float get_ch_est_evm() const { return ch_est_evm; };\n+  float get_ch_est_evm() const { return ch_est_evm; }\n \n   double get_decoding_bler() const\n   {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/dmrs_pdsch_processor_impl.cpp",
+      "patch": "@@ -26,7 +26,7 @@ static const re_prb_mask& get_re_mask_type_1(unsigned cdm_group_id)\n        {false, true, false, true, false, true, false, true, false, true, false, true}}};\n \n   return re_mask_type1[cdm_group_id];\n-};\n+}\n \n // Resource element allocation patterns within a resource block for PDSCH DM-RS type 2.\n static const re_prb_mask& get_re_mask_type_2(unsigned cdm_group_id)\n@@ -39,7 +39,7 @@ static const re_prb_mask& get_re_mask_type_2(unsigned cdm_group_id)\n        {false, false, false, false, true, true, false, false, false, false, true, true}}};\n \n   return re_mask_type2[cdm_group_id];\n-};\n+}\n \n const std::array<dmrs_pdsch_processor_impl::params_t, dmrs_type::DMRS_MAX_PORTS_TYPE1>\n     dmrs_pdsch_processor_impl::params_type1 = {{",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/radio/uhd/radio_uhd_impl.h",
+      "patch": "@@ -134,7 +134,7 @@ class radio_factory_uhd_impl : public radio_factory\n {\n public:\n   // See interface for documentation.\n-  const radio_configuration::validator& get_configuration_validator() override { return config_validator; };\n+  const radio_configuration::validator& get_configuration_validator() override { return config_validator; }\n \n   // See interface for documentation.\n   std::unique_ptr<radio_session> create(const radio_configuration::radio& config,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/radio/zmq/radio_session_zmq_impl.h",
+      "patch": "@@ -56,7 +56,7 @@ class radio_session_zmq_impl : public radio_session, public radio_management_pla\n   bool is_successful() const { return successful; }\n \n   // See interface for documentation.\n-  radio_management_plane& get_management_plane() override { return *this; };\n+  radio_management_plane& get_management_plane() override { return *this; }\n \n   // See interface for documentation.\n   baseband_gateway& get_baseband_gateway(unsigned stream_id) override",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.h",
+      "patch": "@@ -44,8 +44,8 @@ class ssb_freq_position_generator\n   /// Return the next viable position of the SSB on the raster, so that the SSB falls within the band CRBs and the SSB\n   /// subcarriers are aligned with those of the CRBs.\n   ssb_freq_location get_next_ssb_location();\n-  unsigned          get_ssb_first_symbol() const { return ssb_first_symbol; };\n-  unsigned          get_max_ss0_idx() const { return max_ss0_idx; };\n+  unsigned          get_ssb_first_symbol() const { return ssb_first_symbol; }\n+  unsigned          get_max_ss0_idx() const { return max_ss0_idx; }\n \n private:\n   /// Finds the \\f$M\\f$ parameter of the sync raster so that the SSB subcarriers are aligned to those of the CRBs.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/rlc/rlc_base_entity.h",
+      "patch": "@@ -62,9 +62,9 @@ class rlc_base_entity : public rlc_entity\n     }\n   }\n \n-  rlc_tx_upper_layer_data_interface* get_tx_upper_layer_data_interface() final { return tx.get(); };\n-  rlc_tx_lower_layer_interface*      get_tx_lower_layer_interface() final { return tx.get(); };\n-  rlc_rx_lower_layer_interface*      get_rx_lower_layer_interface() final { return rx.get(); };\n+  rlc_tx_upper_layer_data_interface* get_tx_upper_layer_data_interface() final { return tx.get(); }\n+  rlc_tx_lower_layer_interface*      get_tx_lower_layer_interface() final { return tx.get(); }\n+  rlc_rx_lower_layer_interface*      get_rx_lower_layer_interface() final { return rx.get(); }\n \n   rlc_metrics get_metrics() final\n   {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/rlc/rlc_metrics_aggregator.h",
+      "patch": "@@ -37,7 +37,7 @@ class rlc_metrics_aggregator\n   void push_rx_high_metrics(rlc_rx_metrics m_rx_high_);\n \n   // \\brief get metrics report period from the aggregator.\n-  const timer_duration& get_metrics_period() const { return metrics_period; };\n+  const timer_duration& get_metrics_period() const { return metrics_period; }\n \n private:\n   // \\brief build and push metrics report to the metrics notifier.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/rlc/rlc_retx_queue.h",
+      "patch": "@@ -167,7 +167,7 @@ class rlc_retx_queue\n       }\n     }\n     return false;\n-  };\n+  }\n \n   /// Checks if the queue contains an element with a given SN and also includes a specified segment interval given by a\n   /// segment offset and segment length.\n@@ -188,7 +188,7 @@ class rlc_retx_queue\n       }\n     }\n     return false;\n-  };\n+  }\n \n   /// \\brief Removes all elements with a given SN from queue and removes any invalid elements at the front.\n   ///",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/rlc/rlc_tx_am_entity.h",
+      "patch": "@@ -174,7 +174,7 @@ class rlc_tx_am_entity : public rlc_tx_entity, public rlc_tx_am_status_handler,\n       low_metrics_timer.stop();\n       stopped = true;\n     }\n-  };\n+  }\n \n   // TX/RX interconnect\n   void set_status_provider(rlc_rx_am_status_provider* status_provider_) { status_provider = status_provider_; }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/rrc/ue/rrc_measurement_types_asn1_converters.cpp",
+      "patch": "@@ -602,7 +602,7 @@ void srsran::srs_cu_cp::srs_periodicity_and_offset_to_rrc_asn1(\n   if (srs_period_and_offset.period == rrc_srs_periodicity_and_offset::period_t::ms2560) {\n     asn1_srs_period_and_offset.set_sl2560() = srs_period_and_offset.offset;\n   }\n-};\n+}\n \n asn1::rrc_nr::srs_res_s srsran::srs_cu_cp::srs_res_to_rrc_asn1(const rrc_srs_res& srs_res)\n {\n@@ -1123,7 +1123,7 @@ srsran::srs_cu_cp::asn1_to_meas_quant_results(const asn1::rrc_nr::meas_quant_res\n   }\n \n   return meas_quant_results;\n-};\n+}\n \n rrc_meas_result_nr srsran::srs_cu_cp::asn1_to_meas_result_nr(const asn1::rrc_nr::meas_result_nr_s& asn1_meas_result_nr)\n {\n@@ -1175,7 +1175,7 @@ rrc_meas_result_nr srsran::srs_cu_cp::asn1_to_meas_result_nr(const asn1::rrc_nr:\n   }\n \n   return meas_result_nr;\n-};\n+}\n \n rrc_meas_results srsran::srs_cu_cp::asn1_to_measurement_results(const asn1::rrc_nr::meas_results_s& asn1_meas_results,\n                                                                 srslog::basic_logger&               logger)",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/sib_scheduler.cpp",
+      "patch": "@@ -59,7 +59,7 @@ sib1_scheduler::sib1_scheduler(const scheduler_si_expert_config&               e\n   // Define a BWP configuration limited by CORESET#0 RBs.\n   coreset0_bwp_cfg      = cell_cfg.dl_cfg_common.init_dl_bwp.generic_params;\n   coreset0_bwp_cfg.crbs = get_coreset0_crbs(cell_cfg.dl_cfg_common.init_dl_bwp.pdcch_common);\n-};\n+}\n \n void sib1_scheduler::run_slot(cell_resource_allocator& res_alloc)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/config/serving_cell_config_validator.cpp",
+      "patch": "@@ -40,7 +40,7 @@ csi_offset_colliding_with_sr(unsigned sr_offset, unsigned csi_offset, unsigned s\n   }\n \n   return false;\n-};\n+}\n \n validator_result config_validators::validate_pdcch_cfg(const serving_cell_config& ue_cell_cfg,\n                                                        const dl_config_common&    dl_cfg_common)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_allocator_impl.cpp",
+      "patch": "@@ -709,7 +709,7 @@ void existing_pucch_pdus_handler::remove_unused_pdus(static_vector<pucch_info, M\n       ++it;\n     }\n   }\n-};\n+}\n \n void existing_pucch_pdus_handler::update_sr_pdu_bits(sr_nof_bits sr_bits, unsigned harq_ack_bits)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_guardbands_scheduler.cpp",
+      "patch": "@@ -15,7 +15,9 @@\n using namespace srsran;\n \n pucch_guardbands_scheduler::pucch_guardbands_scheduler(const cell_configuration& cell_cfg_) :\n-  cell_cfg{cell_cfg_}, logger(srslog::fetch_basic_logger(\"SCHED\")){};\n+  cell_cfg{cell_cfg_}, logger(srslog::fetch_basic_logger(\"SCHED\"))\n+{\n+}\n \n void pucch_guardbands_scheduler::allocate_pucch_guardbands(cell_slot_resource_allocator& slot_alloc)\n {",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_resource_manager.cpp",
+      "patch": "@@ -92,15 +92,15 @@ pucch_resource_manager::reserve_next_set_0_harq_res_available(slot_point\n                                                               const pucch_config& pucch_cfg)\n {\n   return reserve_next_harq_res_available(slot_harq, crnti, pucch_cfg, pucch_res_set_idx::set_0);\n-};\n+}\n \n pucch_harq_resource_alloc_record\n pucch_resource_manager::reserve_next_set_1_harq_res_available(slot_point          slot_harq,\n                                                               rnti_t              crnti,\n                                                               const pucch_config& pucch_cfg)\n {\n   return reserve_next_harq_res_available(slot_harq, crnti, pucch_cfg, pucch_res_set_idx::set_1);\n-};\n+}\n \n const pucch_resource* pucch_resource_manager::reserve_set_0_res_by_res_indicator(slot_point          slot_harq,\n                                                                                  rnti_t              crnti,\n@@ -159,7 +159,7 @@ const pucch_resource* pucch_resource_manager::reserve_csi_resource(slot_point\n   }\n \n   return res_cfg;\n-};\n+}\n \n const pucch_resource*\n pucch_resource_manager::reserve_sr_res_available(slot_point slot_sr, rnti_t crnti, const pucch_config& pucch_cfg)\n@@ -197,7 +197,7 @@ pucch_resource_manager::reserve_sr_res_available(slot_point slot_sr, rnti_t crnt\n   }\n \n   return res_cfg;\n-};\n+}\n \n bool pucch_resource_manager::release_harq_set_0_resource(slot_point          slot_harq,\n                                                          rnti_t              crnti,\n@@ -416,7 +416,7 @@ pucch_harq_resource_alloc_record pucch_resource_manager::reserve_next_harq_res_a\n     }\n   }\n   return pucch_harq_resource_alloc_record{.pucch_res = nullptr};\n-};\n+}\n \n const pucch_resource* pucch_resource_manager::reserve_harq_res_by_res_indicator(slot_point          slot_harq,\n                                                                                 rnti_t              crnti,",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/scheduler/slicing/slice_ue_repository.h",
+      "patch": "@@ -77,7 +77,7 @@ class slice_ue\n   bool has_pending_sr() const { return u.has_pending_sr(); }\n \n   /// Get QoS information of DRBs configured for the UE.\n-  logical_channel_config_list_ptr logical_channels() const { return u.ue_cfg_dedicated()->logical_channels(); };\n+  logical_channel_config_list_ptr logical_channels() const { return u.ue_cfg_dedicated()->logical_channels(); }\n \n   /// Average DL bit rate, in bps, for a given UE logical channel.\n   double dl_avg_bit_rate(lcid_t lcid) const",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/sdap/sdap_entity_impl.h",
+      "patch": "@@ -35,8 +35,8 @@ class sdap_entity_impl : public sdap_entity, public sdap_tx_sdu_handler\n     auto rx_it = rx_map.find(drb_id);\n     srsran_assert(rx_it != rx_map.end(), \"Cannot find QFI mapping for {}\", drb_id);\n     return *rx_it->second;\n-  };\n-  sdap_tx_sdu_handler& get_sdap_tx_sdu_handler() final { return *this; };\n+  }\n+  sdap_tx_sdu_handler& get_sdap_tx_sdu_handler() final { return *this; }\n \n   /// Handle the incoming SDU and redirect to mapped DRB.\n   void handle_sdu(byte_buffer sdu, qos_flow_id_t qos_flow_id) final",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/srslog/sinks/syslog_sink.h",
+      "patch": "@@ -86,7 +86,7 @@ class syslog_sink : public sink\n         return LOG_LOCAL0;\n         break;\n     }\n-  };\n+  }\n };\n \n } // namespace srslog",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/du_high_many_ues_test.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n \n-TEST_RGEN_SET_SEED(3);\n+TEST_RGEN_SET_SEED(3)\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/ofh/ofh_integration_test.cpp",
+      "patch": "@@ -297,7 +297,7 @@ class test_ether_receiver : public ether::receiver, public ether::receiver_opera\n   }\n \n   // See interface for documentation.\n-  ether::receiver_metrics_collector* get_metrics_collector() override { return nullptr; };\n+  ether::receiver_metrics_collector* get_metrics_collector() override { return nullptr; }\n \n   virtual void push_new_data(span<const uint8_t> frame) = 0;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -657,7 +657,7 @@ TEST(asn1_enumerated, bool_to_enum_test)\n   TESTASSERT(enum_to_bool(e2));\n   e2 = EnumBoolTest::options::nulltype;\n   TESTASSERT(!enum_to_bool(e2));\n-};\n+}\n \n void test_json_writer()\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_cp_test_messages.cpp",
+      "patch": "@@ -71,7 +71,7 @@ srsran::srs_cu_cp::generate_pdu_session_resource_setup(ue_index_t ue_index,\n   }\n \n   return req;\n-};\n+}\n \n cu_cp_pdu_session_resource_release_command srsran::srs_cu_cp::generate_pdu_session_resource_release(ue_index_t ue_index)\n {\n@@ -88,7 +88,7 @@ cu_cp_pdu_session_resource_release_command srsran::srs_cu_cp::generate_pdu_sessi\n   cmd.pdu_session_res_to_release_list_rel_cmd.emplace(pdu_session_id, pdu_session_res_to_release_item_rel_cmd);\n \n   return cmd;\n-};\n+}\n \n cu_cp_pdu_session_resource_modify_request\n srsran::srs_cu_cp::generate_pdu_session_resource_modification(ue_index_t ue_index, unsigned psi, unsigned qfi)\n@@ -151,7 +151,7 @@ srsran::srs_cu_cp::generate_e1ap_bearer_context_setup_response(gnb_cu_cp_ue_e1ap\n   fill_e1ap_bearer_context_setup_response(resp, asn1_res.pdu.successful_outcome().value.bearer_context_setup_resp());\n \n   return resp;\n-};\n+}\n \n e1ap_bearer_context_modification_response\n srsran::srs_cu_cp::generate_e1ap_bearer_context_modification_response(gnb_cu_cp_ue_e1ap_id_t cu_cp_ue_e1ap_id,\n@@ -165,4 +165,4 @@ srsran::srs_cu_cp::generate_e1ap_bearer_context_modification_response(gnb_cu_cp_\n                                                  asn1_res.pdu.successful_outcome().value.bearer_context_mod_resp());\n \n   return resp;\n-};\n+}",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "tests/unittests/cu_cp/du_processor/du_processor_test_helpers.cpp",
+      "patch": "@@ -42,7 +42,7 @@ struct dummy_cu_cp_measurement_handler : public cu_cp_measurement_handler {\n                                     std::optional<rrc_meas_cfg> current_meas_config = std::nullopt) override\n   {\n     return std::nullopt;\n-  };\n+  }\n   void handle_measurement_report(const ue_index_t ue_index, const rrc_meas_results& meas_results) override {}\n };\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/mobility/handover_reconfiguration_routine_test.cpp",
+      "patch": "@@ -30,16 +30,16 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n   void set_transaction_id(unsigned transaction_id_) { test_transaction_id = transaction_id_; }\n \n   // RRC UE Controller\n-  void stop() override {};\n+  void stop() override {}\n \n   // RRC UL PDU handler\n-  void handle_ul_ccch_pdu(byte_buffer pdu) override {};\n-  void handle_ul_dcch_pdu(const srb_id_t srb_id, byte_buffer pdu) override {};\n+  void handle_ul_ccch_pdu(byte_buffer pdu) override {}\n+  void handle_ul_dcch_pdu(const srb_id_t srb_id, byte_buffer pdu) override {}\n \n   // RRC NGAP Message handler\n-  void        handle_dl_nas_transport_message(byte_buffer nas_pdu) override {};\n-  byte_buffer get_packed_ue_radio_access_cap_info() const override { return byte_buffer{}; };\n-  byte_buffer get_packed_handover_preparation_message() override { return byte_buffer{}; };\n+  void        handle_dl_nas_transport_message(byte_buffer nas_pdu) override {}\n+  byte_buffer get_packed_ue_radio_access_cap_info() const override { return byte_buffer{}; }\n+  byte_buffer get_packed_handover_preparation_message() override { return byte_buffer{}; }\n \n   // RRC UE Control Message handler\n \n@@ -157,19 +157,19 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n \n   static_vector<srb_id_t, MAX_NOF_SRBS> get_srbs() override { return srb_vec; }\n \n-  rrc_state get_rrc_state() const override { return rrc_state::connected; };\n+  rrc_state get_rrc_state() const override { return rrc_state::connected; }\n \n   void cancel_handover_reconfiguration_transaction(uint8_t transaction_id) override\n   {\n     logger.info(\"Received a new request to cancel RRC UE handover reconfiguration transaction\");\n   }\n \n   // RRC UE Setup proc notifier\n-  void on_new_dl_ccch(const asn1::rrc_nr::dl_ccch_msg_s& dl_ccch_msg) override {};\n-  void on_ue_release_required(const ngap_cause_t& cause) override {};\n+  void on_new_dl_ccch(const asn1::rrc_nr::dl_ccch_msg_s& dl_ccch_msg) override {}\n+  void on_ue_release_required(const ngap_cause_t& cause) override {}\n \n   // RRC UE Security Mode Command proc notifier\n-  void on_new_dl_dcch(srb_id_t srb_id, const asn1::rrc_nr::dl_dcch_msg_s& dl_dcch_msg) override {};\n+  void on_new_dl_dcch(srb_id_t srb_id, const asn1::rrc_nr::dl_dcch_msg_s& dl_dcch_msg) override {}\n \n   // RRC UE Reconfiguration proc notifier\n \n@@ -181,14 +181,14 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n   }\n \n   // RRC UE Reestablishment proc notifier\n-  void on_new_as_security_context() override {};\n+  void on_new_as_security_context() override {}\n \n   // interface functions\n-  rrc_ue_controller&              get_controller() override { return *this; };\n-  rrc_ul_pdu_handler&             get_ul_pdu_handler() override { return *this; };\n-  rrc_ngap_message_handler&       get_rrc_ngap_message_handler() override { return *this; };\n-  rrc_ue_control_message_handler& get_rrc_ue_control_message_handler() override { return *this; };\n-  rrc_ue_context_handler&         get_rrc_ue_context_handler() override { return *this; };\n+  rrc_ue_controller&              get_controller() override { return *this; }\n+  rrc_ul_pdu_handler&             get_ul_pdu_handler() override { return *this; }\n+  rrc_ngap_message_handler&       get_rrc_ngap_message_handler() override { return *this; }\n+  rrc_ue_control_message_handler& get_rrc_ue_control_message_handler() override { return *this; }\n+  rrc_ue_context_handler&         get_rrc_ue_context_handler() override { return *this; }\n \n   std::optional<rrc_radio_bearer_config> last_radio_bearer_cfg;\n   void                                   reset() { last_radio_bearer_cfg.reset(); }",
+      "additions": 16,
+      "deletions": 16,
+      "changes": 32
+    },
+    {
+      "filename": "tests/unittests/cu_up/cu_up_test_helpers.h",
+      "patch": "@@ -113,7 +113,7 @@ class dummy_gtpu_teid_pool final : public gtpu_teid_pool\n \n   [[nodiscard]] bool release_teid(gtpu_teid_t teid) override { return true; }\n \n-  [[nodiscard]] bool full() const override { return true; };\n+  [[nodiscard]] bool full() const override { return true; }\n \n   uint32_t get_max_nof_teids() override { return UINT32_MAX; }\n \n@@ -286,7 +286,7 @@ class dummy_gtpu_gateway final : public gtpu_tnl_pdu_session\n class dummy_ngu_session_manager final : public srs_cu_up::ngu_session_manager\n {\n public:\n-  gtpu_tnl_pdu_session& get_next_ngu_gateway() override { return ngu_gw; };\n+  gtpu_tnl_pdu_session& get_next_ngu_gateway() override { return ngu_gw; }\n \n private:\n   dummy_gtpu_gateway ngu_gw;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/du_manager/du_ran_resource_manager_test.cpp",
+      "patch": "@@ -342,7 +342,7 @@ static const auto* get_pucch_resource_with_id(const pucch_config& pucch_cfg, uns\n   return std::find_if(pucch_cfg.pucch_res_list.begin(),\n                       pucch_cfg.pucch_res_list.end(),\n                       [res_id](const pucch_resource& res) { return res.res_id.cell_res_id == res_id; });\n-};\n+}\n \n class du_ran_res_mng_multiple_cfg_tester : public du_ran_resource_manager_tester_base,\n                                            public ::testing::TestWithParam<pucch_cfg_builder_params>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/du_manager/srs_resource_generator_test.cpp",
+      "patch": "@@ -74,7 +74,7 @@ class test_srs_res_list_builder : public ::testing::TestWithParam<srs_cfg_builde\n       nof_symbols_srs_area = std::min(nof_symbols_srs_area, 6U);\n     }\n     nof_symbol_intervals = nof_symbols_srs_area / static_cast<unsigned>(du_cell_cfg.srs_cfg.nof_symbols);\n-  };\n+  }\n \n   unsigned compute_expected_srs_list_size() const\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/e1ap/common/test_helpers.h",
+      "patch": "@@ -198,9 +198,9 @@ class e1ap_null_notifier : public e1ap_message_notifier\n class dummy_e1ap_pdu_notifier : public e1ap_message_notifier\n {\n public:\n-  dummy_e1ap_pdu_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e1ap_pdu_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n \n-  void attach_handler(e1ap_message_handler* handler_) { handler = handler_; };\n+  void attach_handler(e1ap_message_handler* handler_) { handler = handler_; }\n   void on_new_message(const e1ap_message& msg) override\n   {\n     logger.info(\"Received a PDU of type {}\", msg.pdu.type().to_string());\n@@ -225,13 +225,16 @@ class dummy_cu_cp_e1ap_pdu_notifier : public e1ap_message_notifier\n {\n public:\n   dummy_cu_cp_e1ap_pdu_notifier(srs_cu_cp::cu_cp* cu_cp_, e1ap_message_handler* handler_) :\n-    logger(srslog::fetch_basic_logger(\"TEST\")), cu_cp(cu_cp_), handler(handler_){};\n+    logger(srslog::fetch_basic_logger(\"TEST\")), cu_cp(cu_cp_), handler(handler_)\n+  {\n+  }\n \n   void attach_handler(srs_cu_cp::cu_cp* cu_cp_, e1ap_message_handler* handler_)\n   {\n     cu_cp   = cu_cp_;\n     handler = handler_;\n-  };\n+  }\n+\n   void on_new_message(const e1ap_message& msg) override\n   {\n     logger.info(\"Received a PDU of type {}\", msg.pdu.type().to_string());\n@@ -254,7 +257,7 @@ class dummy_cu_cp_e1ap_pdu_notifier : public e1ap_message_notifier\n class dummy_e1ap_message_handler : public e1ap_message_handler\n {\n public:\n-  dummy_e1ap_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e1ap_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   void handle_message(const e1ap_message& msg) override\n   {\n     last_msg = msg;\n@@ -271,7 +274,7 @@ class dummy_e1ap_message_handler : public e1ap_message_handler\n class dummy_e1ap_message_notifier : public e1ap_message_notifier\n {\n public:\n-  dummy_e1ap_message_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e1ap_message_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   void on_new_message(const e1ap_message& msg) override\n   {\n     last_msg = msg;",
+      "additions": 9,
+      "deletions": 6,
+      "changes": 15
+    },
+    {
+      "filename": "tests/unittests/e1ap/cu_cp/e1ap_cu_cp_test_helpers.h",
+      "patch": "@@ -30,7 +30,9 @@ class dummy_e1ap_cu_cp_notifier : public srs_cu_cp::e1ap_cu_cp_notifier\n {\n public:\n   dummy_e1ap_cu_cp_notifier(srs_cu_cp::ue_manager& ue_mng_) :\n-    ue_mng(ue_mng_), logger(srslog::fetch_basic_logger(\"TEST\")){};\n+    ue_mng(ue_mng_), logger(srslog::fetch_basic_logger(\"TEST\"))\n+  {\n+  }\n \n   void on_bearer_context_inactivity_notification_received(const srs_cu_cp::cu_cp_inactivity_notification& msg) override\n   {",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/e1ap/cu_cp/e1ap_cu_cp_ue_context_test.cpp",
+      "patch": "@@ -27,19 +27,19 @@ class e1ap_cu_cp_ue_context_test : public ::testing::Test\n   {\n     e1ap_logger.set_level(srslog::basic_levels::debug);\n     srslog::init();\n-  };\n+  }\n \n   ~e1ap_cu_cp_ue_context_test()\n   {\n     // flush logger after each test\n     srslog::flush();\n-  };\n+  }\n \n   ue_index_t generate_random_ue_index()\n   {\n     return uint_to_ue_index(\n         test_rgen::uniform_int<uint64_t>(ue_index_to_uint(ue_index_t::min), ue_index_to_uint(ue_index_t::max) - 1));\n-  };\n+  }\n \n   timer_manager         timer_mng;\n   srslog::basic_logger& e1ap_logger = srslog::fetch_basic_logger(\"CU-CP-E1\");",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/e2/common/e2_test_helpers.h",
+      "patch": "@@ -61,9 +61,9 @@ class dummy_e2_tx_pdu_notifier : public e2_message_notifier\n class dummy_e2_pdu_notifier : public e2_message_notifier\n {\n public:\n-  dummy_e2_pdu_notifier(e2_message_handler* handler_) : logger(srslog::fetch_basic_logger(\"TEST\")), handler(handler_){};\n+  dummy_e2_pdu_notifier(e2_message_handler* handler_) : logger(srslog::fetch_basic_logger(\"TEST\")), handler(handler_) {}\n \n-  void attach_handler(e2_message_handler* handler_) { handler = handler_; };\n+  void attach_handler(e2_message_handler* handler_) { handler = handler_; }\n   void on_new_message(const e2_message& msg) override\n   {\n     switch (msg.pdu.type().value) {\n@@ -342,27 +342,27 @@ class dummy_f1ap_ue_id_translator : public srs_du::f1ap_ue_id_translator\n class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n {\n public:\n-  dummy_e2sm_kpm_du_meas_provider(){};\n+  dummy_e2sm_kpm_du_meas_provider() {}\n   std::vector<std::string> get_supported_metric_names(e2sm_kpm_metric_level_enum level) override\n   {\n     return supported_metrics;\n-  };\n-  virtual bool is_cell_supported(const asn1::e2sm::cgi_c& cell_global_id) override { return true; };\n-  virtual bool is_ue_supported(const asn1::e2sm::ue_id_c& ueid) override { return true; };\n-  virtual bool is_test_cond_supported(const asn1::e2sm::test_cond_type_c& test_cond_type) override { return true; };\n+  }\n+  virtual bool is_cell_supported(const asn1::e2sm::cgi_c& cell_global_id) override { return true; }\n+  virtual bool is_ue_supported(const asn1::e2sm::ue_id_c& ueid) override { return true; }\n+  virtual bool is_test_cond_supported(const asn1::e2sm::test_cond_type_c& test_cond_type) override { return true; }\n \n   virtual bool get_ues_matching_test_conditions(const asn1::e2sm::matching_cond_list_l& matching_cond_list,\n                                                 std::vector<asn1::e2sm::ue_id_c>&       ues) override\n   {\n     return get_ues_matching_cond(ues);\n-  };\n+  }\n \n   virtual bool\n   get_ues_matching_test_conditions(const asn1::e2sm::matching_ue_cond_per_sub_list_l& matching_ue_cond_list,\n                                    std::vector<asn1::e2sm::ue_id_c>&                  ues) override\n   {\n     return get_ues_matching_cond(ues);\n-  };\n+  }\n \n   virtual bool is_metric_supported(const asn1::e2sm::meas_type_c&   meas_type,\n                                    const asn1::e2sm::meas_label_s&  label,\n@@ -375,7 +375,7 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n     } else {\n       return false;\n     }\n-  };\n+  }\n   /// \\return Returns True if measurement collection was successful\n   virtual bool get_meas_data(const asn1::e2sm::meas_type_c&               meas_type,\n                              const asn1::e2sm::label_info_list_l          label_info_list,\n@@ -443,7 +443,7 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n     }\n \n     return false;\n-  };\n+  }\n \n   void push_measurements_int(std::vector<uint32_t> presence_,\n                              std::vector<uint32_t> cond_satisfied_,\n@@ -452,7 +452,7 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n     presence        = presence_;\n     cond_satisfied  = cond_satisfied_;\n     meas_values_int = meas_values_int_;\n-  };\n+  }\n \n   void push_measurements_float(std::vector<uint32_t> presence_,\n                                std::vector<uint32_t> cond_satisfied_,\n@@ -461,9 +461,9 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n     presence          = presence_;\n     cond_satisfied    = cond_satisfied_;\n     meas_values_float = meas_values_float_;\n-  };\n+  }\n \n-  void set_ue_ids(std::vector<uint32_t> ue_ids_) { ue_ids = ue_ids_; };\n+  void set_ue_ids(std::vector<uint32_t> ue_ids_) { ue_ids = ue_ids_; }\n \n private:\n   bool get_ues_matching_cond(std::vector<asn1::e2sm::ue_id_c>& ues)\n@@ -482,7 +482,7 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n       return true;\n     }\n     return false;\n-  };\n+  }\n \n   std::vector<std::string> supported_metrics =\n       {\"CQI\", \"RSRP\", \"RSRQ\", \"DRB.UEThpDl\", \"DRB.UEThpUl\", \"DRB.RlcSduDelayDl\"};\n@@ -496,7 +496,7 @@ class dummy_e2sm_kpm_du_meas_provider : public e2sm_kpm_meas_provider\n class dummy_e2_subscription_mngr : public e2_subscription_manager\n {\n public:\n-  dummy_e2_subscription_mngr() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e2_subscription_mngr() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   e2_subscribe_reponse_message handle_subscription_setup(const asn1::e2ap::ric_sub_request_s& request) override\n   {\n     last_subscription = request;\n@@ -512,7 +512,7 @@ class dummy_e2_subscription_mngr : public e2_subscription_manager\n   {\n     e2_subscribe_delete_response_message outcome;\n     return outcome;\n-  };\n+  }\n \n   void start_subscription(const asn1::e2ap::ric_request_id_s& ric_request_id,\n                           uint16_t                            ran_func_id,\n@@ -693,7 +693,7 @@ inline e2_message generate_e2_ind_msg(byte_buffer& ind_hdr_bytes, byte_buffer& i\n class dummy_e2_message_handler : public e2_message_handler\n {\n public:\n-  dummy_e2_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e2_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   void handle_message(const e2_message& msg) override\n   {\n     last_msg = msg;\n@@ -710,7 +710,7 @@ class dummy_e2_message_handler : public e2_message_handler\n class dummy_e2_agent_mng : public e2ap_e2agent_notifier\n {\n public:\n-  dummy_e2_agent_mng() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_e2_agent_mng() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   void on_e2_disconnection() override { logger.info(\"E2 connection closed.\"); }\n \n private:\n@@ -721,19 +721,19 @@ class dummy_e2_agent_mng : public e2ap_e2agent_notifier\n class dummy_network_gateway_data_handler : public srsran::sctp_network_gateway_data_handler\n {\n public:\n-  dummy_network_gateway_data_handler(){};\n+  dummy_network_gateway_data_handler() {}\n   void        handle_pdu(const byte_buffer& pdu) override { last_pdu = pdu.copy(); }\n   byte_buffer last_pdu;\n };\n \n class dummy_e2_adapter : public e2_message_handler, public e2_event_handler\n {\n public:\n-  dummy_e2_adapter() : logger(srslog::fetch_basic_logger(\"E2\")){};\n+  dummy_e2_adapter() : logger(srslog::fetch_basic_logger(\"E2\")) {}\n \n   void connect_e2ap(e2_interface* e2ap_) { e2ap = e2ap_; }\n-  void handle_message(const e2_message& msg) override { e2ap->handle_message(msg); };\n-  void handle_connection_loss() override { e2ap->handle_connection_loss(); };\n+  void handle_message(const e2_message& msg) override { e2ap->handle_message(msg); }\n+  void handle_connection_loss() override { e2ap->handle_connection_loss(); }\n \n private:\n   srslog::basic_logger& logger;\n@@ -774,7 +774,7 @@ class dummy_e2sm_handler : public e2sm_handler\n     e2sm_event_trigger_def.report_period = 10;\n     return e2sm_event_trigger_def;\n   }\n-  asn1::unbounded_octstring<true> pack_ran_function_description() override { return {}; };\n+  asn1::unbounded_octstring<true> pack_ran_function_description() override { return {}; }\n };\n \n class dummy_e2_connection_client final : public e2_connection_client\n@@ -811,7 +811,7 @@ class dummy_e2_mobility_notifier : public srs_cu_cp::mobility_manager_cu_cp_noti\n class dummy_du_configurator : public srs_du::du_configurator\n {\n public:\n-  dummy_du_configurator(){};\n+  dummy_du_configurator() {}\n   async_task<srs_du::du_mac_sched_control_config_response>\n   configure_ue_mac_scheduler(srs_du::du_mac_sched_control_config reconf) override\n   {",
+      "additions": 25,
+      "deletions": 25,
+      "changes": 50
+    },
+    {
+      "filename": "tests/unittests/e2/dummy_ric.cpp",
+      "patch": "@@ -160,7 +160,9 @@ class e2_agent_connection_manager::e2_gw_to_ric_pdu_adapter final : public e2_me\n };\n \n e2_agent_connection_manager::e2_agent_connection_manager(e2_agent_repository& e2_agents_) :\n-  logger(srslog::fetch_basic_logger(\"E2-RIC\")), e2_agents(e2_agents_){};\n+  logger(srslog::fetch_basic_logger(\"E2-RIC\")), e2_agents(e2_agents_)\n+{\n+}\n \n unsigned e2_agent_connection_manager::get_next_e2_agent_index()\n {\n@@ -189,7 +191,7 @@ e2_agent_connection_manager::handle_new_du_connection(std::unique_ptr<e2_message\n   return std::make_unique<e2_gw_to_ric_pdu_adapter>(*this, agent_idx);\n }\n \n-near_rt_ric::near_rt_ric() : logger(srslog::fetch_basic_logger(\"E2-RIC\")), e2_agent_mng(e2_agents){};\n+near_rt_ric::near_rt_ric() : logger(srslog::fetch_basic_logger(\"E2-RIC\")), e2_agent_mng(e2_agents) {}\n \n void near_rt_ric::send_msg(unsigned e2_agent_idx, const e2_message& msg)\n {\n@@ -200,4 +202,4 @@ void near_rt_ric::send_msg(unsigned e2_agent_idx, const e2_message& msg)\n \n   logger.info(\"RIC sends msg.\");\n   it->second->on_new_message(msg);\n-};\n+}",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8
+    },
+    {
+      "filename": "tests/unittests/f1ap/cu_cp/f1ap_cu_test_helpers.h",
+      "patch": "@@ -108,7 +108,7 @@ class dummy_f1ap_ul_dcch_message_notifier : public srs_cu_cp::f1ap_ul_dcch_notif\n   {\n     logger.info(\"Received UL DCCH RRC message\");\n     last_ul_dcch_pdu = std::move(pdu);\n-  };\n+  }\n \n   byte_buffer last_ul_dcch_pdu;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/f1ap/cu_cp/f1ap_cu_ue_context_test.cpp",
+      "patch": "@@ -42,7 +42,7 @@ class f1ap_cu_ue_context_test : public ::testing::Test\n   {\n     f1ap_logger.set_level(srslog::basic_levels::debug);\n     srslog::init();\n-  };\n+  }\n   ~f1ap_cu_ue_context_test()\n   {\n     // flush logger after each test",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi/validators/helpers.h",
+      "patch": "@@ -29,7 +29,7 @@ std::ostream& operator<<(std::ostream& os, const pdu_field_data<T>& arg)\n {\n   os << arg.property;\n   return os;\n-};\n+}\n \n struct test_case_data {\n   unsigned value;\n@@ -44,7 +44,7 @@ inline std::ostream& operator<<(std::ostream& os, const test_case_data& arg)\n {\n   os << \"Value = \" << std::to_string(arg.value) << \", Result = \" << std::to_string(arg.result);\n   return os;\n-};\n+}\n \n template <typename T, typename F>\n class validate_fapi_field\n@@ -77,11 +77,11 @@ class validate_fapi_field\n     T pdu = builder();\n     property.fun(pdu, params.value);\n     return pdu;\n-  };\n+  }\n \n-  virtual bool when_executing_the_validation(T pdu, F validator) { return true; };\n+  virtual bool when_executing_the_validation(T pdu, F validator) { return true; }\n \n-  virtual bool when_executing_the_validation(T pdu, F validator, srsran::fapi::dl_pdu_type pdu_type) { return true; };\n+  virtual bool when_executing_the_validation(T pdu, F validator, srsran::fapi::dl_pdu_type pdu_type) { return true; }\n \n   void then_check_the_report(bool result, const std::string& property, bool expected_result)\n   {\n@@ -93,7 +93,7 @@ class validate_fapi_field\n     } else {\n       EXPECT_TRUE(report.reports.empty());\n     }\n-  };\n+  }\n \n protected:\n   validator_report report = {0, 0};\n@@ -127,7 +127,7 @@ class validate_fapi_message : public validate_fapi_field<T, std::function<fapi_e\n     }\n \n     return error.has_value();\n-  };\n+  }\n \n   void check_message_params(bool result, message_type_id msg_type_id) const\n   {\n@@ -164,7 +164,7 @@ class validate_fapi_pdu\n   bool when_executing_the_validation(T pdu, std::function<bool(T& pdu, validator_report& report)> validator) override\n   {\n     return validator(pdu, base::report);\n-  };\n+  }\n \n   void check_pdu_params(bool result, message_type_id msg_type_id, U pdu_type) const\n   {\n@@ -205,7 +205,7 @@ class validate_fapi_sub_pdu\n                                 srsran::fapi::dl_pdu_type                                         pdu_type) override\n   {\n     return validator(pdu, base::report, pdu_type);\n-  };\n+  }\n \n   void check_pdu_params(bool result, message_type_id msg_type_id, U pdu_type) const\n   {",
+      "additions": 9,
+      "deletions": 9,
+      "changes": 18
+    },
+    {
+      "filename": "tests/unittests/fapi/validators/uci_indication_test.cpp",
+      "patch": "@@ -268,7 +268,7 @@ TEST_P(validate_uci_pucch_format01_pdu_field, WithValue)\n                validate_uci_pucch_format01_pdu,\n                srsran::fapi::message_type_id::uci_indication,\n                uci_pdu_type::PUCCH_format_0_1);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(RNTI,\n                          validate_uci_pucch_format01_pdu_field,\n@@ -440,7 +440,7 @@ TEST_P(validate_uci_pucch_format234_pdu_field, WithValue)\n                validate_uci_pucch_format234_pdu,\n                srsran::fapi::message_type_id::uci_indication,\n                uci_pdu_type::PUCCH_format_2_3_4);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(RNTI,\n                          validate_uci_pucch_format234_pdu_field,\n@@ -654,7 +654,7 @@ TEST_P(validate_uci_indication_field, WithValue)\n                build_valid_uci_indication,\n                validate_uci_indication,\n                srsran::fapi::message_type_id::uci_indication);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(SFN,\n                          validate_uci_indication_field,",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/fapi/validators/ul_pucch_pdu_test.cpp",
+      "patch": "@@ -218,7 +218,7 @@ TEST_P(validate_pucch_f0_pdu_field, WithValue)\n                validate_ul_pucch_pdu,\n                srsran::fapi::message_type_id::ul_tti_request,\n                ul_pdu_type::PUCCH);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(duration,\n                          validate_pucch_f0_pdu_field,\n@@ -293,7 +293,7 @@ TEST_P(validate_pucch_f1_pdu_field, WithValue)\n                validate_ul_pucch_pdu,\n                srsran::fapi::message_type_id::ul_tti_request,\n                ul_pdu_type::PUCCH);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(duration,\n                          validate_pucch_f1_pdu_field,\n@@ -377,7 +377,7 @@ TEST_P(validate_pucch_f2_pdu_field, WithValue)\n                validate_ul_pucch_pdu,\n                srsran::fapi::message_type_id::ul_tti_request,\n                ul_pdu_type::PUCCH);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(duration,\n                          validate_pucch_f2_pdu_field,\n@@ -455,7 +455,7 @@ TEST_P(validate_pucch_f3_pdu_field, WithValue)\n                validate_ul_pucch_pdu,\n                srsran::fapi::message_type_id::ul_tti_request,\n                ul_pdu_type::PUCCH);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(duration,\n                          validate_pucch_f3_pdu_field,\n@@ -576,7 +576,7 @@ TEST_P(validate_pucch_f4_pdu_field, WithValue)\n                validate_ul_pucch_pdu,\n                srsran::fapi::message_type_id::ul_tti_request,\n                ul_pdu_type::PUCCH);\n-};\n+}\n \n INSTANTIATE_TEST_SUITE_P(duration,\n                          validate_pucch_f4_pdu_field,",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "tests/unittests/gateways/test_helpers.h",
+      "patch": "@@ -184,7 +184,7 @@ class dummy_network_gateway_notifier : public sctp_network_gateway_control_notif\n                                        public network_gateway_data_notifier\n {\n public:\n-  dummy_network_gateway_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_network_gateway_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n \n   void on_connection_loss() override { logger.info(\"Connection loss\"); }\n   void on_connection_established() override { logger.info(\"Connection established\"); }\n@@ -198,7 +198,7 @@ class dummy_network_gateway_notifier : public sctp_network_gateway_control_notif\n class dummy_network_gateway_data_handler : public sctp_network_gateway_data_handler\n {\n public:\n-  dummy_network_gateway_data_handler(){};\n+  dummy_network_gateway_data_handler() {}\n   void handle_pdu(const byte_buffer& pdu) override { last_pdu = pdu.copy(); }\n \n   byte_buffer last_pdu;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_echo_test.cpp",
+      "patch": "@@ -97,7 +97,7 @@ TEST_F(gtpu_echo_test, entity_creation)\n   echo                           = create_gtpu_echo(msg);\n \n   ASSERT_NE(echo, nullptr);\n-};\n+}\n \n /// \\brief Test correct reception of an echo message and check for the response\n TEST_F(gtpu_echo_test, rx_echo_req_tx_echo_rep)\n@@ -118,7 +118,7 @@ TEST_F(gtpu_echo_test, rx_echo_req_tx_echo_rep)\n   ASSERT_FALSE(gtpu_tx.last_tx.empty());\n   byte_buffer echo_rep = byte_buffer::create(gtpu_echo_response_sn_65535).value();\n   ASSERT_EQ(gtpu_tx.last_tx, echo_rep);\n-};\n+}\n \n /// \\brief Test correct reception of an error indication message\n TEST_F(gtpu_echo_test, rx_error_indication)\n@@ -137,7 +137,7 @@ TEST_F(gtpu_echo_test, rx_error_indication)\n   rx->handle_pdu(std::move(error_indication), orig_addr);\n \n   ASSERT_TRUE(gtpu_tx.last_tx.empty());\n-};\n+}\n \n int main(int argc, char** argv)\n {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_tunnel_ngu_rx_test.cpp",
+      "patch": "@@ -210,7 +210,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, entity_creation)\n {\n   create_gtpu_rx_entity();\n   ASSERT_NE(rx, nullptr);\n-};\n+}\n \n /// \\brief Test reception of PDUs with no SN\n TEST_F(gtpu_tunnel_ngu_rx_test, rx_no_sn)\n@@ -230,7 +230,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_no_sn)\n     EXPECT_EQ(rx_lower.rx_qfis[i], qos_flow_id_t::min);\n     EXPECT_EQ(rx_lower.rx_sdus[i], sdu);\n   }\n-};\n+}\n \n /// \\brief Test in-order reception of PDUs\n TEST_F(gtpu_tunnel_ngu_rx_test, rx_in_order)\n@@ -250,7 +250,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_in_order)\n     EXPECT_EQ(rx_lower.rx_qfis[i], qos_flow_id_t::min);\n     EXPECT_EQ(rx_lower.rx_sdus[i], sdu);\n   }\n-};\n+}\n \n /// \\brief Test out-of-order reception of PDUs\n TEST_F(gtpu_tunnel_ngu_rx_test, rx_out_of_order)\n@@ -319,7 +319,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_out_of_order)\n     EXPECT_EQ(rx_lower.rx_sdus.size(), 5);\n     EXPECT_EQ(rx_lower.rx_qfis.size(), 5); // all was received\n   }\n-};\n+}\n \n /// \\brief Test out-of-order reception of PDUs\n /// When there are two holes and they gets filled out-of-order\n@@ -390,7 +390,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_out_of_order_two_holes)\n     EXPECT_EQ(rx_lower.rx_sdus.size(), 5);\n     EXPECT_EQ(rx_lower.rx_qfis.size(), 5); // all PDUs were delivered.\n   }\n-};\n+}\n \n /// \\brief Test t-Reordering expiration\n TEST_F(gtpu_tunnel_ngu_rx_test, rx_t_reordering_expiration)\n@@ -455,7 +455,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_t_reordering_expiration)\n     EXPECT_EQ(rx_lower.rx_sdus.size(), 4);\n     EXPECT_EQ(rx_lower.rx_qfis.size(), 4); // all was received\n   }\n-};\n+}\n \n /// \\brief Test t-Reordering expiration\n /// When there are two holes and the second one gets filled before\n@@ -529,7 +529,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_t_reordering_two_holes)\n     EXPECT_EQ(rx_lower.rx_sdus.size(), 5);\n     EXPECT_EQ(rx_lower.rx_qfis.size(), 5); // all was received\n   }\n-};\n+}\n \n /// \\brief Test in-order reception of PDUs\n TEST_F(gtpu_tunnel_ngu_rx_test, rx_stop)\n@@ -572,7 +572,7 @@ TEST_F(gtpu_tunnel_ngu_rx_test, rx_stop)\n     EXPECT_TRUE(rx_lower.rx_qfis.empty());\n     EXPECT_TRUE(rx_lower.rx_sdus.empty());\n   }\n-};\n+}\n \n int main(int argc, char** argv)\n {",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_tunnel_ngu_test.cpp",
+      "patch": "@@ -130,7 +130,7 @@ TEST_F(gtpu_tunnel_ngu_test, entity_creation)\n   gtpu                                 = create_gtpu_tunnel_ngu(msg);\n \n   ASSERT_NE(gtpu, nullptr);\n-};\n+}\n \n /// \\brief Test correct reception of GTP-U packet with PDU Session Container\n TEST_F(gtpu_tunnel_ngu_test, rx_sdu)\n@@ -165,7 +165,7 @@ TEST_F(gtpu_tunnel_ngu_test, rx_sdu)\n   rx->handle_pdu(std::move(orig_vec), orig_addr);\n   ASSERT_EQ(gtpu_extract_msg(std::move(dissected_pdu)), gtpu_rx.last_rx);\n   ASSERT_EQ(uint_to_qos_flow_id(1), gtpu_rx.last_rx_qos_flow_id);\n-};\n+}\n \n /// \\brief Test correct transmission of GTP-U packet\n TEST_F(gtpu_tunnel_ngu_test, tx_pdu)\n@@ -195,7 +195,7 @@ TEST_F(gtpu_tunnel_ngu_test, tx_pdu)\n   gtpu_tunnel_ngu_tx_lower_layer_interface* tx = gtpu->get_tx_lower_layer_interface();\n   tx->handle_sdu(std::move(sdu), uint_to_qos_flow_id(1));\n   ASSERT_EQ(pdu, gtpu_tx.last_tx);\n-};\n+}\n \n int main(int argc, char** argv)\n {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_tunnel_ngu_tx_test.cpp",
+      "patch": "@@ -99,7 +99,7 @@ TEST_F(gtpu_tunnel_ngu_tx_test, entity_creation)\n   tx = std::make_unique<gtpu_tunnel_ngu_tx_impl>(srs_cu_up::ue_index_t::MIN_UE_INDEX, tx_cfg, dummy_pcap, tx_upper);\n \n   ASSERT_NE(tx, nullptr);\n-};\n+}\n \n /// \\brief Test reception of PDUs with no SN\n TEST_F(gtpu_tunnel_ngu_tx_test, tx_sdus)\n@@ -119,7 +119,7 @@ TEST_F(gtpu_tunnel_ngu_tx_test, tx_sdus)\n     tx->handle_sdu(std::move(sdu), uint_to_qos_flow_id(1));\n     ASSERT_EQ(pdu, tx_upper.tx_ul_pdus[i]);\n   }\n-};\n+}\n \n /// \\brief Test in-order reception of PDUs\n TEST_F(gtpu_tunnel_ngu_tx_test, tx_stop)\n@@ -148,7 +148,7 @@ TEST_F(gtpu_tunnel_ngu_tx_test, tx_stop)\n     tx->handle_sdu(std::move(sdu), uint_to_qos_flow_id(1));\n     ASSERT_TRUE(tx_upper.tx_ul_pdus.empty());\n   }\n-};\n+}\n \n int main(int argc, char** argv)\n {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_tunnel_nru_rx_test.cpp",
+      "patch": "@@ -194,7 +194,7 @@ TEST_F(gtpu_tunnel_nru_rx_test, entity_creation)\n   rx = std::make_unique<gtpu_tunnel_nru_rx_impl>(srs_cu_up::ue_index_t::MIN_UE_INDEX, rx_cfg, rx_lower);\n \n   ASSERT_NE(rx, nullptr);\n-};\n+}\n \n /// \\brief Test reception of PDUs with no SN\n TEST_F(gtpu_tunnel_nru_rx_test, rx_no_sn)\n@@ -219,7 +219,7 @@ TEST_F(gtpu_tunnel_nru_rx_test, rx_no_sn)\n     ASSERT_EQ(rx_lower.rx_dl_sdus.size(), i + 1);\n     EXPECT_EQ(rx_lower.rx_dl_sdus[i], sdu);\n   }\n-};\n+}\n \n int main(int argc, char** argv)\n {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_tunnel_nru_test.cpp",
+      "patch": "@@ -173,7 +173,7 @@ TEST_F(gtpu_tunnel_nru_test, entity_creation)\n   gtpu                                 = create_gtpu_tunnel_nru(msg);\n \n   ASSERT_NE(gtpu, nullptr);\n-};\n+}\n \n /// \\brief Test correct reception and transmission of a NR-U DL message\n TEST_F(gtpu_tunnel_nru_test, rx_tx_nru_dl_msg)\n@@ -210,7 +210,7 @@ TEST_F(gtpu_tunnel_nru_test, rx_tx_nru_dl_msg)\n   tx->handle_sdu(std::move(gtpu_rx.last_dl_msg));\n \n   ASSERT_EQ(gtpu_tx.last_tx, orig_pdu);\n-};\n+}\n \n /// \\brief Test correct transmission and reception of a NR-U DL message (with T-PDU)\n TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_dl_msg_with_t_pdu)\n@@ -246,7 +246,7 @@ TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_dl_msg_with_t_pdu)\n   gtpu_tunnel_common_rx_upper_layer_interface* rx = gtpu->get_rx_upper_layer_interface();\n   rx->handle_pdu(std::move(gtpu_tx.last_tx), orig_addr);\n   ASSERT_EQ(gtpu_rx.last_dl_msg, tx_msg);\n-};\n+}\n \n /// \\brief Test correct transmission and reception of a NR-U UL message (no T-PDU)\n TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_ul_msg)\n@@ -282,7 +282,7 @@ TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_ul_msg)\n   gtpu_tunnel_common_rx_upper_layer_interface* rx = gtpu->get_rx_upper_layer_interface();\n   rx->handle_pdu(std::move(gtpu_tx.last_tx), orig_addr);\n   ASSERT_EQ(gtpu_rx.last_ul_msg, tx_msg);\n-};\n+}\n \n /// \\brief Test correct transmission and reception of a NR-U UL message (with T-PDU)\n TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_ul_msg_with_t_pdu)\n@@ -319,7 +319,7 @@ TEST_F(gtpu_tunnel_nru_test, tx_rx_nru_ul_msg_with_t_pdu)\n   gtpu_tunnel_common_rx_upper_layer_interface* rx = gtpu->get_rx_upper_layer_interface();\n   rx->handle_pdu(std::move(gtpu_tx.last_tx), orig_addr);\n   ASSERT_EQ(gtpu_rx.last_ul_msg, tx_msg);\n-};\n+}\n \n void usage(const char* prog)\n {",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "tests/unittests/ngap/ngap_ue_context_test.cpp",
+      "patch": "@@ -33,7 +33,7 @@ class ngap_ue_context_test : public ::testing::Test\n   {\n     ngap_logger.set_level(srslog::basic_levels::debug);\n     srslog::init();\n-  };\n+  }\n   ~ngap_ue_context_test()\n   {\n     // flush logger after each test",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ngap/test_helpers.h",
+      "patch": "@@ -98,7 +98,7 @@ class dummy_ngap_message_notifier : public ngap_message_notifier\n class dummy_ngap_message_handler : public ngap_message_handler\n {\n public:\n-  dummy_ngap_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_ngap_message_handler() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n   void handle_message(const ngap_message& msg) override\n   {\n     last_msg = msg;\n@@ -114,7 +114,7 @@ class dummy_ngap_message_handler : public ngap_message_handler\n class dummy_ngap_rrc_ue_notifier : public ngap_rrc_ue_notifier\n {\n public:\n-  dummy_ngap_rrc_ue_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_ngap_rrc_ue_notifier() : logger(srslog::fetch_basic_logger(\"TEST\")) {}\n \n   void on_new_pdu(byte_buffer nas_pdu) override\n   {\n@@ -142,7 +142,7 @@ class dummy_ngap_rrc_ue_notifier : public ngap_rrc_ue_notifier\n class dummy_ngap_cu_cp_notifier : public ngap_cu_cp_notifier\n {\n public:\n-  dummy_ngap_cu_cp_notifier(ue_manager& ue_mng_) : ue_mng(ue_mng_), logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_ngap_cu_cp_notifier(ue_manager& ue_mng_) : ue_mng(ue_mng_), logger(srslog::fetch_basic_logger(\"TEST\")) {}\n \n   void connect_ngap(ngap_ue_context_removal_handler& ngap_handler_) { ngap_handler = &ngap_handler_; }\n \n@@ -384,8 +384,9 @@ class dummy_ngap_cu_cp_notifier : public ngap_cu_cp_notifier\n class dummy_rrc_ngap_message_handler : public rrc_ngap_message_handler\n {\n public:\n-  dummy_rrc_ngap_message_handler(ue_index_t ue_index_) :\n-    ue_index(ue_index_), logger(srslog::fetch_basic_logger(\"TEST\")){};\n+  dummy_rrc_ngap_message_handler(ue_index_t ue_index_) : ue_index(ue_index_), logger(srslog::fetch_basic_logger(\"TEST\"))\n+  {\n+  }\n \n   void handle_dl_nas_transport_message(byte_buffer nas_pdu) override\n   {\n@@ -419,25 +420,25 @@ class dummy_ngap_cu_cp_ue_notifier : public ngap_cu_cp_ue_notifier\n   void set_rrc_ue_notifier(dummy_ngap_rrc_ue_notifier& rrc_ue_notifier_) { rrc_ue_notifier = &rrc_ue_notifier_; }\n \n   /// \\brief Get the UE index of the UE.\n-  ue_index_t get_ue_index() override { return ue_index.value(); };\n+  ue_index_t get_ue_index() override { return ue_index.value(); }\n \n   /// \\brief Schedule an async task for the UE.\n-  bool schedule_async_task(async_task<void> task) override { return true; };\n+  bool schedule_async_task(async_task<void> task) override { return true; }\n \n   /// \\brief Get the RRC UE notifier of the UE.\n   ngap_rrc_ue_notifier& get_ngap_rrc_ue_notifier() override\n   {\n     srsran_assert(rrc_ue_notifier != nullptr, \"RRC UE notifier must not be nullptr\");\n     return *rrc_ue_notifier;\n-  };\n+  }\n \n   /// \\brief Notify the CU-CP about a security context\n   /// \\param[in] sec_ctxt The received security context\n   /// \\return True if the security context was successfully initialized, false otherwise\n-  bool init_security_context(security::security_context sec_ctxt) override { return true; };\n+  bool init_security_context(security::security_context sec_ctxt) override { return true; }\n \n   /// \\brief Check if security is enabled\n-  [[nodiscard]] bool is_security_enabled() const override { return true; };\n+  [[nodiscard]] bool is_security_enabled() const override { return true; }\n \n   std::optional<ue_index_t>   ue_index;\n   dummy_ngap_rrc_ue_notifier* rrc_ue_notifier = nullptr;",
+      "additions": 11,
+      "deletions": 10,
+      "changes": 21
+    },
+    {
+      "filename": "tests/unittests/ofh/receiver/helpers.h",
+      "patch": "@@ -76,9 +76,9 @@ class resource_grid_writer_bool_spy : public resource_grid_writer\n     }\n   }\n \n-  unsigned get_nof_ports() const override { return 1; };\n-  unsigned get_nof_subc() const override { return grid_data.size(); };\n-  unsigned get_nof_symbols() const override { return MAX_NSYMB_PER_SLOT; };\n+  unsigned get_nof_ports() const override { return 1; }\n+  unsigned get_nof_subc() const override { return grid_data.size(); }\n+  unsigned get_nof_symbols() const override { return MAX_NSYMB_PER_SLOT; }\n \n   span<const cf_t> put(unsigned                                               port,\n                        unsigned                                               l,",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/ofh/receiver/ofh_message_receiver_test.cpp",
+      "patch": "@@ -41,7 +41,7 @@ class dummy_eth_rx_buffer : public ether::rx_buffer\n public:\n   explicit dummy_eth_rx_buffer(std::vector<uint8_t>&& init_values) { buffer = init_values; }\n \n-  span<const uint8_t> data() const override { return buffer; };\n+  span<const uint8_t> data() const override { return buffer; }\n \n private:\n   std::vector<uint8_t> buffer;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ofh/transmitter/ofh_data_flow_cplane_scheduling_commands_test.cpp",
+      "patch": "@@ -66,10 +66,10 @@ class cplane_message_builder_spy : public cplane_message_builder\n   }\n \n   /// Returns the type 1 parameters.\n-  const cplane_section_type1_parameters& get_type1_param() const { return type1_params; };\n+  const cplane_section_type1_parameters& get_type1_param() const { return type1_params; }\n \n   /// Returns the type 3 parameters.\n-  const cplane_section_type3_parameters& get_type3_param() const { return type3_params; };\n+  const cplane_section_type3_parameters& get_type3_param() const { return type3_params; }\n };\n \n } // namespace",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/ofh/transmitter/ofh_data_flow_uplane_downlink_data_impl_test.cpp",
+      "patch": "@@ -101,7 +101,7 @@ class ofh_data_flow_uplane_downlink_data_impl_fixture : public ::testing::TestWi\n     config.compr_params = compr_params;\n \n     return config;\n-  };\n+  }\n \n   data_flow_uplane_downlink_data_impl_dependencies generate_data_flow_dependencies()\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ofh/transmitter/ofh_downlink_handler_impl_test.cpp",
+      "patch": "@@ -41,7 +41,7 @@ class data_flow_uplane_downlink_data_spy : public data_flow_uplane_downlink_data\n   }\n \n   // See interface for documentation.\n-  data_flow_downlink_metrics_collector* get_metrics_collector() override { return nullptr; };\n+  data_flow_downlink_metrics_collector* get_metrics_collector() override { return nullptr; }\n \n   /// Returns true if the method enqueue section type 1 message has been called, otherwise false.\n   bool has_enqueue_section_type_1_method_been_called() const",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/modulation/ofdm_demodulator_test_doubles.h",
+      "patch": "@@ -85,7 +85,7 @@ class ofdm_demodulator_factory_spy : public ofdm_demodulator_factory\n     return nullptr;\n   }\n \n-  std::vector<ofdm_symbol_demodulator_spy*>& get_demodulators() { return demodulators; };\n+  std::vector<ofdm_symbol_demodulator_spy*>& get_demodulators() { return demodulators; }\n \n private:\n   std::vector<ofdm_symbol_demodulator_spy*> demodulators;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/modulation/ofdm_modulator_test_doubles.h",
+      "patch": "@@ -88,7 +88,7 @@ class ofdm_modulator_factory_spy : public ofdm_modulator_factory\n     return nullptr;\n   }\n \n-  std::vector<ofdm_symbol_modulator_spy*>& get_modulators() { return modulators; };\n+  std::vector<ofdm_symbol_modulator_spy*>& get_modulators() { return modulators; }\n };\n \n } // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/downlink/downlink_processor_test_doubles.h",
+      "patch": "@@ -101,7 +101,7 @@ class lower_phy_downlink_processor_spy : public lower_phy_downlink_processor\n     pdxch_notifier = &pdxch_notifier_;\n   }\n \n-  void stop() override {};\n+  void stop() override {}\n \n   pdxch_processor_request_handler& get_downlink_request_handler() override { return pdxch_proc_request_handler_spy; }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/support/prach_buffer_test_doubles.h",
+      "patch": "@@ -113,8 +113,8 @@ class prach_buffer_spy : public prach_buffer\n            get_symbol_const_entries.size();\n   }\n \n-  const std::vector<entry_t>& get_get_symbol_entries() { return get_symbol_entries; };\n-  const std::vector<entry_t>& get_get_symbol_const_entries() { return get_symbol_const_entries; };\n+  const std::vector<entry_t>& get_get_symbol_entries() { return get_symbol_entries; }\n+  const std::vector<entry_t>& get_get_symbol_const_entries() { return get_symbol_const_entries; }\n \n   void clear()\n   {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/sib1_scheduler_test.cpp",
+      "patch": "@@ -114,7 +114,7 @@ struct sib_test_bench {\n     test_logger.set_context(0, 0);\n     sched_logger.set_context(0, 0);\n     res_grid.slot_indication(sl_tx);\n-  };\n+  }\n \n   // Test bench ctor for SIB1 scheduler test use in case of partial slot TDD configuration.\n   sib_test_bench(sched_cell_configuration_request_message msg,\n@@ -126,7 +126,7 @@ struct sib_test_bench {\n     test_logger.set_context(0, 0);\n     sched_logger.set_context(0, 0);\n     res_grid.slot_indication(sl_tx);\n-  };\n+  }\n \n   // Test bench ctor for SSB/SIB1 scheduler collision test.\n   sib_test_bench(uint32_t           freq_arfcn,\n@@ -155,7 +155,7 @@ struct sib_test_bench {\n   // Delete the default constructor to force usage of defined constructors.\n   sib_test_bench() = delete;\n \n-  cell_slot_resource_allocator& get_slot_res_grid() { return res_grid[0]; };\n+  cell_slot_resource_allocator& get_slot_res_grid() { return res_grid[0]; }\n \n   static scheduler_expert_config make_scheduler_expert_cfg(const scheduler_si_expert_config& si_cfg)\n   {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/ssb_scheduler_test.cpp",
+      "patch": "@@ -83,7 +83,7 @@ struct ssb_test_bench {\n   }\n \n   cell_slot_resource_allocator& get_slot_allocator() { return cell_res_grid; }\n-  const cell_configuration&     get_cell_sched_config() { return cfg; };\n+  const cell_configuration&     get_cell_sched_config() { return cfg; }\n \n   slot_point slot_tx() { return t; }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/config/pucch_resource_generator_test.cpp",
+      "patch": "@@ -595,7 +595,7 @@ class pucch_grid\n class test_pucch_res_generator : public ::testing::Test\n {\n public:\n-  test_pucch_res_generator() : grid(bwp_size, nof_symbols_per_slot){};\n+  test_pucch_res_generator() : grid(bwp_size, nof_symbols_per_slot) {}\n \n protected:\n   // Parameters that are passed by the routing to run the tests.\n@@ -607,7 +607,7 @@ class test_pucch_res_generator : public ::testing::Test\n class test_pucch_res_generator_params : public ::testing::TestWithParam<pucch_gen_params>\n {\n public:\n-  test_pucch_res_generator_params() : grid(bwp_size, nof_symbols_per_slot){};\n+  test_pucch_res_generator_params() : grid(bwp_size, nof_symbols_per_slot) {}\n \n protected:\n   // Parameters that are passed by the routing to run the tests.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_ue_fallback_mode_test.cpp",
+      "patch": "@@ -149,7 +149,7 @@ static bool is_f1_pucch(const pucch_info& pucch, bool is_common, bool has_sr)\n {\n   return pucch.format() == pucch_format::FORMAT_1 and ((pucch.uci_bits.sr_bits != sr_nof_bits::no_sr) == has_sr) and\n          pucch.uci_bits.harq_ack_nof_bits > 0 and (pucch.resources.second_hop_prbs.empty() != is_common);\n-};\n+}\n \n TEST_P(scheduler_con_res_msg4_test, while_ue_is_in_fallback_then_common_pucch_is_used)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/pucch_alloc_base_tester.h",
+      "patch": "@@ -23,7 +23,9 @@ class pucch_allocator_base_tester\n   pucch_allocator_base_tester(test_bench_params params_ = test_bench_params{.pucch_res_common = 11, .n_cces = 1},\n                               unsigned          max_pucchs_per_slot_    = 32U,\n                               unsigned          max_ul_grants_per_slot_ = 32U) :\n-    t_bench(params_, max_pucchs_per_slot_, max_ul_grants_per_slot_){};\n+    t_bench(params_, max_pucchs_per_slot_, max_ul_grants_per_slot_)\n+  {\n+  }\n \n protected:\n   // Parameters that are passed by the routine to run the tests.",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/pucch_alloc_common_harq_test.cpp",
+      "patch": "@@ -95,7 +95,9 @@ class test_pucch_harq_common_output : public ::testing::TestWithParam<pucch_test\n                                     params.output_params.initial_cyclic_shift,\n                                     params.output_params.sr_bits,\n                                     params.output_params.harq_ack_nof_bits,\n-                                    params.output_params.time_domain_occ)){};\n+                                    params.output_params.time_domain_occ))\n+  {\n+  }\n \n protected:\n   // Parametrized variables.\n@@ -242,7 +244,7 @@ INSTANTIATE_TEST_SUITE_P(\n class test_pucch_harq_common_multiple_allocation : public ::testing::Test\n {\n public:\n-  test_pucch_harq_common_multiple_allocation() : t_bench(test_bench_params{.pucch_res_common = 0, .n_cces = 1}){};\n+  test_pucch_harq_common_multiple_allocation() : t_bench(test_bench_params{.pucch_res_common = 0, .n_cces = 1}) {}\n \n protected:\n   // Parameters that are passed by the routing to run the tests.",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/pucch_res_manager_test.cpp",
+      "patch": "@@ -40,7 +40,7 @@ class test_pucch_resource_manager : public ::testing::Test\n     ul_cfg.init_ul_bwp.pucch_cfg.value().sr_res_list.front().pucch_res_id = pucch_res_id_t{10, 10};\n     pucch_cfg_ue_2                                                        = ul_cfg.init_ul_bwp.pucch_cfg.value();\n     res_manager.slot_indication(sl_tx);\n-  };\n+  }\n \n protected:\n   const scheduler_expert_config                  sched_cfg = config_helpers::make_default_scheduler_expert_config();\n@@ -71,7 +71,7 @@ class test_pucch_resource_manager : public ::testing::Test\n         res_manager.reserve_next_set_1_harq_res_available(sl_tx, rnti, pucch_cfg);\n       }\n     }\n-  };\n+  }\n };\n \n TEST_F(test_pucch_resource_manager, common_res_available_intialization)\n@@ -525,10 +525,9 @@ class test_pucch_res_manager_multiple_cfg : public test_pucch_resource_manager\n protected:\n   struct dummy_ue {\n     dummy_ue(rnti_t rnti, const cell_configuration& cell_cfg_common_, ue_cell_config_ptr ue_cell_cfg_) :\n-      cnrti{rnti},\n-      ue_cell_cfg{rnti, cell_cfg_common_, ue_cell_cfg_} {\n-\n-      };\n+      cnrti{rnti}, ue_cell_cfg{rnti, cell_cfg_common_, ue_cell_cfg_}\n+    {\n+    }\n \n     [[nodiscard]] const pucch_config& get_pucch_cfg() const { return ue_cell_cfg.init_bwp().ul_ded->pucch_cfg.value(); }\n ",
+      "additions": 5,
+      "deletions": 6,
+      "changes": 11
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/uci_scheduling_test.cpp",
+      "patch": "@@ -69,7 +69,7 @@ class uci_sr_scheduler_tester : public ::testing::TestWithParam<sr_periodicity>\n     format2_sr_csi.max_code_rate     = max_pucch_code_rate::dot_25;\n     format2_sr_csi.n_id_scambling    = t_bench.cell_cfg.pci;\n     format2_sr_csi.n_id_0_scrambling = t_bench.cell_cfg.pci;\n-  };\n+  }\n \n protected:\n   // Parametrized variables.\n@@ -177,7 +177,7 @@ class uci_csi_scheduler_tester : public ::testing::TestWithParam<csi_report_peri\n     format2_csi.max_code_rate     = max_pucch_code_rate::dot_25;\n     format2_csi.n_id_scambling    = t_bench.cell_cfg.pci;\n     format2_csi.n_id_0_scrambling = t_bench.cell_cfg.pci;\n-  };\n+  }\n \n protected:\n   // Parametrized variables.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/sdap/sdap_rx_test.cpp",
+      "patch": "@@ -23,7 +23,7 @@ class sdap_rx_test_frame : public sdap_rx_sdu_notifier\n   std::queue<byte_buffer> sdu_queue;\n \n   // sdap_rx_sdu_notifier interface\n-  void on_new_sdu(byte_buffer pdu, qos_flow_id_t qfi) override { sdu_queue.push(std::move(pdu)); };\n+  void on_new_sdu(byte_buffer pdu, qos_flow_id_t qfi) override { sdu_queue.push(std::move(pdu)); }\n };\n \n /// Fixture class for SDAP RX tests",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/sdap/sdap_test.h",
+      "patch": "@@ -26,7 +26,7 @@ class sdap_upper_dummy : public sdap_rx_sdu_notifier\n   std::queue<byte_buffer> sdu_queue;\n \n   // sdap_rx_sdu_notifier interface\n-  void on_new_sdu(byte_buffer pdu, qos_flow_id_t qfi) override { sdu_queue.push(std::move(pdu)); };\n+  void on_new_sdu(byte_buffer pdu, qos_flow_id_t qfi) override { sdu_queue.push(std::move(pdu)); }\n };\n \n /// Mocking class of the lower layers invoked by the SDAP entity.\n@@ -36,7 +36,7 @@ class sdap_lower_dummy : public sdap_tx_pdu_notifier\n   std::queue<byte_buffer> pdu_queue;\n \n   // sdap_tx_pdu_notifier interface\n-  void on_new_pdu(byte_buffer pdu) override { pdu_queue.push(std::move(pdu)); };\n+  void on_new_pdu(byte_buffer pdu) override { pdu_queue.push(std::move(pdu)); }\n };\n \n /// Fixture class for SDAP tests",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/sdap/sdap_tx_test.cpp",
+      "patch": "@@ -23,7 +23,7 @@ class sdap_tx_test_frame : public sdap_tx_pdu_notifier\n   std::queue<byte_buffer> pdu_queue;\n \n   // sdap_tx_pdu_notifier interface\n-  void on_new_pdu(byte_buffer pdu) override { pdu_queue.push(std::move(pdu)); };\n+  void on_new_pdu(byte_buffer pdu) override { pdu_queue.push(std::move(pdu)); }\n };\n \n /// Fixture class for SDAP TX tests",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/json_formatter_test.cpp",
+      "patch": "@@ -251,7 +251,7 @@ DECLARE_METRIC_LIST(\"metrics_list\", metrics_list, std::vector<metric_list_set>);\n DECLARE_METRIC(\"list_metric3\", list_metric3, unsigned, \"\");\n DECLARE_METRIC(\"list_metric4\", list_metric4, unsigned, \"\");\n using list_ctx_t = srslog::build_context_type<list_metric3, list_metric4, metrics_list>;\n-}; // namespace\n+} // namespace\n \n static bool when_context_with_empty_list_is_passed_then_list_object_is_empty()\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 130,
+  "commit_details_path": ".\\commit_metadata\\aadb246.json"
+}

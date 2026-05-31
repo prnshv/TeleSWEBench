@@ -1,0 +1,85 @@
+{
+  "commit_id": "5b5d394947355af43b4c17ea085cba8cfa3990f2",
+  "commit_sha_short": "5b5d394",
+  "commit_folder": "5b5d394",
+  "commit_message": "sched: change dci_packing type for vrb_to_prb map\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "sched: change dci_packing type for vrb_to_prb map",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5b5d394947355af43b4c17ea085cba8cfa3990f2",
+  "commit_date": "2025-07-04T10:40:17Z",
+  "parent_sha": "a2bf9a7af78e11dd700f53c080f96a2a7304a415",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/a2bf9a7af78e11dd700f53c080f96a2a7304a415",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/pdcch/dci_packing.h",
+      "patch": "@@ -306,11 +306,12 @@ struct dci_size_config {\n   ///\n   /// \\remark Required if \\c pdsch_res_allocation_type is either \\e resourceAllocationType0 or \\e dynamicSwitch.\n   std::optional<unsigned> nof_dl_rb_groups;\n-  /// \\brief Interleaved VRB-to-PRB mapping flag.\n+  /// \\brief Interleaved VRB-to-PRB mapping configured flag.\n   ///\n-  /// Set to \\c true if interleaved VRB-to-PRB mapping is configured, \\c false otherwise.\n-  ///\n-  /// \\remark Required if \\c pdsch_res_allocation_type is either \\e resourceAllocationType1 or \\e dynamicSwitch.\n+  /// Determines whether interleaved VRB-to-PRB mapping is configured by high layers.\n+  /// \\remark Required if \\c pdsch_res_allocation_type is either \\e resourceAllocationType1 or \\e dynamicSwitch; in this\n+  /// case, set to \\c true if interleaved VRB-to-PRB mapping is configured by high layers, \\c false otherwise.\n+  /// \\remark Don't set this for \\e resourceAllocationType0, which doesn't support interleaved VRB-to-PRB mapping.\n   std::optional<bool> interleaved_vrb_prb_mapping;\n   /// \\brief DM-RS type for PDSCH DM-RS mapping type A.\n   ///\n@@ -986,11 +987,15 @@ struct dci_1_1_configuration {\n   unsigned time_resource;\n   /// \\brief VRB-to-PRB mapping - 1 bit if present.\n   ///\n-  /// Indicates if non-interleaved or interleaved VRB to PRB mapping is used. Set as per TS38.212 Table 7.3.1.2.2-5 if\n-  /// resource allocation type 1 and interleaved VRB-to-PRB mapping are configured (see \\ref\n-  /// dci_size_config::pdsch_res_allocation_type and \\ref dci_size_config::interleaved_vrb_prb_mapping). Otherwise,\n-  /// leave it unset.\n-  std::optional<vrb_to_prb::mapping_type> vrb_prb_mapping;\n+  /// This must be set if resource allocation type 1 and interleaved VRB-to-PRB mapping are configured by high layers\n+  /// (see \\ref dci_size_config::pdsch_res_allocation_type and \\ref dci_size_config::interleaved_vrb_prb_mapping).\n+  /// It must be present if and only if \\ref dci_size_config::interleaved_vrb_prb_mapping is present.\n+  /// In this case, \"true\" indicates that interleaved VRB-to-PRB mapping is used for the PDSCH relative to this DCI;\n+  /// \"false\" otherwise, as per TS38.212 Table 7.3.1.2.2-5. NOTE: interleaved VRB-to-PRB mapping can be configured by\n+  /// high layers but not used on a given slot.\n+  ///\n+  /// Don't set this for resource allocation type 0, as it doesn't support interleaved VRB-to-PRB mapping.\n+  std::optional<bool> vrb_prb_mapping;\n   /// \\brief PRB bundling size indicator - 1 bit if present.\n   ///\n   /// Dynamically selects between the configured PRB bundling size sets 1 and 2. Set as per TS38.214 Section 5.1.2.3 if",
+      "additions": 14,
+      "deletions": 9,
+      "changes": 23
+    },
+    {
+      "filename": "include/srsran/scheduler/config/serving_cell_config.h",
+      "patch": "@@ -93,8 +93,7 @@ struct pdsch_config {\n   /// DMRS configuration for PDSCH transmissions using PDSCH mapping type B (chosen dynamically via\n   /// PDSCH-TimeDomainResourceAllocation).\n   std::optional<dmrs_downlink_config> pdsch_mapping_type_b_dmrs;\n-  /// Interleaving unit. If field is absent, the UE performs non-interleaved VRB-to-PRB mapping. The field\n-  /// vrb-ToPRB-Interleaver applies to DCI format 1_1.\n+  /// VRB-to-PRB mapping type for PDSCH. The field vrb-ToPRB-Interleaver applies to DCI format 1_1.\n   vrb_to_prb::mapping_type vrb_to_prb_interleaving;\n   /// A list of Transmission Configuration Indicator (TCI) states indicating a transmission configuration which includes\n   /// QCL-relationships between the DL RSs in one RS set and the PDSCH DMRS ports (see TS 38.214, clause 5.1.5).",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/ue_capability_manager.cpp",
+      "patch": "@@ -133,7 +133,7 @@ static void set_ul_mimo(serving_cell_config&      cell_cfg,\n \n static void set_pdsch_interleaving(serving_cell_config& cell_cfg, vrb_to_prb::mapping_type interleaving_opt)\n {\n-  // Set MCS index table for PDSCH. See TS 38.214, Table 5.1.3.1-[1-3].\n+  // Set \\c vrb-ToPRB-Interleaver for PDSCH, as per TS 38.331, \\c PDSCH-Config.\n   if (cell_cfg.init_dl_bwp.pdsch_cfg.has_value()) {\n     cell_cfg.init_dl_bwp.pdsch_cfg->vrb_to_prb_interleaving = interleaving_opt;\n   }\n@@ -194,7 +194,7 @@ void ue_capability_manager::update_impl(du_ue_resource_config& ue_res_cfg)\n   // Enable 256QAM for PUSCH, if supported.\n   set_pusch_mcs_table(pcell_cfg, select_pusch_mcs_table(cell_idx));\n \n-  // Enable VRb-to-PRB interleaving for PDSCH, if supported.\n+  // Enable VRB-to-PRB interleaving for PDSCH, if supported.\n   set_pdsch_interleaving(pcell_cfg, select_pdsch_interleaving(cell_idx));\n \n   // Setup UL MIMO parameters.\n@@ -314,19 +314,19 @@ vrb_to_prb::mapping_type ue_capability_manager::select_pdsch_interleaving(du_cel\n   const auto& init_dl_bwp = base_cell_cfg_list[cell_idx].ue_ded_serv_cell_cfg.init_dl_bwp;\n \n   if (init_dl_bwp.pdsch_cfg.has_value()) {\n-    vrb_to_prb::mapping_type app_pdsch_interliving = init_dl_bwp.pdsch_cfg.value().vrb_to_prb_interleaving;\n+    vrb_to_prb::mapping_type app_pdsch_interleaving = init_dl_bwp.pdsch_cfg.value().vrb_to_prb_interleaving;\n     if (ue_caps.has_value()) {\n       if (ue_caps->pdsch_interleaving_vrb_to_prb_supported) {\n         // If the PDSCH interleaving is enabled in the application configuration and supported by the UE, return it.\n-        return app_pdsch_interliving;\n+        return app_pdsch_interleaving;\n       }\n     } else if (test_cfg.test_ue.has_value() and test_cfg.test_ue->rnti != rnti_t::INVALID_RNTI) {\n       // Has no capabilities but the UE is in test mode.\n-      return app_pdsch_interliving;\n+      return app_pdsch_interleaving;\n     }\n   }\n \n-  // Default to Non-interleaved if no base cell PDSCH config of if the UE capabilities are not available.\n+  // Default to \\c non-interleaved if no base cell PDSCH config or if the UE capabilities are not available.\n   return vrb_to_prb::mapping_type::non_interleaved;\n }\n ",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/ue_capability_summary.h",
+      "patch": "@@ -53,7 +53,7 @@ struct ue_capability_summary {\n   bool long_drx_cycle_supported = false;\n   /// Set to true if Short DRX cycle is supported.\n   bool short_drx_cycle_supported = false;\n-  /// Set to true if UE supports interleavingVRB-ToPRB-PDSCH.\n+  /// Set to true if UE supports \\c interleavingVRB-ToPRB-PDSCH, as per TS 38.306, Section 4.2.7.10.\n   bool pdsch_interleaving_vrb_to_prb_supported = false;\n };\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -513,6 +513,11 @@ static dci_1_1_size dci_f1_1_bits_before_padding(const dci_size_config& dci_conf\n   sizes.total += sizes.time_resource;\n \n   // VRB-to-PRB mapping - 0 or 1 bit.\n+  // As per TS 38.212, Section 7.3.1.2.2, the VRB-to-PRB mapping size is \"0 bit if only resource allocation type 0 is\n+  // configured or if interleaved VRB-to-PRB mapping is not configured by high layers\". In the following,\n+  // dci_config.interleaved_vrb_prb_mapping (if present) is used to determine if the interleaved VRB-to-PRB mapping is\n+  // configured by high layers; dci_config.interleaved_vrb_prb_mapping is not required to be present for\n+  // resource_allocation_type_0.\n   sizes.vrb_prb_mapping = (dci_config.pdsch_res_allocation_type != resource_allocation::resource_allocation_type_0) &&\n                                   dci_config.interleaved_vrb_prb_mapping.value()\n                               ? units::bits(1)\n@@ -1359,8 +1364,7 @@ dci_payload srsran::dci_1_1_pack(const dci_1_1_configuration& config)\n \n   // VRB-to-PRB mapping - 0 or 1 bit.\n   if (config.vrb_prb_mapping.has_value()) {\n-    payload.push_back(config.vrb_prb_mapping.value() != vrb_to_prb::mapping_type::non_interleaved ? 1U : 0U,\n-                      config.payload_size.vrb_prb_mapping.value());\n+    payload.push_back(config.vrb_prb_mapping.value() ? 1U : 0U, config.payload_size.vrb_prb_mapping.value());\n   }\n \n   // PRB bundling size indicator - 0 or 1 bit.",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/config/ue_configuration.cpp",
+      "patch": "@@ -309,6 +309,8 @@ static dci_size_config get_dci_size_config(const ue_cell_configuration& ue_cell_\n       }\n       case pdsch_config::resource_allocation::resource_allocation_type_1: {\n         dci_sz_cfg.pdsch_res_allocation_type = resource_allocation::resource_allocation_type_1;\n+        // NOTE: dci_sz_cfg.interleaved_vrb_prb_mapping is expected to be set (true or false depends on\n+        // opt_pdsch_cfg.value()) in case of \\ref  resource_allocation_type_1.\n         dci_sz_cfg.interleaved_vrb_prb_mapping =\n             opt_pdsch_cfg.value().vrb_to_prb_interleaving != vrb_to_prb::mapping_type::non_interleaved;\n         break;\n@@ -317,6 +319,8 @@ static dci_size_config get_dci_size_config(const ue_cell_configuration& ue_cell_\n         dci_sz_cfg.pdsch_res_allocation_type = resource_allocation::dynamic_switch;\n         dci_sz_cfg.nof_dl_rb_groups          = static_cast<unsigned>(\n             get_nominal_rbg_size(active_dl_bwp.crbs.length(), opt_pdsch_cfg.value().rbg_sz == rbg_size::config1));\n+        // NOTE: dci_sz_cfg.interleaved_vrb_prb_mapping is expected to be set (true or false depends on\n+        // opt_pdsch_cfg.value()) in case of \\ref dynamic_switch.\n         dci_sz_cfg.interleaved_vrb_prb_mapping =\n             opt_pdsch_cfg.value().vrb_to_prb_interleaving != vrb_to_prb::mapping_type::non_interleaved;\n         break;",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.cpp",
+      "patch": "@@ -21,15 +21,15 @@ namespace {\n \n auto make_dl_dci_log_entry(const dci_dl_info& dci)\n {\n-  bool                                    is_formattable = true;\n-  uint8_t                                 h_id           = 0;\n-  bool                                    ndi            = false;\n-  uint8_t                                 rv             = 0;\n-  uint8_t                                 mcs            = 0;\n-  uint8_t                                 pucch_res_id   = 0;\n-  std::optional<int8_t>                   tpc_cmd;\n-  std::optional<uint8_t>                  dai;\n-  std::optional<vrb_to_prb::mapping_type> vrb_prb;\n+  bool                   is_formattable = true;\n+  uint8_t                h_id           = 0;\n+  bool                   ndi            = false;\n+  uint8_t                rv             = 0;\n+  uint8_t                mcs            = 0;\n+  uint8_t                pucch_res_id   = 0;\n+  std::optional<int8_t>  tpc_cmd;\n+  std::optional<uint8_t> dai;\n+  std::optional<bool>    vrb_prb;\n \n   switch (dci.type) {\n     case dci_dl_rnti_config_type::c_rnti_f1_0: {\n@@ -76,7 +76,7 @@ auto make_dl_dci_log_entry(const dci_dl_info& dci)\n         fmt::format_to(ctx.out(), \" dai={}\", dai.value());\n       }\n       if (vrb_prb.has_value()) {\n-        fmt::format_to(ctx.out(), \" vrb_prb_map={}\", fmt::underlying(vrb_prb.value()));\n+        fmt::format_to(ctx.out(), \" vrb_prb_map_used={}\", vrb_prb.value() ? \"yes\" : \"no\");\n       }\n     }\n     return ctx.out();",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "lib/scheduler/support/dci_builder.cpp",
+      "patch": "@@ -235,7 +235,6 @@ void srsran::build_dci_f1_1_c_rnti(dci_dl_info&                  dci,\n   const bwp_downlink_common& active_dl_bwp_cmn = *ss_info.bwp->dl_common.value();\n   const bwp_configuration&   active_dl_bwp     = active_dl_bwp_cmn.generic_params;\n   const auto                 k1_candidates     = ss_info.get_k1_candidates();\n-  const auto&                opt_pdsch_cfg     = ue_cell_cfg.bwp(to_bwp_id(0)).dl_ded.value()->pdsch_cfg;\n \n   dci.type                    = dci_dl_rnti_config_type::c_rnti_f1_1;\n   dci.c_rnti_f1_1             = {};\n@@ -266,10 +265,7 @@ void srsran::build_dci_f1_1_c_rnti(dci_dl_info&                  dci,\n   f1_1.payload_size = dci_sz.format1_1_ue_size.value();\n \n   if (dci_sz_cfg.interleaved_vrb_prb_mapping.has_value() and dci_sz_cfg.interleaved_vrb_prb_mapping.value()) {\n-    if (opt_pdsch_cfg.value().vrb_to_prb_interleaving != vrb_to_prb::mapping_type::non_interleaved) {\n-      f1_1.vrb_prb_mapping = enable_interleaving ? opt_pdsch_cfg.value().vrb_to_prb_interleaving\n-                                                 : vrb_to_prb::mapping_type::non_interleaved;\n-    }\n+    f1_1.vrb_prb_mapping = enable_interleaving;\n   }\n \n   // TODO:",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/support/sch_pdu_builder.cpp",
+      "patch": "@@ -448,11 +448,12 @@ void srsran::build_pdsch_f1_1_c_rnti(pdsch_information&              pdsch,\n   pdsch.bwp_cfg     = &active_bwp_cfg;\n   pdsch.coreset_cfg = &cs_cfg;\n \n-  pdsch.rbs     = vrbs;\n-  pdsch.symbols = pdsch_cfg.symbols;\n-  pdsch.dmrs    = pdsch_cfg.dmrs;\n-  pdsch.vrb_prb_mapping =\n-      dci_cfg.vrb_prb_mapping.has_value() ? dci_cfg.vrb_prb_mapping.value() : vrb_to_prb::mapping_type::non_interleaved;\n+  pdsch.rbs             = vrbs;\n+  pdsch.symbols         = pdsch_cfg.symbols;\n+  pdsch.dmrs            = pdsch_cfg.dmrs;\n+  pdsch.vrb_prb_mapping = dci_cfg.vrb_prb_mapping.has_value() and dci_cfg.vrb_prb_mapping.value()\n+                              ? ue_cell_cfg.init_bwp().dl_ded.value()->pdsch_cfg->vrb_to_prb_interleaving\n+                              : vrb_to_prb::mapping_type::non_interleaved;\n   // See TS38.213, 10.1.\n   pdsch.ss_set_type = search_space_set_type::ue_specific;\n   pdsch.dci_fmt     = dci_dl_format::f1_1;",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "tests/unittests/ran/pdcch/dci_packing_test.cpp",
+      "patch": "@@ -613,8 +613,7 @@ class DciNonFallbackPackingFixture : public ::testing::TestWithParam<DciNonFallb\n     if (payload_size.vrb_prb_mapping.value() != 0) {\n       // Set the VRB-to-PRB mapping field.\n       uniform_distribution vrb_prb_mapping_dist(0, pow2(payload_size.vrb_prb_mapping.value()) - 1);\n-      config.vrb_prb_mapping = vrb_prb_mapping_dist(rgen) ? vrb_to_prb::mapping_type::interleaved_n2\n-                                                          : vrb_to_prb::mapping_type::non_interleaved;\n+      config.vrb_prb_mapping = vrb_prb_mapping_dist(rgen) ? true : false;\n     }\n \n     if (payload_size.prb_bundling_size_indicator.value() != 0) {\n@@ -1233,9 +1232,7 @@ static dci_payload build_dci_1_1_expected(const dci_1_1_configuration& config)\n \n   if (payload_size.vrb_prb_mapping.value() != 0) {\n     // VRB-to-PRB mapping - 1 bit if present.\n-    expected_pack(expected,\n-                  config.vrb_prb_mapping.value() != vrb_to_prb::mapping_type::non_interleaved,\n-                  payload_size.vrb_prb_mapping.value());\n+    expected_pack(expected, config.vrb_prb_mapping.value() != false, payload_size.vrb_prb_mapping.value());\n   }\n \n   if (payload_size.prb_bundling_size_indicator.value() != 0) {",
+      "additions": 2,
+      "deletions": 5,
+      "changes": 7
+    }
+  ],
+  "num_files_changed": 10,
+  "commit_details_path": ".\\commit_metadata\\5b5d394.json"
+}

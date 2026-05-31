@@ -1,0 +1,36 @@
+{
+  "commit_id": "ccb1f5496f037b2b7f4c75816974b518c4ee0bc4",
+  "commit_sha_short": "ccb1f54",
+  "commit_folder": "ccb1f54",
+  "commit_message": "sched: make scheduler metrics synchronized with the SFN and slot index",
+  "commit_message_first_line": "sched: make scheduler metrics synchronized with the SFN and slot index",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/ccb1f5496f037b2b7f4c75816974b518c4ee0bc4",
+  "commit_date": "2025-02-28T15:22:27Z",
+  "parent_sha": "3ff1b877fdacd958ce5fc152468ea1282623b2da",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3ff1b877fdacd958ce5fc152468ea1282623b2da",
+  "code_changes": [
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -113,6 +113,9 @@ struct scheduler_cell_metrics {\n   static constexpr unsigned latency_hist_bins = 10;\n   /// Distance between histogram bins.\n   static constexpr unsigned nof_usec_per_bin = 50;\n+\n+  /// Number of slots accounted for in this report.\n+  unsigned nof_slots = 0;\n   /// Number of cell PRBs.\n   unsigned nof_prbs = 0;\n   /// Number of downlink slots.",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -280,6 +280,7 @@ void cell_metrics_handler::report_metrics()\n     next_report.ue_metrics.push_back(ue.compute_report(report_period, nof_slots_per_sf));\n   }\n \n+  next_report.nof_slots                 = report_period_slots;\n   next_report.nof_error_indications     = data.error_indication_counter;\n   next_report.average_decision_latency  = data.decision_latency_sum / report_period_slots;\n   next_report.max_decision_latency      = data.max_decision_latency;\n@@ -369,21 +370,25 @@ void cell_metrics_handler::push_result(slot_point                sl_tx,\n                                        const sched_result&       slot_result,\n                                        std::chrono::microseconds slot_decision_latency)\n {\n-  if (report_period_slots == 0) {\n-    // The SCS common is now known.\n+  if (SRSRAN_UNLIKELY(not next_report_slot.valid())) {\n+    // We enter here in the first call to this function.\n+    // We will make the \\c next_report_slot aligned with the period.\n     nof_slots_per_sf    = get_nof_slots_per_subframe(to_subcarrier_spacing(sl_tx.numerology()));\n     usecs slot_dur      = usecs{1000U >> sl_tx.numerology()};\n     report_period_slots = usecs{report_period} / slot_dur;\n+    unsigned mod_val    = sl_tx.to_uint() % report_period_slots;\n+    next_report_slot    = mod_val > 0 ? sl_tx + report_period_slots - mod_val : sl_tx;\n   }\n-\n   last_slot_tx = sl_tx;\n \n   handle_slot_result(slot_result, slot_decision_latency);\n \n-  ++slot_counter;\n-  if (slot_counter >= report_period_slots) {\n+  if (sl_tx >= next_report_slot) {\n+    // Prepare report and forward it to the notifier.\n     report_metrics();\n-    slot_counter = 0;\n+\n+    // Set next report slot.\n+    next_report_slot += report_period_slots;\n   }\n }\n ",
+      "additions": 11,
+      "deletions": 6,
+      "changes": 17
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -136,16 +136,14 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   unsigned report_period_slots = 0;\n \n   slot_point last_slot_tx;\n+  slot_point next_report_slot;\n \n   slotted_id_table<du_ue_index_t, ue_metric_context, MAX_NOF_DU_UES> ues;\n   std::unordered_map<rnti_t, du_ue_index_t>                          rnti_to_ue_index_lookup;\n \n   /// Metrics tracked that are reset on every report.\n   non_persistent_data data;\n \n-  /// Counter of number of slots elapsed since the last report.\n-  unsigned slot_counter = 0;\n-\n   scheduler_cell_metrics next_report;\n \n public:",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\ccb1f54.json"
+}

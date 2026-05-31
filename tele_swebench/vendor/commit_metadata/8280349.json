@@ -1,0 +1,22 @@
+{
+  "commit_id": "828034936819cd890d496c6f0c9e58d14aedbbe3",
+  "commit_sha_short": "8280349",
+  "commit_folder": "8280349",
+  "commit_message": "band_helper: remove SSB_SCS == SCS common ...\n\n...constraint from ssb freq location generator\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "band_helper: remove SSB_SCS == SCS common ...",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/828034936819cd890d496c6f0c9e58d14aedbbe3",
+  "commit_date": "2023-02-22T13:16:39Z",
+  "parent_sha": "cf9fc3d957687f8656daa45a1d173659dc60fbf5",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/cf9fc3d957687f8656daa45a1d173659dc60fbf5",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -98,7 +98,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 32;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-    // clang-format off\n+       // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},\n@@ -645,15 +645,10 @@ optional<ssb_coreset0_freq_location> srsran::band_helper::get_ssb_coreset0_freq_\n   srsran_assert(band != nr_band::n79, \"Band n79 not currently supported\");\n   srsran_assert(scs_ssb < subcarrier_spacing::kHz60,\n                 \"Only 15kHz and 30kHz currently supported for SSB subcarrier spacing\");\n-  srsran_assert(scs_ssb == scs_common, \"SSB subcarrier spacing different from SCS common is not currently supporetd\");\n   if (scs_ssb == subcarrier_spacing::kHz15) {\n     srsran_assert(band != nr_band::n34 && band != nr_band::n38 && band != nr_band::n39 && band != nr_band::n79,\n                   \"Bands n34, n38 and n39 not currently supported with SSB 15kHz subcarrier spacing\");\n   }\n-  error_type<std::string> ret = band_helper::is_dl_arfcn_valid_given_band(band, dl_arfcn, scs_ssb);\n-  if (ret.is_error()) {\n-    return nullopt;\n-  }\n \n   optional<ssb_coreset0_freq_location> result;\n ",
+      "additions": 1,
+      "deletions": 6,
+      "changes": 7
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\8280349.json"
+}

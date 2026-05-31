@@ -1,0 +1,43 @@
+{
+  "commit_id": "508c321220f62270e9e86b725c59fe4196f46af9",
+  "commit_sha_short": "508c321",
+  "commit_folder": "508c321",
+  "commit_message": "band helper: return SSB central freq. ARFCN\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "band helper: return SSB central freq. ARFCN",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/508c321220f62270e9e86b725c59fe4196f46af9",
+  "commit_date": "2022-12-13T11:39:36Z",
+  "parent_sha": "660e7df193cc2a944cb4b7fa51555bb1c2524c5b",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/660e7df193cc2a944cb4b7fa51555bb1c2524c5b",
+  "code_changes": [
+    {
+      "filename": "include/srsgnb/ran/band_helper.h",
+      "patch": "@@ -202,6 +202,8 @@ struct ssb_coreset0_freq_location {\n   ssb_offset_to_pointA offset_to_point_A;\n   /// \\f$k_{SSB}\\f$, as per Section 7.4.3.1, TS 38.211.\n   ssb_subcarrier_offset k_ssb;\n+  /// NR-ARFCN corresponding to SSB central frequency, or \\f$SS_{ref}\\f$, as per TS 38.104, Section 5.4.3.1.\n+  unsigned ssb_arfcn;\n   /// <em>controlResourceSetZero<\\em>, as per Section 13, TS 38.213.\n   unsigned coreset0_idx;\n   /// <em>searchSpaceZero<\\em>, as per Section 13, TS 38.213.",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -97,7 +97,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 32;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-       // clang-format off\n+    // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},\n@@ -624,6 +624,7 @@ ssb_coreset0_freq_location srsgnb::band_helper::get_ssb_coreset0_freq_location(u\n           results.coreset0_idx      = cset0_idx;\n           results.searchspace0_idx  = ss0_idx;\n           results.is_valid          = true;\n+          results.ssb_arfcn         = freq_to_nr_arfcn(ssb.ss_ref);\n           return results;\n         }\n       }",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.cpp",
+      "patch": "@@ -166,6 +166,7 @@ ssb_freq_location ssb_freq_position_generator::get_next_ssb_location()\n         ssb.offset_to_point_A = compute_offset_to_pointA(f_ssb_0_hz, point_A_hz, scs_common);\n         ssb.k_ssb             = compute_k_ssb(f_ssb_0_hz, point_A_hz, ssb.offset_to_point_A);\n         ssb.is_valid          = true;\n+        ssb.ss_ref            = f_ssb_N_M_hz;\n         N_raster++;\n         return ssb;\n       }",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.h",
+      "patch": "@@ -43,6 +43,8 @@ struct ssb_freq_location {\n   ssb_offset_to_pointA offset_to_point_A;\n   /// \\f$k_{SSB}\\f$, as per Section 7.4.3.1, TS 38.211.\n   ssb_subcarrier_offset k_ssb;\n+  /// SSB central frequency, or SS_ref (as per TS 38.104, Section 5.4.3.1.), expressed in Hz.\n+  double ss_ref;\n };\n \n /// Class that implements utilities that compute the SSB position within the band.",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\508c321.json"
+}

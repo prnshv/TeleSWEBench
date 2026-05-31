@@ -1,0 +1,22 @@
+{
+  "commit_id": "649b1c459bbf6ef0c8a312d1eb9cfc68dc8c5ba6",
+  "commit_sha_short": "649b1c4",
+  "commit_folder": "649b1c4",
+  "commit_message": "ran: make array const",
+  "commit_message_first_line": "ran: make array const",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/649b1c459bbf6ef0c8a312d1eb9cfc68dc8c5ba6",
+  "commit_date": "2024-02-12T21:44:30Z",
+  "parent_sha": "580b1dcc5a6320203517f93a9720187116b841a2",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/580b1dcc5a6320203517f93a9720187116b841a2",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pusch/pusch_tpmi_select.cpp",
+      "patch": "@@ -22,7 +22,7 @@ static constexpr cf_t sqrt1_2(M_SQRT1_2, 0);\n \n static constexpr cf_t sqrt1_2j(0, M_SQRT1_2);\n \n-static std::array<precoding_weight_matrix, 6> codebook_1layer_2port = {\n+static const std::array<precoding_weight_matrix, 6> codebook_1layer_2port = {\n     {precoding_weight_matrix({sqrt1_2, 0}, 1, 2),\n      precoding_weight_matrix({0, sqrt1_2}, 1, 2),\n      precoding_weight_matrix({sqrt1_2, sqrt1_2}, 1, 2),",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\649b1c4.json"
+}

@@ -1,0 +1,36 @@
+{
+  "commit_id": "8eb2dad4bd38bf9649fc55dd3d7c711922663f7b",
+  "commit_sha_short": "8eb2dad",
+  "commit_folder": "8eb2dad",
+  "commit_message": "ran: enable band n104 for ssb and cset0 generation\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "ran: enable band n104 for ssb and cset0 generation",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8eb2dad4bd38bf9649fc55dd3d7c711922663f7b",
+  "commit_date": "2023-05-16T18:15:15Z",
+  "parent_sha": "39366d5506d1d1e98b5aa72aee63afc0cb5e0eaf",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/39366d5506d1d1e98b5aa72aee63afc0cb5e0eaf",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -133,7 +133,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 60;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-    // clang-format off\n+       // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.cpp",
+      "patch": "@@ -103,12 +103,25 @@ ssb_freq_position_generator::ssb_freq_position_generator(unsigned           dl_a\n   if (dl_arfcn < MIN_ARFCN_3_GHZ_24_5_GHZ) {\n     N_raster = static_cast<unsigned>(std::floor(ss_ref_l_bound_hz / N_SIZE_SYNC_RASTER_1_HZ));\n   } else if (dl_arfcn >= MIN_ARFCN_3_GHZ_24_5_GHZ && dl_arfcn < MIN_ARFCN_24_5_GHZ_100_GHZ) {\n-    // Band n79 has a different sync raster step size and need to be handled separately.\n-    if (band == nr_band::n79) {\n+    // For BW >= 40MHz, Band n79 has a different sync raster step size and need to be handled separately.\n+    const bool is_band_40mhz_or_above = (scs_common == subcarrier_spacing::kHz15 and n_rbs >= 216U) or\n+                                        (scs_common == subcarrier_spacing::kHz30 and n_rbs >= 106U) or\n+                                        (scs_common == subcarrier_spacing::kHz60 and n_rbs >= 51U);\n+\n+    // For bands n79 and n104, the sync raster has a specific step and need to be handled separately, as per\n+    // Table 5.4.3.3-1, TS 38.104, ver. 17.8.0. In the following, we compute the starting point of parameter N for the\n+    // sync-raster, so that the resulting GSCN (i) is compatible with the raster step and starting point and (ii) the\n+    // SSB lowest subcarrier is greater than pointA.\n+    if (band == nr_band::n79 and is_band_40mhz_or_above) {\n       N_raster = GSCN_LB_N_79_BW_40_MHZ - GSCN_LB_SYNC_RASTER_2;\n       while (get_ss_ref_hz(N_raster, 0) < ss_ref_l_bound_hz) {\n         increase_N_raster();\n       }\n+    } else if (band == nr_band::n104) {\n+      N_raster = GSCN_LB_N_104 - GSCN_LB_SYNC_RASTER_2;\n+      while (get_ss_ref_hz(N_raster, 0) < ss_ref_l_bound_hz) {\n+        increase_N_raster();\n+      }\n     } else {\n       N_raster = static_cast<unsigned>(\n           std::floor((ss_ref_l_bound_hz - N_REF_OFFSET_3_GHZ_24_5_GHZ) / N_SIZE_SYNC_RASTER_2_HZ));",
+      "additions": 15,
+      "deletions": 2,
+      "changes": 17
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.h",
+      "patch": "@@ -38,6 +38,8 @@ const unsigned N_UB_SYNC_RASTER_2 = 14757;\n const unsigned GSCN_LB_SYNC_RASTER_2 = 7499U;\n /// Lower-bound for GSCN for band n79 and bandwidth equal to or greater than 40MHz, as per Table 5.4.3.3-1, TS 38.104.\n const unsigned GSCN_LB_N_79_BW_40_MHZ = 8480U;\n+/// Lower-bound for GSCN for band n104, as per Table 5.4.3.3-1, TS 38.104.\n+const unsigned GSCN_LB_N_104 = 9882U;\n \n /// Contains the parameters defining the SSB position within the band; returned by the DU config generator.\n struct ssb_freq_location {",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\8eb2dad.json"
+}

@@ -1,0 +1,36 @@
+{
+  "commit_id": "1e7c2472e6838b7e2f42d6e744cca6bcde8b383b",
+  "commit_sha_short": "1e7c247",
+  "commit_folder": "1e7c247",
+  "commit_message": "sched: avoid scheduling UL grant without DCI payload when MCS derivation fails",
+  "commit_message_first_line": "sched: avoid scheduling UL grant without DCI payload when MCS derivation fails",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/1e7c2472e6838b7e2f42d6e744cca6bcde8b383b",
+  "commit_date": "2025-03-27T15:12:30Z",
+  "parent_sha": "0c16a493b7e33e5816cae684af97c85721ff649e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/0c16a493b7e33e5816cae684af97c85721ff649e",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -354,3 +354,20 @@ std::optional<unsigned> srsran::compute_ul_tbs(const pusch_config_params&   pusc\n   }\n   return std::nullopt;\n }\n+\n+unsigned srsran::compute_ul_tbs_unsafe(const pusch_config_params& pusch_cfg, sch_mcs_index mcs, unsigned nof_prbs)\n+{\n+  const unsigned            dmrs_prbs = calculate_nof_dmrs_per_rb(pusch_cfg.dmrs);\n+  const sch_mcs_description mcs_info =\n+      pusch_mcs_get_config(pusch_cfg.mcs_table, mcs, pusch_cfg.use_transform_precoder, pusch_cfg.tp_pi2bpsk_present);\n+  const unsigned nof_symbols = pusch_cfg.symbols.length();\n+\n+  return tbs_calculator_calculate(tbs_calculator_configuration{.nof_symb_sh      = nof_symbols,\n+                                                               .nof_dmrs_prb     = dmrs_prbs,\n+                                                               .nof_oh_prb       = pusch_cfg.nof_oh_prb,\n+                                                               .mcs_descr        = mcs_info,\n+                                                               .nof_layers       = pusch_cfg.nof_layers,\n+                                                               .tb_scaling_field = pusch_cfg.tb_scaling_field,\n+                                                               .n_prb            = nof_prbs}) /\n+         NOF_BITS_PER_BYTE;\n+}",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.h",
+      "patch": "@@ -68,4 +68,11 @@ std::optional<unsigned> compute_ul_tbs(const pusch_config_params&   pusch_params\n                                        unsigned                     nof_prbs,\n                                        bool                         contains_dc);\n \n+/// \\brief Determines the PUSCH TBS without checking if the coderate is valid.\n+/// \\param[in] pusch_params PUSCH parameters needed to compute the TBS.\n+/// \\param[in] mcs Value to be applied for the MCS.\n+/// \\param[in] nof_prbs Number of PRBs available for the PUSCH transmission.\n+/// \\return TBS in bytes.\n+unsigned compute_ul_tbs_unsafe(const pusch_config_params& pusch_params, sch_mcs_index mcs, unsigned nof_prbs);\n+\n } // namespace srsran",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -552,8 +552,10 @@ void ue_cell_grid_allocator::set_pusch_params(ul_grant_info& grant, const crb_in\n \n     // If there is not MCS-TBS info, it means no MCS exists such that the effective code rate is <= 0.95.\n     if (not mcs_tbs_info.has_value()) {\n-      // We give up on more reTxs of this HARQ\n-      grant.h_ul.cancel_retxs();\n+      // We cannot cancel this allocation at this point. So, we will proceed as normal, but set an invalid coderate.\n+      mcs_tbs_info.emplace();\n+      mcs_tbs_info->mcs = 0;\n+      mcs_tbs_info->tbs = compute_ul_tbs_unsafe(pusch_cfg, grant.cfg.recommended_mcs, crbs.length());\n \n       logger.warning(\n           \"ue={} rnti={}: Failed to allocate PUSCH. Cause: no MCS such that code rate <= 0.95 with this \"\n@@ -576,7 +578,6 @@ void ue_cell_grid_allocator::set_pusch_params(ul_grant_info& grant, const crb_in\n           ue_cell_cfg.init_bwp().ul_ded->pusch_cfg->pusch_mapping_type_a_dmrs.value().is_dmrs_type2 ? \"yes\" : \"no\",\n           static_cast<unsigned>(\n               ue_cell_cfg.init_bwp().ul_ded->pusch_cfg->pusch_mapping_type_a_dmrs.value().additional_positions));\n-      return;\n     }\n \n   } else {\n@@ -613,11 +614,8 @@ void ue_cell_grid_allocator::set_pusch_params(ul_grant_info& grant, const crb_in\n \n   // Compute TPC command before computing the nof_prbs adaptation based on PHR; this is because, when the TPC gets\n   // computed, the channel state manager will update close-loop power control adjustment.\n-  static constexpr uint8_t default_tpc_command = 1U;\n-  const uint8_t            tpc_command =\n-      dci_type != dci_ul_rnti_config_type::tc_rnti_f0_0\n-                     ? ue_cc.get_pusch_power_controller().compute_tpc_command(pdcch_alloc.slot + pusch_td_cfg.k2)\n-                     : default_tpc_command;\n+  const uint8_t tpc_command =\n+      ue_cc.get_pusch_power_controller().compute_tpc_command(pdcch_alloc.slot + pusch_td_cfg.k2);\n \n   // Fill UL PDCCH DCI.\n   uint8_t rv = ue_cc.get_pusch_rv(grant.h_ul.nof_retxs());",
+      "additions": 6,
+      "deletions": 8,
+      "changes": 14
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\1e7c247.json"
+}

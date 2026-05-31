@@ -1,0 +1,253 @@
+{
+  "commit_id": "6b71a50bacd9c4649efd51288090c49dc995d2ce",
+  "commit_sha_short": "6b71a50",
+  "commit_folder": "6b71a50",
+  "commit_message": "Fix functions that should have internal linkage",
+  "commit_message_first_line": "Fix functions that should have internal linkage",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/6b71a50bacd9c4649efd51288090c49dc995d2ce",
+  "commit_date": "2025-08-13T13:48:04Z",
+  "parent_sha": "0e3ef129c97de109b36b33602fd286e9757e1454",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/0e3ef129c97de109b36b33602fd286e9757e1454",
+  "code_changes": [
+    {
+      "filename": "apps/du/adapters/f1_gateways.h",
+      "patch": "@@ -15,11 +15,11 @@\n namespace srsran {\n \n /// Instantiates an F1-C DU client.\n-std::unique_ptr<srs_du::f1c_connection_client> create_f1c_client_gateway(const std::string& cu_cp_addr,\n-                                                                         const std::string& bind_addr,\n-                                                                         io_broker&         broker,\n-                                                                         task_executor&     io_rx_executor,\n-                                                                         dlt_pcap&          f1ap_pcap)\n+inline std::unique_ptr<srs_du::f1c_connection_client> create_f1c_client_gateway(const std::string& cu_cp_addr,\n+                                                                                const std::string& bind_addr,\n+                                                                                io_broker&         broker,\n+                                                                                task_executor&     io_rx_executor,\n+                                                                                dlt_pcap&          f1ap_pcap)\n {\n   sctp_network_connector_config f1c_sctp{};\n   f1c_sctp.if_name         = \"F1-C\";\n@@ -28,6 +28,7 @@ std::unique_ptr<srs_du::f1c_connection_client> create_f1c_client_gateway(const s\n   f1c_sctp.connect_port    = F1AP_PORT;\n   f1c_sctp.ppid            = F1AP_PPID;\n   f1c_sctp.bind_address    = bind_addr;\n+\n   return create_f1c_gateway_client(f1c_du_sctp_gateway_config{f1c_sctp, broker, io_rx_executor, f1ap_pcap});\n }\n ",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "apps/examples/phy/radio_ssb.cpp",
+      "patch": "@@ -444,17 +444,17 @@ static radio_configuration::radio create_radio_configuration()\n   return radio_config;\n }\n \n-lower_phy_configuration create_lower_phy_configuration(task_executor*                rx_task_executor,\n-                                                       task_executor*                tx_task_executor,\n-                                                       task_executor*                ul_task_executor,\n-                                                       task_executor*                dl_task_executor,\n-                                                       task_executor*                prach_task_executor,\n-                                                       lower_phy_error_notifier*     error_notifier,\n-                                                       lower_phy_metrics_notifier*   metrics_notifier,\n-                                                       lower_phy_rx_symbol_notifier* rx_symbol_notifier,\n-                                                       lower_phy_timing_notifier*    timing_notifier,\n-                                                       baseband_gateway&             bb_gateway,\n-                                                       srslog::basic_logger*         logger)\n+static lower_phy_configuration create_lower_phy_configuration(task_executor*                rx_task_executor,\n+                                                              task_executor*                tx_task_executor,\n+                                                              task_executor*                ul_task_executor,\n+                                                              task_executor*                dl_task_executor,\n+                                                              task_executor*                prach_task_executor,\n+                                                              lower_phy_error_notifier*     error_notifier,\n+                                                              lower_phy_metrics_notifier*   metrics_notifier,\n+                                                              lower_phy_rx_symbol_notifier* rx_symbol_notifier,\n+                                                              lower_phy_timing_notifier*    timing_notifier,\n+                                                              baseband_gateway&             bb_gateway,\n+                                                              srslog::basic_logger*         logger)\n {\n   lower_phy_configuration phy_config;\n   phy_config.srate                             = srate;",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/o_du_high_unit_config_translators.h",
+      "patch": "@@ -18,9 +18,9 @@\n namespace srsran {\n \n /// Fills the O-RAN DU high worker manager parameters of the given worker manager configuration.\n-void fill_o_du_high_worker_manager_config(worker_manager_config&       config,\n-                                          const o_du_high_unit_config& unit_cfg,\n-                                          bool                         is_blocking_mode_enabled = false)\n+inline void fill_o_du_high_worker_manager_config(worker_manager_config&       config,\n+                                                 const o_du_high_unit_config& unit_cfg,\n+                                                 bool                         is_blocking_mode_enabled = false)\n {\n   fill_du_high_worker_manager_config(config, unit_cfg.du_high_cfg.config, is_blocking_mode_enabled);\n   fill_fapi_worker_manager_config(config, unit_cfg.fapi_cfg, unit_cfg.du_high_cfg.config.cells_cfg.size());",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -510,7 +510,7 @@ class byte_buffer_writer\n   byte_buffer_view view() const { return *buffer; }\n \n   /// Appends bytes.\n-  [[nodiscard]] bool append(byte_buffer_view bytes) { return buffer->append(bytes); }\n+  [[nodiscard]] bool append(const byte_buffer_view& bytes) { return buffer->append(bytes); }\n \n   /// Appends initializer list of bytes.\n   [[nodiscard]] bool append(const std::initializer_list<uint8_t>& bytes)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -467,7 +467,7 @@ class ext_array\n *********************/\n \n SRSASN_CODE pack_unsupported_ext_flag(bit_ref& bref, bool ext);\n-SRSASN_CODE unpack_unsupported_ext_flag(bool& ext, bit_ref& bref);\n+SRSASN_CODE unpack_unsupported_ext_flag(bool& ext, cbit_ref& bref);\n \n /************************\n     asn1 null packing",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/csi_rs/csi_rs_types.h",
+      "patch": "@@ -82,7 +82,7 @@ inline const char* to_string(csi_rs_freq_density_type value)\n }\n \n /// Computes the CDM group size.\n-static constexpr unsigned get_cdm_group_size(csi_rs_cdm_type cdm)\n+constexpr unsigned get_cdm_group_size(csi_rs_cdm_type cdm)\n {\n   // Determine the CDM group size.\n   unsigned cdm_group_size = 1;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/dmrs.h",
+      "patch": "@@ -42,13 +42,13 @@ inline dmrs_additional_positions uint_to_dmrs_additional_positions(uint8_t dmrs_\n enum class dmrs_max_length { len1 = 1, len2, not_set };\n \n /// Gets the number of resource elements occupied by DM-RS per PRB and symbol for a given type of DM-RS.\n-static constexpr unsigned get_nof_re_per_prb(dmrs_config_type type)\n+constexpr unsigned get_nof_re_per_prb(dmrs_config_type type)\n {\n   return type == dmrs_config_type::type1 ? 6 : 4;\n }\n \n /// Gets the maximum number of CDM groups without data for a given type of DM-RS.\n-static constexpr unsigned get_max_nof_cdm_groups_without_data(dmrs_config_type type)\n+constexpr unsigned get_max_nof_cdm_groups_without_data(dmrs_config_type type)\n {\n   return type == dmrs_config_type::type1 ? 2 : 3;\n }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/scheduler/config/scheduler_expert_config_validator.h",
+      "patch": "@@ -21,7 +21,7 @@ namespace srsran {\n ///\n /// \\param config Scheduler expert configuration.\n /// \\return In case an invalid parameter is detected, returns a string containing an error message.\n-error_type<std::string> is_scheduler_expert_config_valid(const scheduler_expert_config& config)\n+inline error_type<std::string> is_scheduler_expert_config_valid(const scheduler_expert_config& config)\n {\n   // :TODO: Implement me!\n   return {};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1159,12 +1159,12 @@ namespace bitstring_utils {\n /**\n  * Pack ASN1 bitstring length prefix. Accommodates for cases: fixed/unbounded/bounded, aligned/unaligned, with/out ext\n  */\n-SRSASN_CODE pack_length_prefix(bit_ref& bref,\n-                               uint32_t len,\n-                               uint32_t lb         = 0,\n-                               uint32_t ub         = std::numeric_limits<uint32_t>::max(),\n-                               bool     has_ext    = false,\n-                               bool     is_aligned = false)\n+static SRSASN_CODE pack_length_prefix(bit_ref& bref,\n+                                      uint32_t len,\n+                                      uint32_t lb         = 0,\n+                                      uint32_t ub         = std::numeric_limits<uint32_t>::max(),\n+                                      bool     has_ext    = false,\n+                                      bool     is_aligned = false)\n {\n   if (has_ext and ub == std::numeric_limits<uint32_t>::max()) {\n     log_error(\"has extension marker but it is an unbounded prefix size\");\n@@ -1200,7 +1200,8 @@ SRSASN_CODE pack_length_prefix(bit_ref& bref,\n   return SRSASN_SUCCESS;\n }\n \n-SRSASN_CODE pack_bitfield(bit_ref& bref, const uint8_t* buf, uint32_t nbits, uint32_t lb, uint32_t ub, bool is_aligned)\n+static SRSASN_CODE\n+pack_bitfield(bit_ref& bref, const uint8_t* buf, uint32_t nbits, uint32_t lb, uint32_t ub, bool is_aligned)\n {\n   if (nbits == 0) {\n     log_error(\"Invalid bitstring size={}\", nbits);\n@@ -1345,7 +1346,7 @@ void log_invalid_choice_id(uint32_t val, const char* choice_type)\n \n namespace asn_string_utils {\n \n-size_t get_nof_bits_per_char(size_t lb, size_t ub, bool aligned)\n+static size_t get_nof_bits_per_char(size_t lb, size_t ub, bool aligned)\n {\n   size_t N = ub - lb + 1;\n   auto   b = (size_t)std::ceil(std::log2(N)); // B\n@@ -1355,13 +1356,13 @@ size_t get_nof_bits_per_char(size_t lb, size_t ub, bool aligned)\n   return b;\n }\n \n-bool is_octet_aligned(size_t bits_per_char, size_t alb, size_t aub, bool aligned)\n+static bool is_octet_aligned(size_t bits_per_char, size_t alb, size_t aub, bool aligned)\n {\n   size_t max_nof_bits = bits_per_char * aub;\n   return aligned and (max_nof_bits > 16 or (alb != aub and max_nof_bits == 16));\n }\n \n-constexpr bool is_length_encoded(size_t alb, size_t aub, bool aligned)\n+static constexpr bool is_length_encoded(size_t alb, size_t aub, bool aligned)\n {\n   return alb != aub or aub >= ASN_64K;\n }",
+      "additions": 11,
+      "deletions": 10,
+      "changes": 21
+    },
+    {
+      "filename": "lib/cu_cp/cell_meas_manager/cell_meas_manager_impl.cpp",
+      "patch": "@@ -173,7 +173,7 @@ bool cell_meas_manager::update_cell_config(nr_cell_identity nci, const serving_c\n   return true;\n }\n \n-std::optional<uint8_t> get_ssb_rsrp(const rrc_meas_result_nr& meas_result)\n+static std::optional<uint8_t> get_ssb_rsrp(const rrc_meas_result_nr& meas_result)\n {\n   std::optional<uint8_t> rsrp;\n   if (meas_result.cell_results.results_ssb_cell.has_value()) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/mobility/intra_cu_handover_routine.cpp",
+      "patch": "@@ -18,9 +18,9 @@ using namespace srsran;\n using namespace srsran::srs_cu_cp;\n using namespace asn1::rrc_nr;\n \n-bool verify_ho_request(const cu_cp_intra_cu_handover_request& request,\n-                       ue_manager&                            ue_mng,\n-                       const srslog::basic_logger&            logger)\n+static bool verify_ho_request(const cu_cp_intra_cu_handover_request& request,\n+                              ue_manager&                            ue_mng,\n+                              const srslog::basic_logger&            logger)\n {\n   if (request.target_pci == INVALID_PCI) {\n     logger.warning(\"Target PCI must not be invalid\");",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/cu_cp/routines/pdu_session_resource_modification_routine.cpp",
+      "patch": "@@ -191,7 +191,7 @@ void pdu_session_resource_modification_routine::operator()(\n   CORO_RETURN(generate_pdu_session_resource_modify_response(true));\n }\n \n-void fill_e1ap_pdu_session_res_to_modify_list(\n+static void fill_e1ap_pdu_session_res_to_modify_list(\n     slotted_id_vector<pdu_session_id_t, e1ap_pdu_session_res_to_modify_item>& pdu_session_res_to_modify_list,\n     srslog::basic_logger&                                                     logger,\n     const up_config_update&                                                   next_config,\n@@ -462,8 +462,8 @@ bool handle_ue_context_modification_response(\n }\n \n // Helper function to fail all requested PDU session.\n-void fill_modify_failed_list(cu_cp_pdu_session_resource_modify_response&      response_msg,\n-                             const cu_cp_pdu_session_resource_modify_request& modify_request)\n+static void fill_modify_failed_list(cu_cp_pdu_session_resource_modify_response&      response_msg,\n+                                    const cu_cp_pdu_session_resource_modify_request& modify_request)\n {\n   for (const auto& item : modify_request.pdu_session_res_modify_items) {\n     cu_cp_pdu_session_resource_failed_to_modify_item failed_item;\n@@ -488,8 +488,8 @@ bool handle_rrc_reconfiguration_response(cu_cp_pdu_session_resource_modify_respo\n }\n \n // Helper to mark all PDU sessions that were requested to be set up as failed.\n-void mark_all_sessions_as_failed(cu_cp_pdu_session_resource_modify_response&      response_msg,\n-                                 const cu_cp_pdu_session_resource_modify_request& modify_request)\n+static void mark_all_sessions_as_failed(cu_cp_pdu_session_resource_modify_response&      response_msg,\n+                                        const cu_cp_pdu_session_resource_modify_request& modify_request)\n {\n   for (const auto& modify_item : modify_request.pdu_session_res_modify_items) {\n     cu_cp_pdu_session_resource_failed_to_modify_item failed_item;",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/cu_cp/routines/pdu_session_resource_release_routine.cpp",
+      "patch": "@@ -36,10 +36,10 @@ pdu_session_resource_release_routine::pdu_session_resource_release_routine(\n }\n \n // Handle RRC reconfiguration result.\n-bool handle_rrc_reconfiguration_response(cu_cp_pdu_session_resource_release_response&      response_msg,\n-                                         const cu_cp_pdu_session_resource_release_command& release_cmd,\n-                                         bool                                              rrc_reconfig_result,\n-                                         const srslog::basic_logger&                       logger)\n+static bool handle_rrc_reconfiguration_response(cu_cp_pdu_session_resource_release_response&      response_msg,\n+                                                const cu_cp_pdu_session_resource_release_command& release_cmd,\n+                                                bool                                              rrc_reconfig_result,\n+                                                const srslog::basic_logger&                       logger)\n {\n   // Let all PDU sessions fail if response is negative.\n   if (!rrc_reconfig_result) {",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/cu_cp/routines/pdu_session_resource_setup_routine.cpp",
+      "patch": "@@ -573,8 +573,8 @@ bool handle_bearer_context_setup_response(cu_cp_pdu_session_resource_setup_respo\n }\n \n // Helper function to fail all requested PDU session.\n-void fill_setup_failed_list(cu_cp_pdu_session_resource_setup_response&      response_msg,\n-                            const cu_cp_pdu_session_resource_setup_request& setup_msg)\n+static void fill_setup_failed_list(cu_cp_pdu_session_resource_setup_response&      response_msg,\n+                                   const cu_cp_pdu_session_resource_setup_request& setup_msg)\n {\n   for (const auto& item : setup_msg.pdu_session_res_setup_items) {\n     cu_cp_pdu_session_res_setup_failed_item failed_item;\n@@ -631,10 +631,10 @@ bool handle_rrc_reconfiguration_response(cu_cp_pdu_session_resource_setup_respon\n }\n \n // Helper to mark all PDU sessions that were requested to be set up as failed.\n-void mark_all_sessions_as_failed(cu_cp_pdu_session_resource_setup_response&      response_msg,\n-                                 const cu_cp_pdu_session_resource_setup_request& setup_msg,\n-                                 up_config_update&                               next_config,\n-                                 e1ap_cause_t                                    cause)\n+static void mark_all_sessions_as_failed(cu_cp_pdu_session_resource_setup_response&      response_msg,\n+                                        const cu_cp_pdu_session_resource_setup_request& setup_msg,\n+                                        up_config_update&                               next_config,\n+                                        e1ap_cause_t                                    cause)\n {\n   slotted_id_vector<pdu_session_id_t, e1ap_pdu_session_resource_failed_item> failed_list;\n   for (const auto& setup_item : setup_msg.pdu_session_res_setup_items) {",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "lib/cu_cp/up_resource_manager/up_resource_manager_helpers.cpp",
+      "patch": "@@ -13,8 +13,8 @@\n using namespace srsran;\n using namespace srs_cu_cp;\n \n-// Verifies if any of the PDU sessions to be setup/modified already contains a DRB with the given ID.\n-bool contains_drb(const up_config_update& config_update, drb_id_t drb_id)\n+/// Verifies if any of the PDU sessions to be setup/modified already contains a DRB with the given ID.\n+static bool contains_drb(const up_config_update& config_update, drb_id_t drb_id)\n {\n   for (const auto& setup_item : config_update.pdu_sessions_to_setup_list) {\n     for (const auto& drb_item : setup_item.second.drb_to_add) {\n@@ -34,7 +34,7 @@ bool contains_drb(const up_config_update& config_update, drb_id_t drb_id)\n   return false;\n }\n \n-bool contains_drb(const up_context& context, drb_id_t new_drb_id)\n+static bool contains_drb(const up_context& context, drb_id_t new_drb_id)\n {\n   for (const auto& drb : context.drb_map) {\n     if (drb.first == new_drb_id) {\n@@ -44,7 +44,7 @@ bool contains_drb(const up_context& context, drb_id_t new_drb_id)\n   return false;\n }\n \n-bool contains_drb(const up_pdu_session_context_update& new_session_context, drb_id_t new_drb_id)\n+static bool contains_drb(const up_pdu_session_context_update& new_session_context, drb_id_t new_drb_id)\n {\n   return (new_session_context.drb_to_add.find(new_drb_id) != new_session_context.drb_to_add.end());\n }\n@@ -197,12 +197,12 @@ bool srsran::srs_cu_cp::is_valid(const cu_cp_pdu_session_resource_release_comman\n }\n \n /// \\brief Allocates a QoS flow to a new DRB. Inserts it in PDU session object.\n-drb_id_t allocate_qos_flow(up_pdu_session_context_update&     new_session_context,\n-                           const qos_flow_setup_request_item& qos_flow,\n-                           const up_config_update&            config_update,\n-                           const up_context&                  full_context,\n-                           const up_resource_manager_cfg&     cfg,\n-                           const srslog::basic_logger&        logger)\n+static drb_id_t allocate_qos_flow(up_pdu_session_context_update&     new_session_context,\n+                                  const qos_flow_setup_request_item& qos_flow,\n+                                  const up_config_update&            config_update,\n+                                  const up_context&                  full_context,\n+                                  const up_resource_manager_cfg&     cfg,\n+                                  const srslog::basic_logger&        logger)\n {\n   five_qi_t five_qi = get_five_qi(qos_flow, cfg, logger);\n   srsran_assert(five_qi != five_qi_t::invalid, \"5QI cannot be invalid.\");",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "lib/cu_cp/up_resource_manager/up_resource_manager_impl.cpp",
+      "patch": "@@ -55,7 +55,7 @@ up_config_update up_resource_manager::calculate_update(const cu_cp_pdu_session_r\n   return srsran::srs_cu_cp::calculate_update(pdu, context, cfg, logger);\n }\n \n-inline void apply_update_for_new_drbs(up_pdu_session_context&                   pdu_session_context,\n+static void apply_update_for_new_drbs(up_pdu_session_context&                   pdu_session_context,\n                                       up_context&                               context,\n                                       const std::map<drb_id_t, up_drb_context>& drb_to_add)\n {\n@@ -72,7 +72,7 @@ inline void apply_update_for_new_drbs(up_pdu_session_context&\n   }\n }\n \n-inline void apply_update_for_removed_drbs(up_pdu_session_context&      pdu_session_context,\n+static void apply_update_for_removed_drbs(up_pdu_session_context&      pdu_session_context,\n                                           up_context&                  context,\n                                           const std::vector<drb_id_t>& drb_to_remove)\n {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/du/du_high/du_high_executor_mapper.cpp",
+      "patch": "@@ -160,10 +160,12 @@ class strand_cell_worker_executor_mapper final : public du_high_cell_executor_ma\n   executor_decorator          decorator;\n };\n \n-std::unique_ptr<du_high_cell_executor_mapper> create_du_high_cell_executor_mapper(const du_high_executor_config& config)\n+static std::unique_ptr<du_high_cell_executor_mapper>\n+create_du_high_cell_executor_mapper(const du_high_executor_config& config)\n {\n   std::unique_ptr<du_high_cell_executor_mapper> cell_mapper;\n-  if (auto* ded_workers = std::get_if<du_high_executor_config::dedicated_cell_worker_list>(&config.cell_executors)) {\n+  if (const auto* ded_workers =\n+          std::get_if<du_high_executor_config::dedicated_cell_worker_list>(&config.cell_executors)) {\n     cell_mapper = std::make_unique<dedicated_cell_worker_executor_mapper>(\n         *ded_workers, config.is_rt_mode_enabled, config.trace_exec_tasks, config.metrics_period);\n   } else {\n@@ -342,7 +344,8 @@ class pcell_ue_executor_mapper final : public common_ue_executor_mapper\n   std::array<unsigned, MAX_NOF_DU_UES> ue_idx_to_exec_index;\n };\n \n-std::unique_ptr<du_high_ue_executor_mapper> create_du_high_ue_executor_mapper(const du_high_executor_config& config)\n+static std::unique_ptr<du_high_ue_executor_mapper>\n+create_du_high_ue_executor_mapper(const du_high_executor_config& config)\n {\n   std::unique_ptr<du_high_ue_executor_mapper> ue_mapper;\n   if (config.ue_executors.policy == du_high_executor_config::ue_executor_config::map_policy::per_cell) {",
+      "additions": 6,
+      "deletions": 3,
+      "changes": 9
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/converters/asn1_csi_meas_config_helpers.cpp",
+      "patch": "@@ -212,7 +212,7 @@ asn1::rrc_nr::zp_csi_rs_res_set_s srsran::srs_du::make_asn1_zp_csi_rs_resource_s\n   return out;\n }\n \n-asn1::rrc_nr::nzp_csi_rs_res_s make_asn1_nzp_csi_rs_resource(const nzp_csi_rs_resource& cfg)\n+static asn1::rrc_nr::nzp_csi_rs_res_s make_asn1_nzp_csi_rs_resource(const nzp_csi_rs_resource& cfg)\n {\n   nzp_csi_rs_res_s out{};\n   out.nzp_csi_rs_res_id = cfg.res_id;\n@@ -253,7 +253,7 @@ asn1::rrc_nr::nzp_csi_rs_res_s make_asn1_nzp_csi_rs_resource(const nzp_csi_rs_re\n   return out;\n }\n \n-asn1::rrc_nr::nzp_csi_rs_res_set_s make_asn1_nzp_csi_rs_resource_set(const nzp_csi_rs_resource_set& cfg)\n+static asn1::rrc_nr::nzp_csi_rs_res_set_s make_asn1_nzp_csi_rs_resource_set(const nzp_csi_rs_resource_set& cfg)\n {\n   nzp_csi_rs_res_set_s out{};\n   out.nzp_csi_res_set_id = cfg.res_set_id;\n@@ -277,7 +277,7 @@ asn1::rrc_nr::nzp_csi_rs_res_set_s make_asn1_nzp_csi_rs_resource_set(const nzp_c\n   return out;\n }\n \n-asn1::rrc_nr::csi_im_res_s make_asn1_csi_im_resource(const csi_im_resource& cfg)\n+static asn1::rrc_nr::csi_im_res_s make_asn1_csi_im_resource(const csi_im_resource& cfg)\n {\n   csi_im_res_s out{};\n   out.csi_im_res_id = cfg.res_id;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/converters/asn1_rrc_config_helpers.cpp",
+      "patch": "@@ -1015,7 +1015,7 @@ static void make_asn1_rrc_qcl_info(asn1::rrc_nr::qcl_info_s& out, const qcl_info\n   }\n }\n \n-asn1::rrc_nr::pdsch_time_domain_res_alloc_s\n+static asn1::rrc_nr::pdsch_time_domain_res_alloc_s\n make_asn1_rrc_pdsch_time_domain_alloc_list(const pdsch_time_domain_resource_allocation& cfg)\n {\n   pdsch_time_domain_res_alloc_s out{};\n@@ -1924,7 +1924,7 @@ static void fill_uci_on_pusch(asn1::rrc_nr::uci_on_pusch_s& uci_asn1, const uci_\n   }\n }\n \n-asn1::rrc_nr::pusch_time_domain_res_alloc_s\n+static asn1::rrc_nr::pusch_time_domain_res_alloc_s\n make_asn1_rrc_pusch_time_domain_alloc_list(const pusch_time_domain_resource_allocation& cfg)\n {\n   pusch_time_domain_res_alloc_s out{};",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/cu_configuration_procedure.cpp",
+      "patch": "@@ -60,7 +60,7 @@ async_task<bool> cu_configuration_procedure::start_cell(const nr_cell_global_id_\n   return cell_mng.start(cell_index);\n }\n \n-async_task<void> force_ue_release(du_ue_manager& ue_mng, du_cell_index_t cell_index)\n+static async_task<void> force_ue_release(du_ue_manager& ue_mng, du_cell_index_t cell_index)\n {\n   std::vector<du_ue_index_t> ues_to_force_rem;\n   for (const auto& u : ue_mng.get_du_ues()) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_report_service_impl.cpp",
+      "patch": "@@ -17,7 +17,7 @@ using namespace asn1::e2ap;\n using namespace asn1::e2sm;\n using namespace srsran;\n \n-uint64_t get_ntp_timestamp()\n+static uint64_t get_ntp_timestamp()\n {\n   // Offset between Unix and NTP epochs (1900-1970 in seconds).\n   constexpr uint64_t ntp_epoch_offset = 2208988800ULL;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_fapi_sector_adaptor_impl.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n using namespace srsran;\n using namespace fapi_adaptor;\n \n-mac_to_fapi_translator_config generate_translator_config(const mac_fapi_sector_adaptor_config& config)\n+static mac_to_fapi_translator_config generate_translator_config(const mac_fapi_sector_adaptor_config& config)\n {\n   mac_to_fapi_translator_config out_config;\n   out_config.cell_nof_prbs = config.cell_nof_prbs;\n@@ -23,7 +23,7 @@ mac_to_fapi_translator_config generate_translator_config(const mac_fapi_sector_a\n   return out_config;\n }\n \n-mac_to_fapi_translator_dependencies\n+static mac_to_fapi_translator_dependencies\n generate_translator_dependencies(mac_fapi_sector_adaptor_dependencies&& dependencies)\n {\n   return {srslog::fetch_basic_logger(\"FAPI\"),",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ngap/ngap_impl.cpp",
+      "patch": "@@ -785,7 +785,7 @@ void ngap_impl::handle_paging(const asn1::ngap::paging_s& msg)\n }\n \n // Free function to generate a handover failure message.\n-ngap_message generate_handover_failure(uint64_t amf_ue_id)\n+static ngap_message generate_handover_failure(uint64_t amf_ue_id)\n {\n   ngap_message ngap_msg;\n   ngap_msg.pdu.set_unsuccessful_outcome();",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/time_alignment_estimator/time_alignment_estimator_dft_impl.cpp",
+      "patch": "@@ -36,7 +36,7 @@ using namespace srsran;\n ///\n /// \\param[in] peak_center_correlation Odd number of samples containing a peak maximum in the center.\n /// \\return The fractional sample estimation where the maximum is located if the result is valid.\n-float fractional_sample_delay(span<const float> peak_center_correlation)\n+static float fractional_sample_delay(span<const float> peak_center_correlation)\n {\n   // Calculation coefficients for solving the equations.\n   static constexpr std::array<float, 5> num_weights_5 = {{-0.400000, -0.200000, 0.000000, 0.200000, 0.400000}};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_code_impl.cpp",
+      "patch": "@@ -401,7 +401,7 @@ srsran::polar_code_impl::polar_code_impl()\n }\n \n // Compares two unsigned\n-bool cmpfunc(unsigned ai, unsigned bi)\n+static bool cmpfunc(unsigned ai, unsigned bi)\n {\n   return (ai < bi);\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_decoder_impl.cpp",
+      "patch": "@@ -20,7 +20,7 @@\n using namespace srsran;\n \n // Select the CRC for the decoder based on the TBS and the number of codeblocks.\n-crc_calculator* select_crc(pusch_decoder_impl::sch_crc& crcs, unsigned tbs, unsigned nof_blocks)\n+static crc_calculator* select_crc(pusch_decoder_impl::sch_crc& crcs, unsigned tbs, unsigned nof_blocks)\n {\n   if (nof_blocks > 1) {\n     return crcs.crc24B.get();",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/rrc/metrics/rrc_du_metrics_aggregator.h",
+      "patch": "@@ -20,7 +20,7 @@\n namespace srsran {\n namespace srs_cu_cp {\n \n-static std::chrono::milliseconds get_current_time()\n+inline std::chrono::milliseconds get_current_time()\n {\n   return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/pusch/pusch_td_resource_indices.cpp",
+      "patch": "@@ -127,9 +127,9 @@ std::vector<pusch_index_list> srsran::get_pusch_td_resource_indices_per_slot(con\n   return pusch_td_list_per_slot;\n }\n \n-std::optional<unsigned> find_td_index_with_k2(span<const pusch_time_domain_resource_allocation> pusch_res_list,\n-                                              span<const unsigned>                              valid_indexes,\n-                                              unsigned                                          k2)\n+static std::optional<unsigned> find_td_index_with_k2(span<const pusch_time_domain_resource_allocation> pusch_res_list,\n+                                                     span<const unsigned>                              valid_indexes,\n+                                                     unsigned                                          k2)\n {\n   auto* it = std::find_if(valid_indexes.begin(), valid_indexes.end(), [&pusch_res_list, k2](unsigned pusch_td_res_idx) {\n     return pusch_res_list[pusch_td_res_idx].k2 == k2;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/security/s3g.cpp",
+      "patch": "@@ -351,7 +351,7 @@ void srsran::security::s3g_generate_keystream(S3G_STATE* state, uint32_t n, uint\n  * function.\n  * See section 4.3.2 for details.\n  */\n-uint64_t s3g_MUL64x(uint64_t V, uint64_t c)\n+static uint64_t s3g_MUL64x(uint64_t V, uint64_t c)\n {\n   if (V & 0x8000000000000000)\n     return (V << 1) ^ c;\n@@ -367,7 +367,7 @@ uint64_t s3g_MUL64x(uint64_t V, uint64_t c)\n  * A 64-bit memory is allocated which is to be freed by the calling function.\n  * See section 4.3.3 for details.\n  */\n-uint64_t s3g_MUL64xPOW(uint64_t V, uint8_t i, uint64_t c)\n+static uint64_t s3g_MUL64xPOW(uint64_t V, uint8_t i, uint64_t c)\n {\n   if (i == 0)\n     return V;\n@@ -384,7 +384,7 @@ uint64_t s3g_MUL64xPOW(uint64_t V, uint8_t i, uint64_t c)\n  * function.\n  * See section 4.3.4 for details.\n  */\n-uint64_t s3g_MUL64(uint64_t V, uint64_t P, uint64_t c)\n+static uint64_t s3g_MUL64(uint64_t V, uint64_t P, uint64_t c)\n {\n   uint64_t result = 0;\n   int      i      = 0;\n@@ -445,7 +445,7 @@ static uint64_t s3g_MUL_P(const std::array<std::array<uint64_t, 256>, 8>& PM, ui\n  * Output : an 8 bit mask.\n  * Prepares an 8 bit mask with required number of 1 bits on the MSB side.\n  */\n-uint8_t mask8bit(int n)\n+static uint8_t mask8bit(int n)\n {\n   return 0xff ^ ((1 << (8 - n)) - 1);\n }",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/security/zuc.cpp",
+      "patch": "@@ -76,14 +76,14 @@ static const u32 EK_d[16] = {0x44d7,\n \n /* \u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014- */\n /* c = a + b mod (2^31 \u2013 1) */\n-u32 AddM(u32 a, u32 b)\n+static u32 AddM(u32 a, u32 b)\n {\n   u32 c = a + b;\n   return (c & 0x7fffffff) + (c >> 31);\n }\n \n /* LFSR with initialization mode */\n-void LFSRWithInitialisationMode(zuc_state_t* state, u32 u)\n+static void LFSRWithInitialisationMode(zuc_state_t* state, u32 u)\n {\n   u32 f, v;\n   f = state->LFSR_S0;\n@@ -119,7 +119,7 @@ void LFSRWithInitialisationMode(zuc_state_t* state, u32 u)\n }\n \n /* LFSR with work mode */\n-void LFSRWithWorkMode(zuc_state_t* state)\n+static void LFSRWithWorkMode(zuc_state_t* state)\n {\n   u32 f, v;\n   f = state->LFSR_S0;\n@@ -154,7 +154,7 @@ void LFSRWithWorkMode(zuc_state_t* state)\n }\n \n /* BitReorganization */\n-void BitReorganization(zuc_state_t* state)\n+static void BitReorganization(zuc_state_t* state)\n {\n   state->BRC_X0 = ((state->LFSR_S15 & 0x7fff8000) << 1) | (state->LFSR_S14 & 0xffff);\n   state->BRC_X1 = ((state->LFSR_S11 & 0xffff) << 16) | (state->LFSR_S9 >> 15);\n@@ -163,19 +163,19 @@ void BitReorganization(zuc_state_t* state)\n }\n \n /* L1 */\n-u32 L1(u32 X)\n+static u32 L1(u32 X)\n {\n   return (X ^ ROT(X, 2) ^ ROT(X, 10) ^ ROT(X, 18) ^ ROT(X, 24));\n }\n \n /* L2 */\n-u32 L2(u32 X)\n+static u32 L2(u32 X)\n {\n   return (X ^ ROT(X, 8) ^ ROT(X, 14) ^ ROT(X, 22) ^ ROT(X, 30));\n }\n \n /* F */\n-u32 F(zuc_state_t* state)\n+static u32 F(zuc_state_t* state)\n {\n   u32 W, W1, W2, u, v;\n   W  = (state->BRC_X0 ^ state->F_R1) + state->F_R2;",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -65,15 +65,15 @@ void srsran::init_byte_buffer_segment_pool_tls()\n \n // ------ memory resource -------\n \n-namespace {\n-\n /// Warn when the default segment pool is depleted.\n-void byte_buffer_warn_alloc_failure()\n+static void byte_buffer_warn_alloc_failure()\n {\n   static srslog::basic_logger& logger = srslog::fetch_basic_logger(\"ALL\");\n   logger.warning(\"POOL: Failure to allocate byte buffer segment\");\n }\n \n+namespace {\n+\n /// Memory resource wrapper of the default byte buffer segment pool.\n class default_segment_pool_memory_resource final : public byte_buffer_memory_resource\n {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/executors/priority_task_queue.cpp",
+      "patch": "@@ -106,7 +106,9 @@ class any_task_queue_impl final : public detail::any_task_queue\n   queue_impl q;\n };\n \n-std::unique_ptr<detail::any_task_queue> make_any_task_queue(const concurrent_queue_params& params)\n+} // namespace\n+\n+static std::unique_ptr<detail::any_task_queue> make_any_task_queue(const concurrent_queue_params& params)\n {\n   switch (params.policy) {\n     case concurrent_queue_policy::lockfree_mpmc:\n@@ -128,8 +130,6 @@ std::unique_ptr<detail::any_task_queue> make_any_task_queue(const concurrent_que\n   return nullptr;\n }\n \n-} // namespace\n-\n detail::priority_task_queue::priority_task_queue(span<const concurrent_queue_params> queue_params,\n                                                  std::chrono::microseconds           wait_if_empty) :\n   policy(wait_if_empty)",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/executors/task_execution_manager.cpp",
+      "patch": "@@ -18,6 +18,17 @@\n \n using namespace srsran;\n \n+/// Helper to convert execution_config_helper::task_queue into concurrent_queue_params.\n+static std::vector<concurrent_queue_params> convert_to_qparams(span<const execution_config_helper::task_queue> queues)\n+{\n+  std::vector<concurrent_queue_params> ret;\n+  ret.reserve(queues.size());\n+  for (const auto& q : queues) {\n+    ret.push_back(concurrent_queue_params{q.policy, q.size, q.nof_prereserved_producers});\n+  }\n+  return ret;\n+}\n+\n namespace {\n \n // Metafunction to derive parameter types based on the execution context type.\n@@ -42,17 +53,6 @@ struct execution_context_traits<priority_task_worker> {\n   using params = execution_config_helper::priority_multiqueue_worker;\n };\n \n-/// Helper to convert execution_config_helper::task_queue into concurrent_queue_params.\n-std::vector<concurrent_queue_params> convert_to_qparams(span<const execution_config_helper::task_queue> queues)\n-{\n-  std::vector<concurrent_queue_params> ret;\n-  ret.reserve(queues.size());\n-  for (const auto& q : queues) {\n-    ret.push_back(concurrent_queue_params{q.policy, q.size, q.nof_prereserved_producers});\n-  }\n-  return ret;\n-}\n-\n /// Functionality shared across single worker, prioritized multiqueue worker and worker pool task execution contexts.\n template <typename WorkerType>\n class common_task_execution_context : public task_execution_context",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22
+    },
+    {
+      "filename": "lib/support/network/sctp_socket.cpp",
+      "patch": "@@ -20,10 +20,8 @@\n \n using namespace srsran;\n \n-namespace {\n-\n /// Subscribes to various SCTP events to handle association and shutdown gracefully.\n-bool sctp_subscribe_to_events(const unique_fd& fd)\n+static bool sctp_subscribe_to_events(const unique_fd& fd)\n {\n   srsran_sanity_check(fd.is_open(), \"Invalid FD\");\n   struct sctp_event_subscribe events = {};\n@@ -36,12 +34,12 @@ bool sctp_subscribe_to_events(const unique_fd& fd)\n \n /// \\brief Modify SCTP default parameters for quicker detection of broken links.\n /// Changes to the maximum re-transmission timeout (rto_max).\n-bool sctp_set_rto_opts(const unique_fd&                         fd,\n-                       std::optional<std::chrono::milliseconds> rto_initial,\n-                       std::optional<std::chrono::milliseconds> rto_min,\n-                       std::optional<std::chrono::milliseconds> rto_max,\n-                       const std::string&                       if_name,\n-                       srslog::basic_logger&                    logger)\n+static bool sctp_set_rto_opts(const unique_fd&                         fd,\n+                              std::optional<std::chrono::milliseconds> rto_initial,\n+                              std::optional<std::chrono::milliseconds> rto_min,\n+                              std::optional<std::chrono::milliseconds> rto_max,\n+                              const std::string&                       if_name,\n+                              srslog::basic_logger&                    logger)\n {\n   srsran_sanity_check(fd.is_open(), \"Invalid FD\");\n \n@@ -86,11 +84,11 @@ bool sctp_set_rto_opts(const unique_fd&                         fd,\n \n /// \\brief Modify SCTP default parameters for quicker detection of broken links.\n /// Changes to the SCTP_INITMSG parameters (to control the timeout of the connect() syscall)\n-bool sctp_set_init_msg_opts(const unique_fd&                         fd,\n-                            std::optional<int>                       init_max_attempts,\n-                            std::optional<std::chrono::milliseconds> max_init_timeo,\n-                            const std::string&                       if_name,\n-                            srslog::basic_logger&                    logger)\n+static bool sctp_set_init_msg_opts(const unique_fd&                         fd,\n+                                   std::optional<int>                       init_max_attempts,\n+                                   std::optional<std::chrono::milliseconds> max_init_timeo,\n+                                   const std::string&                       if_name,\n+                                   srslog::basic_logger&                    logger)\n {\n   srsran_sanity_check(fd.is_open(), \"Invalid FD\");\n \n@@ -128,10 +126,10 @@ bool sctp_set_init_msg_opts(const unique_fd&                         fd,\n \n /// \\brief Modify SCTP default Peer Address parameters for quicker detection of broken links.\n /// Changes to the heartbeat interval.\n-bool sctp_set_paddr_opts(const unique_fd&                         fd,\n-                         std::optional<std::chrono::milliseconds> hb_interval,\n-                         const std::string&                       if_name,\n-                         srslog::basic_logger&                    logger)\n+static bool sctp_set_paddr_opts(const unique_fd&                         fd,\n+                                std::optional<std::chrono::milliseconds> hb_interval,\n+                                const std::string&                       if_name,\n+                                srslog::basic_logger&                    logger)\n {\n   srsran_sanity_check(fd.is_open(), \"Invalid FD\");\n \n@@ -166,10 +164,10 @@ bool sctp_set_paddr_opts(const unique_fd&                         fd,\n \n /// \\brief Modify SCTP default Assocination parameters for quicker detection of broken links.\n /// Changes to the maximum number of re-transmission sent before a address is considered unreachable.\n-bool sctp_set_assoc_opts(const unique_fd&      fd,\n-                         std::optional<int>    assoc_max_rxt,\n-                         const std::string&    if_name,\n-                         srslog::basic_logger& logger)\n+static bool sctp_set_assoc_opts(const unique_fd&      fd,\n+                                std::optional<int>    assoc_max_rxt,\n+                                const std::string&    if_name,\n+                                srslog::basic_logger& logger)\n {\n   srsran_sanity_check(fd.is_open(), \"Invalid FD\");\n \n@@ -208,7 +206,7 @@ bool sctp_set_assoc_opts(const unique_fd&      fd,\n ///\n /// Note: If the local interface supports jumbo frames (MTU size > 1500) but not the receiver, then the receiver might\n /// discard big PDUs and the stream might get stuck.\n-bool sctp_set_nodelay(const unique_fd& fd, std::optional<bool> nodelay)\n+static bool sctp_set_nodelay(const unique_fd& fd, std::optional<bool> nodelay)\n {\n   if (not nodelay.has_value()) {\n     // no need to change anything\n@@ -219,8 +217,6 @@ bool sctp_set_nodelay(const unique_fd& fd, std::optional<bool> nodelay)\n   return ::setsockopt(fd.value(), IPPROTO_SCTP, SCTP_NODELAY, &optval, sizeof(optval)) == 0;\n }\n \n-} // namespace\n-\n // sctp_socket class.\n \n sctp_socket::sctp_socket() : logger(srslog::fetch_basic_logger(\"SCTP-GW\")) {}",
+      "additions": 21,
+      "deletions": 25,
+      "changes": 46
+    }
+  ],
+  "num_files_changed": 34,
+  "commit_details_path": ".\\commit_metadata\\6b71a50.json"
+}

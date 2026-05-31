@@ -1,0 +1,22 @@
+{
+  "commit_id": "47f4ecada72cba6f128e9bebe6fa9cdf60cb9bd6",
+  "commit_sha_short": "47f4eca",
+  "commit_folder": "47f4eca",
+  "commit_message": "asn1: removing extra octet align conditional",
+  "commit_message_first_line": "asn1: removing extra octet align conditional",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/47f4ecada72cba6f128e9bebe6fa9cdf60cb9bd6",
+  "commit_date": "2023-08-02T19:24:16Z",
+  "parent_sha": "ed724e75a464c5fb536c455a50a13447ce00bac4",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/ed724e75a464c5fb536c455a50a13447ce00bac4",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1303,9 +1303,7 @@ pack(bit_ref& bref, const std::string& s, size_t lb, size_t ub, size_t alb, size\n   size_t b              = asn_string_utils::get_nof_bits_per_char(lb, ub, aligned);\n   bool   octet_aligned  = asn_string_utils::is_octet_aligned(b, alb, aub, aligned);\n   bool   length_encoded = asn_string_utils::is_length_encoded(alb, aub, aligned);\n-  if (octet_aligned) {\n-    bref.align_bytes_zero();\n-  }\n+\n   if (ext) {\n     HANDLE_CODE(bref.pack(0, 1));\n   }\n@@ -1326,9 +1324,6 @@ SRSASN_CODE unpack(std::string& s, cbit_ref& bref, size_t lb, size_t ub, size_t\n   size_t b              = asn_string_utils::get_nof_bits_per_char(lb, ub, aligned);\n   bool   octet_aligned  = asn_string_utils::is_octet_aligned(b, alb, aub, aligned);\n   bool   length_encoded = asn_string_utils::is_length_encoded(alb, aub, aligned);\n-  if (octet_aligned) {\n-    bref.align_bytes();\n-  }\n   if (ext) {\n     bool is_ext;\n     HANDLE_CODE(bref.unpack(is_ext, 1));",
+      "additions": 1,
+      "deletions": 6,
+      "changes": 7
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\47f4eca.json"
+}

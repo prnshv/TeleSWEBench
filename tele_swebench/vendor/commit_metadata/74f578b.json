@@ -1,0 +1,29 @@
+{
+  "commit_id": "74f578b3d8c49dea7689445dc2ecef1657a5a142",
+  "commit_sha_short": "74f578b",
+  "commit_folder": "74f578b",
+  "commit_message": "test_mode: fix injected UL RRC Message sent before Msg4",
+  "commit_message_first_line": "test_mode: fix injected UL RRC Message sent before Msg4",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/74f578b3d8c49dea7689445dc2ecef1657a5a142",
+  "commit_date": "2025-02-28T19:19:40Z",
+  "parent_sha": "72a3373f8b33d96c0bd07c886890e8f540573b9c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/72a3373f8b33d96c0bd07c886890e8f540573b9c",
+  "code_changes": [
+    {
+      "filename": "lib/du/du_high/test_mode/f1ap_test_mode_adapter.cpp",
+      "patch": "@@ -221,7 +221,6 @@ class f1ap_test_mode_adapter::f1ap_to_gw_pdu_interceptor : public f1ap_message_n\n           // Increment next_cu_ue_id for the next test mode UE.\n           next_cu_ue_id++;\n \n-          parent.logger.info(\"Test Mode: Injected F1AP DL RRC Message (containing rrcSetup)\");\n           parent.handle_message(pdu_resp);\n \n         } break;",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -334,6 +334,42 @@ void mac_test_mode_cell_adapter::on_new_downlink_scheduler_results(const mac_dl_\n     last_slot_ind = dl_res.slot;\n   }\n \n+  for (auto& grant : dl_res.dl_res->ue_grants) {\n+    rnti_t crnti = grant.pdsch_cfg.rnti;\n+    if (not ue_info_mgr.is_cell_test_ue(cell_index, crnti) or ue_info_mgr.is_msg4_rxed(crnti)) {\n+      // UE is not test mode or it has already received Msg4.\n+      continue;\n+    }\n+\n+    // In case of SRB PDU received, we assume that the Msg4 is received. At this point, we update the test UE with\n+    // positive DL buffer states and BSR.\n+    auto& lchs = grant.tb_list[0].lc_chs_to_sched;\n+    if (std::any_of(\n+            lchs.begin(), lchs.end(), [](const auto& lc) { return lc.lcid.is_sdu() and is_srb(lc.lcid.to_lcid()); })) {\n+      if (test_ue_cfg.pdsch_active) {\n+        // Update DL buffer state automatically.\n+        dl_bs_notifier(crnti);\n+      }\n+\n+      if (test_ue_cfg.pusch_active) {\n+        auto rx_pdu = create_test_pdu_with_bsr(cell_index, dl_res.slot, crnti, to_harq_id(0));\n+        if (not rx_pdu.has_value()) {\n+          logger.warning(\"TEST_MODE c-rnti={}: Unable to create test PDU with BSR\", crnti);\n+          continue;\n+        }\n+        // In case of PUSCH test mode is enabled, push a BSR to trigger the first PUSCH.\n+        pdu_handler.handle_rx_data_indication(std::move(rx_pdu.value()));\n+      }\n+\n+      // Mark Msg4 received for the UE.\n+      ue_info_mgr.msg4_rxed(crnti, true);\n+\n+      // Push an UL PDU that will serve as rrcSetupComplete and get the UE out of fallback mode.\n+      auto rx_pdu = create_test_pdu_with_rrc_setup_complete(cell_index, dl_res.slot, crnti, to_harq_id(0));\n+      pdu_handler.handle_rx_data_indication(std::move(rx_pdu.value()));\n+    }\n+  }\n+\n   // Dispatch result to lower layers.\n   result_notifier.on_new_downlink_scheduler_results(dl_res);\n }\n@@ -369,41 +405,6 @@ void mac_test_mode_cell_adapter::on_new_uplink_scheduler_results(const mac_ul_sc\n     }\n   }\n \n-  if (ul_res.ul_res != nullptr and not ul_res.ul_res->pucchs.empty()) {\n-    for (const pucch_info& pucch : ul_res.ul_res->pucchs) {\n-      if (not ue_info_mgr.is_cell_test_ue(cell_index, pucch.crnti) or ue_info_mgr.is_msg4_rxed(pucch.crnti)) {\n-        // UE is not test mode or it has already received Msg4.\n-        continue;\n-      }\n-      if ((pucch.format() == pucch_format::FORMAT_0 or pucch.format() == pucch_format::FORMAT_1) and\n-          pucch.uci_bits.harq_ack_nof_bits > 0) {\n-        // In case of PUCCH F1 with HARQ-ACK bits, we assume that the Msg4 is received. At this point, we\n-        // update the test UE with positive DL buffer states and BSR.\n-        if (test_ue_cfg.pdsch_active) {\n-          // Update DL buffer state automatically.\n-          dl_bs_notifier(pucch.crnti);\n-        }\n-\n-        if (test_ue_cfg.pusch_active) {\n-          auto rx_pdu = create_test_pdu_with_bsr(cell_index, ul_res.slot, pucch.crnti, to_harq_id(0));\n-          if (not rx_pdu.has_value()) {\n-            logger.warning(\"TEST_MODE c-rnti={}: Unable to create test PDU with BSR\", pucch.crnti);\n-            continue;\n-          }\n-          // In case of PUSCH test mode is enabled, push a BSR to trigger the first PUSCH.\n-          pdu_handler.handle_rx_data_indication(std::move(rx_pdu.value()));\n-        }\n-\n-        // Mark Msg4 received for the UE.\n-        ue_info_mgr.msg4_rxed(pucch.crnti, true);\n-\n-        // Push an UL PDU that will serve as rrcSetupComplete and get the UE out of fallback mode.\n-        auto rx_pdu = create_test_pdu_with_rrc_setup_complete(cell_index, ul_res.slot, pucch.crnti, to_harq_id(0));\n-        pdu_handler.handle_rx_data_indication(std::move(rx_pdu.value()));\n-      }\n-    }\n-  }\n-\n   // Forward results to PHY.\n   result_notifier.on_new_uplink_scheduler_results(ul_res);\n }",
+      "additions": 36,
+      "deletions": 35,
+      "changes": 71
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\74f578b.json"
+}

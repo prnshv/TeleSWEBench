@@ -1,0 +1,85 @@
+{
+  "commit_id": "56b60d51d431cde1144c94ac12c090b27d92fb3f",
+  "commit_sha_short": "56b60d5",
+  "commit_folder": "56b60d5",
+  "commit_message": "support: Consolidate compiler specific macros into a single file.\nConsolidate warn_on_unused attribute usages through the new macro.",
+  "commit_message_first_line": "support: Consolidate compiler specific macros into a single file.",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/56b60d51d431cde1144c94ac12c090b27d92fb3f",
+  "commit_date": "2023-03-24T09:35:45Z",
+  "parent_sha": "3aab0885001761c074919e6871ff07d972680b93",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3aab0885001761c074919e6871ff07d972680b93",
+  "code_changes": [
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/srslog/srslog.h\"\n+#include \"srsran/support/compiler.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <array>\n #include <cmath>\n@@ -89,7 +90,7 @@ void assert_choice_type(uint32_t val, uint32_t choice_id);\n template <typename Enumerated>\n void assert_choice_type(typename Enumerated::options access_type, Enumerated& current_type, const char* choice_type)\n {\n-  if (srsran_unlikely(current_type.value != access_type)) {\n+  if (SRSRAN_UNLIKELY(current_type.value != access_type)) {\n     log_error(\"Invalid field access for choice type \\\"{}\\\" (\\\"{}\\\"!=\\\"{}\\\")\",\n               choice_type,\n               Enumerated(access_type).to_string(),",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/support/async/protocol_transaction_manager.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"manual_event.h\"\n #include \"srsran/adt/expected.h\"\n #include \"srsran/adt/variant.h\"\n+#include \"srsran/support/compiler.h\"\n #include \"srsran/support/timers.h\"\n #include <array>\n \n@@ -69,7 +70,7 @@ class protocol_transaction_manager\n   }\n \n   /// \\brief Creates a new protocol transaction with automatically assigned transaction ID.\n-  protocol_transaction<T> create_transaction() __attribute__((warn_unused_result))\n+  SRSRAN_NODISCARD protocol_transaction<T> create_transaction()\n   {\n     unsigned transaction_id = next_transaction_id.fetch_add(1, std::memory_order_relaxed) % N;\n     if (not transactions[transaction_id].is_set()) {\n@@ -83,8 +84,7 @@ class protocol_transaction_manager\n \n   /// \\brief Creates a new protocol transaction with automatically assigned transaction ID and with a timeout, after\n   /// which the transaction gets cancelled.\n-  protocol_transaction<T> create_transaction(std::chrono::milliseconds time_to_cancel)\n-      __attribute__((warn_unused_result))\n+  SRSRAN_NODISCARD protocol_transaction<T> create_transaction(std::chrono::milliseconds time_to_cancel)\n   {\n     protocol_transaction<T> t = create_transaction();\n     // Setup timeout.\n@@ -107,7 +107,7 @@ class protocol_transaction_manager\n   /// \\param[in] result Result of the transaction.\n   /// \\return True if result of the transaction was successfully set. False, if the transaction has already finished.\n   template <typename U>\n-  bool __attribute__((warn_unused_result)) set(unsigned transaction_id, U&& result)\n+  SRSRAN_NODISCARD bool set(unsigned transaction_id, U&& result)\n   {\n     if (transactions[transaction_id].is_set()) {\n       return false;",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/attributes.h",
+      "patch": "@@ -1,19 +0,0 @@\n-/*\n- *\n- * Copyright 2013-2023 Software Radio Systems Limited\n- *\n- * By using this file, you agree to the terms and conditions set\n- * forth in the LICENSE file which can be found at the top level of\n- * the distribution.\n- *\n- */\n-\n-#pragma once\n-\n-namespace srsran {\n-\n-// The warn_unused_result attribute causes a warning to be emitted if a caller of the function with this attribute does\n-// not use its return value.\n-#define RETURN_NO_DISCARD __attribute__((warn_unused_result))\n-\n-} // namespace srsran\n\\ No newline at end of file",
+      "additions": 0,
+      "deletions": 19,
+      "changes": 19
+    },
+    {
+      "filename": "include/srsran/support/compiler.h",
+      "patch": "@@ -0,0 +1,23 @@\n+/*\n+ *\n+ * Copyright 2013-2023 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+/// \\file\n+/// \\brief Defines generic compiler macros that get translated into compiler specific directives simplifying portability\n+/// between different compilers.\n+\n+#pragma once\n+\n+/// Emits a warning if a caller of the function with this attribute does not use its return value.\n+#define SRSRAN_NODISCARD __attribute__((warn_unused_result))\n+\n+/// Provides a hint to the compiler that a condition is likely to be true.\n+#define SRSRAN_LIKELY(EXPR) __builtin_expect((bool)(EXPR), true)\n+/// Provides a hint to the compiler that a condition is likely to be false.\n+#define SRSRAN_UNLIKELY(EXPR) __builtin_expect((bool)(EXPR), false)",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker.h",
+      "patch": "@@ -10,11 +10,11 @@\n \n #pragma once\n \n-#include \"task_executor.h\"\n #include \"srsran/adt/blocking_queue.h\"\n #include \"srsran/adt/unique_function.h\"\n #include \"srsran/srslog/srslog.h\"\n-#include \"srsran/support/attributes.h\"\n+#include \"srsran/support/compiler.h\"\n+#include \"srsran/support/executors/task_executor.h\"\n #include \"srsran/support/unique_thread.h\"\n \n namespace srsran {\n@@ -52,7 +52,7 @@ class task_worker\n \n   /// \\brief Push a new task to FIFO to be processed by the task worker. If the task FIFO is full, enqueueing fails.\n   /// \\return true if task was successfully enqueued. False if task FIFO was full.\n-  bool push_task(task_t&& task) RETURN_NO_DISCARD { return pending_tasks.try_push(std::move(task)).has_value(); }\n+  SRSRAN_NODISCARD bool push_task(task_t&& task) { return pending_tasks.try_push(std::move(task)).has_value(); }\n \n   /// \\brief Push a new task to FIFO to be processed by the task worker. If the task FIFO is full, this call blocks,\n   /// until the FIFO has space to enqueue the task.",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/ring_buffer_pool.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"ring_memory_allocator.h\"\n+#include \"srsran/support/compiler.h\"\n #include \"srsran/support/error_handling.h\"\n \n namespace srsran {\n@@ -83,11 +84,11 @@ class ticking_ring_buffer_pool\n     {\n       srsran_assert(first_tick or tic_index != last_tick_index,\n                     \"This function cannot be called multiple times for the same tick\");\n-      if (srsran_unlikely(first_tick)) {\n+      if (SRSRAN_UNLIKELY(first_tick)) {\n         // first tick call.\n         last_tick_index = tic_index - 1;\n         first_tick      = false;\n-      } else if (srsran_unlikely(last_tick_index > tic_index)) {\n+      } else if (SRSRAN_UNLIKELY(last_tick_index > tic_index)) {\n         // wrap-around case.\n         last_tick_index = -(tic_wraparound - last_tick_index);\n       }\n@@ -138,4 +139,4 @@ class ticking_ring_buffer_pool\n   overflow_detector_t overflow_detector;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "include/srsran/support/srsran_assert.h",
+      "patch": "@@ -13,9 +13,6 @@\n #include \"srsran/srslog/srslog.h\"\n #include <cstdio>\n \n-/// Provides a hint to the compiler that a condition is likely false.\n-#define srsran_unlikely(expr) __builtin_expect(!!(expr), 0)\n-\n /// Verifies if compile-time symbol is defined.\n #define SRSRAN_IS_DEFINED(x) SRSRAN_IS_DEFINED2(x)\n #define SRSRAN_IS_DEFINED2(x) (#x[0] == 0 || (#x[0] >= '1' && #x[0] <= '9'))",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -33,7 +33,7 @@ void invalid_enum_number(int value, const char* name)\n \n void assert_choice_type(uint32_t val, uint32_t choice_id)\n {\n-  if (srsran_unlikely(val != choice_id)) {\n+  if (SRSRAN_UNLIKELY(val != choice_id)) {\n     log_invalid_access_choice_id(val, choice_id);\n   }\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/cell/resource_grid.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"resource_grid.h\"\n+#include \"srsran/support/compiler.h\"\n \n using namespace srsran;\n \n@@ -241,7 +242,7 @@ void cell_resource_allocator::slot_indication(slot_point sl_tx)\n   srsran_sanity_check(sl_tx.numerology() == to_numerology_value(get_max_scs(cfg.dl_cfg_common)),\n                       \"Invalid slot numerology\");\n \n-  if (srsran_unlikely(not last_slot_ind.valid())) {\n+  if (SRSRAN_UNLIKELY(not last_slot_ind.valid())) {\n     // First call to slot_indication. Set slot of all slot cell resource grids.\n     for (unsigned i = 0; i < slots.size(); ++i) {\n       slots[(sl_tx + i).to_uint() % slots.size()]->slot_indication(sl_tx + i);",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/prach_scheduler.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ran/prach/prach_cyclic_shifts.h\"\n #include \"srsran/ran/prach/prach_frequency_mapping.h\"\n #include \"srsran/ran/prach/prach_preamble_information.h\"\n+#include \"srsran/support/compiler.h\"\n #include \"srsran/support/error_handling.h\"\n \n using namespace srsran;\n@@ -86,7 +87,7 @@ prach_scheduler::prach_scheduler(const cell_configuration& cfg_) :\n \n void prach_scheduler::run_slot(cell_resource_allocator& res_grid)\n {\n-  if (srsran_unlikely(first_slot_ind)) {\n+  if (SRSRAN_UNLIKELY(first_slot_ind)) {\n     // If called for the first time, pre-allocates the PRACH PDUs over the entire grid, until the last\n     // (farthest in the future) usable slot.\n     first_slot_ind = false;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 10,
+  "commit_details_path": ".\\commit_metadata\\56b60d5.json"
+}

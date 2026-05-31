@@ -1,0 +1,36 @@
+{
+  "commit_id": "7864b14b99728c1c4c9a59e4a33992bd2536d2a9",
+  "commit_sha_short": "7864b14",
+  "commit_folder": "7864b14",
+  "commit_message": "gnb: double byte_buffer_segment size and half number of segments in buffer pool",
+  "commit_message_first_line": "gnb: double byte_buffer_segment size and half number of segments in buffer pool",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/7864b14b99728c1c4c9a59e4a33992bd2536d2a9",
+  "commit_date": "2023-12-21T22:19:40Z",
+  "parent_sha": "9cbf1507a97c111b0605f5be43e2cc01c2667e2c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9cbf1507a97c111b0605f5be43e2cc01c2667e2c",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/detail/byte_buffer_segment_pool.h",
+      "patch": "@@ -23,4 +23,4 @@ using byte_buffer_segment_pool = fixed_size_memory_block_pool<byte_buffer_pool_t\n detail::byte_buffer_segment_pool& get_default_byte_buffer_segment_pool();\n \n } // namespace detail\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -15,7 +15,7 @@ using namespace srsran;\n \n size_t srsran::byte_buffer_segment_pool_default_segment_size()\n {\n-  return 1024;\n+  return 2048;\n }\n \n /// Get default byte buffer segment pool. Initialize pool if not initialized before.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/rlc/rlc_am_rx_benchmark.cpp",
+      "patch": "@@ -262,7 +262,7 @@ int main(int argc, char** argv)\n   parse_args(argc, argv, params);\n \n   // Setup size of byte buffer pool.\n-  init_byte_buffer_segment_pool(524288, 1024);\n+  init_byte_buffer_segment_pool(524288);\n \n   {\n     benchmark_rx_pdu(params, rx_order::in_order);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\7864b14.json"
+}

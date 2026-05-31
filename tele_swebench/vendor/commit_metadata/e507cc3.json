@@ -1,0 +1,141 @@
+{
+  "commit_id": "e507cc373a3f4baaf2926fef2dd569ef666e6ff5",
+  "commit_sha_short": "e507cc3",
+  "commit_folder": "e507cc3",
+  "commit_message": "sched: change interface to determine whether it is time for the scheduler to produce a scheduler metric report",
+  "commit_message_first_line": "sched: change interface to determine whether it is time for the scheduler to produce a scheduler metric report",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e507cc373a3f4baaf2926fef2dd569ef666e6ff5",
+  "commit_date": "2025-05-22T15:31:17Z",
+  "parent_sha": "68cb601838315415c33e135aebd3b3e8c7482eb0",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/68cb601838315415c33e135aebd3b3e8c7482eb0",
+  "code_changes": [
+    {
+      "filename": "include/srsran/scheduler/scheduler_configurator.h",
+      "patch": "@@ -20,7 +20,6 @@\n #include \"srsran/ran/rrm.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/ran/slot_point_extended.h\"\n #include \"srsran/ran/sr_configuration.h\"\n #include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n@@ -35,10 +34,7 @@\n \n namespace srsran {\n \n-struct scheduler_cell_metrics;\n-template <typename R>\n-class zero_copy_notifier;\n-using scheduler_cell_metrics_notifier = zero_copy_notifier<scheduler_cell_metrics>;\n+class scheduler_cell_metrics_notifier;\n \n /// Basic scheduler resource grid element for resource reservation.\n struct sched_grid_resource {\n@@ -212,7 +208,7 @@ class scheduler_configurator\n   virtual void handle_rach_indication(const rach_indication_message& msg) = 0;\n \n   /// \\brief Activate a configured cell. This method has no effect if the cell is already active.\n-  virtual void handle_cell_activation_request(du_cell_index_t cell_index, slot_point_extended sl_tx) = 0;\n+  virtual void handle_cell_activation_request(du_cell_index_t cell_index) = 0;\n \n   /// \\brief Deactivate a configured cell. This method has no effect if the cell is already deactivated.\n   virtual void handle_cell_deactivation_request(du_cell_index_t cell_index) = 0;",
+      "additions": 2,
+      "deletions": 6,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -175,7 +175,11 @@ class scheduler_metrics_notifier\n   virtual void report_metrics(const scheduler_cell_metrics& report) = 0;\n };\n \n-/// \\brief Notifier interface used by the scheduler to report metrics of a given cell in a zero-copy manner.\n-using scheduler_cell_metrics_notifier = zero_copy_notifier<scheduler_cell_metrics>;\n+/// Interface used by the scheduler to determine whether a new metric report is required.\n+class scheduler_cell_metrics_notifier : public zero_copy_notifier<scheduler_cell_metrics>\n+{\n+public:\n+  virtual bool is_sched_report_required(slot_point sl_tx) = 0;\n+};\n \n } // namespace srsran",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_metrics_aggregator.cpp",
+      "patch": "@@ -42,7 +42,7 @@ full_cell_report report_preinit()\n } // namespace\n \n class mac_metrics_aggregator::cell_metric_handler final : public mac_cell_metric_notifier,\n-                                                          public zero_copy_notifier<scheduler_cell_metrics>\n+                                                          public scheduler_cell_metrics_notifier\n {\n public:\n   cell_metric_handler(mac_metrics_aggregator&     parent_,\n@@ -64,6 +64,9 @@ class mac_metrics_aggregator::cell_metric_handler final : public mac_cell_metric\n \n   bool is_report_required(slot_point slot_tx) override\n   {\n+    if (SRSRAN_UNLIKELY(not last_sl_tx.valid())) {\n+      return false;\n+    }\n     // Note: Called from the cell execution context.\n     slot_point_extended new_last_sl_tx{slot_tx, last_sl_tx.hfn()};\n     if (SRSRAN_UNLIKELY(new_last_sl_tx < last_sl_tx)) {\n@@ -75,6 +78,19 @@ class mac_metrics_aggregator::cell_metric_handler final : public mac_cell_metric\n     return sched_report_is_ready and last_sl_tx >= next_report_slot_tx;\n   }\n \n+  bool is_sched_report_required(slot_point slot_tx) override\n+  {\n+    if (SRSRAN_UNLIKELY(not last_sl_tx.valid())) {\n+      return false;\n+    }\n+    slot_point_extended new_last_sl_tx{slot_tx, last_sl_tx.hfn()};\n+    if (SRSRAN_UNLIKELY(new_last_sl_tx < last_sl_tx)) {\n+      // SFN rollover detected.\n+      new_last_sl_tx += slot_tx.nof_slots_per_system_frame();\n+    }\n+    return sched_builder != nullptr and new_last_sl_tx >= next_report_slot_tx;\n+  }\n+\n   void on_cell_activation() override\n   {\n     // Determine the next report slot.",
+      "additions": 17,
+      "deletions": 1,
+      "changes": 18
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_scheduler_configurator.h",
+      "patch": "@@ -16,11 +16,7 @@\n namespace srsran {\n \n struct mac_cell_creation_request;\n-\n-struct scheduler_cell_metrics;\n-template <typename R>\n-class zero_copy_notifier;\n-using scheduler_cell_metrics_notifier = zero_copy_notifier<scheduler_cell_metrics>;\n+class scheduler_cell_metrics_notifier;\n \n struct mac_scheduler_cell_creation_request {\n   const mac_cell_creation_request& cell_params;",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -77,7 +77,6 @@ async_task<void> mac_cell_processor::start()\n           // No-op.\n           return;\n         }\n-\n         state = cell_state::activating;\n       },\n       [this]() {\n@@ -274,7 +273,7 @@ void mac_cell_processor::handle_slot_indication_impl(slot_point               sl\n   // * Start of Critical Path * //\n \n   // Tick DU timers on subframe boundaries. Retrieve the combination of HFN, SFN and slot.\n-  auto slot_tx_ext = time_source->on_slot_indication(sl_tx);\n+  time_source->on_slot_indication(sl_tx);\n \n   if (SRSRAN_UNLIKELY(state != cell_state::active)) {\n     if (state == cell_state::inactive) {\n@@ -285,7 +284,7 @@ void mac_cell_processor::handle_slot_indication_impl(slot_point               sl\n     // Cell is in the process of activating.\n \n     // Notify scheduler about activation.\n-    sched.start_cell(cell_cfg.cell_index, slot_tx_ext);\n+    sched.start_cell(cell_cfg.cell_index);\n \n     logger.info(\"cell={}: Cell was activated\", fmt::underlying(cell_cfg.cell_index));\n     state = cell_state::active;",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_metric_handler.cpp",
+      "patch": "@@ -47,27 +47,36 @@ mac_dl_cell_metric_handler::mac_dl_cell_metric_handler(pci_t\n {\n }\n \n-void mac_dl_cell_metric_handler::on_cell_deactivation()\n+void mac_dl_cell_metric_handler::on_cell_activation(slot_point sl_tx)\n {\n-  if (not enabled()) {\n+  if (not enabled() or active()) {\n     return;\n   }\n-  if (not last_sl_tx.valid()) {\n+  last_sl_tx = sl_tx;\n+  data       = {};\n+  // Notify cell creation and next slot on which the report will be generated.\n+  notifier->on_cell_activation();\n+}\n+\n+void mac_dl_cell_metric_handler::on_cell_deactivation()\n+{\n+  if (not enabled() or not active()) {\n     // Activation hasn't started or completed.\n     return;\n   }\n \n-  data.last_report = true;\n-\n   // Report the remainder metrics.\n+  data.last_report = true;\n   send_new_report();\n+  last_sl_tx = {};\n }\n \n void mac_dl_cell_metric_handler::handle_slot_completion(const slot_measurement& meas)\n {\n-  if (not enabled()) {\n+  if (not enabled() or not active()) {\n     return;\n   }\n+  last_sl_tx = meas.sl_tx;\n \n   // Time difference\n   const auto                     stop_tp           = metric_clock::now();\n@@ -87,14 +96,6 @@ void mac_dl_cell_metric_handler::handle_slot_completion(const slot_measurement&\n     rusg_diff = make_unexpected(meas.start_rusg.error());\n   }\n \n-  if (SRSRAN_UNLIKELY(not last_sl_tx.valid())) {\n-    // First slot after cell activation.\n-    // Notify cell creation and next slot on which the report will be generated.\n-    notifier->on_cell_activation();\n-    data = {};\n-  }\n-  last_sl_tx = meas.sl_tx;\n-\n   // Update metrics.\n   data.nof_slots++;\n   if (not data.start_slot.valid()) {\n@@ -156,6 +157,5 @@ void mac_dl_cell_metric_handler::send_new_report()\n     notifier->on_cell_metric_report(report);\n   } else {\n     notifier->on_cell_deactivation(report);\n-    last_sl_tx = {};\n   }\n }",
+      "additions": 15,
+      "deletions": 15,
+      "changes": 30
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_metric_handler.h",
+      "patch": "@@ -44,6 +44,9 @@ class mac_dl_cell_metric_handler\n       if (enabled()) {\n         start_tp   = metric_clock::now();\n         start_rusg = resource_usage::now();\n+        if (not parent->active()) {\n+          parent->on_cell_activation(sl_tx);\n+        }\n       }\n     }\n     ~slot_measurement()\n@@ -108,6 +111,11 @@ class mac_dl_cell_metric_handler\n   }\n \n private:\n+  /// Called when the MAC cell is activated.\n+  void on_cell_activation(slot_point sl_tx);\n+\n+  bool active() const { return last_sl_tx.valid(); }\n+\n   bool enabled() const { return notifier != nullptr; }\n \n   struct non_persistent_data {\n@@ -147,6 +155,7 @@ class mac_dl_cell_metric_handler\n   const std::chrono::nanoseconds slot_duration;\n \n   // Last slot indication time point extended with HFN to avoid SFN wrap-around ambiguity.\n+  // If not set, the cell is inactive.\n   slot_point_extended last_sl_tx;\n \n   // Metrics tracked",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_scheduler_cell_info_handler.h",
+      "patch": "@@ -27,8 +27,7 @@ class mac_scheduler_cell_info_handler : public mac_ue_control_information_handle\n \n   /// \\brief Start scheduling for a given cell. If cell was already activated, this operation has no effect.\n   /// \\param cell_idx DU-specific index of the cell for which the slot is being processed.\n-  /// \\param sl_tx HFN, SFN and slot index of the transmit slot at which the cell was started.\n-  virtual void start_cell(du_cell_index_t cell_idx, slot_point_extended sl_tx) = 0;\n+  virtual void start_cell(du_cell_index_t cell_idx) = 0;\n \n   /// \\brief Stop running cell. If cell was already deactivated, this operation has no effect.\n   /// \\param cell_idx DU-specific index of the cell for which the slot is being processed.",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.h",
+      "patch": "@@ -36,10 +36,7 @@ class srsran_scheduler_adapter final : public mac_scheduler_adapter\n \n   void remove_cell(du_cell_index_t cell_index) override;\n \n-  void start_cell(du_cell_index_t cell_index, slot_point_extended sl_tx) override\n-  {\n-    sched_impl->handle_cell_activation_request(cell_index, sl_tx);\n-  }\n+  void start_cell(du_cell_index_t cell_index) override { sched_impl->handle_cell_activation_request(cell_index); }\n \n   void stop_cell(du_cell_index_t cell_index) override { sched_impl->handle_cell_deactivation_request(cell_index); }\n ",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/cell_scheduler.cpp",
+      "patch": "@@ -148,9 +148,8 @@ void cell_scheduler::reset_resource_grid(slot_point sl_tx)\n   uci_alloc.slot_indication(sl_tx);\n }\n \n-void cell_scheduler::start(slot_point_extended sl_tx)\n+void cell_scheduler::start()\n {\n-  metrics.handle_cell_activation(sl_tx);\n   stopped.store(false, std::memory_order_relaxed);\n }\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/cell_scheduler.h",
+      "patch": "@@ -44,7 +44,7 @@ class cell_scheduler\n   void run_slot(slot_point sl_tx);\n \n   /// Activate cell.\n-  void start(slot_point_extended sl_tx);\n+  void start();\n \n   /// Deactivate cell.\n   void stop();\n@@ -90,10 +90,7 @@ class cell_scheduler\n   pucch_guardbands_scheduler    pucch_guard_sch;\n   paging_scheduler              pg_sch;\n \n-  slot_point_extended last_sl_tx;\n-\n-  std::atomic<slot_point_extended> slot_when_started;\n-  std::atomic<uint32_t>            stopped{false};\n+  std::atomic<bool> stopped{false};\n };\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 5,
+      "changes": 7
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -29,6 +29,7 @@ class null_metrics_notifier final : public scheduler_cell_metrics_notifier\n     null_report.ue_metrics.clear();\n     null_report.events.clear();\n   }\n+  bool is_sched_report_required(slot_point sl_tx) override { return false; }\n \n   scheduler_cell_metrics null_report{};\n };\n@@ -76,17 +77,16 @@ void cell_metrics_handler::handle_ue_creation(du_ue_index_t ue_index, rnti_t rnt\n   ues[ue_index].pci      = pcell_pci;\n   rnti_to_ue_index_lookup.emplace(rnti, ue_index);\n \n-  next_report->events.push_back(\n-      scheduler_cell_event{last_slot_tx.without_hfn(), rnti, scheduler_cell_event::event_type::ue_add});\n+  next_report->events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_add});\n }\n \n void cell_metrics_handler::handle_ue_reconfiguration(du_ue_index_t ue_index)\n {\n   if (not enabled()) {\n     return;\n   }\n-  next_report->events.push_back(scheduler_cell_event{\n-      last_slot_tx.without_hfn(), ues[ue_index].rnti, scheduler_cell_event::event_type::ue_reconf});\n+  next_report->events.push_back(\n+      scheduler_cell_event{last_slot_tx, ues[ue_index].rnti, scheduler_cell_event::event_type::ue_reconf});\n }\n \n void cell_metrics_handler::handle_ue_deletion(du_ue_index_t ue_index)\n@@ -97,8 +97,7 @@ void cell_metrics_handler::handle_ue_deletion(du_ue_index_t ue_index)\n   if (ues.contains(ue_index)) {\n     rnti_t rnti = ues[ue_index].rnti;\n \n-    next_report->events.push_back(\n-        scheduler_cell_event{last_slot_tx.without_hfn(), rnti, scheduler_cell_event::event_type::ue_rem});\n+    next_report->events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_rem});\n \n     rnti_to_ue_index_lookup.erase(rnti);\n     ues.erase(ue_index);\n@@ -370,14 +369,6 @@ void cell_metrics_handler::handle_late_ul_harqs()\n   ++data.nof_failed_pusch_allocs_late_harqs;\n }\n \n-void cell_metrics_handler::handle_cell_activation(slot_point_extended sl_tx)\n-{\n-  if (not enabled()) {\n-    return;\n-  }\n-  slot_tx_at_start.store(sl_tx, std::memory_order_relaxed);\n-}\n-\n void cell_metrics_handler::report_metrics()\n {\n   for (ue_metric_context& ue : ues) {\n@@ -386,7 +377,7 @@ void cell_metrics_handler::report_metrics()\n   }\n \n   next_report->pci                       = cell_cfg.pci;\n-  next_report->slot                      = last_slot_tx.without_hfn() - report_period_slots;\n+  next_report->slot                      = last_slot_tx - report_period_slots;\n   next_report->nof_slots                 = report_period_slots;\n   next_report->nof_error_indications     = data.error_indication_counter;\n   next_report->average_decision_latency  = data.decision_latency_sum / report_period_slots;\n@@ -480,7 +471,7 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n   data.decision_latency_sum += slot_decision_latency;\n   if (data.max_decision_latency < slot_decision_latency) {\n     data.max_decision_latency      = slot_decision_latency;\n-    data.max_decision_latency_slot = last_slot_tx.without_hfn();\n+    data.max_decision_latency_slot = last_slot_tx;\n   }\n   unsigned bin_idx = slot_decision_latency.count() / scheduler_cell_metrics::nof_usec_per_bin;\n   bin_idx          = std::min(bin_idx, scheduler_cell_metrics::latency_hist_bins - 1);\n@@ -498,34 +489,13 @@ void cell_metrics_handler::push_result(slot_point                sl_tx,\n   if (not enabled()) {\n     return;\n   }\n-\n-  if (not next_report_slot_tx.valid()) {\n-    // Determine whether cell was started. If so, setup next report slot.\n-    auto slot_tx_ext = slot_tx_at_start.load(std::memory_order_relaxed);\n-    if (not slot_tx_ext.valid()) {\n-      return;\n-    }\n-    last_slot_tx        = slot_tx_ext;\n-    unsigned slot_mod   = last_slot_tx.count() % report_period_slots;\n-    next_report_slot_tx = last_slot_tx + report_period_slots - slot_mod;\n-  }\n-\n-  // Update last slot tx accounting for HFN.\n-  slot_point_extended next_sl_tx{sl_tx, last_slot_tx.hfn()};\n-  if (next_sl_tx < last_slot_tx) {\n-    // HFN rollover.\n-    next_sl_tx += sl_tx.nof_slots_per_system_frame();\n-  }\n-  last_slot_tx = next_sl_tx;\n+  last_slot_tx = sl_tx;\n \n   handle_slot_result(slot_result, slot_decision_latency);\n \n-  if (last_slot_tx >= next_report_slot_tx) {\n+  if (notifier.is_sched_report_required(sl_tx)) {\n     // Prepare report and forward it to the notifier.\n     report_metrics();\n-\n-    // Set next report slot.\n-    next_report_slot_tx += report_period_slots;\n   }\n }\n ",
+      "additions": 9,
+      "deletions": 39,
+      "changes": 48
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -151,9 +151,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   const unsigned nof_slots_per_sf;\n   const unsigned report_period_slots;\n \n-  std::atomic<slot_point_extended> slot_tx_at_start;\n-  slot_point_extended              last_slot_tx;\n-  slot_point_extended              next_report_slot_tx;\n+  slot_point last_slot_tx;\n \n   slotted_id_vector<du_ue_index_t, ue_metric_context> ues;\n   flat_map<rnti_t, du_ue_index_t>                     rnti_to_ue_index_lookup;\n@@ -226,9 +224,6 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   /// \\brief Handle late UL HARQ indication.\n   void handle_late_ul_harqs();\n \n-  /// Called when the cell is activated.\n-  void handle_cell_activation(slot_point_extended sl_tx);\n-\n   /// \\brief Handle results stored in the scheduler result and push new entry.\n   void push_result(slot_point sl_tx, const sched_result& slot_result, std::chrono::microseconds slot_decision_latency);\n ",
+      "additions": 1,
+      "deletions": 6,
+      "changes": 7
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.cpp",
+      "patch": "@@ -56,10 +56,10 @@ void scheduler_impl::handle_cell_removal_request(du_cell_index_t cell_index)\n   cfg_mng.rem_cell(cell_index);\n }\n \n-void scheduler_impl::handle_cell_activation_request(du_cell_index_t cell_index, slot_point_extended sl_tx)\n+void scheduler_impl::handle_cell_activation_request(du_cell_index_t cell_index)\n {\n   srsran_assert(cells.contains(cell_index), \"cell={} does not exist\", fmt::underlying(cell_index));\n-  cells[cell_index]->start(sl_tx);\n+  cells[cell_index]->start();\n }\n \n void scheduler_impl::handle_cell_deactivation_request(du_cell_index_t cell_index)",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.h",
+      "patch": "@@ -28,7 +28,7 @@ class scheduler_impl final : public mac_scheduler\n   void handle_cell_removal_request(du_cell_index_t cell_index) override;\n \n   // Cell activity.\n-  void handle_cell_activation_request(du_cell_index_t cell_index, slot_point_extended sl_tx) override;\n+  void handle_cell_activation_request(du_cell_index_t cell_index) override;\n   void handle_cell_deactivation_request(du_cell_index_t cell_index) override;\n \n   // Sys Info handling.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/mac/dummy_scheduler_ue_metric_notifier.h",
+      "patch": "@@ -25,7 +25,7 @@ class dummy_scheduler_ue_metrics_notifier : public scheduler_metrics_notifier\n \n class dummy_scheduler_cell_metrics_notifier : public scheduler_cell_metrics_notifier\n {\n-private:\n+public:\n   scheduler_cell_metrics last_metrics;\n \n   scheduler_cell_metrics& get_next() override { return last_metrics; }\n@@ -34,6 +34,8 @@ class dummy_scheduler_cell_metrics_notifier : public scheduler_cell_metrics_noti\n   {\n     srsran_assert(&ptr == &last_metrics, \"Invalid reference passed\");\n   }\n+\n+  bool is_sched_report_required(slot_point sl_tx) override { return false; }\n };\n \n } // namespace srsran",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/mac/mac_test_helpers.h",
+      "patch": "@@ -91,7 +91,7 @@ class dummy_mac_scheduler : public mac_scheduler\n \n   bool handle_cell_configuration_request(const sched_cell_configuration_request_message& msg) override { return true; }\n   void handle_cell_removal_request(du_cell_index_t cell_index) override {}\n-  void handle_cell_activation_request(du_cell_index_t cell_index, slot_point_extended sl_tx) override {}\n+  void handle_cell_activation_request(du_cell_index_t cell_index) override {}\n   void handle_cell_deactivation_request(du_cell_index_t cell_index) override {}\n   void handle_rach_indication(const rach_indication_message& msg) override { last_rach_ind = msg; }\n   void handle_ue_creation_request(const sched_ue_creation_request_message& ue_request) override {}\n@@ -124,7 +124,7 @@ class dummy_mac_scheduler_adapter : public mac_scheduler_cell_info_handler\n \n   void handle_dl_buffer_state_update(const mac_dl_buffer_state_indication_message& dl_bs) override {}\n \n-  void start_cell(du_cell_index_t cell_idx, slot_point_extended sl_tx) override { active = true; }\n+  void start_cell(du_cell_index_t cell_idx) override { active = true; }\n \n   void stop_cell(du_cell_index_t cell_idx) override { active = false; }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_metrics_handler_test.cpp",
+      "patch": "@@ -21,11 +21,25 @@ using namespace srsran;\n class test_scheduler_cell_metrics_notifier : public scheduler_cell_metrics_notifier\n {\n public:\n+  unsigned               period_slots = 1000;\n+  slot_point             next_sl_report;\n   scheduler_cell_metrics last_report;\n \n   scheduler_cell_metrics& get_next() override { return last_report; }\n \n   void commit(scheduler_cell_metrics& ptr) override {}\n+\n+  bool is_sched_report_required(slot_point sl_tx) override\n+  {\n+    if (not next_sl_report.valid()) {\n+      next_sl_report = sl_tx + period_slots - (sl_tx.count() % period_slots);\n+    }\n+    if (sl_tx >= next_sl_report) {\n+      next_sl_report += period_slots;\n+      return true;\n+    }\n+    return false;\n+  }\n };\n \n class test_scheduler_ue_metrics_notifier : public scheduler_metrics_notifier\n@@ -46,7 +60,7 @@ class scheduler_metrics_handler_tester : public ::testing::Test\n              sched_config_helper::make_default_sched_cell_configuration_request()),\n     metrics(cell_cfg, sched_cell_configuration_request_message::metrics_config{period, &metrics_notif})\n   {\n-    metrics.handle_cell_activation(slot_point_extended{next_sl_tx, 0});\n+    metrics_notif.period_slots = report_period.count() * get_nof_slots_per_subframe(cell_cfg.scs_common);\n     metrics.handle_ue_creation(test_ue_index, to_rnti(0x4601), pci_t{0});\n   }\n ",
+      "additions": 15,
+      "deletions": 1,
+      "changes": 16
+    }
+  ],
+  "num_files_changed": 18,
+  "commit_details_path": ".\\commit_metadata\\e507cc3.json"
+}

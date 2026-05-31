@@ -1,0 +1,29 @@
+{
+  "commit_id": "3b0ff863ee6ec196f37a0ff92da57b3ed9280238",
+  "commit_sha_short": "3b0ff86",
+  "commit_folder": "3b0ff86",
+  "commit_message": "ran: review vrb_to_prb",
+  "commit_message_first_line": "ran: review vrb_to_prb",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/3b0ff863ee6ec196f37a0ff92da57b3ed9280238",
+  "commit_date": "2025-04-23T13:51:49Z",
+  "parent_sha": "b269132538df780b6ffcc77c645c77b38e9e77fe",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b269132538df780b6ffcc77c645c77b38e9e77fe",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/resource_allocation/vrb_to_prb.h",
+      "patch": "@@ -14,10 +14,12 @@\n #include \"srsran/ran/resource_allocation/rb_bitmap.h\"\n #include \"srsran/ran/resource_allocation/rb_interval.h\"\n #include \"srsran/ran/resource_block.h\"\n+#include \"srsran/support/srsran_assert.h\"\n #include <cstdint>\n \n namespace srsran::vrb_to_prb {\n \n+/// PDSCH VRB-to-PRB mapping configuration.\n struct configuration {\n   /// Indicates the number of RB bundles \\f$N_{bundle}\\f$. It is set to zero for non-interleaved mapping.\n   unsigned nof_bundles = 0;\n@@ -27,7 +29,7 @@ struct configuration {\n   unsigned nof_rbs = 0;\n   /// Indicates the first RB bundle size. Only applicable to interleaved mapping.\n   unsigned first_bundle_size = 0;\n-  /// Indicates the other RB bundle sizes. Only applicable to interleaved mapping.\n+  /// Indicates the other RB bundle sizes. Only applicable to interleaved mapping. Possible values: {2, 4}.\n   unsigned other_bundle_size = 0;\n   /// Indicates the last RB bundle size. Only applicable to interleaved mapping.\n   unsigned last_bundle_size = 0;\n@@ -160,6 +162,7 @@ create_interleaved_common_ss(unsigned N_start_coreset, unsigned N_bwp_i_start, u\n /// \\return An interleaved VRB-to-PRB configuration object.\n inline configuration create_interleaved_other(unsigned N_bwp_i_start, unsigned N_bwp_i_size, unsigned L_i)\n {\n+  srsran_assert(L_i == 2 || L_i == 4, \"Invalid bundle size {}. Valid values are 2 or 4.\", L_i);\n   const unsigned nof_bundles       = divide_ceil(N_bwp_i_size + (N_bwp_i_start % L_i), L_i);\n   const unsigned coreset_start     = 0;\n   const unsigned nof_rbs           = N_bwp_i_size;\n@@ -178,7 +181,10 @@ class non_interleaved_mapping\n   configuration config;\n \n public:\n-  non_interleaved_mapping(const configuration& config_) : config(config_) {}\n+  non_interleaved_mapping(const configuration& config_) : config(config_)\n+  {\n+    srsran_assert(not config.is_interleaved(), \"Invalid configuration for non-interleaved mapping.\");\n+  }\n \n   /// \\brief Converts a VRB to its corresponding PRB.\n   ///",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10
+    },
+    {
+      "filename": "lib/ran/resource_allocation/vrb_to_prb.cpp",
+      "patch": "@@ -125,14 +125,16 @@ static void vrb_to_prb_mapper_get_interleaved_prb(span<uint16_t> prb_indices,\n interleaved_mapping::interleaved_mapping(const configuration& config_) :\n   config(config_), vrb_to_prb_indices(config.nof_rbs), prb_to_vrb_indices(config.coreset_start + config.nof_rbs)\n {\n+  srsran_assert(config.is_interleaved(), \"Invalid configuration for interleaved mapping.\");\n+\n   vrb_to_prb_mapper_get_interleaved_prb(vrb_to_prb_indices,\n                                         config.coreset_start,\n                                         config.nof_bundles,\n                                         config.first_bundle_size,\n                                         config.other_bundle_size,\n                                         config.last_bundle_size);\n \n-  for (size_t vrb = 0; vrb < config.nof_rbs; ++vrb) {\n+  for (size_t vrb = 0; vrb != config.nof_rbs; ++vrb) {\n     prb_to_vrb_indices[vrb_to_prb_indices[vrb]] = vrb;\n   }\n }",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\3b0ff86.json"
+}

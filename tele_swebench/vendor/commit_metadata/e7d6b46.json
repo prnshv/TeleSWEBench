@@ -1,0 +1,414 @@
+{
+  "commit_id": "e7d6b46f824bc53299bc0491e98325c9c64a8795",
+  "commit_sha_short": "e7d6b46",
+  "commit_folder": "e7d6b46",
+  "commit_message": "sched: move UL result types out of scheduler_slot_handler.h",
+  "commit_message_first_line": "sched: move UL result types out of scheduler_slot_handler.h",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e7d6b46f824bc53299bc0491e98325c9c64a8795",
+  "commit_date": "2024-12-16T20:11:36Z",
+  "parent_sha": "2e80544efc0a67c45eebbac107781885ac81124a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/2e80544efc0a67c45eebbac107781885ac81124a",
+  "code_changes": [
+    {
+      "filename": "include/srsran/fapi_adaptor/mac/messages/pdcch.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/fapi/message_builders.h\"\n-#include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/pdcch_info.h\"\n \n namespace srsran {\n namespace fapi_adaptor {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/fapi_adaptor/precoding_matrix_mapper.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/ran/csi_report/csi_report_data.h\"\n #include \"srsran/srslog/logger.h\"\n #include <vector>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/mac/mac_cell_result.h",
+      "patch": "@@ -2,16 +2,20 @@\n #pragma once\n \n #include \"srsran/adt/byte_buffer.h\"\n-#include \"srsran/adt/byte_buffer_chain.h\"\n #include \"srsran/adt/static_vector.h\"\n+#include \"srsran/ran/du_types.h\"\n+#include \"srsran/ran/pci.h\"\n #include \"srsran/ran/pdcch/dci_packing.h\"\n+#include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/ran/ssb_properties.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n #include \"srsran/support/shared_transport_block.h\"\n \n namespace srsran {\n \n+struct dl_sched_result;\n+struct ul_sched_result;\n+\n /// \\brief Describes part of the parameters that are encoded in the MIB payload as per TS38.331 Section 6.2.2 - MIB.\n struct ssb_mib_data_pdu {\n   /// Symbol position of the first DM-RS.",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/scheduler/result/csi_rs_info.h",
+      "patch": "@@ -0,0 +1,45 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/csi_rs/csi_rs_types.h\"\n+#include \"srsran/scheduler/config/bwp_configuration.h\"\n+\n+namespace srsran {\n+\n+/// Stores the information associated with a CSI-RS signalling.\n+struct csi_rs_info {\n+  const bwp_configuration* bwp_cfg;\n+  /// Range of RBs where this CSI resource starts and ends, with relation to CRB#0. Only multiples of 4 are allowed.\n+  crb_interval crbs;\n+  csi_rs_type  type;\n+  /// \\brief Row entry into the CSI Resource location table, as per 3GP TS 38.211, sec 7.4.1.5.3 and table 7.4.1.5.3-1.\n+  /// Values: {1,...,18}.\n+  uint8_t row;\n+  /// \\brief Bitmap defining the frequencyDomainAllocation as per 3GPP TS 38.211, sec 7.4.1.5.3 and 3GPP TS 38.331\n+  /// \"CSIResource Mapping\".\n+  bounded_bitset<12, false> freq_domain;\n+  /// \\brief The time domain location l0 and firstOFDMSymbolInTimeDomain as per 3GPP TS 38.211, sec 7.4.1.5.3.\n+  /// Values: {0,...,13}.\n+  uint8_t symbol0;\n+  /// \\brief The time domain location l1 and firstOFDMSymbolInTimeDomain2 as per 3GPP TS 38.211, sec 7.4.1.5.3.\n+  uint8_t                  symbol1;\n+  csi_rs_cdm_type          cdm_type;\n+  csi_rs_freq_density_type freq_density;\n+  /// \\brief ScramblingID of the CSI-RS as per 3GPP TS 38.214, sec 5.2.2.3.1. Values: {0,...,1023}.\n+  uint16_t scrambling_id;\n+  /// Ratio of PDSCH EPRE to NZP CSI-RS EPRE as per 3GPP TS 38.214, clause 5.2.2.3.1. Values: {-8,...,15}.\n+  int8_t power_ctrl_offset;\n+  /// Ratio of NZP CSI-RS EPRE to SSB/PBCH block EPRE. Values: {-3,0,3,6}.\n+  int8_t power_ctrl_offset_ss;\n+};\n+\n+} // namespace srsran",
+      "additions": 45,
+      "deletions": 0,
+      "changes": 45
+    },
+    {
+      "filename": "include/srsran/scheduler/result/pdsch_info.h",
+      "patch": "@@ -11,12 +11,14 @@\n #pragma once\n \n #include \"srsran/ran/csi_report/csi_report_data.h\"\n+#include \"srsran/ran/logical_channel/lcid_dl_sch.h\"\n+#include \"srsran/ran/pdcch/dci_format.h\"\n #include \"srsran/ran/pdsch/pdsch_mcs.h\"\n #include \"srsran/ran/precoding/precoding_constants.h\"\n+#include \"srsran/ran/rnti.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n #include \"srsran/scheduler/harq_id.h\"\n-#include \"srsran/scheduler/result/dci_info.h\"\n #include \"srsran/scheduler/result/dmrs_info.h\"\n \n namespace srsran {",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/scheduler/result/prach_info.h",
+      "patch": "@@ -0,0 +1,42 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/pci.h\"\n+#include \"srsran/ran/prach/prach_format_type.h\"\n+\n+namespace srsran {\n+\n+/// Information relative to a PRACH opportunity.\n+struct prach_occasion_info {\n+  /// Physical Cell identifier.\n+  pci_t pci;\n+  /// Number of time-domain PRACH occasions (\\f$N^{RAslot}_t\\f$), as per TS38.211 Tables 6.3.3.2-[2-4].\n+  uint8_t nof_prach_occasions;\n+  /// RACH format information for the PRACH occasions.\n+  prach_format_type format;\n+  /// Frequency domain occasion index \\f$n \\in \\{0,...,M-1\\}\\f$, where \\f$M\\f$ is the higher-layer parameter msg1-FDM,\n+  /// which can take the values \\f$\\{1,2,4,8\\}\\f$. See TS38.211, sec 6.3.3.2. Possible values {0,...,7}.\n+  uint8_t index_fd_ra;\n+  /// Starting symbol for the first PRACH TD occasion.\n+  /// \\remark See TS38.211, sec 6.3.3.2 and Tables 6.3.3.2-2 and 6.3.3.2-4. Possible values: {0,...,13}.\n+  uint8_t start_symbol;\n+  /// N-CS configuration as per TS38.211, Table 6.3.3.1-5. Possible values: {0,...,419}.\n+  uint16_t nof_cs;\n+  /// Number of frequency domain occasions starting with index_fd_ra. Possible values: {1,...,8}.\n+  uint8_t nof_fd_ra;\n+  /// Start of preamble logical index to monitor the PRACH occasions in this slot. Values: {0,...63}.\n+  uint8_t start_preamble_index;\n+  /// Number of preamble logical indices. Values: {1,...,64}.\n+  uint8_t nof_preamble_indexes;\n+};\n+\n+} // namespace srsran",
+      "additions": 42,
+      "deletions": 0,
+      "changes": 42
+    },
+    {
+      "filename": "include/srsran/scheduler/result/pucch_info.h",
+      "patch": "@@ -0,0 +1,48 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/csi_report/csi_report_configuration.h\"\n+#include \"srsran/ran/pucch/pucch_mapping.h\"\n+#include \"srsran/scheduler/scheduler_pucch_format.h\"\n+\n+namespace srsran {\n+\n+/// Info about PUCCH used resource.\n+struct pucch_info {\n+  /// This information only is used by the scheduler and not passed to the PHY.\n+  struct context {\n+    /// Identifier of the PUCCH PDU within the list of PUCCH PDUs for a given slot. The ID is only meaningful for a\n+    /// given UE; i.e., different UEs can reuse the same ID, but a UE cannot reuse the same ID for different PDUs.\n+    unsigned id = MAX_PUCCH_PDUS_PER_SLOT;\n+    /// Determines whether the PUCCH PDU uses common resources.\n+    bool is_common = false;\n+  };\n+\n+  rnti_t                   crnti;\n+  const bwp_configuration* bwp_cfg;\n+  pucch_format             format;\n+  /// PRBs and symbols for this PUCCH resource.\n+  pucch_resources resources;\n+  union {\n+    pucch_format_0 format_0;\n+    pucch_format_1 format_1;\n+    pucch_format_2 format_2;\n+    pucch_format_3 format_3;\n+    pucch_format_4 format_4;\n+  };\n+  /// In case the PUCCH will contain CSI bits, this struct contains information how those bits are to be decoded.\n+  std::optional<csi_report_configuration> csi_rep_cfg;\n+\n+  context pdu_context;\n+};\n+\n+} // namespace srsran",
+      "additions": 48,
+      "deletions": 0,
+      "changes": 48
+    },
+    {
+      "filename": "include/srsran/scheduler/result/pusch_info.h",
+      "patch": "@@ -0,0 +1,128 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/csi_report/csi_report_configuration.h\"\n+#include \"srsran/ran/pusch/pusch_mcs.h\"\n+#include \"srsran/ran/uci/uci_configuration.h\"\n+#include \"srsran/scheduler/result/dmrs_info.h\"\n+#include \"srsran/scheduler/vrb_alloc.h\"\n+\n+namespace srsran {\n+\n+/// Information relative to a PUSCH allocation.\n+struct pusch_information {\n+  rnti_t                   rnti;\n+  const bwp_configuration* bwp_cfg;\n+  vrb_alloc                rbs;\n+  ofdm_symbol_range        symbols;\n+  /// \\brief For resource allocation type 1, it indicates if intra-slot frequency hopping is enabled, as per TS38.212\n+  /// Section 7.3.1.1.\n+  bool intra_slot_freq_hopping;\n+  /// \\brief Index of the first PRB after intra-slot frequency hopping, as indicated by the value of \\f$RB_{start}\\f$\n+  /// for i=1, as per TS38.214, Section 6.3. Valid when intra_slot_freq_hopping is enabled. Values: {0,...274}.\n+  uint16_t pusch_second_hop_prb;\n+  /// \\brief The uplink Tx Direct Current location for the carrier. Only values in the value range of this field\n+  /// between 0 and 3299, which indicate the subcarrier index within the carrier corresponding to the numerology of the\n+  /// corresponding uplink BWP and value 3300, which indicates \"Outside the carrier\" and value 3301, which indicates\n+  /// \"Undetermined position within the carrier\" are used.\n+  uint16_t tx_direct_current_location;\n+  /// Indicates whether there is 7.5 kHz shift or not.\n+  bool ul_freq_shift_7p5khz;\n+  /// Modulation and coding scheme.\n+  sch_mcs_description mcs_descr;\n+  /// \\brief MCS index, range {0, ..., 31} (See TS38.214 Section 5.1.4.1).\n+  /// \\note Should match value sent in DCI.\n+  sch_mcs_index mcs_index;\n+  /// MCS table (See TS38.214 Section 6.1.4.1).\n+  pusch_mcs_table mcs_table;\n+  /// Indicates if transform precoding is enabled or disabled (see TS 38.214, Section 6.1.4.1).\n+  bool transform_precoding;\n+  /// Parameter \\f$n_{ID}\\f$ as per TS38.211 Section 6.3.1.1. Values: {0,...,1023}.\n+  uint16_t n_id;\n+  /// Number of layers as per TS38.211, Section 6.3.1.3.\n+  unsigned nof_layers;\n+  /// DMRS configuration as per TS38.211 Section 6.4.1.1.\n+  dmrs_information dmrs;\n+  /// \\brief PUSCH DMRS ID \\f$n_{ID}^{RS}\\f$ as per TS38.211 Section 6.4.1.1.1.2. This field is only valid when\n+  /// transform_precoding is enabled. Values: {0,...,1007} (Rel-15), {0,...,65535} (Rel-16).\n+  uint16_t pusch_dmrs_id;\n+  /// \\brief PUSCH DMRS hopping mode as per TS38.211, Section 6.4.1.1.1.2. It is only valid when the transform\n+  /// precoding for PUSCH is enabled.\n+  enum class dmrs_hopping_mode { no_hopping, group_hopping, sequence_hopping } dmrs_hopping_mode;\n+  /// Redundancy version index (see TS38.214 Table 6.1.4). Values: {0,...,3}.\n+  uint8_t rv_index;\n+  /// HARQ process number as per TS38.212 Section 6.3.1.1. Values: {0,...,15}.\n+  uint8_t harq_id;\n+  /// \\brief Signals whether the PUSCH PDU corresponds to an initial transmission or a retransmission of a MAC PDU for\n+  /// this HARQ process ID for this TB. Note: Unlike NDI, new_data does not toggle to indicate new transmission,\n+  /// but is set to 1.\n+  bool new_data;\n+  /// Transport block size in bytes.\n+  uint32_t tb_size_bytes;\n+  /// \\brief Number of CBs in the TB (could be more than the number of CBs in this PUSCH transmission). Should be set\n+  /// to zero in any of the following conditions: 1) CBG is not supported or requested 2) newData=1 (new transmission)\n+  /// 3) tbSize=0.\n+  uint16_t num_cb;\n+};\n+\n+struct uci_info {\n+  /// Contains the HARQ-ACK information for UCI on PUSCH.\n+  struct harq_info {\n+    /// Number of bits of ACK to be reported.\n+    uint16_t harq_ack_nof_bits = 0;\n+    /// \\f$\\beta^{HARQ-ACK}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213. The default value is defined in \\c\n+    /// BetaOffsets, TS 38.331.\n+    uint8_t beta_offset_harq_ack = 11;\n+  };\n+\n+  /// Contains the CSI part 1 and part 2 information for UCI on PUSCH.\n+  struct csi_info {\n+    /// Contains information how the CSI bits are to be decoded.\n+    csi_report_configuration csi_rep_cfg;\n+    /// Number of bits of CSI Part 1 to be reported.\n+    uint16_t csi_part1_nof_bits = 0;\n+    /// \\f$\\beta^{CSI-1}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213. The default value is defined in \\c\n+    /// BetaOffsets, TS 38.331.\n+    uint8_t beta_offset_csi_1 = 13;\n+    /// \\f$\\beta^{CSI-2}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213.\n+    /// If set, the CSI report includes CSI Part 2.\n+    std::optional<uint8_t> beta_offset_csi_2;\n+  };\n+\n+  std::optional<harq_info> harq;\n+  std::optional<csi_info>  csi;\n+  /// \\f$\\alpha\\f$ parameter, as per Section 6.3.2.4.1.1-3, TS 38.212.\n+  alpha_scaling_opt alpha;\n+};\n+\n+/// Information related to a scheduler UL allocation, which includes PUSCH and may include UCI.\n+struct ul_sched_info {\n+  pusch_information       pusch_cfg;\n+  std::optional<uci_info> uci;\n+\n+  /// \\brief Information relative to a PDSCH allocation decision that is used for the purpose of logging or\n+  /// tracing, but not passed to the PHY.\n+  struct decision_context {\n+    du_ue_index_t   ue_index;\n+    search_space_id ss_id;\n+    /// Chosen k2 delay between UL PDCCH and PUSCH.\n+    unsigned k2;\n+    /// Number of times the HARQ process has been retransmitted.\n+    unsigned nof_retxs;\n+    /// Delay between PDSCH message with RAR and its corresponding PUSCH.\n+    std::optional<unsigned> msg3_delay;\n+    /// Offset that the OLLA algorithm applied to derive the UL MCS.\n+    std::optional<float> olla_offset;\n+  } context;\n+};\n+\n+} // namespace srsran",
+      "additions": 128,
+      "deletions": 0,
+      "changes": 128
+    },
+    {
+      "filename": "include/srsran/scheduler/result/sched_result.h",
+      "patch": "@@ -0,0 +1,71 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/scheduler/result/csi_rs_info.h\"\n+#include \"srsran/scheduler/result/pdcch_info.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n+#include \"srsran/scheduler/result/prach_info.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n+#include \"srsran/scheduler/result/srs_info.h\"\n+\n+namespace srsran {\n+\n+/// Scheduler decision made for DL in a given slot.\n+struct dl_sched_result {\n+  /// Number of DL symbols active for this slot.\n+  unsigned nof_dl_symbols;\n+\n+  /// Allocated DL PDCCHs. Includes both SIB, RAR and Data PDCCHs.\n+  pdcch_dl_info_list dl_pdcchs;\n+\n+  /// Allocated UL PDCCHs.\n+  pdcch_ul_info_list ul_pdcchs;\n+\n+  /// Allocation of SSB and SIBs.\n+  dl_broadcast_allocation bc;\n+\n+  /// Allocation of dedicated RARs.\n+  static_vector<rar_information, MAX_RAR_PDUS_PER_SLOT> rar_grants;\n+\n+  /// Allocation of Paging messages.\n+  static_vector<dl_paging_allocation, MAX_PAGING_PDUS_PER_SLOT> paging_grants;\n+\n+  /// Allocation of dedicated UE messages.\n+  static_vector<dl_msg_alloc, MAX_UE_PDUS_PER_SLOT> ue_grants;\n+\n+  /// Allocation of CSI-RS messages.\n+  static_vector<csi_rs_info, MAX_CSI_RS_PDUS_PER_SLOT> csi_rs;\n+};\n+\n+/// Scheduler decision made for UL in a given slot.\n+struct ul_sched_result {\n+  /// Number of UL symbols active for this slot.\n+  unsigned nof_ul_symbols;\n+  /// PUSCH grants allocated in the current slot.\n+  static_vector<ul_sched_info, MAX_PUSCH_PDUS_PER_SLOT> puschs;\n+  /// PRACH occasions within the given slot.\n+  static_vector<prach_occasion_info, MAX_PRACH_OCCASIONS_PER_SLOT> prachs;\n+  /// PUCCH grants allocated in the current slot.\n+  static_vector<pucch_info, MAX_PUCCH_PDUS_PER_SLOT> pucchs;\n+  /// SRS grants allocated in the current slot.\n+  static_vector<srs_info, MAX_SRS_PDUS_PER_SLOT> srss;\n+};\n+\n+/// Scheduler decision made for DL and UL in a given slot.\n+struct sched_result {\n+  bool            success;\n+  dl_sched_result dl;\n+  ul_sched_result ul;\n+};\n+\n+} // namespace srsran",
+      "additions": 71,
+      "deletions": 0,
+      "changes": 71
+    },
+    {
+      "filename": "include/srsran/scheduler/result/srs_info.h",
+      "patch": "@@ -0,0 +1,68 @@\n+/*\n+ *\n+ * Copyright 2021-2024 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n+#include \"srsran/ran/srs/srs_configuration.h\"\n+#include \"srsran/scheduler/config/bwp_configuration.h\"\n+\n+namespace srsran {\n+\n+struct srs_info {\n+  rnti_t                   crnti;\n+  const bwp_configuration* bwp_cfg;\n+  uint8_t                  nof_antenna_ports;\n+  /// Symbols used for this SRS resource, starting from \\f$l_0\\f$ until \\f$l_0 + n^{SRS}_{symb}\\f$, as per\n+  /// Section 6.4.1.4.1, TS 38.211.\n+  ofdm_symbol_range symbols;\n+  /// Repetition factor \\f$R\\f$, or \\c repetitionFactor, as per \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// \\remark As per TS 38.211, Section 6.4.1.4.3, the number of repetitions must be not greater than the \\ref symbols\n+  /// length.\n+  srs_nof_symbols nof_repetitions;\n+  /// Configuration index, given by \\c c_SRS, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,63}.\n+  uint8_t config_index;\n+  /// SRS sequence ID or \\c sequenceId, as per \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,1023}.\n+  unsigned sequence_id;\n+  /// Bandwidth index, given by \\c b_SRS, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,3}.\n+  uint8_t bw_index;\n+  /// Transmission comb size, as per \\c transmissionComb, in \\c SRS-Config, TS 38.331, or \\f$K_{TC}\\f$, as per\n+  /// Section 6.4.1.4.1, TS 38.211.\n+  tx_comb_size tx_comb;\n+  /// Transmission comb offset, given in \\c combOffset-n2 or \\c combOffset-n4, \\c transmissionComb, \\c SRS-Resource,\n+  /// in \\c SRS-Config, TS 38.331. Values {0, 1} if tx_comb_size == 2, {0,...,3} if tx_comb_size == 4.\n+  uint8_t comb_offset;\n+  /// Cyclic shift, given in \\c cyclicShift-n2 or \\c cyclicShift-n4, \\c transmissionComb, \\c SRS-Resource, in \\c\n+  /// SRS-Config, TS 38.331. Values {0,...,7} if tx_comb_size == 2, {0,...,11} if tx_comb_size == 4.\n+  uint8_t cyclic_shift;\n+  /// Frequency domain position \\c freqDomainPosition, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,67}.\n+  uint8_t freq_position;\n+  /// Frequency domain shift \\c freqDomainShift, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,268}.\n+  unsigned freq_shift;\n+  /// Frequency hopping \\c b_hop, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n+  /// Values {0,...,3}.\n+  uint8_t                       freq_hopping;\n+  srs_group_or_sequence_hopping group_or_seq_hopping;\n+  srs_resource_type             resource_type;\n+  /// SRS periodicity in slots, as per \\c SRS-PeriodicityAndOffset, in \\c SRS-Config, TS 38.331.\n+  /// \\remark Only applies if resource_type == periodic or resource_type == semi_persistent.\n+  srs_periodicity t_srs_period;\n+  /// SRS offset in slots, as per \\c SRS-PeriodicityAndOffset, in \\c SRS-Config, TS 38.331.\n+  /// Values { 0,...,t_srs_period - 1}.\n+  /// \\remark Only applies if resource_type == periodic or resource_type == semi_persistent.\n+  unsigned t_offset;\n+};\n+\n+} // namespace srsran",
+      "additions": 68,
+      "deletions": 0,
+      "changes": 68
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_slot_handler.h",
+      "patch": "@@ -10,308 +10,12 @@\n \n #pragma once\n \n-#include \"srsran/adt/static_vector.h\"\n-#include \"srsran/ran/csi_report/csi_report_configuration.h\"\n-#include \"srsran/ran/csi_report/csi_report_data.h\"\n-#include \"srsran/ran/csi_rs/csi_rs_types.h\"\n #include \"srsran/ran/du_types.h\"\n-#include \"srsran/ran/logical_channel/lcid_dl_sch.h\"\n-#include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/prach/prach_format_type.h\"\n-#include \"srsran/ran/pucch/pucch_mapping.h\"\n-#include \"srsran/ran/pusch/pusch_mcs.h\"\n-#include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n-#include \"srsran/ran/rnti.h\"\n-#include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/ran/srs/srs_configuration.h\"\n-#include \"srsran/ran/uci/uci_configuration.h\"\n-#include \"srsran/scheduler/config/bwp_configuration.h\"\n-#include \"srsran/scheduler/result/pdcch_info.h\"\n-#include \"srsran/scheduler/result/pdsch_info.h\"\n-#include \"srsran/scheduler/scheduler_pucch_format.h\"\n-#include \"srsran/scheduler/vrb_alloc.h\"\n \n namespace srsran {\n \n-struct pusch_information {\n-  rnti_t                   rnti;\n-  const bwp_configuration* bwp_cfg;\n-  vrb_alloc                rbs;\n-  ofdm_symbol_range        symbols;\n-  /// \\brief For resource allocation type 1, it indicates if intra-slot frequency hopping is enabled, as per TS38.212\n-  /// Section 7.3.1.1.\n-  bool intra_slot_freq_hopping;\n-  /// \\brief Index of the first PRB after intra-slot frequency hopping, as indicated by the value of \\f$RB_{start}\\f$\n-  /// for i=1, as per TS38.214, Section 6.3. Valid when intra_slot_freq_hopping is enabled. Values: {0,...274}.\n-  uint16_t pusch_second_hop_prb;\n-  /// \\brief The uplink Tx Direct Current location for the carrier. Only values in the value range of this field\n-  /// between 0 and 3299, which indicate the subcarrier index within the carrier corresponding to the numerology of the\n-  /// corresponding uplink BWP and value 3300, which indicates \"Outside the carrier\" and value 3301, which indicates\n-  /// \"Undetermined position within the carrier\" are used.\n-  uint16_t tx_direct_current_location;\n-  /// Indicates whether there is 7.5 kHz shift or not.\n-  bool ul_freq_shift_7p5khz;\n-  /// Modulation and coding scheme.\n-  sch_mcs_description mcs_descr;\n-  /// \\brief MCS index, range {0, ..., 31} (See TS38.214 Section 5.1.4.1).\n-  /// \\note Should match value sent in DCI.\n-  sch_mcs_index mcs_index;\n-  /// MCS table (See TS38.214 Section 6.1.4.1).\n-  pusch_mcs_table mcs_table;\n-  /// Indicates if transform precoding is enabled or disabled (see TS 38.214, Section 6.1.4.1).\n-  bool transform_precoding;\n-  /// Parameter \\f$n_{ID}\\f$ as per TS38.211 Section 6.3.1.1. Values: {0,...,1023}.\n-  uint16_t n_id;\n-  /// Number of layers as per TS38.211, Section 6.3.1.3.\n-  unsigned nof_layers;\n-  /// DMRS configuration as per TS38.211 Section 6.4.1.1.\n-  dmrs_information dmrs;\n-  /// \\brief PUSCH DMRS ID \\f$n_{ID}^{RS}\\f$ as per TS38.211 Section 6.4.1.1.1.2. This field is only valid when\n-  /// transform_precoding is enabled. Values: {0,...,1007} (Rel-15), {0,...,65535} (Rel-16).\n-  uint16_t pusch_dmrs_id;\n-  /// \\brief PUSCH DMRS hopping mode as per TS38.211, Section 6.4.1.1.1.2. It is only valid when the transform\n-  /// precoding for PUSCH is enabled.\n-  enum class dmrs_hopping_mode { no_hopping, group_hopping, sequence_hopping } dmrs_hopping_mode;\n-  /// Redundancy version index (see TS38.214 Table 6.1.4). Values: {0,...,3}.\n-  uint8_t rv_index;\n-  /// HARQ process number as per TS38.212 Section 6.3.1.1. Values: {0,...,15}.\n-  uint8_t harq_id;\n-  /// \\brief Signals whether the PUSCH PDU corresponds to an initial transmission or a retransmission of a MAC PDU for\n-  /// this HARQ process ID for this TB. Note: Unlike NDI, new_data does not toggle to indicate new transmission,\n-  /// but is set to 1.\n-  bool new_data;\n-  /// Transport block size in bytes.\n-  uint32_t tb_size_bytes;\n-  /// \\brief Number of CBs in the TB (could be more than the number of CBs in this PUSCH transmission). Should be set\n-  /// to zero in any of the following conditions: 1) CBG is not supported or requested 2) newData=1 (new transmission)\n-  /// 3) tbSize=0.\n-  uint16_t num_cb;\n-};\n-\n-struct uci_info {\n-  /// Contains the HARQ-ACK information for UCI on PUSCH.\n-  struct harq_info {\n-    /// Number of bits of ACK to be reported.\n-    uint16_t harq_ack_nof_bits = 0;\n-    /// \\f$\\beta^{HARQ-ACK}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213. The default value is defined in \\c\n-    /// BetaOffsets, TS 38.331.\n-    uint8_t beta_offset_harq_ack = 11;\n-  };\n-\n-  /// Contains the CSI part 1 and part 2 information for UCI on PUSCH.\n-  struct csi_info {\n-    /// Contains information how the CSI bits are to be decoded.\n-    csi_report_configuration csi_rep_cfg;\n-    /// Number of bits of CSI Part 1 to be reported.\n-    uint16_t csi_part1_nof_bits = 0;\n-    /// \\f$\\beta^{CSI-1}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213. The default value is defined in \\c\n-    /// BetaOffsets, TS 38.331.\n-    uint8_t beta_offset_csi_1 = 13;\n-    /// \\f$\\beta^{CSI-2}_{offset}\\f$ parameter, as per Section 9.3, TS 38.213.\n-    /// If set, the CSI report includes CSI Part 2.\n-    std::optional<uint8_t> beta_offset_csi_2;\n-  };\n-\n-  std::optional<harq_info> harq;\n-  std::optional<csi_info>  csi;\n-  /// \\f$\\alpha\\f$ parameter, as per Section 6.3.2.4.1.1-3, TS 38.212.\n-  alpha_scaling_opt alpha;\n-};\n-\n-/// Stores the information associated with a CSI-RS signalling.\n-struct csi_rs_info {\n-  const bwp_configuration* bwp_cfg;\n-  /// Range of RBs where this CSI resource starts and ends, with relation to CRB#0. Only multiples of 4 are allowed.\n-  crb_interval crbs;\n-  csi_rs_type  type;\n-  /// \\brief Row entry into the CSI Resource location table, as per 3GP TS 38.211, sec 7.4.1.5.3 and table 7.4.1.5.3-1.\n-  /// Values: {1,...,18}.\n-  uint8_t row;\n-  /// \\brief Bitmap defining the frequencyDomainAllocation as per 3GPP TS 38.211, sec 7.4.1.5.3 and 3GPP TS 38.331\n-  /// \"CSIResource Mapping\".\n-  bounded_bitset<12, false> freq_domain;\n-  /// \\brief The time domain location l0 and firstOFDMSymbolInTimeDomain as per 3GPP TS 38.211, sec 7.4.1.5.3.\n-  /// Values: {0,...,13}.\n-  uint8_t symbol0;\n-  /// \\brief The time domain location l1 and firstOFDMSymbolInTimeDomain2 as per 3GPP TS 38.211, sec 7.4.1.5.3.\n-  uint8_t                  symbol1;\n-  csi_rs_cdm_type          cdm_type;\n-  csi_rs_freq_density_type freq_density;\n-  /// \\brief ScramblingID of the CSI-RS as per 3GPP TS 38.214, sec 5.2.2.3.1. Values: {0,...,1023}.\n-  uint16_t scrambling_id;\n-  /// Ratio of PDSCH EPRE to NZP CSI-RS EPRE as per 3GPP TS 38.214, clause 5.2.2.3.1. Values: {-8,...,15}.\n-  int8_t power_ctrl_offset;\n-  /// Ratio of NZP CSI-RS EPRE to SSB/PBCH block EPRE. Values: {-3,0,3,6}.\n-  int8_t power_ctrl_offset_ss;\n-};\n-\n-struct dl_sched_result {\n-  /// Number of DL symbols active for this slot.\n-  unsigned nof_dl_symbols;\n-\n-  /// Allocated DL PDCCHs. Includes both SIB, RAR and Data PDCCHs.\n-  pdcch_dl_info_list dl_pdcchs;\n-\n-  /// Allocated UL PDCCHs.\n-  pdcch_ul_info_list ul_pdcchs;\n-\n-  /// Allocation of SSB and SIBs.\n-  dl_broadcast_allocation bc;\n-\n-  /// Allocation of dedicated RARs.\n-  static_vector<rar_information, MAX_RAR_PDUS_PER_SLOT> rar_grants;\n-\n-  /// Allocation of Paging messages.\n-  static_vector<dl_paging_allocation, MAX_PAGING_PDUS_PER_SLOT> paging_grants;\n-\n-  /// Allocation of dedicated UE messages.\n-  static_vector<dl_msg_alloc, MAX_UE_PDUS_PER_SLOT> ue_grants;\n-\n-  /// Allocation of CSI-RS messages.\n-  static_vector<csi_rs_info, MAX_CSI_RS_PDUS_PER_SLOT> csi_rs;\n-};\n-\n-struct ul_sched_info {\n-  pusch_information       pusch_cfg;\n-  std::optional<uci_info> uci;\n-\n-  /// \\brief Information relative to a PDSCH allocation decision that is used for the purpose of logging or\n-  /// tracing, but not passed to the PHY.\n-  struct decision_context {\n-    du_ue_index_t   ue_index;\n-    search_space_id ss_id;\n-    /// Chosen k2 delay between UL PDCCH and PUSCH.\n-    unsigned k2;\n-    /// Number of times the HARQ process has been retransmitted.\n-    unsigned nof_retxs;\n-    /// Delay between PDSCH message with RAR and its corresponding PUSCH.\n-    std::optional<unsigned> msg3_delay;\n-    /// Offset that the OLLA algorithm applied to derive the UL MCS.\n-    std::optional<float> olla_offset;\n-  } context;\n-};\n-\n-struct prach_occasion_info {\n-  /// Physical Cell identifier.\n-  pci_t pci;\n-  /// Number of time-domain PRACH occasions (\\f$N^{RAslot}_t\\f$), as per TS38.211 Tables 6.3.3.2-[2-4].\n-  uint8_t nof_prach_occasions;\n-  /// RACH format information for the PRACH occasions.\n-  prach_format_type format;\n-  /// Frequency domain occasion index \\f$n \\in \\{0,...,M-1\\}\\f$, where \\f$M\\f$ is the higher-layer parameter msg1-FDM,\n-  /// which can take the values \\f$\\{1,2,4,8\\}\\f$. See TS38.211, sec 6.3.3.2. Possible values {0,...,7}.\n-  uint8_t index_fd_ra;\n-  /// Starting symbol for the first PRACH TD occasion.\n-  /// \\remark See TS38.211, sec 6.3.3.2 and Tables 6.3.3.2-2 and 6.3.3.2-4. Possible values: {0,...,13}.\n-  uint8_t start_symbol;\n-  /// N-CS configuration as per TS38.211, Table 6.3.3.1-5. Possible values: {0,...,419}.\n-  uint16_t nof_cs;\n-  /// Number of frequency domain occasions starting with index_fd_ra. Possible values: {1,...,8}.\n-  uint8_t nof_fd_ra;\n-  /// Start of preamble logical index to monitor the PRACH occasions in this slot. Values: {0,...63}.\n-  uint8_t start_preamble_index;\n-  /// Number of preamble logical indices. Values: {1,...,64}.\n-  uint8_t nof_preamble_indexes;\n-};\n-\n-/// Info about PUCCH used resource.\n-struct pucch_info {\n-  /// This information only is used by the scheduler and not passed to the PHY.\n-  struct context {\n-    /// Identifier of the PUCCH PDU within the list of PUCCH PDUs for a given slot. The ID is only meaningful for a\n-    /// given UE; i.e., different UEs can reuse the same ID, but a UE cannot reuse the same ID for different PDUs.\n-    unsigned id = MAX_PUCCH_PDUS_PER_SLOT;\n-    /// Determines whether the PUCCH PDU uses common resources.\n-    bool is_common = false;\n-  };\n-\n-  rnti_t                   crnti;\n-  const bwp_configuration* bwp_cfg;\n-  pucch_format             format;\n-  /// PRBs and symbols for this PUCCH resource.\n-  pucch_resources resources;\n-  union {\n-    pucch_format_0 format_0;\n-    pucch_format_1 format_1;\n-    pucch_format_2 format_2;\n-    pucch_format_3 format_3;\n-    pucch_format_4 format_4;\n-  };\n-  /// In case the PUCCH will contain CSI bits, this struct contains information how those bits are to be decoded.\n-  std::optional<csi_report_configuration> csi_rep_cfg;\n-\n-  context pdu_context;\n-};\n-\n-struct srs_info {\n-  rnti_t                   crnti;\n-  const bwp_configuration* bwp_cfg;\n-  uint8_t                  nof_antenna_ports;\n-  /// Symbols used for this SRS resource, starting from \\f$l_0\\f$ until \\f$l_0 + n^{SRS}_{symb}\\f$, as per\n-  /// Section 6.4.1.4.1, TS 38.211.\n-  ofdm_symbol_range symbols;\n-  /// Repetition factor \\f$R\\f$, or \\c repetitionFactor, as per \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// \\remark As per TS 38.211, Section 6.4.1.4.3, the number of repetitions must be not greater than the \\ref symbols\n-  /// length.\n-  srs_nof_symbols nof_repetitions;\n-  /// Configuration index, given by \\c c_SRS, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,63}.\n-  uint8_t config_index;\n-  /// SRS sequence ID or \\c sequenceId, as per \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,1023}.\n-  unsigned sequence_id;\n-  /// Bandwidth index, given by \\c b_SRS, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,3}.\n-  uint8_t bw_index;\n-  /// Transmission comb size, as per \\c transmissionComb, in \\c SRS-Config, TS 38.331, or \\f$K_{TC}\\f$, as per\n-  /// Section 6.4.1.4.1, TS 38.211.\n-  tx_comb_size tx_comb;\n-  /// Transmission comb offset, given in \\c combOffset-n2 or \\c combOffset-n4, \\c transmissionComb, \\c SRS-Resource,\n-  /// in \\c SRS-Config, TS 38.331. Values {0, 1} if tx_comb_size == 2, {0,...,3} if tx_comb_size == 4.\n-  uint8_t comb_offset;\n-  /// Cyclic shift, given in \\c cyclicShift-n2 or \\c cyclicShift-n4, \\c transmissionComb, \\c SRS-Resource, in \\c\n-  /// SRS-Config, TS 38.331. Values {0,...,7} if tx_comb_size == 2, {0,...,11} if tx_comb_size == 4.\n-  uint8_t cyclic_shift;\n-  /// Frequency domain position \\c freqDomainPosition, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,67}.\n-  uint8_t freq_position;\n-  /// Frequency domain shift \\c freqDomainShift, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,268}.\n-  unsigned freq_shift;\n-  /// Frequency hopping \\c b_hop, as per \\c freqHopping, \\c SRS-Resource, in \\c SRS-Config, TS 38.331.\n-  /// Values {0,...,3}.\n-  uint8_t                       freq_hopping;\n-  srs_group_or_sequence_hopping group_or_seq_hopping;\n-  srs_resource_type             resource_type;\n-  /// SRS periodicity in slots, as per \\c SRS-PeriodicityAndOffset, in \\c SRS-Config, TS 38.331.\n-  /// \\remark Only applies if resource_type == periodic or resource_type == semi_persistent.\n-  srs_periodicity t_srs_period;\n-  /// SRS offset in slots, as per \\c SRS-PeriodicityAndOffset, in \\c SRS-Config, TS 38.331.\n-  /// Values { 0,...,t_srs_period - 1}.\n-  /// \\remark Only applies if resource_type == periodic or resource_type == semi_persistent.\n-  unsigned t_offset;\n-};\n-\n-struct ul_sched_result {\n-  /// Number of UL symbols active for this slot.\n-  unsigned nof_ul_symbols;\n-  /// PUSCH grants allocated in the current slot.\n-  static_vector<ul_sched_info, MAX_PUSCH_PDUS_PER_SLOT> puschs;\n-  /// PRACH occasions within the given slot.\n-  static_vector<prach_occasion_info, MAX_PRACH_OCCASIONS_PER_SLOT> prachs;\n-  /// PUCCH grants allocated in the current slot.\n-  static_vector<pucch_info, MAX_PUCCH_PDUS_PER_SLOT> pucchs;\n-  /// SRS grants allocated in the current slot.\n-  static_vector<srs_info, MAX_SRS_PDUS_PER_SLOT> srss;\n-};\n-\n-/// Scheduler decision made for DL and UL in a given slot.\n-struct sched_result {\n-  bool            success;\n-  dl_sched_result dl;\n-  ul_sched_result ul;\n-};\n+struct sched_result;\n \n class scheduler_slot_handler\n {",
+      "additions": 1,
+      "deletions": 297,
+      "changes": 298
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/resource_grid_util.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include <functional>\n #include <utility>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.h",
+      "patch": "@@ -15,6 +15,8 @@\n #include \"srsran/du/du_high/du_test_mode_config.h\"\n #include \"srsran/mac/mac.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n #include \"srsran/srslog/srslog.h\"\n #include <mutex>\n #include <unordered_map>",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_helpers.cpp",
+      "patch": "@@ -9,6 +9,8 @@\n  */\n \n #include \"mac_test_mode_helpers.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_helpers.h",
+      "patch": "@@ -15,9 +15,12 @@\n #include \"srsran/mac/mac_pdu_handler.h\"\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n \n namespace srsran {\n+\n+struct pucch_info;\n+struct ul_sched_info;\n+\n namespace srs_du {\n \n /// Create dummy PDU with BSR.\n@@ -31,4 +34,4 @@ mac_uci_pdu create_uci_pdu(const ul_sched_info& pusch, const du_test_mode_config\n bool pucch_info_and_uci_ind_match(const pucch_info& pucch, const mac_uci_pdu& uci_ind);\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_to_fapi_translator.cpp",
+      "patch": "@@ -19,6 +19,7 @@\n #include \"srsran/fapi_adaptor/mac/messages/pusch.h\"\n #include \"srsran/fapi_adaptor/mac/messages/srs.h\"\n #include \"srsran/fapi_adaptor/mac/messages/ssb.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_to_fapi_translator.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"srsran/fapi_adaptor/precoding_matrix_mapper.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_mapper.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/pdcch_info.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pdsch.cpp",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"srsran/phy/upper/channel_coding/ldpc/ldpc.h\"\n #include \"srsran/ran/sch/sch_constants.h\"\n #include \"srsran/ran/sch/tbs_calculator.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n #include <numeric>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/prach.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/fapi_adaptor/mac/messages/prach.h\"\n-#include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/prach_info.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pucch.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/fapi_adaptor/mac/messages/pucch.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n-#include \"srsran/scheduler/scheduler_pucch_format.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pusch.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n \n #include \"srsran/fapi_adaptor/mac/messages/pusch.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_mapper.h\"\n-#include \"srsran/mac/mac_cell_result.h\"\n #include \"srsran/phy/upper/channel_coding/ldpc/ldpc.h\"\n #include \"srsran/ran/sch/sch_constants.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/srs.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/fapi_adaptor/mac/messages/srs.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/srs_info.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/dl_sch_pdu_assembler.cpp",
+      "patch": "@@ -10,8 +10,8 @@\n \n #include \"dl_sch_pdu_assembler.h\"\n #include \"cell_dl_harq_buffer_pool.h\"\n-#include \"srsran/adt/byte_buffer_chain.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/format/fmt_to_c_str.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/dl_sch_pdu_assembler.h",
+      "patch": "@@ -20,6 +20,9 @@ namespace srsran {\n \n class byte_buffer_chain;\n class cell_dl_harq_buffer_pool;\n+struct ta_cmd_ce_payload;\n+struct dl_msg_tb_info;\n+struct dl_msg_lc_info;\n \n /// \\brief This class represents and encodes a MAC DL-SCH PDU that may contain multiple subPDUs.\n ///",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"srsran/instrumentation/traces/du_traces.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/support/async/execute_on_blocking.h\"\n #include \"srsran/support/rtsan.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_dl/paging_pdu_assembler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"paging_pdu_assembler.h\"\n #include \"srsran/asn1/rrc_nr/pcch_msg.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_dl/paging_pdu_assembler.h",
+      "patch": "@@ -10,11 +10,12 @@\n \n #pragma once\n \n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n #include \"srsran/support/memory_pool/ring_buffer_pool.h\"\n \n namespace srsran {\n \n+struct dl_paging_allocation;\n+\n /// Encodes Paging PDUs based on Paging information provided by the scheduler.\n class paging_pdu_assembler\n {",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_dl/rar_pdu_assembler.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"rar_pdu_assembler.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_dl/rar_pdu_assembler.h",
+      "patch": "@@ -11,11 +11,12 @@\n #pragma once\n \n #include \"srsran/mac/cell_configuration.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n #include \"srsran/support/memory_pool/ring_buffer_pool.h\"\n \n namespace srsran {\n \n+struct rar_information;\n+\n /// Encodes RAR PDUs based on RAR information provided by the scheduler.\n class rar_pdu_assembler\n {",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_dl/ssb_assembler.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"ssb_assembler.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n #include \"srsran/ran/ssb_mapping.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran_scheduler_adapter.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_factory.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_sched/uci_cell_decoder.cpp",
+      "patch": "@@ -10,6 +10,8 @@\n \n #include \"uci_cell_decoder.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/uci_cell_decoder.h",
+      "patch": "@@ -16,10 +16,12 @@\n #include \"srsran/ran/csi_report/csi_report_configuration.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/scheduler/scheduler_feedback_handler.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n \n namespace srsran {\n \n+struct ul_sched_info;\n+struct pucch_info;\n+\n using du_rnti_table = rnti_value_table<du_ue_index_t, du_ue_index_t::INVALID_DU_UE_INDEX>;\n \n class uci_cell_decoder",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/cell/cell_harq_manager.cpp",
+      "patch": "@@ -10,7 +10,8 @@\n \n #include \"cell_harq_manager.h\"\n #include \"srsran/scheduler/resource_grid_util.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n using namespace srsran;\n using namespace harq_utils;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/cell/resource_grid.h",
+      "patch": "@@ -15,8 +15,8 @@\n #include \"../support/rb_helper.h\"\n #include \"srsran/adt/circular_array.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/scheduler/mac_scheduler.h\"\n #include \"srsran/scheduler/resource_grid_util.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n \n namespace srsran {\n \n@@ -367,4 +367,4 @@ struct formatter<srsran::cell_slot_resource_grid> {\n   }\n };\n \n-} // namespace fmt\n\\ No newline at end of file\n+} // namespace fmt",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/paging_scheduler.h",
+      "patch": "@@ -15,11 +15,15 @@\n #include \"srsran/adt/concurrent_queue.h\"\n #include \"srsran/adt/mpmc_queue.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n+#include \"srsran/scheduler/scheduler_paging_handler.h\"\n #include \"srsran/srslog/logger.h\"\n #include <unordered_map>\n \n namespace srsran {\n \n+struct sched_paging_information;\n+\n /// Defines Paging scheduler that is used to allocate resources to send paging information to UE in a given slot.\n class paging_scheduler\n {",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.h",
+      "patch": "@@ -18,13 +18,15 @@\n #include \"srsran/adt/mpmc_queue.h\"\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n+#include \"srsran/scheduler/scheduler_feedback_handler.h\"\n #include \"srsran/srslog/srslog.h\"\n #include <deque>\n \n namespace srsran {\n \n class scheduler_event_logger;\n class cell_metrics_handler;\n+struct ul_crc_indication;\n \n /// Get MSG3 Delay.\n /// \\param[in] pusch_td_res_alloc PUSCH-TimeDomainResourceAllocation.",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metric_handler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"../config/cell_configuration.h\"\n #include \"scheduler_metrics_handler.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/srslog/srslog.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"scheduler_result_logger.h\"\n #include \"srsran/ran/csi_report/csi_report_formatters.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/format/fmt_to_c_str.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.h",
+      "patch": "@@ -10,11 +10,13 @@\n \n #pragma once\n \n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/ran/pci.h\"\n #include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n \n+struct sched_result;\n+\n class scheduler_result_logger\n {\n public:",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/srs/srs_scheduler_impl.h",
+      "patch": "@@ -18,6 +18,7 @@ namespace srsran {\n \n struct cell_resource_allocator;\n struct cell_slot_resource_allocator;\n+struct srs_info;\n \n class srs_scheduler_impl : public srs_scheduler\n {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/support/dmrs_helpers.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/ran/dmrs.h\"\n #include \"srsran/ran/pdsch/pdsch_antenna_ports_mapping.h\"\n #include \"srsran/scheduler/config/dmrs.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/dmrs_info.h\"\n #include \"srsran/support/error_handling.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/ran/sch/sch_mcs.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include <optional>\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/sch_pdu_builder.h",
+      "patch": "@@ -13,8 +13,7 @@\n #include \"../config/ue_configuration.h\"\n #include \"../ue_context/ue_channel_state_manager.h\"\n #include \"mcs_tbs_calculator.h\"\n-#include \"srsran/scheduler/harq_id.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/ue_context/dl_logical_channel_manager.h",
+      "patch": "@@ -13,8 +13,9 @@\n #include \"srsran/mac/mac_pdu_format.h\"\n #include \"srsran/ran/logical_channel/lcid_dl_sch.h\"\n #include \"srsran/scheduler/config/logical_channel_config.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n #include <queue>\n+#include <variant>\n \n namespace srsran {\n ",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/ue_context/ue_channel_state_manager.h",
+      "patch": "@@ -19,7 +19,7 @@\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n #include \"srsran/scheduler/config/serving_cell_config.h\"\n #include \"srsran/scheduler/resource_grid_util.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n #include \"srsran/srslog/logger.h\"\n #include \"srsran/support/math/accumulators.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/scheduler/scheduler_multi_ue_benchmark.cpp",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/adt/circular_array.h\"\n #include \"srsran/du/du_cell_config_helpers.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_factory.h\"\n #include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/benchmark_utils.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/benchmarks/scheduler/scheduler_no_ues_benchmark.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"tests/test_doubles/scheduler/scheduler_config_helper.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/indication_generators.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_factory.h\"\n #include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/benchmark_utils.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/test_doubles/mac/dummy_mac_result_notifier.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/test_doubles/mac/mac_test_messages.cpp",
+      "patch": "@@ -9,7 +9,8 @@\n  */\n \n #include \"mac_test_messages.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n+#include \"srsran/scheduler/result/pusch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/test_doubles/mac/mac_test_messages.h",
+      "patch": "@@ -18,6 +18,8 @@\n namespace srsran {\n \n struct pucch_info;\n+struct uci_info;\n+struct ul_sched_info;\n \n namespace test_helpers {\n ",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/scheduler/scheduler_result_test.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/messages/helpers.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n \n namespace srsran {\n namespace unittests {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/mac/mac_test_helpers.h",
+      "patch": "@@ -19,6 +19,7 @@\n #include \"srsran/pcap/dlt_pcap.h\"\n #include \"srsran/pcap/rlc_pcap.h\"\n #include \"srsran/scheduler/mac_scheduler.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/support/test_utils.h\"\n #include \"srsran/support/timers.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/cell/cell_harq_manager_test.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"lib/scheduler/cell/cell_harq_manager.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_metrics_handler_test.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"lib/scheduler/logging/scheduler_metrics_handler.h\"\n #include \"tests/test_doubles/scheduler/scheduler_config_helper.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config_factory.h\"\n+#include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/test_utils/indication_generators.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"indication_generators.h\"\n-#include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/scheduler/result/pucch_info.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 57,
+  "commit_details_path": ".\\commit_metadata\\e7d6b46.json"
+}

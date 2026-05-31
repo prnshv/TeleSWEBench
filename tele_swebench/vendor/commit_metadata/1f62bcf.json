@@ -1,0 +1,22 @@
+{
+  "commit_id": "1f62bcfc93fc7453ace5362b7dcd66012b9a0cb8",
+  "commit_sha_short": "1f62bcf",
+  "commit_folder": "1f62bcf",
+  "commit_message": "gnb: fix formatting of dl arfcn + band validator error message",
+  "commit_message_first_line": "gnb: fix formatting of dl arfcn + band validator error message",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/1f62bcfc93fc7453ace5362b7dcd66012b9a0cb8",
+  "commit_date": "2023-02-22T10:43:04Z",
+  "parent_sha": "8be4eea482ee121a08d3c11143b6abc0b70ad816",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/8be4eea482ee121a08d3c11143b6abc0b70ad816",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -301,7 +301,7 @@ error_type<std::string> srsran::band_helper::is_dl_arfcn_valid_given_band(nr_ban\n           ((arfcn - raster_band.dl_nref_first) % raster_band.dl_nref_step) == 0) {\n         return {};\n       }\n-      return {fmt::format(\"DL ARFCN must be within the interval [{},{}], step {}, for the chosen band\",\n+      return {fmt::format(\"DL ARFCN must be within the interval [{},{}], in steps of {}, for the chosen band\",\n                           raster_band.dl_nref_first,\n                           raster_band.dl_nref_last,\n                           raster_band.dl_nref_step)};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\1f62bcf.json"
+}

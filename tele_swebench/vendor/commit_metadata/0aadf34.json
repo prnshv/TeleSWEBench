@@ -1,0 +1,22 @@
+{
+  "commit_id": "0aadf344358a58c34d52ab878695a9a5340668b0",
+  "commit_sha_short": "0aadf34",
+  "commit_folder": "0aadf34",
+  "commit_message": "support: add prefix :: to getrusage",
+  "commit_message_first_line": "support: add prefix :: to getrusage",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/0aadf344358a58c34d52ab878695a9a5340668b0",
+  "commit_date": "2024-10-28T20:02:38Z",
+  "parent_sha": "ea05291ceefe6af9cc7feb2d1fcc9149d4706ffa",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/ea05291ceefe6af9cc7feb2d1fcc9149d4706ffa",
+  "code_changes": [
+    {
+      "filename": "lib/support/tracing/resource_usage.cpp",
+      "patch": "@@ -27,7 +27,7 @@ static snapshot rusage_to_snapshot(const ::rusage& rusg)\n srsran::expected<snapshot, int> srsran::resource_usage::now()\n {\n   ::rusage ret;\n-  if (getrusage(RUSAGE_THREAD, &ret) == 0) {\n+  if (::getrusage(RUSAGE_THREAD, &ret) == 0) {\n     return rusage_to_snapshot(ret);\n   }\n   return make_unexpected(errno);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\0aadf34.json"
+}

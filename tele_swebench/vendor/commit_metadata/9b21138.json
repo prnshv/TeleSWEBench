@@ -1,0 +1,43 @@
+{
+  "commit_id": "9b211383a76f59216419eeb0c8f701aa8a8db12d",
+  "commit_sha_short": "9b21138",
+  "commit_folder": "9b21138",
+  "commit_message": "app,sched: set avg prach delay metric in slots\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "app,sched: set avg prach delay metric in slots",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9b211383a76f59216419eeb0c8f701aa8a8db12d",
+  "commit_date": "2025-09-23T11:05:49Z",
+  "parent_sha": "7b4049e6e772df37a9bf7bb8cd6aba73721ffb4f",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7b4049e6e772df37a9bf7bb8cd6aba73721ffb4f",
+  "code_changes": [
+    {
+      "filename": "apps/helpers/metrics/json_generators/du_high/scheduler.cpp",
+      "patch": "@@ -111,7 +111,7 @@ void to_json(nlohmann::json& json, const scheduler_cell_metrics& metrics)\n   cell_json[\"latency_histogram\"]       = metrics.latency_histogram;\n   cell_json[\"msg3_nof_ok\"]             = metrics.nof_msg3_ok;\n   cell_json[\"msg3_nof_nok\"]            = metrics.nof_msg3_nok;\n-  cell_json[\"avg_prach_delay\"]         = metrics.avg_prach_delay_ms;\n+  cell_json[\"avg_prach_delay\"]         = metrics.avg_prach_delay_slots;\n   cell_json[\"late_dl_harqs\"]           = metrics.nof_failed_pdsch_allocs_late_harqs;\n   cell_json[\"late_ul_harqs\"]           = metrics.nof_failed_pusch_allocs_late_harqs;\n   cell_json[\"pucch_tot_rb_usage_avg\"]  = metrics.pucch_tot_rb_usage_avg;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/consumers/scheduler_metrics_consumers.cpp",
+      "patch": "@@ -237,7 +237,7 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n       fmt::format_to(std::back_inserter(buffer), \" max_pusch_harq_delay={}ms\", max_pusch_delay);\n     }\n     fmt::format_to(\n-        std::back_inserter(buffer), \" avg_prach_delay={:.3}\", format_unit_or(cell.avg_prach_delay_ms, \"ms\", \"n/a\"));\n+        std::back_inserter(buffer), \" avg_prach_delay_slots={:.3}\", format_value_or(cell.avg_prach_delay_slots, \"n/a\"));\n     if (not cell.events.empty()) {\n       fmt::format_to(std::back_inserter(buffer), \" events=[\");\n       bool first = true;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -144,8 +144,8 @@ struct scheduler_cell_metrics {\n   unsigned nof_msg3_ok = 0;\n   /// Number of MSG3 KOs.\n   unsigned nof_msg3_nok = 0;\n-  /// Average PRACH delay in ms.\n-  std::optional<float> avg_prach_delay_ms;\n+  /// Average PRACH delay in slots.\n+  std::optional<float> avg_prach_delay_slots;\n   /// Number of failed PDSCH allocations due to late HARQs.\n   unsigned nof_failed_pdsch_allocs_late_harqs = 0;\n   /// Number of failed PUSCH allocations due to late HARQs.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -406,7 +406,7 @@ void cell_metrics_handler::report_metrics()\n   next_report->nof_failed_uci_allocs     = data.nof_failed_uci_allocs;\n   next_report->nof_msg3_ok               = data.nof_msg3_ok;\n   next_report->nof_msg3_nok              = data.nof_msg3_nok;\n-  next_report->avg_prach_delay_ms =\n+  next_report->avg_prach_delay_slots =\n       data.nof_prach_preambles\n           ? std::optional{static_cast<float>(data.sum_prach_delay_slots) / static_cast<float>(data.nof_prach_preambles)}\n           : std::nullopt;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\9b21138.json"
+}

@@ -1,0 +1,36 @@
+{
+  "commit_id": "fbe1817dedfea405db8c05e8d4e1cf747bcbb748",
+  "commit_sha_short": "fbe1817",
+  "commit_folder": "fbe1817",
+  "commit_message": "du,band_helper: check if unlicensend band, validate RAR response window",
+  "commit_message_first_line": "du,band_helper: check if unlicensend band, validate RAR response window",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/fbe1817dedfea405db8c05e8d4e1cf747bcbb748",
+  "commit_date": "2024-09-20T13:55:55Z",
+  "parent_sha": "7988a28da5064b7d5d684d0ae78adfa6ac535a18",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7988a28da5064b7d5d684d0ae78adfa6ac535a18",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_validator.cpp",
+      "patch": "@@ -830,6 +830,19 @@ static bool validate_cells_unit_config(span<const du_high_unit_cell_config> conf\n       fmt::print(\"Invalid Sector ID {}, for a gNB Id of {} bits\\n\", cell.cell.sector_id.value(), gnb_id.bit_length);\n       return false;\n     }\n+    const auto   band          = cell.cell.band.value_or(band_helper::get_band_from_dl_arfcn(cell.cell.dl_f_ref_arfcn));\n+    bool         is_unlicensed = band_helper::is_unlicensed_band(band);\n+    unsigned int max_ra_resp_window = is_unlicensed ? 40 : 10;\n+    unsigned int ra_resp_window_ms =\n+        cell.cell.prach_cfg.ra_resp_window.value() >> to_numerology_value(cell.cell.common_scs);\n+    if (ra_resp_window_ms > max_ra_resp_window) {\n+      fmt::print(\"RA Response Window ({}sl -> {}ms) must be smaller than {}ms in {} bands.\\n\",\n+                 cell.cell.prach_cfg.ra_resp_window,\n+                 ra_resp_window_ms,\n+                 max_ra_resp_window,\n+                 is_unlicensed ? \"unlicensed\" : \"licensed\");\n+      return false;\n+    }\n   }\n \n   // Checks parameter collisions between cells that can lead to problems.",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13
+    },
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -142,6 +142,12 @@ subcarrier_spacing get_most_suitable_ssb_scs(nr_band band, subcarrier_spacing sc\n /// \\return    true for paired spectrum, false otherwise.\n bool is_paired_spectrum(nr_band band);\n \n+/// \\brief     Returns boolean indicating whether the band is an unlicensed band.\n+/// \\remark    Unlicensed bands are CBRS and U-NII-x.\n+/// \\param[in] band Given band.\n+/// \\return    true for unlicensed band, false otherwise.\n+bool is_unlicensed_band(nr_band band);\n+\n /// \\brief     Returns boolean indicating whether the band belongs to FR1 or FR2.\n /// \\param[in] band Given band.\n /// \\remark    The input band must be a valid NR band; the function does not return an error in case of invalid band.",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -951,6 +951,21 @@ bool srsran::band_helper::is_paired_spectrum(nr_band band)\n   return mode == duplex_mode::FDD;\n }\n \n+bool srsran::band_helper::is_unlicensed_band(nr_band band)\n+{\n+  srsran_assert(band != nr_band::invalid, \"Band must be a valid NR band.\");\n+  switch (band) {\n+    case nr_band::n46:\n+    case nr_band::n48:\n+    case nr_band::n96:\n+    case nr_band::n102:\n+    case nr_band::n104:\n+      return true;\n+    default:\n+      return false;\n+  }\n+}\n+\n frequency_range srsran::band_helper::get_freq_range(nr_band band)\n {\n   srsran_assert(band != nr_band::invalid, \"Band must be a valid NR band.\");",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\fbe1817.json"
+}

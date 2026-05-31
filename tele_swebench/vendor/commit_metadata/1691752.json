@@ -1,0 +1,113 @@
+{
+  "commit_id": "169175288f27a1cf95d4bf691ab6d7ca26b77bc4",
+  "commit_sha_short": "1691752",
+  "commit_folder": "1691752",
+  "commit_message": "sched: cap number of UE scheduler events",
+  "commit_message_first_line": "sched: cap number of UE scheduler events",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/169175288f27a1cf95d4bf691ab6d7ca26b77bc4",
+  "commit_date": "2025-05-30T15:51:14Z",
+  "parent_sha": "777bde38948506950a70a6c165d61416c1769ade",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/777bde38948506950a70a6c165d61416c1769ade",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/consumers/scheduler_metrics_consumers.cpp",
+      "patch": "@@ -475,6 +475,9 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n                        event_to_string(event.type));\n         first = false;\n       }\n+      if (cell.nof_filtered_events > 0) {\n+        fmt::format_to(std::back_inserter(buffer), \", ... ({} remaining events) ...\", cell.nof_filtered_events);\n+      }\n       fmt::format_to(std::back_inserter(buffer), \"]\");\n     }\n     log_chan(\"{}\", to_c_str(buffer));",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/du/du_high/du_high_configuration.h",
+      "patch": "@@ -46,6 +46,7 @@ struct du_high_configuration {\n     bool                      enable_rlc   = false;\n     bool                      enable_f1ap  = false;\n     std::chrono::milliseconds period{1000};\n+    unsigned                  max_nof_sched_ue_events = 64;\n   };\n \n   du_high_ran_config  ran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/mac/mac_config.h",
+      "patch": "@@ -45,6 +45,7 @@ struct mac_config {\n     std::chrono::milliseconds   period{1000};\n     bool                        mac_enabled;\n     bool                        sched_enabled;\n+    unsigned                    max_nof_ue_events = 64;\n     mac_metrics_notifier&       notifier;\n     scheduler_metrics_notifier* sched_notifier = nullptr;\n   };",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_configurator.h",
+      "patch": "@@ -54,6 +54,8 @@ struct sched_cell_configuration_request_message {\n   struct metrics_config {\n     std::chrono::milliseconds        report_period{0};\n     scheduler_cell_metrics_notifier* notifier = nullptr;\n+    /// Maximum number of UE events per report.\n+    unsigned max_ue_events_per_report = 64;\n   };\n \n   du_cell_index_t       cell_index;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -150,6 +150,8 @@ struct scheduler_cell_metrics {\n   unsigned nof_failed_pdsch_allocs_late_harqs = 0;\n   /// Number of failed PUSCH allocations due to late HARQs.\n   unsigned nof_failed_pusch_allocs_late_harqs = 0;\n+  /// Number of UE events not reported because the maximum number of events was reached.\n+  unsigned nof_filtered_events = 0;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.cpp",
+      "patch": "@@ -69,6 +69,7 @@ du_high_impl::du_high_impl(const du_high_configuration& config_, const du_high_d\n                                       mac_config::metrics_config{cfg.metrics.period,\n                                                                  cfg.metrics.enable_mac,\n                                                                  cfg.metrics.enable_sched,\n+                                                                 cfg.metrics.max_nof_sched_ue_events,\n                                                                  adapters->mac_ev_notifier,\n                                                                  dependencies.sched_metrics_notifier},\n                                       cfg.ran.sched_cfg},",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_config.h",
+      "patch": "@@ -29,6 +29,7 @@ struct mac_control_config {\n     std::chrono::milliseconds   period{1000};\n     mac_metrics_notifier&       mac_notifier;\n     scheduler_metrics_notifier* sched_notifier = nullptr;\n+    unsigned                    max_nof_ue_events;\n   };\n \n   mac_ul_ccch_notifier&                 event_notifier;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_controller.cpp",
+      "patch": "@@ -28,7 +28,7 @@ mac_controller::mac_controller(const mac_control_config&   cfg_,\n   rnti_table(rnti_table_),\n   sched_cfg(sched_cfg_),\n   time_ctrl(cfg.timers, cfg.timer_exec, srslog::fetch_basic_logger(\"MAC\")),\n-  metrics(cfg.metrics.period, cfg.metrics.mac_notifier, cfg.metrics.sched_notifier, cfg.ctrl_exec, cfg.timers, logger)\n+  metrics(cfg.metrics, cfg.ctrl_exec, cfg.timers, logger)\n {\n }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_metrics_aggregator.cpp",
+      "patch": "@@ -28,14 +28,14 @@ struct full_cell_report {\n   std::optional<mac_dl_cell_metric_report> mac;\n };\n \n-full_cell_report report_preinit()\n+full_cell_report report_preinit(unsigned max_ue_events = 64)\n {\n   full_cell_report report{};\n   // Pre-reserve space for UE metrics.\n   report.sched.ue_metrics.reserve(MAX_NOF_DU_UES);\n   // Note: there can be more than one event per UE.\n-  constexpr unsigned prereserved_events_per_ue = 3;\n-  report.sched.events.reserve(MAX_NOF_DU_UES * prereserved_events_per_ue);\n+  const unsigned ue_event_capacity = std::min(max_ue_events, MAX_NOF_DU_UES * 3U);\n+  report.sched.events.reserve(ue_event_capacity);\n   return report;\n }\n \n@@ -54,10 +54,12 @@ class mac_metrics_aggregator::cell_metric_handler final : public mac_cell_metric\n     parent(parent_),\n     cell_index(cell_index_),\n     scs_common(scs_common_),\n-    period_slots(get_nof_slots_per_subframe(scs_common) * parent.period.count()),\n+    period_slots(get_nof_slots_per_subframe(scs_common) * parent.cfg.period.count()),\n     sched_notifier(sched_notifier_),\n     time_source(time_source_),\n-    report_queue(cell_report_queue_size, logger_, []() { return report_preinit(); })\n+    report_queue(cell_report_queue_size, logger_, [ue_events = parent.cfg.max_nof_ue_events]() {\n+      return report_preinit(ue_events);\n+    })\n   {\n   }\n \n@@ -200,18 +202,11 @@ class mac_metrics_aggregator::cell_metric_handler final : public mac_cell_metric\n \n // class mac_metrics_aggregator\n \n-mac_metrics_aggregator::mac_metrics_aggregator(std::chrono::milliseconds   period_,\n-                                               mac_metrics_notifier&       mac_notifier_,\n-                                               scheduler_metrics_notifier* sched_notifier_,\n-                                               task_executor&              ctrl_exec_,\n-                                               timer_manager&              timers_,\n-                                               srslog::basic_logger&       logger_) :\n-  period(period_),\n-  notifier(mac_notifier_),\n-  sched_notifier(sched_notifier_),\n-  ctrl_exec(ctrl_exec_),\n-  timers(timers_),\n-  logger(logger_)\n+mac_metrics_aggregator::mac_metrics_aggregator(const mac_control_config::metrics_config& cfg_,\n+                                               task_executor&                            ctrl_exec_,\n+                                               timer_manager&                            timers_,\n+                                               srslog::basic_logger&                     logger_) :\n+  cfg(cfg_), ctrl_exec(ctrl_exec_), timers(timers_), logger(logger_)\n {\n   aggr_timer = timers_.create_unique_timer(ctrl_exec);\n   aggr_timer.set(aggregation_timeout, [this](timer_id_t /* unused */) { handle_pending_reports(); });\n@@ -231,12 +226,12 @@ cell_metric_report_config mac_metrics_aggregator::add_cell(du_cell_index_t\n \n   // Create a handler for the new cell.\n   auto cell_handler =\n-      std::make_unique<cell_metric_handler>(*this, cell_index, scs_common, sched_notifier, time_source, logger);\n+      std::make_unique<cell_metric_handler>(*this, cell_index, scs_common, cfg.sched_notifier, time_source, logger);\n   auto& cell_ref = *cell_handler;\n   cells.emplace(cell_index, std::move(cell_handler));\n \n   // Return the cell report configuration.\n-  return cell_metric_report_config{period, &cell_ref, &cell_ref};\n+  return cell_metric_report_config{cfg.period, &cell_ref, &cell_ref};\n }\n \n void mac_metrics_aggregator::rem_cell(du_cell_index_t cell_index)\n@@ -329,9 +324,9 @@ void mac_metrics_aggregator::try_send_new_report()\n   }\n \n   // Forward the full report.\n-  notifier.on_new_metrics_report(next_report);\n+  cfg.mac_notifier.on_new_metrics_report(next_report);\n \n-  const unsigned period_slots = next_report.dl.cells[0].start_slot.nof_slots_per_subframe() * period.count();\n+  const unsigned period_slots = next_report.dl.cells[0].start_slot.nof_slots_per_subframe() * cfg.period.count();\n   logger.debug(\"Metric report of {} cells completed for slots=[{}, {})\",\n                next_report.dl.cells.size(),\n                next_report_start_slot.without_hyper_sfn(),",
+      "additions": 16,
+      "deletions": 21,
+      "changes": 37
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_metrics_aggregator.h",
+      "patch": "@@ -35,12 +35,10 @@ class mac_metrics_aggregator\n   /// \\remark The value is an heuristic to compensate for cells that get too delayed.\n   constexpr static std::chrono::milliseconds aggregation_timeout{8};\n \n-  mac_metrics_aggregator(std::chrono::milliseconds   period_,\n-                         mac_metrics_notifier&       mac_notifier_,\n-                         scheduler_metrics_notifier* sched_notifier_,\n-                         task_executor&              ctrl_exec_,\n-                         timer_manager&              timers_,\n-                         srslog::basic_logger&       logger_);\n+  mac_metrics_aggregator(const mac_control_config::metrics_config& cfg,\n+                         task_executor&                            ctrl_exec_,\n+                         timer_manager&                            timers_,\n+                         srslog::basic_logger&                     logger_);\n   ~mac_metrics_aggregator();\n \n   cell_metric_report_config\n@@ -63,12 +61,10 @@ class mac_metrics_aggregator\n   /// Creates a new aggregated metric report if the right conditions are met.\n   void try_send_new_report();\n \n-  std::chrono::milliseconds   period;\n-  mac_metrics_notifier&       notifier;\n-  scheduler_metrics_notifier* sched_notifier;\n-  task_executor&              ctrl_exec;\n-  timer_manager&              timers;\n-  srslog::basic_logger&       logger;\n+  mac_control_config::metrics_config cfg;\n+  task_executor&                     ctrl_exec;\n+  timer_manager&                     timers;\n+  srslog::basic_logger&              logger;\n \n   /// Metric handlers for configured cells.\n   slotted_id_table<du_cell_index_t, std::unique_ptr<cell_metric_handler>, MAX_CELLS_PER_DU> cells;",
+      "additions": 8,
+      "deletions": 12,
+      "changes": 20
+    },
+    {
+      "filename": "lib/mac/mac_impl.cpp",
+      "patch": "@@ -39,7 +39,8 @@ mac_impl::mac_impl(const mac_config& params) :\n                                params.timers,\n                                mac_control_config::metrics_config{params.metrics.period,\n                                                                   params.metrics.notifier,\n-                                                                  params.metrics.sched_notifier}},\n+                                                                  params.metrics.sched_notifier,\n+                                                                  params.metrics.max_nof_ue_events}},\n             ul_unit,\n             dl_unit,\n             rnti_table,",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -55,7 +55,7 @@ cell_metrics_handler::cell_metrics_handler(\n   // Pre-reserve space.\n   ues.reserve(MAX_NOF_DU_UES);\n   rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n-  constexpr unsigned pre_reserved_event_capacity = 3 * MAX_NOF_DU_UES;\n+  const unsigned pre_reserved_event_capacity = std::min(3U * MAX_NOF_DU_UES, metrics_cfg->max_ue_events_per_report);\n   pending_events.reserve(pre_reserved_event_capacity);\n }\n \n@@ -73,16 +73,24 @@ void cell_metrics_handler::handle_ue_creation(du_ue_index_t ue_index, rnti_t rnt\n   ues[ue_index].pci      = pcell_pci;\n   rnti_to_ue_index_lookup.emplace(rnti, ue_index);\n \n-  pending_events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_add});\n+  if (pending_events.size() < pending_events.capacity()) {\n+    pending_events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_add});\n+  } else {\n+    data.filtered_events_counter++;\n+  }\n }\n \n void cell_metrics_handler::handle_ue_reconfiguration(du_ue_index_t ue_index)\n {\n   if (not enabled()) {\n     return;\n   }\n-  pending_events.push_back(\n-      scheduler_cell_event{last_slot_tx, ues[ue_index].rnti, scheduler_cell_event::event_type::ue_reconf});\n+  if (pending_events.size() < pending_events.capacity()) {\n+    pending_events.push_back(\n+        scheduler_cell_event{last_slot_tx, ues[ue_index].rnti, scheduler_cell_event::event_type::ue_reconf});\n+  } else {\n+    data.filtered_events_counter++;\n+  }\n }\n \n void cell_metrics_handler::handle_ue_deletion(du_ue_index_t ue_index)\n@@ -93,7 +101,11 @@ void cell_metrics_handler::handle_ue_deletion(du_ue_index_t ue_index)\n   if (ues.contains(ue_index)) {\n     rnti_t rnti = ues[ue_index].rnti;\n \n-    pending_events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_rem});\n+    if (pending_events.size() < pending_events.capacity()) {\n+      pending_events.push_back(scheduler_cell_event{last_slot_tx, rnti, scheduler_cell_event::event_type::ue_rem});\n+    } else {\n+      data.filtered_events_counter++;\n+    }\n \n     rnti_to_ue_index_lookup.erase(rnti);\n     ues.erase(ue_index);\n@@ -399,6 +411,7 @@ void cell_metrics_handler::report_metrics()\n           : std::nullopt;\n   next_report->nof_failed_pdsch_allocs_late_harqs = data.nof_failed_pdsch_allocs_late_harqs;\n   next_report->nof_failed_pusch_allocs_late_harqs = data.nof_failed_pusch_allocs_late_harqs;\n+  next_report->nof_filtered_events                = data.filtered_events_counter;\n \n   // Reset cell-wide metric counters.\n   data = {};",
+      "additions": 18,
+      "deletions": 5,
+      "changes": 23
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -141,6 +141,8 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n     unsigned nof_failed_pdsch_allocs_late_harqs = 0;\n     // Number of failed PUSCH allocations due to late HARQs.\n     unsigned nof_failed_pusch_allocs_late_harqs = 0;\n+    // Number of UE events not reported because the maximum number of events was reached.\n+    unsigned filtered_events_counter = 0;\n   };\n \n   scheduler_cell_metrics_notifier& notifier;\n@@ -165,7 +167,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   explicit cell_metrics_handler(\n       const cell_configuration&                                                      cell_cfg_,\n       const std::optional<sched_cell_configuration_request_message::metrics_config>& metrics_cfg);\n-  ~cell_metrics_handler();\n+  ~cell_metrics_handler() override;\n \n   /// \\brief Register creation of a UE.\n   void handle_ue_creation(du_ue_index_t ue_index, rnti_t rnti, pci_t pcell_pci) override;",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/mac/mac_metrics_test.cpp",
+      "patch": "@@ -96,7 +96,10 @@ class mac_metric_handler_test : public ::testing::Test\n   dummy_mac_metrics_notifier          metric_notifier;\n   dummy_scheduler_ue_metrics_notifier sched_notifier;\n   du_time_controller                  du_timer{timers, task_worker, logger};\n-  mac_metrics_aggregator              metrics{period, metric_notifier, &sched_notifier, task_worker, timers, logger};\n+  mac_metrics_aggregator metrics{mac_control_config::metrics_config{period, metric_notifier, &sched_notifier},\n+                                 task_worker,\n+                                 timers,\n+                                 logger};\n \n   slotted_id_table<du_cell_index_t, cell_context, MAX_CELLS_PER_DU> cells;\n ",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 14,
+  "commit_details_path": ".\\commit_metadata\\1691752.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "f2d3f0ffa6062cc969fd0c36839026889cae765e",
+  "commit_sha_short": "f2d3f0f",
+  "commit_folder": "f2d3f0f",
+  "commit_message": "sched: review MCS TBS calculator",
+  "commit_message_first_line": "sched: review MCS TBS calculator",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/f2d3f0ffa6062cc969fd0c36839026889cae765e",
+  "commit_date": "2025-03-18T14:50:30Z",
+  "parent_sha": "635ddfa009fb44ad3944296b6a84376e289c4a57",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/635ddfa009fb44ad3944296b6a84376e289c4a57",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -164,7 +164,7 @@ static bool is_pusch_effective_rate_valid(const pusch_config_params& config,\n                                           unsigned                   nof_prbs,\n                                           bool                       contains_dc)\n {\n-  // The maximum supported code rate is 0.95, as per TS38.214, Section 5.1.3. The maximum code rate is defined for DL,\n+  // The maximum supported code rate is 0.95, as per TS 38.214, Section 5.1.3. The maximum code rate is defined for DL,\n   // but we consider the same value for UL.\n   static const double max_supported_code_rate = 0.95;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.h",
+      "patch": "@@ -10,10 +10,8 @@\n \n #pragma once\n \n-#include \"srsran/adt/expected.h\"\n #include \"srsran/ran/sch/sch_mcs.h\"\n #include <optional>\n-#include <string>\n \n namespace srsran {\n ",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\f2d3f0f.json"
+}

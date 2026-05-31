@@ -1,0 +1,64 @@
+{
+  "commit_id": "1ba7fdac76df1c2e4b81c19b277ccd40fec0c1c0",
+  "commit_sha_short": "1ba7fda",
+  "commit_folder": "1ba7fda",
+  "commit_message": "du: prevent getting band from arfcn when band is given\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "du: prevent getting band from arfcn when band is given",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/1ba7fdac76df1c2e4b81c19b277ccd40fec0c1c0",
+  "commit_date": "2024-10-02T08:59:52Z",
+  "parent_sha": "e4a0490e25241de7698d54102ec9eeef26d858a5",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/e4a0490e25241de7698d54102ec9eeef26d858a5",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_validator.cpp",
+      "patch": "@@ -195,10 +195,9 @@ static bool validate_srb_unit_config(const std::map<srb_id_t, du_high_unit_srb_c\n   return true;\n }\n \n-static bool validate_pdcch_unit_config(const du_high_unit_base_cell_config base_cell)\n+static bool validate_pdcch_unit_config(const du_high_unit_base_cell_config& base_cell)\n {\n-  const auto band =\n-      base_cell.band.has_value() ? *base_cell.band : band_helper::get_band_from_dl_arfcn(base_cell.dl_f_ref_arfcn);\n+  const auto     band = base_cell.band.value_or(band_helper::get_band_from_dl_arfcn(base_cell.dl_f_ref_arfcn));\n   const unsigned nof_crbs =\n       band_helper::get_n_rbs_from_bw(base_cell.channel_bw_mhz, base_cell.common_scs, band_helper::get_freq_range(band));\n   if (base_cell.pdcch_cfg.common.coreset0_index.has_value()) {\n@@ -603,8 +602,7 @@ static bool validate_tdd_ul_dl_unit_config(const du_high_unit_tdd_ul_dl_config&\n \n static bool validate_dl_ul_arfcn_and_band(const du_high_unit_base_cell_config& config)\n {\n-  nr_band band =\n-      config.band.has_value() ? config.band.value() : band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn);\n+  const nr_band band = config.band.value_or(band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn));\n \n   // Check if the band is supported with given SCS or band.\n   // NOTE: Band n46 would be compatible with the 10MHz BW, but there is no sync raster that falls within the band\n@@ -643,7 +641,7 @@ static bool validate_dl_ul_arfcn_and_band(const du_high_unit_base_cell_config& c\n     return false;\n   }\n \n-  // Check whether the DL-ARFCN (and optionally the UL-ARFCN) is within the band and follows the Raster step.\n+  // Check whether the DL-ARFCN and the UL-ARFCN are within the band and follow the Raster step.\n   if (config.band.has_value()) {\n     error_type<std::string> ret = band_helper::is_dl_arfcn_valid_given_band(\n         *config.band, config.dl_f_ref_arfcn, config.common_scs, config.channel_bw_mhz);\n@@ -655,6 +653,7 @@ static bool validate_dl_ul_arfcn_and_band(const du_high_unit_base_cell_config& c\n     const uint32_t ul_arfcn = band_helper::get_ul_arfcn_from_dl_arfcn(config.dl_f_ref_arfcn, config.band.value());\n     ret                     = band_helper::is_ul_arfcn_valid_given_band(*config.band, ul_arfcn, config.channel_bw_mhz);\n     if (not ret.has_value()) {\n+      // NOTE: The message must say that it's the DL ARFCN that is invalid, as that is the parameters set by the user.\n       fmt::print(\"Invalid DL ARFCN={} for band {}. Cause: {}.\\n\", config.dl_f_ref_arfcn, band, ret.error());\n       return false;\n     }\n@@ -768,9 +767,8 @@ static bool validate_base_cell_unit_config(const du_high_unit_base_cell_config&\n     return false;\n   }\n \n-  const nr_band band =\n-      config.band.has_value() ? config.band.value() : band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn);\n-  const auto ssb_scs = band_helper::get_most_suitable_ssb_scs(band, config.common_scs);\n+  const nr_band band    = config.band.value_or(band_helper::get_band_from_dl_arfcn(config.dl_f_ref_arfcn));\n+  const auto    ssb_scs = band_helper::get_most_suitable_ssb_scs(band, config.common_scs);\n   if (ssb_scs != config.common_scs) {\n     fmt::print(\"Common SCS {}kHz is not equal to SSB SCS {}kHz. Different SCS for common and SSB is not supported.\\n\",\n                scs_to_khz(config.common_scs),\n@@ -840,8 +838,9 @@ static bool validate_cells_unit_config(span<const du_high_unit_cell_config> conf\n       fmt::print(\"Invalid Sector ID {}, for a gNB Id of {} bits\\n\", cell.cell.sector_id.value(), gnb_id.bit_length);\n       return false;\n     }\n-    const auto   band          = cell.cell.band.value_or(band_helper::get_band_from_dl_arfcn(cell.cell.dl_f_ref_arfcn));\n-    bool         is_unlicensed = band_helper::is_unlicensed_band(band);\n+    const auto band          = cell.cell.band.value_or(band_helper::get_band_from_dl_arfcn(cell.cell.dl_f_ref_arfcn));\n+    bool       is_unlicensed = band_helper::is_unlicensed_band(band);\n+    // Check if the RA Response Window (in ms) is within the limits for licensed and unlicensed bands.\n     unsigned int max_ra_resp_window = is_unlicensed ? 40 : 10;\n     unsigned int ra_resp_window_ms =\n         cell.cell.prach_cfg.ra_resp_window.value() >> to_numerology_value(cell.cell.common_scs);",
+      "additions": 10,
+      "deletions": 11,
+      "changes": 21
+    },
+    {
+      "filename": "apps/units/flexible_du/split_dynamic/dynamic_du_unit_cli11_schema.cpp",
+      "patch": "@@ -155,9 +155,9 @@ void srsran::autoderive_dynamic_du_parameters_after_parsing(CLI::App& app, dynam\n   }\n \n   // Auto derive DU low parameters.\n-  const auto& cell = parsed_cfg.du_high_cfg.config.cells_cfg.front().cell;\n-  nr_band     band = cell.band ? cell.band.value() : band_helper::get_band_from_dl_arfcn(cell.dl_f_ref_arfcn);\n-  bool        is_zmq_rf_driver = false;\n+  const auto&   cell = parsed_cfg.du_high_cfg.config.cells_cfg.front().cell;\n+  const nr_band band = cell.band ? cell.band.value() : band_helper::get_band_from_dl_arfcn(cell.dl_f_ref_arfcn);\n+  bool          is_zmq_rf_driver = false;\n   if (std::holds_alternative<ru_sdr_unit_config>(parsed_cfg.ru_cfg)) {\n     is_zmq_rf_driver = std::get<ru_sdr_unit_config>(parsed_cfg.ru_cfg).device_driver == \"zmq\";\n   }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/ran/ssb_mapping.h",
+      "patch": "@@ -158,9 +158,6 @@ inline unsigned ssb_get_k_first(frequency_range       fr,\n   return (k_first_15kHz * 15) / ssb_scs_kHz;\n }\n \n-/// Calculates SSB pattern from SSB subcarrier spacing and DL ARFCN.\n-ssb_pattern_case ssb_get_ssb_pattern(subcarrier_spacing ssb_scs, unsigned dl_arfcn);\n-\n /// \\brief Calculates L_max, ie max number of SSB occasions per SSB period. Possible values are {4, 8, 64}.\n /// \\remark See TS 38.213, Section 4.1.\n /// \\param ssb_scs SSB Subcarrier Spacing.",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "lib/du/du_low/du_low_wrapper_factory.cpp",
+      "patch": "@@ -52,11 +52,11 @@ static fapi::prach_config generate_prach_config_tlv(const du_cell_config& cell_c\n static fapi::carrier_config generate_carrier_config_tlv(const du_cell_config& du_cell)\n {\n   // Deduce common numerology and grid size for DL and UL.\n-  unsigned numerology       = to_numerology_value(du_cell.scs_common);\n-  unsigned grid_size_bw_prb = band_helper::get_n_rbs_from_bw(\n-      MHz_to_bs_channel_bandwidth(du_cell.dl_carrier.carrier_bw_mhz),\n-      du_cell.scs_common,\n-      band_helper::get_freq_range(band_helper::get_band_from_dl_arfcn(du_cell.dl_carrier.arfcn_f_ref)));\n+  unsigned numerology = to_numerology_value(du_cell.scs_common);\n+  unsigned grid_size_bw_prb =\n+      band_helper::get_n_rbs_from_bw(MHz_to_bs_channel_bandwidth(du_cell.dl_carrier.carrier_bw_mhz),\n+                                     du_cell.scs_common,\n+                                     band_helper::get_freq_range(du_cell.dl_carrier.band));\n \n   fapi::carrier_config fapi_config = {};\n ",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -36,8 +36,7 @@ mac_cell_processor::mac_cell_processor(const mac_cell_creation_request& cell_cfg\n   ue_mng(rnti_table),\n   dl_harq_buffers(band_helper::get_n_rbs_from_bw(MHz_to_bs_channel_bandwidth(cell_cfg.dl_carrier.carrier_bw_mhz),\n                                                  cell_cfg.scs_common,\n-                                                 band_helper::get_freq_range(band_helper::get_band_from_dl_arfcn(\n-                                                     cell_cfg.dl_carrier.arfcn_f_ref))),\n+                                                 band_helper::get_freq_range(cell_cfg.dl_carrier.band)),\n                   cell_cfg.dl_carrier.nof_ant,\n                   ctrl_exec_),\n   // The PDU pool has to be large enough to fit the maximum number of RARs and Paging PDUs per slot for all possible K0",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -56,7 +56,7 @@ struct nr_band_raster {\n // NOTE: FR2 bands have two different Freq raster, we only consider raster 120kHz.\n const uint32_t                                               nof_nr_DL_bands = 83;\n static constexpr std::array<nr_band_raster, nof_nr_DL_bands> nr_band_table   = {{\n-    // clang-format off\n+      // clang-format off\n     {nr_band::n1,    delta_freq_raster::kHz100, 384000, 20,  396000,  422000, 20,  434000},\n     {nr_band::n2,    delta_freq_raster::kHz100, 370000, 20,  382000,  386000, 20,  398000},\n     {nr_band::n3,    delta_freq_raster::kHz100, 342000, 20,  357000,  361000, 20,  376000},\n@@ -159,7 +159,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                 nof_nr_operating_band = 68;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band> nr_operating_bands    = {{\n-    // clang-format off\n+       // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},\n@@ -836,7 +836,7 @@ srsran::band_helper::is_ul_arfcn_valid_given_band(nr_band band, uint32_t arfcn_f\n uint32_t srsran::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn, std::optional<nr_band> band)\n {\n   // NOTE: The procedure implemented in this function is implementation-defined.\n-  const nr_band operating_band = band.has_value() ? band.value() : get_band_from_dl_arfcn(dl_arfcn);\n+  const nr_band operating_band = band.value_or(get_band_from_dl_arfcn(dl_arfcn));\n \n   // Return same ARFCN for TDD bands.\n   if (get_duplex_mode(operating_band) == duplex_mode::TDD) {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/ran/ssb_mapping.cpp",
+      "patch": "@@ -15,26 +15,17 @@\n \n using namespace srsran;\n \n-ssb_pattern_case srsran::ssb_get_ssb_pattern(subcarrier_spacing ssb_scs, unsigned dl_arfcn)\n-{\n-  nr_band dl_idx_nr_band = band_helper::get_band_from_dl_arfcn(dl_arfcn);\n-  srsran_assert(dl_idx_nr_band != nr_band::invalid, \"Invalid NR band index\");\n-  return band_helper::get_ssb_pattern(dl_idx_nr_band, ssb_scs);\n-}\n-\n uint8_t srsran::ssb_get_L_max(subcarrier_spacing ssb_scs, unsigned dl_arfcn, std::optional<nr_band> band)\n {\n   uint8_t L_max = 0;\n \n   // Derive the SSB-specific parameters (SSB pattern case, SSB L_max and SSB paired_spectrum flag) from those in the\n   // MAC Cell config.\n-  if (not band.has_value()) {\n-    band.emplace(band_helper::get_band_from_dl_arfcn(dl_arfcn));\n-    srsran_assert(band.value() != nr_band::invalid, \"Invalid NR band index\");\n-  }\n-  ssb_pattern_case ssb_case = band_helper::get_ssb_pattern(band.value(), ssb_scs);\n+  const nr_band gnb_band = band.value_or(band_helper::get_band_from_dl_arfcn(dl_arfcn));\n+  srsran_assert(gnb_band != nr_band::invalid, \"Invalid NR band index\");\n+  ssb_pattern_case ssb_case = band_helper::get_ssb_pattern(gnb_band, ssb_scs);\n   // Flag indicating whether cell is on paired spectrum (FDD) or unpaired (TDD, SDL, SUL).\n-  bool paired_spectrum = band_helper::is_paired_spectrum(band.value());\n+  bool paired_spectrum = band_helper::is_paired_spectrum(gnb_band);\n \n   // Get L_max from SSB pattern case and carrier frequency and paired spectrum flag.\n   uint32_t f_arfcn = dl_arfcn;",
+      "additions": 4,
+      "deletions": 13,
+      "changes": 17
+    }
+  ],
+  "num_files_changed": 7,
+  "commit_details_path": ".\\commit_metadata\\1ba7fda.json"
+}

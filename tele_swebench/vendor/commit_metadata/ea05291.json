@@ -1,0 +1,78 @@
+{
+  "commit_id": "ea05291ceefe6af9cc7feb2d1fcc9149d4706ffa",
+  "commit_sha_short": "ea05291",
+  "commit_folder": "ea05291",
+  "commit_message": "sched: change high latency diagnostics config parameter name",
+  "commit_message_first_line": "sched: change high latency diagnostics config parameter name",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/ea05291ceefe6af9cc7feb2d1fcc9149d4706ffa",
+  "commit_date": "2024-10-28T20:02:38Z",
+  "parent_sha": "c0ecd9add63770b328d6fa81a6745e45621b6afe",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/c0ecd9add63770b328d6fa81a6745e45621b6afe",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config.h",
+      "patch": "@@ -56,7 +56,7 @@ struct du_high_unit_logger_config {\n   /// Enable JSON generation for the F1AP Tx and Rx PDUs.\n   bool f1ap_json_enabled = false;\n   /// Log metrics (e.g. context switches) when RT slowdowns are detected.\n-  bool rt_fault_metrics_enabled = false;\n+  bool high_latency_diagnostics_enabled = false;\n };\n \n /// Timing Advance MAC CE scheduling expert configuration.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_cli11_schema.cpp",
+      "patch": "@@ -90,9 +90,9 @@ static void configure_cli11_log_args(CLI::App& app, du_high_unit_logger_config&\n   add_option(app, \"--f1ap_json_enabled\", log_params.f1ap_json_enabled, \"Enable JSON logging of F1AP PDUs\")\n       ->always_capture_default();\n   add_option(app,\n-             \"--rt_fault_tracing_enabled\",\n-             log_params.rt_fault_metrics_enabled,\n-             \"Log performance metrics when real-time faults (lates) are detected\")\n+             \"--high_latency_diagnostics_enabled\",\n+             log_params.high_latency_diagnostics_enabled,\n+             \"Log performance diagnostics when high computational latencies are detected\")\n       ->always_capture_default();\n }\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_translators.cpp",
+      "patch": "@@ -898,9 +898,9 @@ scheduler_expert_config srsran::generate_scheduler_expert_config(const du_high_u\n   out_cfg.si.sib1_dci_aggr_lev = aggregation_level::n4;\n \n   // Logging and tracing.\n-  out_cfg.log_broadcast_messages = config.loggers.broadcast_enabled;\n-  out_cfg.log_rt_fault_metrics   = config.loggers.rt_fault_metrics_enabled;\n-  out_cfg.metrics_report_period  = std::chrono::milliseconds{config.metrics.sched_report_period};\n+  out_cfg.log_broadcast_messages       = config.loggers.broadcast_enabled;\n+  out_cfg.log_high_latency_diagnostics = config.loggers.high_latency_diagnostics_enabled;\n+  out_cfg.metrics_report_period        = std::chrono::milliseconds{config.metrics.sched_report_period};\n \n   const error_type<std::string> error = is_scheduler_expert_config_valid(out_cfg);\n   if (!error) {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_yaml_writer.cpp",
+      "patch": "@@ -40,16 +40,16 @@ static void fill_du_high_pcap_section(YAML::Node node, const du_high_unit_pcap_c\n \n static void fill_du_high_log_section(YAML::Node node, const du_high_unit_logger_config& config)\n {\n-  node[\"mac_level\"]                = srslog::basic_level_to_string(config.mac_level);\n-  node[\"rlc_level\"]                = srslog::basic_level_to_string(config.rlc_level);\n-  node[\"f1ap_level\"]               = srslog::basic_level_to_string(config.f1ap_level);\n-  node[\"f1u_level\"]                = srslog::basic_level_to_string(config.f1u_level);\n-  node[\"gtpu_level\"]               = srslog::basic_level_to_string(config.gtpu_level);\n-  node[\"du_level\"]                 = srslog::basic_level_to_string(config.du_level);\n-  node[\"hex_max_size\"]             = config.hex_max_size;\n-  node[\"broadcast_enabled\"]        = config.broadcast_enabled;\n-  node[\"rt_fault_metrics_enabled\"] = config.rt_fault_metrics_enabled;\n-  node[\"f1ap_json_enabled\"]        = config.f1ap_json_enabled;\n+  node[\"mac_level\"]                        = srslog::basic_level_to_string(config.mac_level);\n+  node[\"rlc_level\"]                        = srslog::basic_level_to_string(config.rlc_level);\n+  node[\"f1ap_level\"]                       = srslog::basic_level_to_string(config.f1ap_level);\n+  node[\"f1u_level\"]                        = srslog::basic_level_to_string(config.f1u_level);\n+  node[\"gtpu_level\"]                       = srslog::basic_level_to_string(config.gtpu_level);\n+  node[\"du_level\"]                         = srslog::basic_level_to_string(config.du_level);\n+  node[\"hex_max_size\"]                     = config.hex_max_size;\n+  node[\"broadcast_enabled\"]                = config.broadcast_enabled;\n+  node[\"high_latency_diagnostics_enabled\"] = config.high_latency_diagnostics_enabled;\n+  node[\"f1ap_json_enabled\"]                = config.f1ap_json_enabled;\n }\n \n static YAML::Node build_du_section(const du_high_unit_config& config)",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "include/srsran/scheduler/config/scheduler_expert_config.h",
+      "patch": "@@ -144,8 +144,8 @@ struct scheduler_expert_config {\n   scheduler_ra_expert_config     ra;\n   scheduler_paging_expert_config pg;\n   scheduler_ue_expert_config     ue;\n-  bool                           log_broadcast_messages = false;\n-  bool                           log_rt_fault_metrics   = false;\n+  bool                           log_broadcast_messages       = false;\n+  bool                           log_high_latency_diagnostics = false;\n   std::chrono::milliseconds      metrics_report_period{1000};\n };\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/tracing/resource_usage.h",
+      "patch": "@@ -13,30 +13,39 @@\n #include \"srsran/adt/expected.h\"\n #include \"srsran/support/format/fmt_basic_parser.h\"\n #include <chrono>\n-#include <sys/resource.h>\n \n namespace srsran {\n namespace resource_usage {\n \n-/// Difference between two resource_usage::snapshot points.\n+/// Difference between two resource_usage::snapshot points for a given thread.\n struct diff {\n-  /// user CPU time elapsed.\n+  /// User CPU time elapsed between the two snapshots.\n   std::chrono::microseconds user_dur;\n-  /// system CPU time elapsed.\n+  /// System CPU time elapsed between the two snapshots.\n   std::chrono::microseconds system_dur;\n-  /// Number of voluntary context switches.\n+  /// Number of voluntary context switches between the two snapshots.\n   long vol_ctxt_switch_count;\n-  /// Number of involuntary context switches.\n+  /// Number of involuntary context switches between the two snapshots.\n   long invol_ctxt_switch_count;\n };\n \n-struct snapshot : public ::rusage {\n+/// Snapshot of the resource usage statistics of a specific thread at given point in time.\n+struct snapshot {\n+  /// User CPU time.\n+  std::chrono::microseconds user_time;\n+  /// System CPU time.\n+  std::chrono::microseconds system_time;\n+  /// Number of voluntary context switches at this point in time.\n+  long int vol_ctxt_switch_count;\n+  /// Number of involuntary context switches at this point in time.\n+  long int invol_ctxt_switch_count;\n+\n   /// \\brief Computes the difference between two resource_usage::snapshot points.\n   /// \\remark Both snapshots should be captured in the same thread.\n   resource_usage::diff operator-(const resource_usage::snapshot& rhs) const;\n };\n \n-/// Collect a new resource\n+/// Collect a new snapshot for the caller thread.\n srsran::expected<snapshot, int> now();\n \n } // namespace resource_usage",
+      "additions": 17,
+      "deletions": 8,
+      "changes": 25
+    },
+    {
+      "filename": "lib/scheduler/cell_scheduler.cpp",
+      "patch": "@@ -19,7 +19,7 @@ static std::chrono::microseconds get_tracer_thres(const cell_configuration& cell\n {\n   std::chrono::microseconds slot_dur{1000 >>\n                                      to_numerology_value(cell_cfg.dl_cfg_common.init_dl_bwp.generic_params.scs)};\n-  return cell_cfg.expert_cfg.log_rt_fault_metrics ? slot_dur : std::chrono::microseconds{0};\n+  return cell_cfg.expert_cfg.log_high_latency_diagnostics ? slot_dur : std::chrono::microseconds{0};\n }\n \n cell_scheduler::cell_scheduler(const scheduler_expert_config&                  sched_cfg,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_tracer.h",
+      "patch": "@@ -46,8 +46,7 @@ class scheduler_slot_tracer\n       auto slot_stop_resusage = resource_usage::now().value();\n       diff_resusage           = slot_stop_resusage - slot_start_resusage;\n \n-      logger.warning(\n-          \"cell={}: Detected slow slot processing. Latency={}usec {}\", cell_index, slot_dur.count(), diff_resusage);\n+      logger.warning(\"cell={}: High latency detected. Latency={}usec {}\", cell_index, slot_dur.count(), diff_resusage);\n     }\n   }\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/support/tracing/resource_usage.cpp",
+      "patch": "@@ -9,30 +9,36 @@\n  */\n \n #include \"srsran/support/tracing/resource_usage.h\"\n-#include <sys/time.h>\n+#include <sys/resource.h>\n \n using namespace srsran;\n using namespace resource_usage;\n \n+static snapshot rusage_to_snapshot(const ::rusage& rusg)\n+{\n+  snapshot s;\n+  s.user_time   = std::chrono::seconds{rusg.ru_utime.tv_sec} + std::chrono::microseconds{rusg.ru_utime.tv_usec};\n+  s.system_time = std::chrono::seconds{rusg.ru_stime.tv_sec} + std::chrono::microseconds{rusg.ru_stime.tv_usec};\n+  s.vol_ctxt_switch_count   = rusg.ru_nvcsw;\n+  s.invol_ctxt_switch_count = rusg.ru_nivcsw;\n+  return s;\n+}\n+\n srsran::expected<snapshot, int> srsran::resource_usage::now()\n {\n-  snapshot ret;\n+  ::rusage ret;\n   if (getrusage(RUSAGE_THREAD, &ret) == 0) {\n-    return ret;\n+    return rusage_to_snapshot(ret);\n   }\n   return make_unexpected(errno);\n }\n \n diff resource_usage::snapshot::operator-(const snapshot& rhs) const\n {\n-  diff           ret;\n-  struct timeval diff_time;\n-  timersub(&ru_utime, &rhs.ru_utime, &diff_time);\n-  ret.user_dur = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds{diff_time.tv_sec}) +\n-                 std::chrono::microseconds{diff_time.tv_usec};\n-  timersub(&ru_stime, &rhs.ru_stime, &diff_time);\n-  ret.system_dur              = std::chrono::seconds{diff_time.tv_sec} + std::chrono::microseconds{diff_time.tv_usec};\n-  ret.vol_ctxt_switch_count   = ru_nvcsw - rhs.ru_nvcsw;\n-  ret.invol_ctxt_switch_count = ru_nivcsw - rhs.ru_nivcsw;\n+  diff ret;\n+  ret.user_dur                = user_time - rhs.user_time;\n+  ret.system_dur              = system_time - rhs.system_time;\n+  ret.vol_ctxt_switch_count   = vol_ctxt_switch_count - rhs.vol_ctxt_switch_count;\n+  ret.invol_ctxt_switch_count = invol_ctxt_switch_count - rhs.invol_ctxt_switch_count;\n   return ret;\n }",
+      "additions": 18,
+      "deletions": 12,
+      "changes": 30
+    }
+  ],
+  "num_files_changed": 9,
+  "commit_details_path": ".\\commit_metadata\\ea05291.json"
+}

@@ -1,0 +1,85 @@
+{
+  "commit_id": "a6c311d3d0449e1f6637e9adb0f185004921b1c5",
+  "commit_sha_short": "a6c311d",
+  "commit_folder": "a6c311d",
+  "commit_message": "sched: remove default value for csi_report_data.valid",
+  "commit_message_first_line": "sched: remove default value for csi_report_data.valid",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a6c311d3d0449e1f6637e9adb0f185004921b1c5",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "decde69b6ce1e97b6d404a532130061f6dc8e591",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/decde69b6ce1e97b6d404a532130061f6dc8e591",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/csi_report/csi_report_data.h",
+      "patch": "@@ -67,9 +67,8 @@ struct csi_report_data {\n   std::optional<wideband_cqi_type> first_tb_wideband_cqi;\n   /// Wideband CQI for the second TB.\n   std::optional<wideband_cqi_type> second_tb_wideband_cqi;\n-\n   /// Flag indicating if the CSI was detected correctly.\n-  bool valid = true;\n+  bool valid;\n };\n \n } // namespace srsran",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/ran/csi_report/csi_report_on_pucch_helpers.cpp",
+      "patch": "@@ -64,7 +64,7 @@ static units::bits get_csi_report_pucch_size_cri_ri_li_pmi_cqi(const csi_report_\n static csi_report_data csi_report_unpack_pucch_cri_ri_li_pmi_cqi(const csi_report_packed&        packed,\n                                                                  const csi_report_configuration& config)\n {\n-  csi_report_data data;\n+  csi_report_data data{.valid = true};\n \n   // Validate input size.\n   units::bits csi_report_size = get_csi_report_pucch_size(config);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/csi_report/csi_report_on_pusch_helpers.cpp",
+      "patch": "@@ -69,7 +69,7 @@ static csi_report_data unpack_pusch_csi_cri_ri_li_pmi_cqi(const csi_report_packe\n                                                           const csi_report_packed&        csi2_packed,\n                                                           const csi_report_configuration& config)\n {\n-  csi_report_data data;\n+  csi_report_data data{.valid = true};\n \n   // Gets RI, LI, CQI and CRI field sizes as if the rank was one.\n   ri_li_cqi_cri_sizes sizes =",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -168,7 +168,7 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n         if (f2f3f4->csi->valid) {\n           handle_csi_report(u, f2f3f4->csi.value());\n         } else {\n-          u.data.nof_pusch_invalid_csis++;\n+          ++u.data.nof_pucch_f2f3f4_invalid_csis;\n         }\n       }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/scheduler/scheduler_multi_ue_benchmark.cpp",
+      "patch": "@@ -185,7 +185,8 @@ class multi_ue_sched_simulator\n                                 std::nullopt,\n                                 csi_report_pmi{csi_report_pmi::typeI_single_panel_4ports_mode1{0, std::nullopt, 0}},\n                                 15,\n-                                std::nullopt};\n+                                std::nullopt,\n+                                true};\n           }\n           pdu.pdu = f2;\n           ind.ucis.push_back(pdu);\n@@ -206,7 +207,8 @@ class multi_ue_sched_simulator\n                               std::nullopt,\n                               csi_report_pmi{csi_report_pmi::typeI_single_panel_4ports_mode1{0, std::nullopt, 0}},\n                               15,\n-                              std::nullopt};\n+                              std::nullopt,\n+                              true};\n           ind.ucis.push_back(pdu);\n         }\n       }",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/scheduler/multi_slice_scheduler_test.cpp",
+      "patch": "@@ -65,8 +65,8 @@ class base_multi_slice_scheduler_tester : public scheduler_test_simulator\n     uci.ucis.resize(1);\n     uci.ucis[0].crnti    = ue_cfg.crnti;\n     uci.ucis[0].ue_index = ue_cfg.ue_index;\n-    uci.ucis[0].pdu =\n-        uci_indication::uci_pdu::uci_pucch_f2_or_f3_or_f4_pdu{.csi = csi_report_data{.first_tb_wideband_cqi = 15}};\n+    uci.ucis[0].pdu      = uci_indication::uci_pdu::uci_pucch_f2_or_f3_or_f4_pdu{\n+             .csi = csi_report_data{.first_tb_wideband_cqi = 15, .valid = true}};\n     this->sched->handle_uci_indication(uci);\n \n     ue_count++;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/policy/scheduler_policy_test.cpp",
+      "patch": "@@ -217,7 +217,7 @@ TEST_P(scheduler_policy_test, when_coreset0_used_then_dl_grant_is_within_bounds_\n   ue& u = add_ue(ue_req);\n   // Note: set CQI=15 to use low aggregation level.\n   u.get_pcell().handle_csi_report(\n-      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}});\n+      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}, true});\n   push_dl_bs(u.ue_index, uint_to_lcid(4), 100000000);\n \n   run_slot();\n@@ -618,12 +618,12 @@ TEST_F(scheduler_pf_test, pf_ensures_fairness_in_dl_when_ues_have_different_chan\n     // Report different CQIs for different UEs.\n     // Best channel condition.\n     u1.get_pcell().handle_csi_report(\n-        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}});\n+        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}, true});\n     // Worst channel condition.\n     u2.get_pcell().handle_csi_report(\n-        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{10U}});\n+        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{10U}, true});\n     u3.get_pcell().handle_csi_report(\n-        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{12U}});\n+        csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{12U}, true});\n \n     run_slot();\n     const slot_point current_slot = next_slot - 1;\n@@ -778,9 +778,9 @@ TEST_P(scheduler_pf_qos_test, pf_upholds_qos_in_dl_gbr_flows)\n \n   // Report best channel condition for different UEs.\n   ue_with_gbr.get_pcell().handle_csi_report(\n-      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}});\n+      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}, true});\n   ue_with_no_gbr.get_pcell().handle_csi_report(\n-      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}});\n+      csi_report_data{std::nullopt, std::nullopt, std::nullopt, std::nullopt, cqi_value{15U}, true});\n \n   unsigned              scheduled_bytes_for_gbr_bearer = 0;\n   static const unsigned max_nof_slots                  = 50;",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/fallback_scheduler_test.cpp",
+      "patch": "@@ -424,6 +424,7 @@ TEST_P(fallback_scheduler_tester, successfully_allocated_resources_for_srb1_pdu_\n   // UE reports CQI 0.\n   csi_report_data csi_report{};\n   csi_report.first_tb_wideband_cqi.emplace(0);\n+  csi_report.valid = true;\n   test_ue.get_pcell().handle_csi_report(csi_report);\n   // Notify about SRB1 message in DL of size 320 bytes.\n   const unsigned mac_srb1_sdu_size = 320;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/ue_harq_link_adaptation_test.cpp",
+      "patch": "@@ -109,6 +109,7 @@ TEST_F(ue_harq_link_adaptation_test, harq_not_retx_when_cqi_drops_below_threshol\n   // Action: UE reports CQI value of 15.\n   csi_report_data csi{};\n   csi.first_tb_wideband_cqi = cqi_value{15};\n+  csi.valid                 = true;\n   ue_cc->handle_csi_report(csi);\n \n   dl_harq_process_handle h = handle_harq_newtx();\n@@ -135,6 +136,7 @@ TEST_F(ue_harq_link_adaptation_test, harq_not_retx_when_ri_drops_below_threshold\n   csi_report_data csi{};\n   csi.first_tb_wideband_cqi = cqi_value{15};\n   csi.ri                    = 2;\n+  csi.valid                 = true;\n   ue_cc->handle_csi_report(csi);\n \n   dl_harq_process_handle h = handle_harq_newtx();",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/ue_link_adaptation_controller_test.cpp",
+      "patch": "@@ -84,6 +84,7 @@ TEST_F(ue_link_adaptation_controller_test, cqi_0_reports_empty_mcs)\n \n   csi_report_data csi{};\n   csi.first_tb_wideband_cqi = cqi_value{0};\n+  csi.valid                 = true;\n   ue_channel_state.handle_csi_report(csi);\n \n   std::optional<sch_mcs_index> mcs = controller.calculate_dl_mcs(dl_mcs_table);\n@@ -97,6 +98,7 @@ TEST_F(ue_link_adaptation_controller_test, cqi_positive_reports_non_empty_mcs)\n \n   csi_report_data csi{};\n   csi.first_tb_wideband_cqi = cqi_value{test_rgen::uniform_int<uint8_t>(1, 15)};\n+  csi.valid                 = true;\n   ue_channel_state.handle_csi_report(csi);\n \n   std::optional<sch_mcs_index> mcs = controller.calculate_dl_mcs(dl_mcs_table);\n@@ -115,6 +117,7 @@ TEST_F(ue_link_adaptation_controller_mcs_derivation_test,\n {\n   csi_report_data csi{};\n   csi.first_tb_wideband_cqi = cqi_value{5};\n+  csi.valid                 = true;\n   ue_channel_state.handle_csi_report(csi);\n \n   const sch_mcs_index mcs_lb = map_cqi_to_mcs(csi.first_tb_wideband_cqi->value(), dl_mcs_table).value();",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 10,
+  "commit_details_path": ".\\commit_metadata\\a6c311d.json"
+}

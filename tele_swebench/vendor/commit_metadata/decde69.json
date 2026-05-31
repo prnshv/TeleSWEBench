@@ -1,0 +1,43 @@
+{
+  "commit_id": "decde69b6ce1e97b6d404a532130061f6dc8e591",
+  "commit_sha_short": "decde69",
+  "commit_folder": "decde69",
+  "commit_message": "sched: add valid flag inside csi_report_data",
+  "commit_message_first_line": "sched: add valid flag inside csi_report_data",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/decde69b6ce1e97b6d404a532130061f6dc8e591",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "9cec4b3ccb086bd33cd3f6136801fc80721395d8",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9cec4b3ccb086bd33cd3f6136801fc80721395d8",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/csi_report/csi_report_data.h",
+      "patch": "@@ -67,6 +67,9 @@ struct csi_report_data {\n   std::optional<wideband_cqi_type> first_tb_wideband_cqi;\n   /// Wideband CQI for the second TB.\n   std::optional<wideband_cqi_type> second_tb_wideband_cqi;\n+\n+  /// Flag indicating if the CSI was detected correctly.\n+  bool valid = true;\n };\n \n } // namespace srsran",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_feedback_handler.h",
+      "patch": "@@ -178,7 +178,6 @@ struct uci_indication {\n       harq_ack_report_list harqs;\n       /// CSI report.\n       std::optional<csi_report_data> csi;\n-      bool                           invalid_csi_report = false;\n     };\n \n     /// UCI carried in PUCCH Format2, Format3 or Format4.\n@@ -192,7 +191,6 @@ struct uci_indication {\n       harq_ack_report_list harqs;\n       /// CSI report.\n       std::optional<csi_report_data> csi;\n-      bool                           invalid_csi_report = false;\n       /// Metric of channel quality in dB.\n       std::optional<float> ul_sinr_dB;\n       /// Timing Advance Offset measured for the UE.",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/uci_cell_decoder.cpp",
+      "patch": "@@ -156,7 +156,6 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n       }\n \n       if (pusch->csi_part1_info.has_value()) {\n-        pdu.invalid_csi_report = !pusch->csi_part1_info->is_valid;\n         if (pusch->csi_part1_info->is_valid) {\n           // Decode CSI bits given the CSI report config previously stored in the grid.\n           const auto& slot_ucis = expected_uci_report_grid[to_grid_index(msg.sl_rx)];\n@@ -174,7 +173,10 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n                            fmt::underlying(uci_pdu.ue_index),\n                            uci_pdu.crnti);\n           }\n+        } else {\n+          pdu.csi = csi_report_data{.valid = false};\n         }\n+\n         // NOTE: The RLF detection based on CSI is used when the UE only transmits PUCCHs; if the UE transmit PUSCHs,\n         // the RLF detection will be based on the PUSCH CRC. However, if the PUSCH UCI has a correctly decoded CSI, we\n         // need to reset the CSI KOs counter.\n@@ -203,7 +205,6 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n \n       // Check if the UCI has been correctly decoded.\n       if (pucch_f2f3f4->csi_part1_info.has_value()) {\n-        pdu.invalid_csi_report = !pucch_f2f3f4->csi_part1_info->is_valid;\n         if (pucch_f2f3f4->csi_part1_info->is_valid) {\n           // Decode CSI bits given the CSI report config previously stored in the grid.\n           const auto& slot_ucis = expected_uci_report_grid[to_grid_index(msg.sl_rx)];\n@@ -221,7 +222,10 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n                            fmt::underlying(uci_pdu.ue_index),\n                            uci_pdu.crnti);\n           }\n+        } else {\n+          pdu.csi = csi_report_data{.valid = false};\n         }\n+\n         // We consider any status other than \"crc_pass\" as non-decoded CSI.\n         rlf_handler.handle_csi(uci_pdu.ue_index, cell_index, pucch_f2f3f4->csi_part1_info->is_valid);\n       }",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -165,7 +165,11 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n       }\n \n       if (f2f3f4->csi.has_value()) {\n-        handle_csi_report(u, f2f3f4->csi.value());\n+        if (f2f3f4->csi->valid) {\n+          handle_csi_report(u, f2f3f4->csi.value());\n+        } else {\n+          u.data.nof_pusch_invalid_csis++;\n+        }\n       }\n \n       if (f2f3f4->time_advance_offset.has_value()) {\n@@ -176,22 +180,20 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n       if (not f2f3f4->harqs.empty() and f2f3f4->harqs[0] != mac_harq_ack_report_status::dtx) {\n         u.data.nof_pucch_f2f3f4_invalid_harqs++;\n       }\n-      if (f2f3f4->invalid_csi_report) {\n-        u.data.nof_pucch_f2f3f4_invalid_csis++;\n-      }\n     } else {\n       // PUSCH case.\n       const auto& pusch = std::get<uci_indication::uci_pdu::uci_pusch_pdu>(pdu.pdu);\n \n       if (pusch.csi.has_value()) {\n-        handle_csi_report(u, pusch.csi.value());\n+        if (pusch.csi->valid) {\n+          handle_csi_report(u, pusch.csi.value());\n+        } else {\n+          u.data.nof_pusch_invalid_csis++;\n+        }\n       }\n       if (not pusch.harqs.empty() and pusch.harqs[0] != mac_harq_ack_report_status::dtx) {\n         u.data.nof_pusch_invalid_harqs++;\n       }\n-      if (pusch.invalid_csi_report) {\n-        u.data.nof_pusch_invalid_csis++;\n-      }\n     }\n   }\n }",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\decde69.json"
+}

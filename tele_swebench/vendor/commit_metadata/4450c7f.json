@@ -1,0 +1,50 @@
+{
+  "commit_id": "4450c7fdd08fbf2bc41eadb60b3bdfd494a6a049",
+  "commit_sha_short": "4450c7f",
+  "commit_folder": "4450c7f",
+  "commit_message": "sched: change get_next to return reference in scheduler metric report channel",
+  "commit_message_first_line": "sched: change get_next to return reference in scheduler metric report channel",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/4450c7fdd08fbf2bc41eadb60b3bdfd494a6a049",
+  "commit_date": "2025-05-14T14:53:43Z",
+  "parent_sha": "64147b7a44d9ba27d42abfae19885dd8c6b93a88",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/64147b7a44d9ba27d42abfae19885dd8c6b93a88",
+  "code_changes": [
+    {
+      "filename": "include/srsran/support/zero_copy_notifier.h",
+      "patch": "@@ -36,11 +36,11 @@ class zero_copy_notifier\n   virtual ~zero_copy_notifier() = default;\n \n   /// \\brief This method will be called to start preparing a new object to notify.\n-  builder get_builder() { return builder{get_next(), committer{this}}; }\n+  builder get_builder() { return builder{&get_next(), committer{this}}; }\n \n protected:\n   /// Internal method that retrieves the next pooled object of type T to be filled by the caller to get_builder.\n-  virtual T* get_next() = 0;\n+  virtual T& get_next() = 0;\n \n   /// \\brief Method called when the object is filled and it is ready to be committed. This method will be automatically\n   /// called when the builder goes out of scope.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/spsc_metric_report_channel.h",
+      "patch": "@@ -28,7 +28,7 @@ class spsc_metric_report_channel : public zero_copy_notifier<ReportType>\n     void operator()(ReportType* report)\n     {\n       if (report != nullptr) {\n-        parent->consume(*report);\n+        parent->dispose(*report);\n       }\n     }\n   };\n@@ -63,14 +63,14 @@ class spsc_metric_report_channel : public zero_copy_notifier<ReportType>\n   spsc_metric_report_channel(const spsc_metric_report_channel&) = delete;\n   spsc_metric_report_channel(spsc_metric_report_channel&&)      = delete;\n \n-  ReportType* get_next() override\n+  ReportType& get_next() override\n   {\n     unsigned* idx = free_list.front();\n     if (idx == nullptr) {\n       logger.warning(\"Metric report queue is depleted. Discarding next report...\");\n-      return &dummy_report;\n+      return dummy_report;\n     }\n-    return &reports[*idx];\n+    return reports[*idx];\n   }\n \n   void commit(ReportType& report) override\n@@ -115,7 +115,8 @@ class spsc_metric_report_channel : public zero_copy_notifier<ReportType>\n   using queue_type =\n       concurrent_queue<unsigned, concurrent_queue_policy::lockfree_spsc, concurrent_queue_wait_policy::non_blocking>;\n \n-  void consume(ReportType& report)\n+  /// Called when the report has been consumed and can be returned to the free list.\n+  void dispose(ReportType& report)\n   {\n     unsigned idx = &report - reports.data();\n     srsran_sanity_check(idx < reports.size(), \"Invalid report being committed\");",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -21,7 +21,7 @@ namespace {\n class null_metrics_notifier final : public scheduler_cell_metrics_notifier\n {\n private:\n-  scheduler_cell_metrics* get_next() override { return &null_report; }\n+  scheduler_cell_metrics& get_next() override { return null_report; }\n \n   void commit(scheduler_cell_metrics& report) override\n   {\n@@ -390,6 +390,7 @@ void cell_metrics_handler::report_metrics()\n   data = {};\n \n   // Report all UE metrics in a batch.\n+  // Note: next_report will be reset afterwards. However, we prefer to first commit before fetching a new report.\n   next_report.reset();\n \n   // Clear lists in preparation for the next report.",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/test_doubles/mac/dummy_scheduler_ue_metric_notifier.h",
+      "patch": "@@ -28,7 +28,7 @@ class dummy_scheduler_cell_metrics_notifier : public scheduler_cell_metrics_noti\n private:\n   scheduler_cell_metrics last_metrics;\n \n-  scheduler_cell_metrics* get_next() override { return &last_metrics; }\n+  scheduler_cell_metrics& get_next() override { return last_metrics; }\n \n   void commit(scheduler_cell_metrics& ptr) override\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_metrics_handler_test.cpp",
+      "patch": "@@ -23,7 +23,7 @@ class test_scheduler_cell_metrics_notifier : public scheduler_cell_metrics_notif\n public:\n   scheduler_cell_metrics last_report;\n \n-  scheduler_cell_metrics* get_next() override { return &last_report; }\n+  scheduler_cell_metrics& get_next() override { return last_report; }\n \n   void commit(scheduler_cell_metrics& ptr) override {}\n };",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\4450c7f.json"
+}

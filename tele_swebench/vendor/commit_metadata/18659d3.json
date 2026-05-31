@@ -1,0 +1,22 @@
+{
+  "commit_id": "18659d3f3eac84eb98890a973a65e1fb7aa9aba8",
+  "commit_sha_short": "18659d3",
+  "commit_folder": "18659d3",
+  "commit_message": "sched: fix invalid harq metrics",
+  "commit_message_first_line": "sched: fix invalid harq metrics",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/18659d3f3eac84eb98890a973a65e1fb7aa9aba8",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "8248fd1fa47f199735e0b42b862ef27ced8972ff",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/8248fd1fa47f199735e0b42b862ef27ced8972ff",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -156,7 +156,7 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n       }\n \n       if (not is_sr_opportunity_and_f1 and not f0f1->harqs.empty() and\n-          f0f1->harqs[0] != mac_harq_ack_report_status::dtx) {\n+          f0f1->harqs[0] == mac_harq_ack_report_status::dtx) {\n         ++u.data.nof_pucch_f0f1_invalid_harqs;\n       }\n     } else if (const auto* f2f3f4 = std::get_if<uci_indication::uci_pdu::uci_pucch_f2_or_f3_or_f4_pdu>(&pdu.pdu)) {\n@@ -177,7 +177,7 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n         u.data.pucch_ta.update(f2f3f4->time_advance_offset->to_seconds());\n       }\n \n-      if (not f2f3f4->harqs.empty() and f2f3f4->harqs[0] != mac_harq_ack_report_status::dtx) {\n+      if (not f2f3f4->harqs.empty() and f2f3f4->harqs[0] == mac_harq_ack_report_status::dtx) {\n         ++u.data.nof_pucch_f2f3f4_invalid_harqs;\n       }\n     } else {\n@@ -191,7 +191,7 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n           ++u.data.nof_pusch_invalid_csis;\n         }\n       }\n-      if (not pusch.harqs.empty() and pusch.harqs[0] != mac_harq_ack_report_status::dtx) {\n+      if (not pusch.harqs.empty() and pusch.harqs[0] == mac_harq_ack_report_status::dtx) {\n         ++u.data.nof_pusch_invalid_harqs;\n       }\n     }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\18659d3.json"
+}

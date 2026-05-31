@@ -1,0 +1,36 @@
+{
+  "commit_id": "18e4335f14d6504b4bbc001a77d862fc1e84656e",
+  "commit_sha_short": "18e4335",
+  "commit_folder": "18e4335",
+  "commit_message": "support: fix failing test due to bug in byte_buffer::resize",
+  "commit_message_first_line": "support: fix failing test due to bug in byte_buffer::resize",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/18e4335f14d6504b4bbc001a77d862fc1e84656e",
+  "commit_date": "2024-03-04T16:23:40Z",
+  "parent_sha": "b7129c5650a59311aa21fffc47a4db272d0ed822",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b7129c5650a59311aa21fffc47a4db272d0ed822",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -403,7 +403,7 @@ class byte_buffer\n private:\n   bool has_ctrl_block() const { return ctrl_blk_ptr != nullptr; }\n \n-  SRSRAN_NODISCARD node_t* create_head_segment(size_t headroom, bool use_fallback = false);\n+  SRSRAN_NODISCARD node_t* add_head_segment(size_t headroom, bool use_fallback = false);\n \n   SRSRAN_NODISCARD node_t* create_segment(size_t headroom);\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/detail/byte_buffer_segment_list.h",
+      "patch": "@@ -238,6 +238,9 @@ class byte_buffer_segment_list_span_iterator_impl\n   byte_buffer_segment_list_span_iterator_impl(NodeSegmentType* seg, size_t offset_, size_t size_) :\n     current_segment(seg), offset(offset_), rem_bytes(size_)\n   {\n+    while (current_segment != nullptr and current_segment->length() == 0) {\n+      current_segment = current_segment->next;\n+    }\n     srsran_assert(current_segment != nullptr or (offset == 0 and rem_bytes == 0),\n                   \"Positive offset or length for empty segment\");\n     srsran_assert(current_segment == nullptr or offset <= current_segment->length(), \"Invalid offset\");",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -79,8 +79,8 @@ void byte_buffer::control_block::destroy_cb()\n byte_buffer::byte_buffer(fallback_allocation_tag tag, span<const uint8_t> other) noexcept\n {\n   // Append new head segment to linked list with fallback allocator mode.\n-  node_t* n = create_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n-  ctrl_blk_ptr->segments.push_back(*n);\n+  node_t* n = add_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n+  srsran_sanity_check(n != nullptr, \"Should never fail to append segment if fallback is enabled\");\n \n   bool var = this->append(other);\n   srsran_sanity_check(var, \"Should never fail to append segment if fallback is enabled\");\n@@ -90,8 +90,8 @@ byte_buffer::byte_buffer(fallback_allocation_tag tag, span<const uint8_t> other)\n byte_buffer::byte_buffer(fallback_allocation_tag tag, const byte_buffer& other) noexcept\n {\n   // Append new head segment to linked list with fallback allocator mode.\n-  node_t* n = create_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n-  ctrl_blk_ptr->segments.push_back(*n);\n+  node_t* n = add_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n+  srsran_sanity_check(n != nullptr, \"Should never fail to append segment if fallback is enabled\");\n \n   for (span<const uint8_t> seg : other.segments()) {\n     bool var = this->append(seg);\n@@ -192,7 +192,7 @@ bool byte_buffer::append(byte_buffer&& other)\n   return true;\n }\n \n-byte_buffer::node_t* byte_buffer::create_head_segment(size_t headroom, bool use_fallback)\n+byte_buffer::node_t* byte_buffer::add_head_segment(size_t headroom, bool use_fallback)\n {\n   auto&        pool       = detail::get_default_byte_buffer_segment_pool();\n   const size_t block_size = pool.memory_block_size();\n@@ -229,6 +229,9 @@ byte_buffer::node_t* byte_buffer::create_head_segment(size_t headroom, bool use_\n   // Register segment as sharing the same memory block with control block.\n   ctrl_blk_ptr->segment_in_cb_memory_block = node;\n \n+  // Append new segment to linked list.\n+  ctrl_blk_ptr->segments.push_back(*node);\n+\n   return node;\n }\n \n@@ -260,26 +263,27 @@ byte_buffer::node_t* byte_buffer::create_segment(size_t headroom)\n \n bool byte_buffer::append_segment(size_t headroom_suggestion)\n {\n-  node_t* segment =\n-      not has_ctrl_block() ? create_head_segment(headroom_suggestion) : create_segment(headroom_suggestion);\n+  if (not has_ctrl_block()) {\n+    return add_head_segment(headroom_suggestion) != nullptr;\n+  }\n+  node_t* segment = create_segment(headroom_suggestion);\n   if (segment == nullptr) {\n     return false;\n   }\n-\n   // Append new segment to linked list.\n   ctrl_blk_ptr->segments.push_back(*segment);\n   return true;\n }\n \n bool byte_buffer::prepend_segment(size_t headroom_suggestion)\n {\n-  // Note: Add HEADROOM for first segment.\n-  node_t* segment =\n-      not has_ctrl_block() ? create_head_segment(headroom_suggestion) : create_segment(headroom_suggestion);\n+  if (not has_ctrl_block()) {\n+    return add_head_segment(headroom_suggestion) != nullptr;\n+  }\n+  node_t* segment = create_segment(headroom_suggestion);\n   if (segment == nullptr) {\n     return false;\n   }\n-\n   // Prepend new segment to linked list.\n   ctrl_blk_ptr->segments.push_front(*segment);\n   return true;\n@@ -472,7 +476,7 @@ bool byte_buffer::resize(size_t new_sz)\n   }\n   if (new_sz > prev_len) {\n     for (size_t to_add = new_sz - prev_len; to_add > 0;) {\n-      if (empty() or ctrl_blk_ptr->segments.tail->tailroom() == 0) {\n+      if (not has_ctrl_block() or ctrl_blk_ptr->segments.tail->tailroom() == 0) {\n         if (not append_segment(0)) {\n           return false;\n         }",
+      "additions": 17,
+      "deletions": 13,
+      "changes": 30
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\18e4335.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "8e6d876a26d30510f166b347cddb60fd9afd5368",
+  "commit_sha_short": "8e6d876",
+  "commit_folder": "8e6d876",
+  "commit_message": "phy: implement TPMI selection with codebook subset (remove default cases)",
+  "commit_message_first_line": "phy: implement TPMI selection with codebook subset (remove default cases)",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8e6d876a26d30510f166b347cddb60fd9afd5368",
+  "commit_date": "2024-10-16T08:59:36Z",
+  "parent_sha": "109ec034d43343033c404e32edc29ce849294a4a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/109ec034d43343033c404e32edc29ce849294a4a",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pusch/pusch_tpmi_select.cpp",
+      "patch": "@@ -150,25 +150,26 @@ static pusch_tpmi_select_info::tpmi_info get_tpmi_select_info_1layer(const srs_c\n   if (nof_tx_ports == 2) {\n     codebook = codebook_1layer_2port;\n     switch (codebook_subset) {\n+      case tx_scheme_codebook_subset::fully_and_partial_and_non_coherent:\n+      case tx_scheme_codebook_subset::partial_and_non_coherent:\n+        tpmi_end = codebook.size();\n+        break;\n       case tx_scheme_codebook_subset::non_coherent:\n         tpmi_end = 2;\n         break;\n-      default:\n-        tpmi_end = codebook.size();\n-        break;\n     }\n   } else {\n     codebook = codebook_1layer_4port;\n     switch (codebook_subset) {\n+      case tx_scheme_codebook_subset::fully_and_partial_and_non_coherent:\n+        tpmi_end = codebook.size();\n+        break;\n       case tx_scheme_codebook_subset::partial_and_non_coherent:\n         tpmi_end = 12;\n         break;\n       case tx_scheme_codebook_subset::non_coherent:\n         tpmi_end = 4;\n         break;\n-      default:\n-        tpmi_end = codebook.size();\n-        break;\n     }\n   }\n \n@@ -222,25 +223,26 @@ static pusch_tpmi_select_info::tpmi_info get_tpmi_select_info_2layer(const srs_c\n   if (nof_tx_ports == 2) {\n     codebook = codebook_2layer_2port;\n     switch (codebook_subset) {\n+      case tx_scheme_codebook_subset::fully_and_partial_and_non_coherent:\n+      case tx_scheme_codebook_subset::partial_and_non_coherent:\n+        tpmi_end = codebook.size();\n+        break;\n       case tx_scheme_codebook_subset::non_coherent:\n         tpmi_end = 1;\n         break;\n-      default:\n-        tpmi_end = codebook.size();\n-        break;\n     }\n   } else {\n     codebook = codebook_2layer_4port;\n     switch (codebook_subset) {\n+      case tx_scheme_codebook_subset::fully_and_partial_and_non_coherent:\n+        tpmi_end = codebook.size();\n+        break;\n       case tx_scheme_codebook_subset::partial_and_non_coherent:\n         tpmi_end = 14;\n         break;\n       case tx_scheme_codebook_subset::non_coherent:\n         tpmi_end = 6;\n         break;\n-      default:\n-        tpmi_end = codebook.size();\n-        break;\n     }\n   }\n ",
+      "additions": 14,
+      "deletions": 12,
+      "changes": 26
+    },
+    {
+      "filename": "tests/unittests/ran/pusch/pusch_tpmi_select_test_data.h",
+      "patch": "@@ -26,7 +26,7 @@ struct test_case_t {\n };\n \n static const std::vector<test_case_t> pusch_tpmi_select_test_data = {\n-  // clang-format off\n+    // clang-format off\n {srs_channel_matrix({cf_t(0.537667, -2.258847), cf_t(1.833885, 0.862173)}, 1, 2), 1.9904, tx_scheme_codebook_subset::fully_and_partial_and_non_coherent, {{5, 6.721121},}},\n {srs_channel_matrix({cf_t(0.537667, -2.258847), cf_t(1.833885, 0.862173)}, 1, 2), 1.9904, tx_scheme_codebook_subset::partial_and_non_coherent, {{5, 6.721121},}},\n {srs_channel_matrix({cf_t(0.537667, -2.258847), cf_t(1.833885, 0.862173)}, 1, 2), 1.9904, tx_scheme_codebook_subset::non_coherent, {{0, 1.317457},}},\n@@ -315,7 +315,7 @@ static const std::vector<test_case_t> pusch_tpmi_select_test_data = {\n {srs_channel_matrix({cf_t(-0.756239, -0.363569),   cf_t(0.404325, 0.149556), cf_t(-0.793853, -1.944518),   cf_t(0.859783, 1.523895),   cf_t(0.066869, 0.545810),  cf_t(-1.639387, 2.009927),  cf_t(-2.424750, 1.416671),  cf_t(-0.283830, 0.011481),  cf_t(1.145806, -0.939049),  cf_t(0.181169, -1.738908),   cf_t(0.054250, 0.016971),   cf_t(0.687754, 0.219159),  cf_t(-1.393407, 1.045821),  cf_t(1.425366, -0.950983),  cf_t(-0.893851, 0.794797), cf_t(0.037765, 0.071430)}, 4, 4), 7.6688, tx_scheme_codebook_subset::fully_and_partial_and_non_coherent, {{16, 2.329630},{18, -1.891056}, {6, -3.833947}, {0, -5.730489},}},\n {srs_channel_matrix({cf_t(-0.756239, -0.363569),   cf_t(0.404325, 0.149556), cf_t(-0.793853, -1.944518),   cf_t(0.859783, 1.523895),   cf_t(0.066869, 0.545810),  cf_t(-1.639387, 2.009927),  cf_t(-2.424750, 1.416671),  cf_t(-0.283830, 0.011481),  cf_t(1.145806, -0.939049),  cf_t(0.181169, -1.738908),   cf_t(0.054250, 0.016971),   cf_t(0.687754, 0.219159),  cf_t(-1.393407, 1.045821),  cf_t(1.425366, -0.950983),  cf_t(-0.893851, 0.794797), cf_t(0.037765, 0.071430)}, 4, 4), 7.6688, tx_scheme_codebook_subset::partial_and_non_coherent, {{10, -0.937512}, {7, -2.235358}, {2, -4.421326}, {0, -5.730489},}},\n {srs_channel_matrix({cf_t(-0.756239, -0.363569),   cf_t(0.404325, 0.149556), cf_t(-0.793853, -1.944518),   cf_t(0.859783, 1.523895),   cf_t(0.066869, 0.545810),  cf_t(-1.639387, 2.009927),  cf_t(-2.424750, 1.416671),  cf_t(-0.283830, 0.011481),  cf_t(1.145806, -0.939049),  cf_t(0.181169, -1.738908),   cf_t(0.054250, 0.016971),   cf_t(0.687754, 0.219159),  cf_t(-1.393407, 1.045821),  cf_t(1.425366, -0.950983),  cf_t(-0.893851, 0.794797), cf_t(0.037765, 0.071430)}, 4, 4), 7.6688, tx_scheme_codebook_subset::non_coherent, {{1, -3.107888},{4, -4.389391},{0, -5.364263},{0, -5.730489},}},\n-  // clang-format on\n+    // clang-format on\n };\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\8e6d876.json"
+}

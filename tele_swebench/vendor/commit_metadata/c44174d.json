@@ -1,0 +1,99 @@
+{
+  "commit_id": "c44174d1ec7802e1d416f37256413a7bf14073de",
+  "commit_sha_short": "c44174d",
+  "commit_folder": "c44174d",
+  "commit_message": "du manager: fix ipv4 asn.1 to srsgnb type conversion",
+  "commit_message_first_line": "du manager: fix ipv4 asn.1 to srsgnb type conversion",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/c44174d1ec7802e1d416f37256413a7bf14073de",
+  "commit_date": "2022-12-23T16:58:06Z",
+  "parent_sha": "c8c11662764da26a1e3790623e1f2ee5e41c7172",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/c8c11662764da26a1e3790623e1f2ee5e41c7172",
+  "code_changes": [
+    {
+      "filename": "include/srsgnb/f1ap/du/f1ap_du_ue_context_update.h",
+      "patch": "@@ -38,9 +38,9 @@ struct f1ap_scell_to_setup {\n \n /// \\brief DRB that was setup successfully in the F1AP UE context.\n struct f1ap_drb_setup {\n-  drb_id_t                      drb_id;\n-  optional<lcid_t>              lcid;\n-  span<up_transport_layer_info> dluptnl_info_list;\n+  drb_id_t                             drb_id;\n+  optional<lcid_t>                     lcid;\n+  std::vector<up_transport_layer_info> dluptnl_info_list;\n };\n \n /// \\brief Request from DU F1AP to DU manager to modify existing UE configuration.",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsgnb/ran/up_transport_layer_info.h",
+      "patch": "@@ -11,24 +11,54 @@\n #pragma once\n \n #include \"srsgnb/adt/strong_type.h\"\n+#include <arpa/inet.h>\n #include <string>\n \n namespace srsgnb {\n \n /// \\brief GTP Tunnel Identifier.\n struct gtp_teid_tag {};\n-using gtp_teid_t = strong_type<uint32_t, struct gtp_teid_tag, strong_equality_with<uint32_t>>;\n+using gtp_teid_t = strong_type<uint32_t, struct gtp_teid_tag, strong_equality, strong_equality_with<uint32_t>>;\n \n /// \\brief Convert integer to GTP TEID value.\n inline gtp_teid_t int_to_gtp_teid(uint32_t teid_val)\n {\n   return gtp_teid_t{teid_val};\n }\n \n+/// \\brief Representation of an Transport Layer Address.\n+class transport_layer_address\n+{\n+  // TODO: Support IPv6.\n+public:\n+  transport_layer_address() = default;\n+  transport_layer_address(const std::string& ipv4_str)\n+  {\n+    int err = inet_aton(ipv4_str.c_str(), &addr);\n+    srsgnb_assert(err != 0, \"Invalid IPv4 conversion\");\n+  }\n+\n+  std::string to_string() const { return fmt::format(\"{}\", *this); }\n+\n+  uint32_t to_number() const { return addr.s_addr; }\n+  void     from_number(uint32_t number) { addr.s_addr = number; }\n+\n+  const struct in_addr& native() const { return addr; }\n+  struct in_addr&       native() { return addr; }\n+\n+  bool operator==(const transport_layer_address& other) const { return addr.s_addr == other.addr.s_addr; }\n+  bool operator!=(const transport_layer_address& other) const { return not(*this == other); }\n+  bool operator==(const std::string& ip_str) const { return *this == transport_layer_address(ip_str); }\n+  bool operator!=(const std::string& ip_str) const { return not(*this == ip_str); }\n+\n+private:\n+  struct in_addr addr;\n+};\n+\n /// \\brief Identifier for F1 transport layer associated to a DRB.\n struct up_transport_layer_info {\n-  std::string transport_layer_address;\n-  gtp_teid_t  gtp_teid;\n+  transport_layer_address tp_address;\n+  gtp_teid_t              gtp_teid;\n };\n \n /// \\brief Converts type \\c up_transport_layer_info to an ASN.1 type.\n@@ -39,7 +69,7 @@ void up_transport_layer_info_to_asn1(Asn1Type& asn1obj, const up_transport_layer\n {\n   asn1obj.set_gtp_tunnel();\n   asn1obj.gtp_tunnel().gtp_teid.from_number(up_tp_layer_info.gtp_teid.value());\n-  asn1obj.gtp_tunnel().transport_layer_address.from_string(up_tp_layer_info.transport_layer_address);\n+  asn1obj.gtp_tunnel().transport_layer_address.from_number(up_tp_layer_info.tp_address.to_number());\n }\n \n /// \\brief Converts ASN.1 type into \\c up_transport_layer_info.\n@@ -49,9 +79,23 @@ template <typename Asn1Type>\n up_transport_layer_info asn1_to_up_transport_layer_info(Asn1Type& asn1obj)\n {\n   up_transport_layer_info ret;\n-  ret.gtp_teid                = int_to_gtp_teid(asn1obj.gtp_tunnel().gtp_teid.to_number());\n-  ret.transport_layer_address = asn1obj.gtp_tunnel().transport_layer_address.to_string();\n+  ret.gtp_teid = int_to_gtp_teid(asn1obj.gtp_tunnel().gtp_teid.to_number());\n+  ret.tp_address.from_number(asn1obj.gtp_tunnel().transport_layer_address.to_number());\n   return ret;\n }\n \n-} // namespace srsgnb\n\\ No newline at end of file\n+} // namespace srsgnb\n+\n+namespace fmt {\n+\n+template <>\n+struct formatter<srsgnb::transport_layer_address> : public formatter<std::string> {\n+  template <typename FormatContext>\n+  auto format(const srsgnb::transport_layer_address& s, FormatContext& ctx)\n+      -> decltype(std::declval<FormatContext>().out())\n+  {\n+    return format_to(ctx.out(), \"{}\", inet_ntoa(s.native()));\n+  }\n+};\n+\n+} // namespace fmt\n\\ No newline at end of file",
+      "additions": 51,
+      "deletions": 7,
+      "changes": 58
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -922,8 +922,8 @@ uint64_t octet_string_helper::to_uint(const byte_buffer& buf)\n \n void octet_string_helper::to_octet_string(srsgnb::span<uint8_t> buf, uint64_t number)\n {\n-  size_t nbytes = buf.size();\n-  if ((1U << (8U * nbytes)) <= number) {\n+  uint64_t nbytes = buf.size();\n+  if ((static_cast<uint64_t>(1U) << (8U * nbytes)) <= number) {\n     log_error(\"Integer={} does not fit in an OCTET STRING of size={}\", number, nbytes);\n     return;\n   }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/du_manager/procedures/ue_configuration_procedure.cpp",
+      "patch": "@@ -98,8 +98,8 @@ void ue_configuration_procedure::add_drbs_to_du_ue_context()\n     // Note: We are computing the DL GTP-TEID as a concatenation of the UE index and DRB-id.\n     drb.uluptnl_info_list = drbtoadd.uluptnl_info_list;\n     drb.dluptnl_info_list.resize(1); // TODO: Handle more than one.\n-    drb.dluptnl_info_list[0].gtp_teid                = int_to_gtp_teid((ue->ue_index << 5U) + (unsigned)drb.drb_id);\n-    drb.dluptnl_info_list[0].transport_layer_address = \"127.0.0.1\"; // TODO: Set IP.\n+    drb.dluptnl_info_list[0].gtp_teid   = int_to_gtp_teid((ue->ue_index << 5U) + (unsigned)drb.drb_id);\n+    drb.dluptnl_info_list[0].tp_address = transport_layer_address{\"127.0.0.1\"}; // TODO: Set IP.\n     drb.drb_f1u = du_params.f1u.f1u_gw.create_du_ul_bearer(drb.dluptnl_info_list[0].gtp_teid.value(),\n                                                            drb.uluptnl_info_list[0].gtp_teid.value(),\n                                                            drb.connector.f1u_rx_sdu_notif);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/rrc/ue/routines/rrc_pdu_session_resource_setup_routine.cpp",
+      "patch": "@@ -164,7 +164,8 @@ rrc_pdu_session_resource_setup_routine::handle_pdu_session_resource_setup_result\n     item.pdu_session_id = setup_msg.pdu_session_res_setup_items[0].pdu_session_id;\n \n     auto& transfer                                          = item.pdu_session_resource_setup_response_transfer;\n-    transfer.dlqos_flow_per_tnl_info.uptransport_layer_info = {\"127.0.0.1\", int_to_gtp_teid(0x12345678)};\n+    transfer.dlqos_flow_per_tnl_info.uptransport_layer_info = {transport_layer_address{\"127.0.0.1\"},\n+                                                               int_to_gtp_teid(0x12345678)};\n \n     cu_cp_associated_qos_flow qos_flow;\n     qos_flow.qos_flow_id = 1;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "unittests/du_manager/du_manager_test_helpers.cpp",
+      "patch": "@@ -85,8 +85,8 @@ srsgnb::srs_du::create_f1ap_ue_context_update_request(du_ue_index_t\n     req.drbs_to_setup.back().drb_id = drb_id;\n     req.drbs_to_setup.back().mode   = drb_rlc_mode::am;\n     req.drbs_to_setup.back().uluptnl_info_list.resize(1);\n-    req.drbs_to_setup.back().uluptnl_info_list[0].gtp_teid                = int_to_gtp_teid(0);\n-    req.drbs_to_setup.back().uluptnl_info_list[0].transport_layer_address = \"127.0.0.1\";\n+    req.drbs_to_setup.back().uluptnl_info_list[0].gtp_teid   = int_to_gtp_teid(0);\n+    req.drbs_to_setup.back().uluptnl_info_list[0].tp_address = transport_layer_address{\"127.0.0.1\"};\n   }\n \n   return req;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "unittests/f1ap/cu_cp/f1_cu_msg_filler_test.cpp",
+      "patch": "@@ -76,7 +76,7 @@ rrc_ue_ue_context_modification_request_message generate_ue_context_mod_request()\n   drb_setup_msg.drb_id                                         = 1;\n   drb_setup_msg.rlc                                            = rlc_mode::am;\n \n-  up_transport_layer_info gtp_tunnel = {\"\", int_to_gtp_teid(1)};\n+  up_transport_layer_info gtp_tunnel = {transport_layer_address{\"127.0.0.1\"}, int_to_gtp_teid(1)};\n   drb_setup_msg.gtp_tunnels.push_back(gtp_tunnel);\n \n   qos_flow_setup_request_item mapped_flow = {};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "unittests/f1ap/du/CMakeLists.txt",
+      "patch": "@@ -34,6 +34,7 @@ target_link_libraries(f1_du_dl_rrc_message_transfer_test\n         f1_du_test_helpers\n         gtest\n         gtest_main)\n+gtest_discover_tests(f1_du_dl_rrc_message_transfer_test)\n \n add_executable(f1_du_ue_config_test f1_du_ue_config_test.cpp)\n target_link_libraries(f1_du_ue_config_test\n@@ -57,6 +58,7 @@ target_link_libraries(f1ap_du_ue_context_setup_test\n         f1_du_test_helpers\n         gtest\n         gtest_main)\n+gtest_discover_tests(f1ap_du_ue_context_setup_test)\n \n add_executable(f1ap_du_ue_context_modification_test ue_context_modification_test.cpp)\n target_link_libraries(f1ap_du_ue_context_modification_test\n@@ -68,3 +70,4 @@ target_link_libraries(f1ap_du_ue_context_modification_test\n         f1_du_test_helpers\n         gtest\n         gtest_main)\n+gtest_discover_tests(f1ap_du_ue_context_modification_test)",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "unittests/f1ap/du/f1_du_test_helpers.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"f1_du_test_helpers.h\"\n+#include \"../common/f1_cu_test_messages.h\"\n #include \"srsgnb/support/test_utils.h\"\n \n using namespace srsgnb;\n@@ -164,7 +165,7 @@ asn1::f1ap::drbs_to_be_setup_mod_item_s srsgnb::srs_du::generate_drb_am_mod_item\n }\n \n f1c_message\n-srsgnb::srs_du::generate_f1_ue_context_modification_request(const std::initializer_list<drb_id_t> drbs_to_add)\n+srsgnb::srs_du::generate_f1_ue_context_modification_request(const std::initializer_list<drb_id_t>& drbs_to_add)\n {\n   using namespace asn1::f1ap;\n   f1c_message msg;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "unittests/f1ap/du/f1_du_test_helpers.h",
+      "patch": "@@ -120,7 +120,7 @@ f1c_message generate_f1_ue_context_setup_request(const std::initializer_list<drb\n asn1::f1ap::drbs_to_be_setup_mod_item_s generate_drb_am_mod_item(drb_id_t drbid);\n \n /// \\brief Generate an F1AP UE Context Modification Request message with specified list of DRBs.\n-f1c_message generate_f1_ue_context_modification_request(const std::initializer_list<drb_id_t> drbs_to_add);\n+f1c_message generate_f1_ue_context_modification_request(const std::initializer_list<drb_id_t>& drbs_to_add);\n \n class dummy_f1c_rx_sdu_notifier : public f1c_rx_sdu_notifier\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "unittests/f1ap/du/ue_context_modification_test.cpp",
+      "patch": "@@ -16,49 +16,67 @@ using namespace srsgnb;\n using namespace srs_du;\n using namespace asn1::f1ap;\n \n-TEST_F(f1ap_du_test, when_f1ap_receives_ue_context_modification_request_then_f1ap_notifies_du_of_ue_context_update)\n+class f1ap_du_ue_context_modification_test : public f1ap_du_test\n {\n-  // Test Preamble.\n-  du_ue_index_t ue_index = to_du_ue_index(0);\n-  run_f1_setup_procedure();\n-  run_f1_ue_create(ue_index);\n-  run_ue_context_setup_procedure(ue_index, {});\n-  this->f1c_du_cfg_handler.next_ue_context_update_response.result                 = true;\n-  this->f1c_du_cfg_handler.next_ue_context_update_response.du_to_cu_rrc_container = {0x1, 0x2, 0x3};\n+protected:\n+  f1ap_du_ue_context_modification_test()\n+  {\n+    // Test Preamble.\n+    run_f1_setup_procedure();\n+    run_f1_ue_create(test_ue_index);\n+    run_ue_context_setup_procedure(test_ue_index, generate_f1_ue_context_setup_request({}));\n+  }\n \n-  // Test Section - Send UE CONTEXT MODIFICATION REQUEST to F1AP.\n-  f1c_message msg = generate_f1_ue_context_modification_request({drb_id_t::drb1});\n-  f1ap->handle_message(msg);\n+  void start_procedure(const std::initializer_list<drb_id_t>& drbs)\n+  {\n+    // Prepare DU manager response to F1AP.\n+    this->f1c_du_cfg_handler.next_ue_context_update_response.result = true;\n+    for (drb_id_t drb_id : drbs) {\n+      this->f1c_du_cfg_handler.next_ue_context_update_response.drbs_setup.emplace_back();\n+      auto& drb  = this->f1c_du_cfg_handler.next_ue_context_update_response.drbs_setup.back();\n+      drb.drb_id = drb_id;\n+      drb.dluptnl_info_list.resize(1);\n+      drb.dluptnl_info_list[0].gtp_teid   = int_to_gtp_teid(test_rgen::uniform_int<uint32_t>());\n+      drb.dluptnl_info_list[0].tp_address = transport_layer_address{\"127.0.0.1\"};\n+    }\n+    this->f1c_du_cfg_handler.next_ue_context_update_response.du_to_cu_rrc_container = {0x1, 0x2, 0x3};\n+\n+    // Initiate procedure in F1AP.\n+    f1c_message msg = generate_f1_ue_context_modification_request(drbs);\n+    f1ap->handle_message(msg);\n+  }\n+\n+  bool was_ue_context_modification_response_sent() const\n+  {\n+    return this->msg_notifier.last_f1c_msg.pdu.type().value == f1_ap_pdu_c::types_opts::successful_outcome and\n+           this->msg_notifier.last_f1c_msg.pdu.successful_outcome().value.type().value ==\n+               f1_ap_elem_procs_o::successful_outcome_c::types_opts::ue_context_mod_resp;\n+  }\n+\n+  du_ue_index_t test_ue_index = to_du_ue_index(test_rgen::uniform_int<unsigned>(0, MAX_NOF_DU_UES));\n+};\n+\n+TEST_F(f1ap_du_ue_context_modification_test, when_f1ap_receives_request_then_f1ap_notifies_du_of_ue_context_update)\n+{\n+  start_procedure({drb_id_t::drb1});\n \n   // DU manager receives UE Context Update Request.\n   ASSERT_TRUE(this->f1c_du_cfg_handler.last_ue_context_update_req.has_value());\n   const f1ap_ue_context_update_request& req = *this->f1c_du_cfg_handler.last_ue_context_update_req;\n-  ASSERT_EQ(req.ue_index, ue_index);\n+  ASSERT_EQ(req.ue_index, test_ue_index);\n   ASSERT_EQ(req.srbs_to_setup.size(), 0);\n   ASSERT_EQ(req.drbs_to_setup.size(), 1);\n   ASSERT_EQ(req.drbs_to_setup[0].drb_id, drb_id_t::drb1);\n   ASSERT_FALSE(req.drbs_to_setup[0].lcid.has_value());\n }\n \n-TEST_F(f1ap_du_test,\n-       when_f1ap_receives_ue_context_modification_request_then_f1ap_responds_with_ue_context_modification_response)\n+TEST_F(f1ap_du_ue_context_modification_test,\n+       when_f1ap_receives_request_then_f1ap_responds_to_cu_with_ue_context_modification_response)\n {\n-  // Test Preamble.\n-  du_ue_index_t ue_index = to_du_ue_index(0);\n-  run_f1_setup_procedure();\n-  run_f1_ue_create(ue_index);\n-  run_ue_context_setup_procedure(ue_index, {});\n-  this->f1c_du_cfg_handler.next_ue_context_update_response.result                 = true;\n-  this->f1c_du_cfg_handler.next_ue_context_update_response.du_to_cu_rrc_container = {0x1, 0x2, 0x3};\n-\n-  // Test Section - Send UE CONTEXT MODIFICATION REQUEST to F1AP.\n-  f1c_message msg = generate_f1_ue_context_modification_request({drb_id_t::drb1});\n-  f1ap->handle_message(msg);\n+  start_procedure({drb_id_t::drb1});\n \n   // F1AP sends UE CONTEXT SETUP RESPONSE to CU-CP.\n-  ASSERT_EQ(this->msg_notifier.last_f1c_msg.pdu.type().value, f1_ap_pdu_c::types_opts::successful_outcome);\n-  ASSERT_EQ(this->msg_notifier.last_f1c_msg.pdu.successful_outcome().value.type().value,\n-            f1_ap_elem_procs_o::successful_outcome_c::types_opts::ue_context_mod_resp);\n+  ASSERT_TRUE(was_ue_context_modification_response_sent());\n   ue_context_mod_resp_s& resp = this->msg_notifier.last_f1c_msg.pdu.successful_outcome().value.ue_context_mod_resp();\n   ASSERT_FALSE(resp->srbs_failed_to_be_setup_mod_list_present);\n   ASSERT_FALSE(resp->srbs_modified_list_present);\n@@ -69,6 +87,13 @@ TEST_F(f1ap_du_test,\n   ASSERT_EQ(resp->drbs_setup_mod_list->size(), 1);\n   auto& drb_setup = resp->drbs_setup_mod_list.value[0].value().drbs_setup_mod_item();\n   ASSERT_EQ(drb_setup.drbid, 1);\n+  ASSERT_EQ(drb_setup.dluptnl_info_to_be_setup_list.size(), 1);\n+  ASSERT_EQ(int_to_gtp_teid(drb_setup.dluptnl_info_to_be_setup_list[0].dluptnl_info.gtp_tunnel().gtp_teid.to_number()),\n+            this->f1c_du_cfg_handler.next_ue_context_update_response.drbs_setup[0].dluptnl_info_list[0].gtp_teid);\n+  ASSERT_EQ(drb_setup.dluptnl_info_to_be_setup_list[0].dluptnl_info.gtp_tunnel().transport_layer_address.to_number(),\n+            this->f1c_du_cfg_handler.next_ue_context_update_response.drbs_setup[0]\n+                .dluptnl_info_list[0]\n+                .tp_address.to_number());\n   ASSERT_EQ(resp->duto_currc_info.value.cell_group_cfg,\n             this->f1c_du_cfg_handler.next_ue_context_update_response.du_to_cu_rrc_container);\n }",
+      "additions": 53,
+      "deletions": 28,
+      "changes": 81
+    },
+    {
+      "filename": "unittests/rrc/pdu_session_setup_helpers.h",
+      "patch": "@@ -29,7 +29,7 @@ cu_cp_pdu_session_resource_setup_message fill_res_setup_request()\n \n   item.pdu_session_aggregate_maximum_bit_rate_dl = 100;\n   item.pdu_session_aggregate_maximum_bit_rate_ul = 100;\n-  item.ul_ngu_up_tnl_info                        = {\"127.0.0.1\", int_to_gtp_teid(0xdeadbeef)};\n+  item.ul_ngu_up_tnl_info                        = {transport_layer_address{\"127.0.0.1\"}, int_to_gtp_teid(0xdeadbeef)};\n   item.pdu_session_type                          = \"ipv4\";\n \n   qos_flow_setup_request_item qos_item;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 12,
+  "commit_details_path": ".\\commit_metadata\\c44174d.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "2e63e42edbb29731a510356f112fab7722cbfe4a",
+  "commit_sha_short": "2e63e42",
+  "commit_folder": "2e63e42",
+  "commit_message": "phy: fix mising attribute",
+  "commit_message_first_line": "phy: fix mising attribute",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/2e63e42edbb29731a510356f112fab7722cbfe4a",
+  "commit_date": "2024-02-23T14:14:11Z",
+  "parent_sha": "bbd8d92fb7333158113026bc528d7b0559aeea31",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/bbd8d92fb7333158113026bc528d7b0559aeea31",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -199,9 +199,10 @@ optional<sch_mcs_tbs> srsran::compute_dl_mcs_tbs(const pdsch_config_params&   pd\n                                                                      .tb_scaling_field = pdsch_params.tb_scaling_field,\n                                                                      .n_prb            = nof_prbs});\n \n-    dlsch_info.tbs       = static_cast<units::bits>(tbs_bits);\n-    dlsch_info.mcs_descr = mcs_info;\n-    effective_code_rate  = get_dlsch_information(dlsch_info).get_effective_code_rate();\n+    dlsch_info.tbs         = static_cast<units::bits>(tbs_bits);\n+    dlsch_info.mcs_descr   = mcs_info;\n+    dlsch_info.contains_dc = contains_dc;\n+    effective_code_rate    = get_dlsch_information(dlsch_info).get_effective_code_rate();\n   }\n \n   // If no MCS such that effective code rate <= 0.95, return an empty optional object.",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "tests/integrationtests/phy/upper/channel_processors/pxsch_chain_test.cpp",
+      "patch": "@@ -206,6 +206,7 @@ TEST_P(PxschChainFixture, Ideal)\n   dlsch_params.dmrs_symbol_mask            = dmrs_symbol_mask;\n   dlsch_params.nof_cdm_groups_without_data = 2;\n   dlsch_params.nof_layers                  = nof_layers;\n+  dlsch_params.contains_dc                 = true;\n   dlsch_information info                   = get_dlsch_information(dlsch_params);\n   ASSERT_LT(info.get_effective_code_rate(), 0.95);\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\2e63e42.json"
+}

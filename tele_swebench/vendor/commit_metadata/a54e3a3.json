@@ -1,0 +1,29 @@
+{
+  "commit_id": "a54e3a333b698fbecd931d70ace8ce4046236894",
+  "commit_sha_short": "a54e3a3",
+  "commit_folder": "a54e3a3",
+  "commit_message": "ran: fix DCI payload sizes for format 0_1",
+  "commit_message_first_line": "ran: fix DCI payload sizes for format 0_1",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a54e3a333b698fbecd931d70ace8ce4046236894",
+  "commit_date": "2023-04-26T14:51:59Z",
+  "parent_sha": "7cee3f36b057554bddb32f764163bea014dd7096",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/7cee3f36b057554bddb32f764163bea014dd7096",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -326,8 +326,7 @@ static dci_0_1_size dci_f0_1_bits_before_padding(const dci_size_config& dci_conf\n   }\n \n   // PT-RS/DM-RS association - 0 or 2 bits.\n-  sizes.ptrs_dmrs_association = units::bits(2);\n-  sizes.total += sizes.ptrs_dmrs_association;\n+  // ... Not implemented.\n \n   // Beta offset indicator - 0 or 2 bits.\n   sizes.beta_offset_indicator = dci_config.dynamic_beta_offsets ? units::bits(2) : units::bits(0);\n@@ -1167,6 +1166,12 @@ dci_payload srsran::dci_0_1_pack(const dci_0_1_configuration& config)\n {\n   srsran_assert(config.payload_size.total.value() >= 12, \"DCI payloads must be at least 12 bit long\");\n \n+  // Assertions for unsupported fields.\n+  srsran_assert(!config.ul_sul_indicator.has_value(), \"UL/SUL indicator field is not currently supported.\");\n+  srsran_assert(!config.precoding_info_nof_layers.has_value(),\n+                \"Precoding information and number of layers field is not currently supported.\");\n+  srsran_assert(!config.ptrs_dmrs_association.has_value(), \"PT-RS/DM-RS association field is not currently supported.\");\n+\n   dci_payload payload;\n \n   // Identifier for DCI formats - 1 bit. This field is always 0, indicating an UL DCI format.",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9
+    },
+    {
+      "filename": "tests/unittests/ran/pdcch/dci_packing_test.cpp",
+      "patch": "@@ -1477,6 +1477,11 @@ TEST_P(DciNonFallbackPackingFixture, DciFormatZeroOnePacking)\n     // Randomize DCI size configuration parameters that are not in the test case and generate the aligned DCI sizes.\n     dci_sizes aligned_sizes = generate_dci_sizes();\n \n+    // Assert that unsupported payload fields are not included in the DCI payload format.\n+    ASSERT_TRUE(aligned_sizes.format0_1_ue_size.value().precoding_info_nof_layers == units::bits(0));\n+    ASSERT_TRUE(aligned_sizes.format0_1_ue_size.value().ptrs_dmrs_association == units::bits(0));\n+    ASSERT_TRUE(aligned_sizes.format0_1_ue_size.value().ul_sul_indicator == units::bits(0));\n+\n     // Check that the computed DCI Format 0_0 and 1_0 payload sizes match for Common and UE-specific Search Spaces.\n     ASSERT_EQ(aligned_sizes.format0_0_common_size.total, aligned_sizes.format1_0_common_size.total);\n     ASSERT_EQ(aligned_sizes.format0_0_ue_size.value().total, aligned_sizes.format1_0_ue_size.value().total);",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\a54e3a3.json"
+}

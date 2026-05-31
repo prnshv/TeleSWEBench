@@ -1,0 +1,64 @@
+{
+  "commit_id": "a09802efe6b59778aeffe64b69ad6768cbe12331",
+  "commit_sha_short": "a09802e",
+  "commit_folder": "a09802e",
+  "commit_message": "sched: rename counters to failed allocation attempts",
+  "commit_message_first_line": "sched: rename counters to failed allocation attempts",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a09802efe6b59778aeffe64b69ad6768cbe12331",
+  "commit_date": "2025-03-21T17:58:49Z",
+  "parent_sha": "b9646720a8a5ab5b2cd5e3e636ff4b3baa22cc87",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b9646720a8a5ab5b2cd5e3e636ff4b3baa22cc87",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -107,16 +107,16 @@ DECLARE_METRIC_SET(\"cell_events\", mset_cell_event, metric_sfn, metric_slot_index\n DECLARE_METRIC(\"error_indication_count\", metric_error_indication_count, unsigned, \"\");\n DECLARE_METRIC(\"average_latency\", metric_average_latency, unsigned, \"\");\n DECLARE_METRIC(\"max_latency\", metric_max_latency, unsigned, \"\");\n-DECLARE_METRIC(\"nof_missed_pdcch_grants\", metric_nof_missed_pdcch_grants, unsigned, \"\");\n-DECLARE_METRIC(\"nof_missed_uci_grants\", metric_nof_missed_uci_grants, unsigned, \"\");\n+DECLARE_METRIC(\"nof_failed_pdcch_allocs\", metric_nof_failed_pdcch_allocs, unsigned, \"\");\n+DECLARE_METRIC(\"nof_failed_uci_allocs\", metric_nof_failed_uci_allocs, unsigned, \"\");\n DECLARE_METRIC(\"latency_histogram\", latency_histogram, std::vector<unsigned>, \"\");\n DECLARE_METRIC_SET(\"cell_metrics\",\n                    cell_metrics,\n                    metric_error_indication_count,\n                    metric_average_latency,\n                    metric_max_latency,\n-                   metric_nof_missed_pdcch_grants,\n-                   metric_nof_missed_uci_grants,\n+                   metric_nof_failed_pdcch_allocs,\n+                   metric_nof_failed_uci_allocs,\n                    latency_histogram);\n \n /// Metrics root object.\n@@ -345,8 +345,8 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const app_services::met\n   cell_output.write<metric_error_indication_count>(metrics.nof_error_indications);\n   cell_output.write<metric_average_latency>(metrics.average_decision_latency.count());\n   cell_output.write<metric_max_latency>(metrics.max_decision_latency.count());\n-  cell_output.write<metric_nof_missed_pdcch_grants>(metrics.nof_missed_pdcch_grants);\n-  cell_output.write<metric_nof_missed_uci_grants>(metrics.nof_missed_uci_grants);\n+  cell_output.write<metric_nof_failed_pdcch_allocs>(metrics.nof_failed_pdcch_allocs);\n+  cell_output.write<metric_nof_failed_uci_allocs>(metrics.nof_failed_uci_allocs);\n   cell_output.write<latency_histogram>(\n       std::vector<unsigned>(metrics.latency_histogram.begin(), metrics.latency_histogram.end()));\n \n@@ -399,8 +399,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n   fmt::format_to(\n       std::back_inserter(buffer),\n       \" total_dl_brate={}bps total_ul_brate={}bps nof_prbs={} nof_dl_slots={} nof_ul_slots={} error_indications={} \"\n-      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} missed_pdcch={} \"\n-      \"missed_uci={} nof_ues={} mean_latency={}usec max_latency={}usec max_latency_slot={} latency_hist=[{}]\",\n+      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} failed_pdcch={} \"\n+      \"failed_uci={} nof_ues={} mean_latency={}usec max_latency={}usec max_latency_slot={} latency_hist=[{}]\",\n       float_to_eng_string(sum_dl_bitrate_kbps * 1e3, 1, false),\n       float_to_eng_string(sum_ul_bitrate_kbps * 1e3, 1, false),\n       metrics.nof_prbs,\n@@ -411,8 +411,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n       metrics.nof_ul_slots > 0 ? sum_pusch_rbs / metrics.nof_ul_slots : 0,\n       metrics.nof_dl_slots > 0 ? metrics.dl_grants_count / (float)metrics.nof_dl_slots : 0,\n       metrics.nof_ul_slots > 0 ? metrics.ul_grants_count / (float)metrics.nof_ul_slots : 0,\n-      metrics.nof_missed_pdcch_grants,\n-      metrics.nof_missed_uci_grants,\n+      metrics.nof_failed_pdcch_allocs,\n+      metrics.nof_failed_uci_allocs,\n       metrics.ue_metrics.size(),\n       metrics.average_decision_latency.count(),\n       metrics.max_decision_latency.count(),",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "include/srsran/scheduler/result/sched_result.h",
+      "patch": "@@ -54,11 +54,11 @@ struct ul_sched_result {\n   static_vector<srs_info, MAX_SRS_PDUS_PER_SLOT> srss;\n };\n \n-/// Missed grant opportunities in a given slot.\n-struct missed_grants {\n-  /// Number of missed PDCCH allocation opportunities.\n+/// Failed allocation attempts in a given slot.\n+struct failed_alloc_attempts {\n+  /// Number of failed PDCCH allocation attempts.\n   unsigned pdcch = 0;\n-  /// Number of missed UCI allocation opportunities.\n+  /// Number of failed UCI allocation attempts.\n   unsigned uci = 0;\n };\n \n@@ -70,8 +70,8 @@ struct sched_result {\n   dl_sched_result dl;\n   /// UL allocations for the given slot.\n   ul_sched_result ul;\n-  /// Information about missed grant opportunities for the given slot.\n-  missed_grants missed;\n+  /// Information about failed allocation attempts for the given slot.\n+  failed_alloc_attempts failed_attempts;\n };\n \n } // namespace srsran",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -131,10 +131,10 @@ struct scheduler_cell_metrics {\n   unsigned dl_grants_count = 0;\n   /// Counter of UE PUSCH grants.\n   unsigned ul_grants_count = 0;\n-  /// Number of missed PDCCH grant opportunities.\n-  unsigned nof_missed_pdcch_grants = 0;\n-  /// Number of missed UCI grant opportunities.\n-  unsigned nof_missed_uci_grants = 0;\n+  /// Number of failed PDCCH allocation attempts.\n+  unsigned nof_failed_pdcch_allocs = 0;\n+  /// Number of failed UCI allocation attempts.\n+  unsigned nof_failed_uci_allocs = 0;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -291,8 +291,8 @@ void cell_metrics_handler::report_metrics()\n   next_report.nof_prach_preambles       = data.nof_prach_preambles;\n   next_report.dl_grants_count           = data.nof_ue_pdsch_grants;\n   next_report.ul_grants_count           = data.nof_ue_pusch_grants;\n-  next_report.nof_missed_pdcch_grants   = data.nof_missed_pdcch_grants;\n-  next_report.nof_missed_uci_grants     = data.nof_missed_uci_grants;\n+  next_report.nof_failed_pdcch_allocs   = data.nof_failed_pdcch_allocs;\n+  next_report.nof_failed_uci_allocs     = data.nof_failed_uci_allocs;\n \n   // Reset cell-wide metric counters.\n   data = {};\n@@ -366,9 +366,9 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n   bin_idx          = std::min(bin_idx, scheduler_cell_metrics::latency_hist_bins - 1);\n   ++data.decision_latency_hist[bin_idx];\n \n-  // Missed grant opportunities.\n-  data.nof_missed_pdcch_grants = slot_result.missed.pdcch;\n-  data.nof_missed_uci_grants   = slot_result.missed.uci;\n+  // Failed allocation attempts.\n+  data.nof_failed_pdcch_allocs = slot_result.failed_attempts.pdcch;\n+  data.nof_failed_uci_allocs   = slot_result.failed_attempts.uci;\n }\n \n void cell_metrics_handler::push_result(slot_point                sl_tx,",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -125,10 +125,10 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n     unsigned nof_ue_pdsch_grants = 0;\n     // Sum of UE PUSCH grants.\n     unsigned nof_ue_pusch_grants = 0;\n-    // Number of missed PDCCH grant opportunities.\n-    unsigned nof_missed_pdcch_grants = 0;\n-    // Number of missed UCI grant opportunities.\n-    unsigned nof_missed_uci_grants = 0;\n+    // Number of failed PDCCH allocation attempts.\n+    unsigned nof_failed_pdcch_allocs = 0;\n+    // Number of failed UCI allocation attempts.\n+    unsigned nof_failed_uci_allocs = 0;\n   };\n \n   scheduler_metrics_notifier&     notifier;",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.cpp",
+      "patch": "@@ -369,14 +369,20 @@ void scheduler_result_logger::log_debug(const sched_result& result, std::chrono:\n   if (fmtbuf.size() > 0) {\n     const unsigned nof_pdschs = result.dl.paging_grants.size() + result.dl.rar_grants.size() +\n                                 result.dl.ue_grants.size() + result.dl.bc.sibs.size();\n-    const unsigned nof_puschs = result.ul.puschs.size();\n-    logger.debug(\"Slot decisions pci={} t={}us ({} PDSCH{}, {} PUSCH{}):{}\",\n+    const unsigned nof_puschs       = result.ul.puschs.size();\n+    const unsigned nof_failed_pdcch = result.failed_attempts.pdcch;\n+    const unsigned nof_failed_uci   = result.failed_attempts.uci;\n+    logger.debug(\"Slot decisions pci={} t={}us ({} PDSCH{}, {} PUSCH{}, {} failed PDCCH{}, {} failed UCI{}):{}\",\n                  pci,\n                  decision_latency.count(),\n                  nof_pdschs,\n                  nof_pdschs == 1 ? \"\" : \"s\",\n                  nof_puschs,\n                  nof_puschs == 1 ? \"\" : \"s\",\n+                 nof_failed_pdcch,\n+                 nof_failed_pdcch == 1 ? \"\" : \"s\",\n+                 nof_failed_uci,\n+                 nof_failed_uci == 1 ? \"\" : \"s\",\n                  to_c_str(fmtbuf));\n     fmtbuf.clear();\n   }\n@@ -458,14 +464,20 @@ void scheduler_result_logger::log_info(const sched_result& result, std::chrono::\n   if (fmtbuf.size() > 0) {\n     const unsigned nof_pdschs = result.dl.paging_grants.size() + result.dl.rar_grants.size() +\n                                 result.dl.ue_grants.size() + result.dl.bc.sibs.size();\n-    const unsigned nof_puschs = result.ul.puschs.size();\n-    logger.info(\"Slot decisions pci={} t={}us ({} PDSCH{}, {} PUSCH{}): {}\",\n+    const unsigned nof_puschs       = result.ul.puschs.size();\n+    const unsigned nof_failed_pdcch = result.failed_attempts.pdcch;\n+    const unsigned nof_failed_uci   = result.failed_attempts.uci;\n+    logger.info(\"Slot decisions pci={} t={}us ({} PDSCH{}, {} PUSCH{}, {} failed PDCCH{}, {} failed UCI{}): {}\",\n                 pci,\n                 decision_latency.count(),\n                 nof_pdschs,\n                 nof_pdschs == 1 ? \"\" : \"s\",\n                 nof_puschs,\n                 nof_puschs == 1 ? \"\" : \"s\",\n+                nof_failed_pdcch,\n+                nof_failed_pdcch == 1 ? \"\" : \"s\",\n+                nof_failed_uci,\n+                nof_failed_uci == 1 ? \"\" : \"s\",\n                 to_c_str(fmtbuf));\n     fmtbuf.clear();\n   }\n@@ -482,6 +494,4 @@ void scheduler_result_logger::on_scheduler_result(const sched_result&       resu\n   } else {\n     log_info(result, decision_latency);\n   }\n-\n-  logger.info(\"Missed grant opportunities on this slot: pdcch={} uci={}\", result.missed.pdcch, result.missed.uci);\n }",
+      "additions": 16,
+      "deletions": 6,
+      "changes": 22
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -176,15 +176,15 @@ ue_cell_grid_allocator::setup_dl_grant_builder(const slice_ue&\n   // Allocate PDCCH.\n   auto pdcch_result = alloc_dl_pdcch(ue_cc, ss_info);\n   if (not pdcch_result.has_value()) {\n-    pdcch_alloc.result.missed.pdcch++;\n+    ++pdcch_alloc.result.failed_attempts.pdcch;\n     return make_unexpected(pdcch_result.error());\n   }\n   pdcch_dl_information* pdcch = pdcch_result.value();\n \n   // Allocate UCI.\n   auto uci_result = alloc_uci(ue_cc, ss_info, pdsch_td_res_index);\n   if (not uci_result.has_value()) {\n-    pdcch_alloc.result.missed.uci++;\n+    ++pdcch_alloc.result.failed_attempts.uci;\n     pdcch_sched.cancel_last_pdcch(pdcch_alloc);\n     return make_unexpected(uci_result.error());\n   }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 7,
+  "commit_details_path": ".\\commit_metadata\\a09802e.json"
+}

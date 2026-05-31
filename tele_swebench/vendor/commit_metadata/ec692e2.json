@@ -1,0 +1,22 @@
+{
+  "commit_id": "ec692e2857092df907c7bd78d58e8743e213b03f",
+  "commit_sha_short": "ec692e2",
+  "commit_folder": "ec692e2",
+  "commit_message": "gnb: verify that the DL ARFCN is a multiple of the raster step",
+  "commit_message_first_line": "gnb: verify that the DL ARFCN is a multiple of the raster step",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/ec692e2857092df907c7bd78d58e8743e213b03f",
+  "commit_date": "2023-02-20T22:03:26Z",
+  "parent_sha": "e6fa404e336f23e45d840cc092ee974fd489a4fe",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/e6fa404e336f23e45d840cc092ee974fd489a4fe",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -296,7 +296,8 @@ bool srsran::band_helper::is_dl_arfcn_valid_given_band(nr_band band, uint32_t ar\n {\n   for (const nr_band_raster& raster_band : nr_band_table_fr1) {\n     if (raster_band.band == band) {\n-      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last;\n+      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n+             (arfcn % raster_band.dl_nref_step) == 0;\n     }\n   }\n   return false;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\ec692e2.json"
+}

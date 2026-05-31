@@ -1,0 +1,43 @@
+{
+  "commit_id": "5470053d8c9d105b5134873f748cd980834e506a",
+  "commit_sha_short": "5470053",
+  "commit_folder": "5470053",
+  "commit_message": "sched: add PUCCH RB usage metric",
+  "commit_message_first_line": "sched: add PUCCH RB usage metric",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5470053d8c9d105b5134873f748cd980834e506a",
+  "commit_date": "2025-08-29T16:25:15Z",
+  "parent_sha": "66fd2512643decb20a45365cf0f00f9ddf697554",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/66fd2512643decb20a45365cf0f00f9ddf697554",
+  "code_changes": [
+    {
+      "filename": "apps/helpers/metrics/json_generators/du_high/scheduler.cpp",
+      "patch": "@@ -114,6 +114,7 @@ void to_json(nlohmann::json& json, const scheduler_cell_metrics& metrics)\n   cell_json[\"avg_prach_delay\"]         = metrics.avg_prach_delay_ms;\n   cell_json[\"late_dl_harqs\"]           = metrics.nof_failed_pdsch_allocs_late_harqs;\n   cell_json[\"late_ul_harqs\"]           = metrics.nof_failed_pusch_allocs_late_harqs;\n+  cell_json[\"pucch_tot_rb_usage_avg\"]  = metrics.pucch_tot_rb_usage_avg;\n \n   if (!metrics.ue_metrics.empty()) {\n     json[\"ue_list\"] = metrics.ue_metrics;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/consumers/scheduler_metrics_consumers.cpp",
+      "patch": "@@ -199,7 +199,7 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n         \" total_dl_brate={}bps total_ul_brate={}bps nof_prbs={} nof_dl_slots={} nof_ul_slots={} nof_prach_preambles={} \"\n         \"error_indications={} pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} \"\n         \"failed_pdcch={} failed_uci={} nof_ues={} mean_latency={}usec max_latency={}usec max_latency_slot={} \"\n-        \"latency_hist=[{}] msg3_ok={} msg3_nok={} late_dl_harqs={} late_ul_harqs={}\",\n+        \"latency_hist=[{}] msg3_ok={} msg3_nok={} late_dl_harqs={} late_ul_harqs={} pucch_tot_rb_usage_avg={:.3}\",\n         cell.pci,\n         float_to_eng_string(sum_dl_bitrate_kbps * 1e3, 2, false),\n         float_to_eng_string(sum_ul_bitrate_kbps * 1e3, 2, false),\n@@ -222,7 +222,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n         cell.nof_msg3_ok,\n         cell.nof_msg3_nok,\n         cell.nof_failed_pdsch_allocs_late_harqs,\n-        cell.nof_failed_pusch_allocs_late_harqs);\n+        cell.nof_failed_pusch_allocs_late_harqs,\n+        cell.pucch_tot_rb_usage_avg);\n     if (max_crc_delay != std::numeric_limits<float>::min()) {\n       fmt::format_to(std::back_inserter(buffer), \" max_crc_delay={}ms\", max_crc_delay);\n     }",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -152,6 +152,8 @@ struct scheduler_cell_metrics {\n   unsigned nof_failed_pusch_allocs_late_harqs = 0;\n   /// Number of UE events not reported because the maximum number of events was reached.\n   unsigned nof_filtered_events = 0;\n+  /// Average number of RBs used for PUCCH per UL slot.\n+  float pucch_tot_rb_usage_avg = 0.0f;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"scheduler_metrics_handler.h\"\n #include \"../config/cell_configuration.h\"\n+#include \"srsran/ran/resource_allocation/rb_bitmap.h\"\n #include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/srslog/srslog.h\"\n@@ -412,6 +413,8 @@ void cell_metrics_handler::report_metrics()\n   next_report->nof_failed_pdsch_allocs_late_harqs = data.nof_failed_pdsch_allocs_late_harqs;\n   next_report->nof_failed_pusch_allocs_late_harqs = data.nof_failed_pusch_allocs_late_harqs;\n   next_report->nof_filtered_events                = data.filtered_events_counter;\n+  // Note: PUCCH is only allocated on full UL slots.\n+  next_report->pucch_tot_rb_usage_avg = static_cast<float>(data.pucch_rbs_used) / data.nof_ul_slots;\n \n   // Reset cell-wide metric counters.\n   data = {};\n@@ -472,6 +475,15 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n     ++u.data.nof_puschs;\n   }\n \n+  // PUCCH resource usage.\n+  prb_bitmap pucch_prbs(cell_cfg.nof_ul_prbs);\n+  for (const auto& pucch : slot_result.ul.pucchs) {\n+    // Mark the PRBs used by this PUCCH.\n+    pucch_prbs.fill(pucch.resources.prbs.start(), pucch.resources.prbs.stop());\n+    pucch_prbs.fill(pucch.resources.second_hop_prbs.start(), pucch.resources.second_hop_prbs.stop());\n+  }\n+  data.pucch_rbs_used += pucch_prbs.count();\n+\n   // Count DL and UL slots.\n   data.nof_dl_slots += (slot_result.dl.nof_dl_symbols > 0);\n   data.nof_ul_slots += (slot_result.ul.nof_ul_symbols == 14); // Note: PUSCH in special slot not supported.;",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\5470053.json"
+}

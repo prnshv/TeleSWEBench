@@ -1,0 +1,64 @@
+{
+  "commit_id": "b7129c5650a59311aa21fffc47a4db272d0ed822",
+  "commit_sha_short": "b7129c5",
+  "commit_folder": "b7129c5",
+  "commit_message": "support: add unit test for byte_buffer with fallback allocator",
+  "commit_message_first_line": "support: add unit test for byte_buffer with fallback allocator",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b7129c5650a59311aa21fffc47a4db272d0ed822",
+  "commit_date": "2024-03-04T16:23:40Z",
+  "parent_sha": "f0329fe8241830f474f2136863d196db72ff9d7c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/f0329fe8241830f474f2136863d196db72ff9d7c",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -184,8 +184,6 @@ class byte_buffer\n   /// Creates an empty byte_buffer.\n   byte_buffer() noexcept = default;\n \n-  byte_buffer(fallback_allocation_tag tag) noexcept;\n-\n   /// Explicit copy ctor. User should use copy() method for copy assignments.\n   explicit byte_buffer(const byte_buffer&) noexcept = default;\n \n@@ -212,6 +210,9 @@ class byte_buffer\n   /// Move constructor.\n   byte_buffer(byte_buffer&& other) noexcept = default;\n \n+  byte_buffer(fallback_allocation_tag tag, span<const uint8_t> other = {}) noexcept;\n+  byte_buffer(fallback_allocation_tag tag, const byte_buffer& other) noexcept;\n+\n   /// Copy assignment is disabled. Use std::move, .copy() or .deep_copy() instead.\n   byte_buffer& operator=(const byte_buffer&) noexcept = delete;\n ",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -817,7 +817,7 @@ class bounded_octstring\n   {\n     HANDLE_CODE(pack_length(bref, size(), LB, UB, aligned));\n     if (aligned) {\n-      bref.align_bytes_zero();\n+      HANDLE_CODE(bref.align_bytes_zero());\n     }\n     for (uint32_t i = 0; i < size(); ++i) {\n       HANDLE_CODE(bref.pack(octets_[i], 8));\n@@ -830,7 +830,7 @@ class bounded_octstring\n     HANDLE_CODE(unpack_length(len, bref, LB, UB, aligned));\n     resize(len);\n     if (aligned) {\n-      bref.align_bytes();\n+      HANDLE_CODE(bref.align_bytes());\n     }\n     for (uint32_t i = 0; i < size(); ++i) {\n       HANDLE_CODE(bref.unpack(octets_[i], 8));",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/linear_memory_allocator.h",
+      "patch": "@@ -25,7 +25,7 @@ class linear_memory_allocator\n   linear_memory_allocator(void* memory_resource, std::size_t memory_resource_size) :\n     mem_start(static_cast<uint8_t*>(memory_resource)), mem_res_size(memory_resource_size)\n   {\n-    srsran_sanity_check(mem_start != nullptr or mem_res_size == 0, \"Invalid memory resource\");\n+    srsran_sanity_check(mem_start != nullptr and mem_res_size != 0, \"Invalid memory resource\");\n   }\n \n   std::size_t size() const { return mem_res_size; }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -940,7 +940,7 @@ void octet_string_helper::to_octet_string(srsran::span<uint8_t> buf, uint64_t nu\n \n void octet_string_helper::to_octet_string(srsran::byte_buffer& buf, uint64_t number)\n {\n-  buf.clear();\n+  buf           = byte_buffer{byte_buffer::fallback_allocation_tag{}};\n   size_t nbytes = sizeof(number);\n   for (uint32_t i = 0; i < nbytes; ++i) {\n     if (not buf.append((number >> (uint64_t)((nbytes - 1 - i) * 8U)) & 0xffu)) {\n@@ -985,7 +985,7 @@ unsigned octet_string_helper::hex_string_to_octets(srsran::span<uint8_t> buf, co\n {\n   srsran_assert(buf.size() >= ceil_frac(str.size(), (size_t)2U), \"out-of-bounds access\");\n   if (str.size() % 2 != 0) {\n-    log_warning(\"The provided hex string size={} is not a multiple of 2.\", str.size());\n+    log_error(\"The provided hex string size={} is not a multiple of 2.\", str.size());\n   }\n   char cstr[] = \"\\0\\0\\0\";\n   for (unsigned i = 0; i < str.size(); i += 2) {\n@@ -998,7 +998,7 @@ unsigned octet_string_helper::hex_string_to_octets(srsran::span<uint8_t> buf, co\n void octet_string_helper::append_hex_string(byte_buffer& buf, const std::string& str)\n {\n   if (str.size() % 2 != 0) {\n-    log_warning(\"The provided hex string size={} is not a multiple of 2.\", str.size());\n+    log_error(\"The provided hex string size={} is not a multiple of 2.\", str.size());\n   }\n   char cstr[] = \"\\0\\0\\0\";\n   for (unsigned i = 0; i < str.size(); i += 2) {\n@@ -1015,26 +1015,17 @@ void octet_string_helper::append_hex_string(byte_buffer& buf, const std::string&\n \n template <bool Al>\n unbounded_octstring<Al>::unbounded_octstring(const unbounded_octstring& other) noexcept :\n-  srsran::byte_buffer(fallback_allocation_tag{})\n+  // Use fallback allocator, because operator= should never fail.\n+  srsran::byte_buffer(fallback_allocation_tag{}, other)\n {\n-  for (span<const uint8_t> seg : other.segments()) {\n-    bool success = append(seg);\n-    // Since fallback_allocation_tag is used, the buffer should not fail to allocate\n-    (void)success;\n-  }\n }\n \n template <bool Al>\n unbounded_octstring<Al>& unbounded_octstring<Al>::operator=(const unbounded_octstring& other) noexcept\n {\n   if (this != &other) {\n-    clear();\n-    *this = byte_buffer{fallback_allocation_tag{}};\n-    for (span<const uint8_t> seg : other.segments()) {\n-      bool success = append(seg);\n-      // Since fallback_allocation_tag is used, the buffer should not fail to allocate\n-      (void)success;\n-    }\n+    // Use fallback allocator, because operator= should never fail.\n+    *this = byte_buffer{fallback_allocation_tag{}, other};\n   }\n   return *this;\n }\n@@ -1051,7 +1042,7 @@ SRSASN_CODE unbounded_octstring<Al>::pack(bit_ref& bref) const\n {\n   HANDLE_CODE(pack_length(bref, length(), aligned));\n   for (uint8_t b : *this) {\n-    bref.pack(b, 8);\n+    HANDLE_CODE(bref.pack(b, 8));\n   }\n   return SRSASN_SUCCESS;\n }\n@@ -1079,8 +1070,12 @@ std::string unbounded_octstring<Al>::to_string() const\n template <bool Al>\n unbounded_octstring<Al>& unbounded_octstring<Al>::from_string(const std::string& hexstr)\n {\n-  this->clear();\n+  // clears previous buffer.\n+  *this = byte_buffer{byte_buffer::fallback_allocation_tag{}};\n+\n+  // appends hex string to buffer.\n   octet_string_helper::append_hex_string(*this, hexstr);\n+\n   return *this;\n }\n ",
+      "additions": 13,
+      "deletions": 18,
+      "changes": 31
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -76,12 +76,28 @@ void byte_buffer::control_block::destroy_cb()\n \n // ----- byte_buffer -----\n \n-byte_buffer::byte_buffer(fallback_allocation_tag tag) noexcept\n+byte_buffer::byte_buffer(fallback_allocation_tag tag, span<const uint8_t> other) noexcept\n {\n+  // Append new head segment to linked list with fallback allocator mode.\n   node_t* n = create_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n+  ctrl_blk_ptr->segments.push_back(*n);\n \n-  // Append new segment to linked list.\n+  bool var = this->append(other);\n+  srsran_sanity_check(var, \"Should never fail to append segment if fallback is enabled\");\n+  (void)var;\n+}\n+\n+byte_buffer::byte_buffer(fallback_allocation_tag tag, const byte_buffer& other) noexcept\n+{\n+  // Append new head segment to linked list with fallback allocator mode.\n+  node_t* n = create_head_segment(DEFAULT_FIRST_SEGMENT_HEADROOM, true);\n   ctrl_blk_ptr->segments.push_back(*n);\n+\n+  for (span<const uint8_t> seg : other.segments()) {\n+    bool var = this->append(seg);\n+    srsran_sanity_check(var, \"Should never fail to append segment if fallback is enabled\");\n+    (void)var;\n+  }\n }\n \n bool byte_buffer::append(span<const uint8_t> bytes)",
+      "additions": 18,
+      "deletions": 2,
+      "changes": 20
+    },
+    {
+      "filename": "tests/unittests/adt/CMakeLists.txt",
+      "patch": "@@ -22,6 +22,7 @@ add_executable(byte_buffer_test\n         byte_buffer_chain_test.cpp)\n target_link_libraries(byte_buffer_test srslog srsran_support gtest gtest_main)\n add_test(byte_buffer_test byte_buffer_test)\n+set_tests_properties(byte_buffer_test PROPERTIES LABELS \"tsan\")\n gtest_discover_tests(byte_buffer_test)\n \n add_executable(ring_buffer_test ring_buffer_test.cpp blocking_queue_test.cpp concurrent_queue_test.cpp)",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/adt/byte_buffer_test.cpp",
+      "patch": "@@ -852,6 +852,38 @@ TEST_P(byte_buffer_stress_tester, concurrent_alloc_dealloc_test)\n   }\n }\n \n+TEST_F(byte_buffer_tester, concurrent_alloc_dealloc_test)\n+{\n+  const unsigned           max_buffer_size = memory_block_size * 16;\n+  std::vector<uint8_t>     randbytes       = test_rgen::random_vector<uint8_t>(max_buffer_size);\n+  std::vector<byte_buffer> allocated_buffers;\n+\n+  // Deplete the pool\n+  while (true) {\n+    byte_buffer pdu = byte_buffer{span<const uint8_t>{randbytes.data(), 10U}};\n+    if (pdu.empty()) {\n+      break;\n+    }\n+    allocated_buffers.push_back(std::move(pdu));\n+  }\n+\n+  // Pool is still empty.\n+  byte_buffer pdu = byte_buffer{span<const uint8_t>{randbytes.data(), test_rgen::uniform_int(1U, max_buffer_size)}};\n+  ASSERT_TRUE(pdu.empty());\n+\n+  // Test if a span can be added to a byte_buffer with heap as fallback allocator.\n+  size_t sz = test_rgen::uniform_int(1U, max_buffer_size);\n+  pdu       = byte_buffer{byte_buffer::fallback_allocation_tag{}, span<const uint8_t>{randbytes.data(), sz}};\n+  ASSERT_EQ(pdu.length(), sz);\n+  span<const uint8_t> expected_bytes{randbytes.data(), sz};\n+  ASSERT_EQ(pdu, expected_bytes);\n+\n+  // Test if a byte_buffer can be added to a byte_buffer with heap as fallback allocator.\n+  pdu = byte_buffer{byte_buffer::fallback_allocation_tag{}, allocated_buffers.front()};\n+  ASSERT_EQ(pdu.length(), allocated_buffers.front().length());\n+  ASSERT_EQ(pdu, allocated_buffers.front());\n+}\n+\n INSTANTIATE_TEST_SUITE_P(byte_buffer_test,\n                          one_vector_size_param_test,\n                          ::testing::Values(small_vec_size, large_vec_size, random_vec_size()));",
+      "additions": 32,
+      "deletions": 0,
+      "changes": 32
+    }
+  ],
+  "num_files_changed": 7,
+  "commit_details_path": ".\\commit_metadata\\b7129c5.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "916861002fcc98b3bdc0cff9b4af6f58a464484c",
+  "commit_sha_short": "9168610",
+  "commit_folder": "9168610",
+  "commit_message": "sched: rename scheduler_metrics_handler.cpp",
+  "commit_message_first_line": "sched: rename scheduler_metrics_handler.cpp",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/916861002fcc98b3bdc0cff9b4af6f58a464484c",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "ed1ca2bc21ce36dbe807cf6dd97da9b1e49ca18e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/ed1ca2bc21ce36dbe807cf6dd97da9b1e49ca18e",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/CMakeLists.txt",
+      "patch": "@@ -6,6 +6,6 @@\n # the distribution.\n #\n \n-set(SOURCES scheduler_result_logger.cpp scheduler_metric_handler.cpp scheduler_event_logger.cpp)\n+set(SOURCES scheduler_result_logger.cpp scheduler_metrics_handler.cpp scheduler_event_logger.cpp)\n add_library(scheduler_logger STATIC ${SOURCES})\n target_link_libraries(scheduler_logger srsran_sched srsran_ran srslog)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"../config/cell_configuration.h\"\n #include \"scheduler_metrics_handler.h\"\n+#include \"../config/cell_configuration.h\"\n #include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/srslog/srslog.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\9168610.json"
+}

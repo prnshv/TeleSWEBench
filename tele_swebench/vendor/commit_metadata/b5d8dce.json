@@ -1,0 +1,365 @@
+{
+  "commit_id": "b5d8dce1a4af9fff4ffd20ba2e6fa70ed88de4b5",
+  "commit_sha_short": "b5d8dce",
+  "commit_folder": "b5d8dce",
+  "commit_message": "Compiler: Drop our nodiscard macro in favor of C++17 attribute",
+  "commit_message_first_line": "Compiler: Drop our nodiscard macro in favor of C++17 attribute",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b5d8dce1a4af9fff4ffd20ba2e6fa70ed88de4b5",
+  "commit_date": "2024-10-15T11:28:34Z",
+  "parent_sha": "dc9bfcc481426e134c8976143b7b46519a762002",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/dc9bfcc481426e134c8976143b7b46519a762002",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -246,7 +246,7 @@ class byte_buffer\n \n   /// Append bytes of a iterator range.\n   template <typename Iterator>\n-  SRSRAN_NODISCARD bool append(Iterator begin, Iterator end)\n+  [[nodiscard]] bool append(Iterator begin, Iterator end)\n   {\n     static_assert(std::is_same<std::decay_t<decltype(*begin)>, uint8_t>::value or\n                       std::is_same<std::decay_t<decltype(*begin)>, const uint8_t>::value,\n@@ -266,19 +266,19 @@ class byte_buffer\n   }\n \n   /// Appends bytes to the byte buffer. This function may retrieve new segments from a memory pool.\n-  SRSRAN_NODISCARD bool append(span<const uint8_t> bytes);\n+  [[nodiscard]] bool append(span<const uint8_t> bytes);\n \n   /// Appends an initializer list of bytes.\n-  SRSRAN_NODISCARD bool append(const std::initializer_list<uint8_t>& bytes);\n+  [[nodiscard]] bool append(const std::initializer_list<uint8_t>& bytes);\n \n   /// Appends bytes from another byte_buffer. This function may allocate new segments.\n-  SRSRAN_NODISCARD bool append(const byte_buffer& other);\n+  [[nodiscard]] bool append(const byte_buffer& other);\n \n   /// Appends bytes from another rvalue byte_buffer. This function may allocate new segments.\n-  SRSRAN_NODISCARD bool append(byte_buffer&& other);\n+  [[nodiscard]] bool append(byte_buffer&& other);\n \n   /// Appends bytes to the byte buffer. This function may allocate new segments.\n-  SRSRAN_NODISCARD bool append(uint8_t byte)\n+  [[nodiscard]] bool append(uint8_t byte)\n   {\n     if (empty() or ctrl_blk_ptr->segments.tail->tailroom() == 0) {\n       if (not append_segment(DEFAULT_FIRST_SEGMENT_HEADROOM)) {\n@@ -291,20 +291,20 @@ class byte_buffer\n   }\n \n   /// Appends a view of bytes into current byte buffer.\n-  SRSRAN_NODISCARD bool append(const byte_buffer_view& view);\n+  [[nodiscard]] bool append(const byte_buffer_view& view);\n \n   /// Appends an owning view of bytes into current byte buffer.\n-  SRSRAN_NODISCARD bool append(const byte_buffer_slice& view);\n+  [[nodiscard]] bool append(const byte_buffer_slice& view);\n \n   /// Prepends bytes to byte_buffer. This function may allocate new segments.\n-  SRSRAN_NODISCARD bool prepend(span<const uint8_t> bytes);\n+  [[nodiscard]] bool prepend(span<const uint8_t> bytes);\n \n   /// \\brief Prepend data of byte buffer to this byte buffer.\n-  SRSRAN_NODISCARD bool prepend(const byte_buffer& other);\n+  [[nodiscard]] bool prepend(const byte_buffer& other);\n \n   /// \\brief Prepend data of r-value byte buffer to this byte buffer. The segments of the provided byte buffer can get\n   /// \"stolen\" if the byte buffer is the last reference to the segments.\n-  SRSRAN_NODISCARD bool prepend(byte_buffer&& other);\n+  [[nodiscard]] bool prepend(byte_buffer&& other);\n \n   /// Prepends space in byte_buffer. This function may allocate new segments.\n   /// \\param nof_bytes Number of bytes to reserve at header.\n@@ -351,10 +351,10 @@ class byte_buffer\n   bool is_contiguous() const { return empty() or ctrl_blk_ptr->segments.head == ctrl_blk_ptr->segments.tail; }\n \n   /// Moves the bytes stored in different segments of the byte_buffer into first segment.\n-  SRSRAN_NODISCARD bool linearize();\n+  [[nodiscard]] bool linearize();\n \n   /// Set byte_buffer length. Note: It doesn't initialize newly created bytes.\n-  SRSRAN_NODISCARD bool resize(size_t new_sz);\n+  [[nodiscard]] bool resize(size_t new_sz);\n \n   /// Returns a non-owning list of segments that compose the byte_buffer.\n   byte_buffer_segment_span_range segments()\n@@ -391,13 +391,13 @@ class byte_buffer\n private:\n   bool has_ctrl_block() const { return ctrl_blk_ptr != nullptr; }\n \n-  SRSRAN_NODISCARD node_t* add_head_segment(size_t headroom, bool use_fallback = false);\n+  [[nodiscard]] node_t* add_head_segment(size_t headroom, bool use_fallback = false);\n \n-  SRSRAN_NODISCARD node_t* create_segment(size_t headroom);\n+  [[nodiscard]] node_t* create_segment(size_t headroom);\n \n-  SRSRAN_NODISCARD bool append_segment(size_t headroom_suggestion);\n+  [[nodiscard]] bool append_segment(size_t headroom_suggestion);\n \n-  SRSRAN_NODISCARD bool prepend_segment(size_t headroom_suggestion);\n+  [[nodiscard]] bool prepend_segment(size_t headroom_suggestion);\n \n   /// \\brief Removes last segment of the byte_buffer.\n   /// Note: This operation is O(N), as it requires recomputing the tail.\n@@ -599,22 +599,22 @@ class byte_buffer_writer\n   byte_buffer_view view() const { return *buffer; }\n \n   /// Appends bytes.\n-  SRSRAN_NODISCARD bool append(byte_buffer_view bytes) { return buffer->append(bytes); }\n+  [[nodiscard]] bool append(byte_buffer_view bytes) { return buffer->append(bytes); }\n \n   /// Appends initializer list of bytes.\n-  SRSRAN_NODISCARD bool append(const std::initializer_list<uint8_t>& bytes)\n+  [[nodiscard]] bool append(const std::initializer_list<uint8_t>& bytes)\n   {\n     return buffer->append(span<const uint8_t>{bytes.begin(), bytes.size()});\n   }\n \n   /// Appends span of bytes.\n-  SRSRAN_NODISCARD bool append(span<const uint8_t> bytes) { return buffer->append(bytes); }\n+  [[nodiscard]] bool append(span<const uint8_t> bytes) { return buffer->append(bytes); }\n \n   /// Appends a single byte.\n-  SRSRAN_NODISCARD bool append(uint8_t byte) { return buffer->append(byte); }\n+  [[nodiscard]] bool append(uint8_t byte) { return buffer->append(byte); }\n \n   /// Appends the specified amount of zeros.\n-  SRSRAN_NODISCARD bool append_zeros(size_t nof_zeros);\n+  [[nodiscard]] bool append_zeros(size_t nof_zeros);\n \n   /// Checks last appended byte.\n   uint8_t& back() { return buffer->back(); }",
+      "additions": 22,
+      "deletions": 22,
+      "changes": 44
+    },
+    {
+      "filename": "include/srsran/adt/byte_buffer_chain.h",
+      "patch": "@@ -246,7 +246,7 @@ class byte_buffer_chain\n   ///\n   /// \\param obj Slice to append to the byte_buffer_chain.\n   /// \\return true if operation was successful, false otherwise.\n-  SRSRAN_NODISCARD bool append(byte_buffer_slice obj) noexcept\n+  [[nodiscard]] bool append(byte_buffer_slice obj) noexcept\n   {\n     if (obj.empty()) {\n       return true;\n@@ -262,11 +262,11 @@ class byte_buffer_chain\n \n   /// Appends a byte_buffer to the end of the byte_buffer_chain.\n   /// \\return true if operation was successful, false otherwise.\n-  SRSRAN_NODISCARD bool append(byte_buffer buf) { return append(byte_buffer_slice{std::move(buf)}); }\n+  [[nodiscard]] bool append(byte_buffer buf) { return append(byte_buffer_slice{std::move(buf)}); }\n \n   /// Appends the contents of another byte_buffer_chain to the end of this byte_buffer_chain.\n   /// \\return true if operation was successful, false otherwise.\n-  SRSRAN_NODISCARD bool append(byte_buffer_chain other)\n+  [[nodiscard]] bool append(byte_buffer_chain other)\n   {\n     if (nof_slices() + other.nof_slices() > max_nof_slices()) {\n       return false;\n@@ -282,7 +282,7 @@ class byte_buffer_chain\n \n   /// Prepends a byte_buffer_slice to the beginning of the byte_buffer_chain. This operation has O(N) complexity.\n   /// \\return true if operation was successful, false otherwise.\n-  SRSRAN_NODISCARD bool prepend(byte_buffer_slice slice)\n+  [[nodiscard]] bool prepend(byte_buffer_slice slice)\n   {\n     if (slice.empty()) {\n       return true;\n@@ -308,7 +308,7 @@ class byte_buffer_chain\n \n   /// Prepends a byte_buffer to the beginning of the byte_buffer_chain.\n   /// \\return true if operation was successful, false otherwise.\n-  SRSRAN_NODISCARD bool prepend(byte_buffer buf) { return prepend(byte_buffer_slice{std::move(buf)}); }\n+  [[nodiscard]] bool prepend(byte_buffer buf) { return prepend(byte_buffer_slice{std::move(buf)}); }\n \n   /// Release all the byte buffer slices held by the byte_buffer_chain.\n   void clear()",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "include/srsran/e1ap/cu_up/e1ap_cu_up.h",
+      "patch": "@@ -28,7 +28,7 @@ class e1ap_connection_manager\n   virtual ~e1ap_connection_manager() = default;\n \n   /// \\brief Connect the CU-UP to CU-CP via E1AP interface.\n-  virtual SRSRAN_NODISCARD bool connect_to_cu_cp() = 0;\n+  [[nodiscard]] virtual bool connect_to_cu_cp() = 0;\n \n   /// \\brief Initiates the E1 Setup procedure as per TS 38.463, Section 8.2.3.\n   /// \\param[in] request The E1SetupRequest message to transmit.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/gtpu/gtpu_teid_pool.h",
+      "patch": "@@ -26,9 +26,9 @@ class gtpu_teid_pool\n public:\n   virtual ~gtpu_teid_pool() = default;\n \n-  SRSRAN_NODISCARD virtual expected<gtpu_teid_t> request_teid() = 0;\n+  [[nodiscard]] virtual expected<gtpu_teid_t> request_teid() = 0;\n \n-  virtual bool release_teid(gtpu_teid_t teid) = 0;\n+  [[nodiscard]] virtual bool release_teid(gtpu_teid_t teid) = 0;\n \n   [[nodiscard]] virtual bool full() const = 0;\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/scheduler/config/csi_helper.h",
+      "patch": "@@ -47,8 +47,8 @@ struct csi_builder_params {\n csi_resource_periodicity get_max_csi_rs_period(subcarrier_spacing pdsch_scs);\n \n /// Checks whether a specified CSI-RS period is valid for a given TDD pattern.\n-SRSRAN_NODISCARD bool is_csi_rs_period_valid(csi_resource_periodicity       csi_rs_period,\n-                                             const tdd_ul_dl_config_common& tdd_cfg);\n+[[nodiscard]] bool is_csi_rs_period_valid(csi_resource_periodicity       csi_rs_period,\n+                                          const tdd_ul_dl_config_common& tdd_cfg);\n \n /// \\brief Searches for a valid CSI-RS periodicity, while constrained by TDD pattern periodicity.\n std::optional<csi_resource_periodicity> find_valid_csi_rs_period(const tdd_ul_dl_config_common& tdd_cfg);\n@@ -65,11 +65,11 @@ std::optional<csi_resource_periodicity> find_valid_csi_rs_period(const tdd_ul_dl\n /// \\param zp_csi_slot_offset [in] Slot offset for IM CSI-RS resources. If passed as empty, a new value is derived.\n /// If passed as non-empty, the function will check whether the value is valid.\n /// \\param tdd_cfg [in] TDD pattern.\n-SRSRAN_NODISCARD bool derive_valid_csi_rs_slot_offsets(csi_builder_params&            csi_params,\n-                                                       const std::optional<unsigned>& meas_csi_slot_offset,\n-                                                       const std::optional<unsigned>& tracking_csi_slot_offset,\n-                                                       const std::optional<unsigned>& zp_csi_slot_offset,\n-                                                       const tdd_ul_dl_config_common& tdd_cfg);\n+[[nodiscard]] bool derive_valid_csi_rs_slot_offsets(csi_builder_params&            csi_params,\n+                                                    const std::optional<unsigned>& meas_csi_slot_offset,\n+                                                    const std::optional<unsigned>& tracking_csi_slot_offset,\n+                                                    const std::optional<unsigned>& zp_csi_slot_offset,\n+                                                    const tdd_ul_dl_config_common& tdd_cfg);\n \n /// \\brief Generate list of zp-CSI-RS Resources.\n std::vector<zp_csi_rs_resource> make_periodic_zp_csi_rs_resource_list(const csi_builder_params& params);",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "include/srsran/support/async/execute_on.h",
+      "patch": "@@ -38,7 +38,7 @@ struct try_execute_on_awaiter {\n     }\n   }\n \n-  SRSRAN_NODISCARD bool await_resume() { return success; }\n+  [[nodiscard]] bool await_resume() { return success; }\n \n   try_execute_on_awaiter& get_awaiter() { return *this; }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/async/protocol_transaction_manager.h",
+      "patch": "@@ -193,7 +193,7 @@ class protocol_transaction_manager\n \n   /// \\brief Creates a new protocol transaction with automatically assigned transaction ID and with a timeout, after\n   /// which the transaction gets cancelled.\n-  SRSRAN_NODISCARD protocol_transaction<T> create_transaction(std::chrono::milliseconds time_to_cancel = max_timeout)\n+  [[nodiscard]] protocol_transaction<T> create_transaction(std::chrono::milliseconds time_to_cancel = max_timeout)\n   {\n     // Allocate a new transaction id for the protocol transaction.\n     unsigned transaction_id = invalid_protocol_transaction_id;\n@@ -213,8 +213,8 @@ class protocol_transaction_manager\n   }\n \n   /// \\brief Creates a new protocol transaction with pre-defined transaction ID.\n-  SRSRAN_NODISCARD protocol_transaction<T> create_transaction(protocol_transaction_id_t transaction_id,\n-                                                              std::chrono::milliseconds time_to_cancel = max_timeout)\n+  [[nodiscard]] protocol_transaction<T> create_transaction(protocol_transaction_id_t transaction_id,\n+                                                           std::chrono::milliseconds time_to_cancel = max_timeout)\n   {\n     // Create new transaction instance.\n     auto ret = running_transactions.emplace(\n@@ -248,7 +248,7 @@ class protocol_transaction_manager\n   /// \\param[in] result Result of the transaction.\n   /// \\return True if result of the transaction was successfully set. False, if the transaction has already finished.\n   template <typename U>\n-  SRSRAN_NODISCARD bool set_response(unsigned transaction_id, U&& result)\n+  [[nodiscard]] bool set_response(unsigned transaction_id, U&& result)\n   {\n     static_assert(std::is_convertible_v<U, T>, \"Invalid transaction response type being set\");\n     return set_transaction_outcome(transaction_id, std::forward<U>(result));",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/compiler.h",
+      "patch": "@@ -14,9 +14,6 @@\n \n #pragma once\n \n-/// Emits a warning if a caller of the function with this attribute does not use its return value.\n-#define SRSRAN_NODISCARD __attribute__((warn_unused_result))\n-\n /// Provides a hint to the compiler that a condition is likely to be true.\n #define SRSRAN_LIKELY(EXPR) __builtin_expect((bool)(EXPR), true)\n /// Provides a hint to the compiler that a condition is likely to be false.",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/support/executors/blocking_task_worker.h",
+      "patch": "@@ -22,21 +22,21 @@ class blocking_task_worker final : public task_executor\n public:\n   blocking_task_worker(size_t q_size) : pending_tasks(q_size) {}\n \n-  bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     pending_tasks.push_blocking(std::move(task));\n     return true;\n   }\n \n-  bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n-    execute(std::move(task));\n+    (void)execute(std::move(task));\n     return true;\n   }\n \n   void request_stop()\n   {\n-    execute([this]() {\n+    (void)execute([this]() {\n       if (not pending_tasks.is_stopped()) {\n         pending_tasks.stop();\n       }",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/detail/priority_task_queue.h",
+      "patch": "@@ -88,16 +88,16 @@ class priority_task_queue\n \n   /// Dispatch a task to be run. If the internal queue associated with the priority level is full, drop the task and\n   /// return false.\n-  SRSRAN_NODISCARD bool try_push(task_priority prio, unique_task task);\n+  [[nodiscard]] bool try_push(task_priority prio, unique_task task);\n \n   /// \\brief Pop a pending task, considering its priority level. If the queues are empty, return false.\n-  SRSRAN_NODISCARD bool try_pop(unique_task& t);\n+  [[nodiscard]] bool try_pop(unique_task& t);\n \n   /// \\brief Pop a pending task, considering its priority level. If the queues are empty, this call blocks.\n   /// If the queues are stopped, this function returns false.\n   bool pop_blocking(unique_task& t);\n \n-  SRSRAN_NODISCARD size_t queue_capacity(task_priority prio) const { return queues[get_queue_idx(prio)].capacity(); }\n+  [[nodiscard]] size_t queue_capacity(task_priority prio) const { return queues[get_queue_idx(prio)].capacity(); }\n \n   size_t nof_priority_levels() const { return queues.size(); }\n \n@@ -118,4 +118,4 @@ class priority_task_queue\n };\n \n } // namespace detail\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/detail/task_executor_utils.h",
+      "patch": "@@ -21,9 +21,10 @@ template <typename T, typename... Args>\n class is_task_executor_ptr\n {\n   template <typename U>\n-  static auto test(U&& ptr) -> decltype(ptr->execute(std::declval<Args>()...), std::true_type{});\n+  static auto test(U&& ptr) -> decltype((void)ptr->execute(std::declval<Args>()...), std::true_type{});\n   template <typename U>\n-  static auto test(const U* ptr) -> decltype(std::declval<U*>()->execute(std::declval<Args>()...), std::true_type{});\n+  static auto test(const U* ptr)\n+      -> decltype((void)std::declval<U*>()->execute(std::declval<Args>()...), std::true_type{});\n \n   static std::false_type test(...);\n \n@@ -35,10 +36,10 @@ template <typename T>\n class is_task_executor_ptr<T>\n {\n   template <typename U>\n-  static auto test(U&& ptr) -> decltype(ptr->execute(std::declval<unique_task>()), std::true_type{});\n+  static auto test(U&& ptr) -> decltype((void)ptr->execute(std::declval<unique_task>()), std::true_type{});\n   template <typename U>\n   static auto test(const U* ptr)\n-      -> decltype(std::declval<U*>()->execute(std::declval<unique_task>()), std::true_type{});\n+      -> decltype((void)std::declval<U*>()->execute(std::declval<unique_task>()), std::true_type{});\n \n   static std::false_type test(...);\n \n@@ -106,4 +107,4 @@ bool executor_lets_run_task_inline(const Executor& exec)\n \n } // namespace detail\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "include/srsran/support/executors/executor_tracer.h",
+      "patch": "@@ -29,7 +29,7 @@ class executor_tracer final : public task_executor\n   {\n   }\n \n-  bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     auto enqueue_tp = trace_clock::now();\n     return get(exec).execute([this, task = std::move(task), enqueue_tp]() mutable {\n@@ -40,7 +40,7 @@ class executor_tracer final : public task_executor\n     });\n   }\n \n-  bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n     auto enqueue_tp = trace_clock::now();\n     return get(exec).defer([this, task = std::move(task), enqueue_tp]() mutable {\n@@ -83,9 +83,9 @@ class executor_tracer<Exec, detail::null_event_tracer> final : public task_execu\n public:\n   executor_tracer(Exec exec_, detail::null_event_tracer& /**/, const std::string& /**/) : exec(std::move(exec_)) {}\n \n-  bool execute(unique_task task) override { return get(exec).execute(std::move(task)); }\n+  [[nodiscard]] bool execute(unique_task task) override { return get(exec).execute(std::move(task)); }\n \n-  bool defer(unique_task task) override { return get(exec).defer(std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return get(exec).defer(std::move(task)); }\n \n private:\n   template <typename U>",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/inline_task_executor.h",
+      "patch": "@@ -17,17 +17,17 @@ namespace srsran {\n class inline_task_executor final : public task_executor\n {\n public:\n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     task();\n     return true;\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n     task();\n     return true;\n   }\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/executors/manual_task_worker.h",
+      "patch": "@@ -27,7 +27,7 @@ class manual_task_worker : public task_executor\n \n   std::thread::id get_thread_id() const { return t_id; }\n \n-  bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     if (std::this_thread::get_id() == t_id) {\n       task();\n@@ -36,7 +36,7 @@ class manual_task_worker : public task_executor\n     return defer(std::move(task));\n   }\n \n-  bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n     if (blocking_mode) {\n       pending_tasks.push_blocking(std::move(task));\n@@ -60,7 +60,7 @@ class manual_task_worker : public task_executor\n \n   void request_stop()\n   {\n-    defer([this]() { stop(); });\n+    (void)defer([this]() { stop(); });\n   }\n \n   /// Run all pending tasks until queue is emptied.",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/executors/priority_task_worker.h",
+      "patch": "@@ -43,7 +43,7 @@ class priority_task_worker\n   ~priority_task_worker() { stop(); }\n \n   /// \\brief Push task to task queue with priority level \\c priority (lower integer represents a higher priority).\n-  SRSRAN_NODISCARD bool push_task(task_priority prio, unique_task task)\n+  [[nodiscard]] bool push_task(task_priority prio, unique_task task)\n   {\n     return task_queue.try_push(prio, std::move(task));\n   }\n@@ -55,7 +55,7 @@ class priority_task_worker\n   const char* worker_name() const { return t_handle.get_name(); }\n \n   /// \\brief Get specified priority task queue capacity.\n-  SRSRAN_NODISCARD size_t queue_capacity(task_priority prio) const { return task_queue.queue_capacity(prio); }\n+  [[nodiscard]] size_t queue_capacity(task_priority prio) const { return task_queue.queue_capacity(prio); }\n \n   /// Number of priority levels supported by this worker.\n   size_t nof_priority_levels() const { return task_queue.nof_priority_levels(); }\n@@ -83,7 +83,7 @@ class priority_task_worker_executor : public task_executor\n public:\n   priority_task_worker_executor(task_priority prio_, priority_task_worker& worker_) : prio(prio_), worker(worker_) {}\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     if (can_run_task_inline()) {\n       // If same thread and highest priority task, run task right away.\n@@ -93,7 +93,7 @@ class priority_task_worker_executor : public task_executor\n     return worker.push_task(prio, std::move(task));\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override { return worker.push_task(prio, std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return worker.push_task(prio, std::move(task)); }\n \n   // Check whether task can be run inline or it needs to be dispatched to a queue.\n   bool can_run_task_inline() const",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/strand_executor.h",
+      "patch": "@@ -203,9 +203,9 @@ class task_strand_executor final : public task_executor\n   task_strand_executor() = default;\n   task_strand_executor(task_strand<OutExec, QueuePolicy>& strand_) : strand(&strand_) {}\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override { return strand->execute(std::move(task)); }\n+  [[nodiscard]] bool execute(unique_task task) override { return strand->execute(std::move(task)); }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override { return strand->defer(std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return strand->defer(std::move(task)); }\n \n private:\n   task_strand<OutExec, QueuePolicy>* strand = nullptr;\n@@ -226,7 +226,7 @@ class task_strand final : public task_executor\n   {\n   }\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     // Enqueue task in task_strand queue.\n     if (not impl.queue.try_push(std::move(task))) {\n@@ -235,7 +235,7 @@ class task_strand final : public task_executor\n     return impl.handle_enqueued_task(true);\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n     // Enqueue task in task_strand queue.\n     if (not impl.queue.try_push(std::move(task))) {",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/sync_task_executor.h",
+      "patch": "@@ -29,7 +29,7 @@ class sync_task_executor final : public task_executor\n   {\n   }\n \n-  bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     std::mutex              mutex;\n     std::condition_variable cvar;\n@@ -58,7 +58,7 @@ class sync_task_executor final : public task_executor\n     return ret;\n   }\n \n-  bool defer(unique_task task) override { return execute(std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return execute(std::move(task)); }\n \n private:\n   template <typename U>",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/executors/task_execution_manager.h",
+      "patch": "@@ -180,10 +180,10 @@ class task_execution_manager\n   void stop();\n \n   /// Add new execution context to repository.\n-  SRSRAN_NODISCARD bool add_execution_context(std::unique_ptr<task_execution_context> ctxt);\n+  [[nodiscard]] bool add_execution_context(std::unique_ptr<task_execution_context> ctxt);\n \n   /// Returns a table of all executors stored in the repository.\n-  SRSRAN_NODISCARD const executor_table& executors() const { return executor_list; }\n+  [[nodiscard]] const executor_table& executors() const { return executor_list; }\n \n private:\n   srslog::basic_logger& logger;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/executors/task_executor.h",
+      "patch": "@@ -22,10 +22,10 @@ class task_executor\n \n   /// Dispatches a task to be executed. According to this policy, executor may invoke task inplace if it deemed safe\n   /// to do so.\n-  virtual SRSRAN_NODISCARD bool execute(unique_task task) = 0;\n+  [[nodiscard]] virtual bool execute(unique_task task) = 0;\n \n   /// Dispatches a task to be later executed. The task always gets enqueued for later invocation.\n-  virtual SRSRAN_NODISCARD bool defer(unique_task task) = 0;\n+  [[nodiscard]] virtual bool defer(unique_task task) = 0;\n };\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/executors/task_redispatcher.h",
+      "patch": "@@ -28,7 +28,7 @@ class task_redispatcher\n   {\n   }\n \n-  SRSRAN_NODISCARD bool execute()\n+  [[nodiscard]] bool execute()\n   {\n     if (not dispatch_task(true)) {\n       dispatch_fail_count.fetch_add(1U, std::memory_order_relaxed);\n@@ -37,7 +37,7 @@ class task_redispatcher\n     return true;\n   }\n \n-  SRSRAN_NODISCARD bool defer()\n+  [[nodiscard]] bool defer()\n   {\n     if (not dispatch_task(false)) {\n       dispatch_fail_count.fetch_add(1U, std::memory_order_relaxed);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker.h",
+      "patch": "@@ -75,7 +75,7 @@ class general_task_worker\n \n   /// \\brief Push a new task to FIFO to be processed by the task worker. If the task FIFO is full, enqueueing fails.\n   /// \\return true if task was successfully enqueued. False if task FIFO was full.\n-  SRSRAN_NODISCARD bool push_task(task_t&& task) { return pending_tasks.try_push(std::move(task)); }\n+  [[nodiscard]] bool push_task(task_t&& task) { return pending_tasks.try_push(std::move(task)); }\n \n   /// \\brief Push a new task to FIFO to be processed by the task worker. If the task FIFO is full, this call blocks,\n   /// until the FIFO has space to enqueue the task.\n@@ -133,7 +133,7 @@ class general_task_worker_executor final : public task_executor\n \n   general_task_worker_executor(general_task_worker<QueuePolicy, WaitPolicy>& worker_) : worker(&worker_) {}\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     if (can_run_task_inline()) {\n       // Same thread. Run task right away.\n@@ -143,7 +143,7 @@ class general_task_worker_executor final : public task_executor\n     return defer(std::move(task));\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override { return worker->push_task(std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return worker->push_task(std::move(task)); }\n \n   /// Determine whether the caller is in the same thread as the worker this executor adapts.\n   bool can_run_task_inline() const { return worker->get_id() == std::this_thread::get_id(); }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker_pool.h",
+      "patch": "@@ -118,7 +118,7 @@ class priority_task_worker_pool : public detail::base_priority_task_queue, publi\n   /// \\param prio Priority of the dispatched task.\n   /// \\param task Task to be run in the thread pool.\n   /// \\return True if task was successfully enqueued to be processed. False, if task queue is full.\n-  SRSRAN_NODISCARD bool push_task(enqueue_priority prio, unique_task task)\n+  [[nodiscard]] bool push_task(enqueue_priority prio, unique_task task)\n   {\n     return queue.try_push(prio, std::move(task));\n   }\n@@ -169,7 +169,7 @@ class task_worker_pool : public detail::base_task_queue<QueuePolicy>, public det\n   /// return false.\n   /// \\param task Task to be run in the thread pool.\n   /// \\return True if task was successfully enqueued to be processed. False, if task queue is full.\n-  SRSRAN_NODISCARD bool push_task(unique_task task) { return this->queue.try_push(std::move(task)); }\n+  [[nodiscard]] bool push_task(unique_task task) { return this->queue.try_push(std::move(task)); }\n \n   /// \\brief Push a new task to be processed by the worker pool. If the task queue is full, blocks.\n   /// \\param task Task to be run in the thread pool.\n@@ -199,14 +199,14 @@ class task_worker_pool_executor final : public task_executor\n   task_worker_pool_executor() = default;\n   task_worker_pool_executor(task_worker_pool<QueuePolicy>& worker_pool_) : worker_pool(&worker_pool_) {}\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     // TODO: Shortpath if can_run_task_inline() returns true. This feature has been disabled while we don't correct the\n     //  use of .execute in some places.\n     return worker_pool->push_task(std::move(task));\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override { return worker_pool->push_task(std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return worker_pool->push_task(std::move(task)); }\n \n   /// Determine whether the caller is in one of the threads of the worker pool.\n   bool can_run_task_inline() const { return worker_pool->is_in_thread_pool(); }\n@@ -238,7 +238,7 @@ class priority_task_worker_pool_executor final : public task_executor\n   {\n   }\n \n-  SRSRAN_NODISCARD bool execute(unique_task task) override\n+  [[nodiscard]] bool execute(unique_task task) override\n   {\n     if (can_run_task_inline()) {\n       task();\n@@ -247,7 +247,7 @@ class priority_task_worker_pool_executor final : public task_executor\n     return workers.push_task(prio, std::move(task));\n   }\n \n-  SRSRAN_NODISCARD bool defer(unique_task task) override { return workers.push_task(prio, std::move(task)); }\n+  [[nodiscard]] bool defer(unique_task task) override { return workers.push_task(prio, std::move(task)); }\n \n   /// Determine whether the caller is in one of the threads of the worker pool and the the task can run without\n   /// being dispatched.",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/support/io/io_broker.h",
+      "patch": "@@ -99,7 +99,7 @@ class io_broker\n   /// \\param[in] err_handler Callback that handles error events.\n   /// \\return An RAII handle to the registered file descriptor. On destruction, the fd is automatically deregistered\n   /// from the io_broker.\n-  SRSRAN_NODISCARD virtual subscriber register_fd(\n+  [[nodiscard]] virtual subscriber register_fd(\n       int              fd,\n       recv_callback_t  handler,\n       error_callback_t err_handler = [](error_code) {}) = 0;\n@@ -108,7 +108,7 @@ class io_broker\n   /// \\brief Unregister a file descriptor from the IO interface.\n   /// \\param[in] fd File descriptor to be unregistered.\n   /// \\return true if the file descriptor was successfully unregistered, false otherwise.\n-  SRSRAN_NODISCARD virtual bool unregister_fd(int fd) = 0;\n+  [[nodiscard]] virtual bool unregister_fd(int fd) = 0;\n };\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/io/sctp_socket.h",
+      "patch": "@@ -49,14 +49,14 @@ class sctp_socket\n \n   bool close();\n \n-  SRSRAN_NODISCARD bool is_open() const { return sock_fd.is_open(); }\n-  const unique_fd&      fd() const { return sock_fd; }\n+  [[nodiscard]] bool is_open() const { return sock_fd.is_open(); }\n+  const unique_fd&   fd() const { return sock_fd; }\n \n-  SRSRAN_NODISCARD bool bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, const std::string& bind_interface);\n-  SRSRAN_NODISCARD bool connect(struct sockaddr& ai_addr, const socklen_t& ai_addrlen);\n+  [[nodiscard]] bool bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, const std::string& bind_interface);\n+  [[nodiscard]] bool connect(struct sockaddr& ai_addr, const socklen_t& ai_addrlen);\n   /// \\brief Start listening on socket.\n-  SRSRAN_NODISCARD bool listen();\n-  SRSRAN_NODISCARD bool set_non_blocking();\n+  [[nodiscard]] bool listen();\n+  [[nodiscard]] bool set_non_blocking();\n \n   /// \\brief Return the port on which the socket is listening.\n   ///",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/support/io/unique_fd.h",
+      "patch": "@@ -44,7 +44,7 @@ class unique_fd\n     }\n   }\n \n-  SRSRAN_NODISCARD bool close()\n+  [[nodiscard]] bool close()\n   {\n     if (fd >= 0) {\n       if (::close(fd) == -1) {\n@@ -56,12 +56,12 @@ class unique_fd\n     return true;\n   }\n \n-  SRSRAN_NODISCARD bool is_open() const { return fd >= 0; }\n+  [[nodiscard]] bool is_open() const { return fd >= 0; }\n \n-  SRSRAN_NODISCARD int value() const { return fd; }\n+  [[nodiscard]] int value() const { return fd; }\n \n private:\n   int fd = -1;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/cu_up/pdu_session.h",
+      "patch": "@@ -48,7 +48,7 @@ struct pdu_session {\n   {\n     if (not stopped) {\n       gtpu_rx_demux.remove_tunnel(local_teid);\n-      n3_teid_allocator.release_teid(local_teid);\n+      (void)n3_teid_allocator.release_teid(local_teid);\n \n       gtpu->stop();\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/adapters/f1ap_test_mode_adapter.cpp",
+      "patch": "@@ -37,7 +37,7 @@ class f1ap_test_mode_adapter final : public f1ap_du, public f1c_connection_clien\n   {\n     adapted->handle_rrc_delivery_report(report);\n   }\n-  SRSRAN_NODISCARD bool                 connect_to_cu_cp() override { return adapted->connect_to_cu_cp(); }\n+  [[nodiscard]] bool                    connect_to_cu_cp() override { return adapted->connect_to_cu_cp(); }\n   async_task<f1_setup_response_message> handle_f1_setup_request(const f1_setup_request_message& request) override\n   {\n     return adapted->handle_f1_setup_request(request);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_up/e1ap_cu_up_connection_handler.cpp",
+      "patch": "@@ -37,7 +37,7 @@ e1ap_cu_up_connection_handler::e1ap_cu_up_connection_handler(e1_connection_clien\n {\n }\n \n-SRSRAN_NODISCARD e1ap_message_notifier* e1ap_cu_up_connection_handler::connect_to_cu_cp()\n+e1ap_message_notifier* e1ap_cu_up_connection_handler::connect_to_cu_cp()\n {\n   e1ap_notifier =\n       e1_client_handler.handle_cu_up_connection_request(std::make_unique<e1ap_rx_pdu_adapter>(e1ap_pdu_handler));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_up/e1ap_cu_up_connection_handler.h",
+      "patch": "@@ -21,8 +21,8 @@ class e1ap_cu_up_connection_handler\n public:\n   e1ap_cu_up_connection_handler(e1_connection_client& e1ap_client_handler_, e1ap_message_handler& e1ap_pdu_handler_);\n \n-  SRSRAN_NODISCARD e1ap_message_notifier* connect_to_cu_cp();\n-  SRSRAN_NODISCARD bool                   is_connected() const { return e1ap_notifier != nullptr; }\n+  [[nodiscard]] e1ap_message_notifier* connect_to_cu_cp();\n+  [[nodiscard]] bool                   is_connected() const { return e1ap_notifier != nullptr; }\n \n private:\n   e1_connection_client& e1_client_handler;\n@@ -33,4 +33,4 @@ class e1ap_cu_up_connection_handler\n };\n \n } // namespace srs_cu_up\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/e1ap/cu_up/e1ap_cu_up_impl.h",
+      "patch": "@@ -32,7 +32,7 @@ class e1ap_cu_up_impl final : public e1ap_interface\n   ~e1ap_cu_up_impl() override;\n \n   // e1ap connection manager functions\n-  bool connect_to_cu_cp() override;\n+  [[nodiscard]] bool connect_to_cu_cp() override;\n   // E1AP interface management procedures functions as per TS38.463, Section 8.2.\n   async_task<cu_up_e1_setup_response> handle_cu_up_e1_setup_request(const cu_up_e1_setup_request& request) override;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_connection_handler.cpp",
+      "patch": "@@ -96,7 +96,7 @@ f1ap_du_connection_handler::~f1ap_du_connection_handler()\n   handle_connection_loss_impl();\n }\n \n-SRSRAN_NODISCARD std::unique_ptr<f1ap_message_notifier> f1ap_du_connection_handler::connect_to_cu_cp()\n+std::unique_ptr<f1ap_message_notifier> f1ap_du_connection_handler::connect_to_cu_cp()\n {\n   if (is_connected()) {\n     logger.warning(\"Reconnections to CU-CP not supported\");",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_connection_handler.h",
+      "patch": "@@ -32,12 +32,12 @@ class f1ap_du_connection_handler\n                              task_executor&         ctrl_exec_);\n   ~f1ap_du_connection_handler();\n \n-  SRSRAN_NODISCARD std::unique_ptr<f1ap_message_notifier> connect_to_cu_cp();\n+  [[nodiscard]] std::unique_ptr<f1ap_message_notifier> connect_to_cu_cp();\n \n   async_task<void> handle_tnl_association_removal();\n \n   /// \\brief Check if the connection is active.\n-  SRSRAN_NODISCARD bool is_connected() const { return connected_flag; }\n+  [[nodiscard]] bool is_connected() const { return connected_flag; }\n \n private:\n   // Called by the F1-C GW when the F1-C TNL association drops.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/gtpu/gtpu_teid_pool_impl.h",
+      "patch": "@@ -26,7 +26,7 @@ class gtpu_teid_pool_impl final : public gtpu_teid_pool\n   {\n   }\n \n-  SRSRAN_NODISCARD expected<gtpu_teid_t> request_teid() override\n+  [[nodiscard]] expected<gtpu_teid_t> request_teid() override\n   {\n     expected<gtpu_teid_t> teid = make_unexpected(default_error_t{});\n \n@@ -55,7 +55,7 @@ class gtpu_teid_pool_impl final : public gtpu_teid_pool\n     return teid;\n   }\n \n-  bool release_teid(gtpu_teid_t teid) override\n+  [[nodiscard]] bool release_teid(gtpu_teid_t teid) override\n   {\n     uint32_t teid_idx = teid.value() - GTPU_TEID_MIN.value();\n     if (not teid_pool[teid_idx]) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_tx.h",
+      "patch": "@@ -134,7 +134,7 @@ class pdcp_entity_tx final : public pdcp_entity_tx_rx_base,\n   /// \\brief Writes the header of a PDCP data PDU according to the content of the associated object\n   /// \\param[out] buf Reference to a byte_buffer that is appended by the header bytes\n   /// \\param[in] hdr Reference to a pdcp_data_pdu_header that represents the header content\n-  SRSRAN_NODISCARD bool write_data_pdu_header(byte_buffer& buf, const pdcp_data_pdu_header& hdr) const;\n+  [[nodiscard]] bool write_data_pdu_header(byte_buffer& buf, const pdcp_data_pdu_header& hdr) const;\n \n   /*\n    * Testing helpers",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/rlc/rlc_am_pdu.h",
+      "patch": "@@ -164,7 +164,7 @@ class rlc_am_status_pdu\n   /// \\brief Read a RLC AM status PDU from a PDU buffer view\n   /// \\param pdu A reference to a byte_buffer_view\n   /// \\return true if PDU was read successfully, false otherwise\n-  SRSRAN_NODISCARD bool unpack(const byte_buffer_view& pdu);\n+  [[nodiscard]] bool unpack(const byte_buffer_view& pdu);\n \n   /// \\brief Checks if a PDU buffer view contains a control PDU\n   /// \\param pdu A reference to a byte_buffer_view\n@@ -176,7 +176,7 @@ class rlc_am_status_pdu\n  * Header pack/unpack helper functions\n  * Ref: 3GPP TS 38.322 v15.3.0 Section 6.2.2.4\n  ***************************************************************************/\n-inline SRSRAN_NODISCARD bool\n+[[nodiscard]] inline bool\n rlc_am_read_data_pdu_header(const byte_buffer_view& pdu, const rlc_am_sn_size sn_size, rlc_am_pdu_header* header)\n {\n   byte_buffer_reader pdu_reader = pdu;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/config/csi_helper.cpp",
+      "patch": "@@ -37,8 +37,8 @@ csi_resource_periodicity srsran::csi_helper::get_max_csi_rs_period(subcarrier_sp\n   return max_csi_period;\n }\n \n-SRSRAN_NODISCARD bool srsran::csi_helper::is_csi_rs_period_valid(csi_resource_periodicity       csi_rs_period,\n-                                                                 const tdd_ul_dl_config_common& tdd_cfg)\n+bool srsran::csi_helper::is_csi_rs_period_valid(csi_resource_periodicity       csi_rs_period,\n+                                                const tdd_ul_dl_config_common& tdd_cfg)\n {\n   const unsigned tdd_period = nof_slots_per_tdd_period(tdd_cfg);\n   if (static_cast<unsigned>(csi_rs_period) % tdd_period != 0) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -163,7 +163,7 @@ bool byte_buffer::append(span<const uint8_t> bytes)\n   return true;\n }\n \n-SRSRAN_NODISCARD bool byte_buffer::append(const std::initializer_list<uint8_t>& bytes)\n+bool byte_buffer::append(const std::initializer_list<uint8_t>& bytes)\n {\n   return append(span<const uint8_t>(bytes.begin(), bytes.size()));\n }\n@@ -235,7 +235,7 @@ bool byte_buffer::append(byte_buffer&& other)\n   return true;\n }\n \n-SRSRAN_NODISCARD bool byte_buffer::append(const byte_buffer_view& view)\n+bool byte_buffer::append(const byte_buffer_view& view)\n {\n   // Append segment by segment.\n   auto view_segs = view.segments();\n@@ -628,7 +628,7 @@ span<const uint8_t> srsran::to_span(const byte_buffer& src, span<uint8_t> tmp_me\n \n // ---- byte_buffer_writer\n \n-SRSRAN_NODISCARD bool byte_buffer_writer::append_zeros(size_t nof_zeros)\n+bool byte_buffer_writer::append_zeros(size_t nof_zeros)\n {\n   // TODO: optimize.\n   for (size_t i = 0; i != nof_zeros; ++i) {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/executors/task_execution_manager.cpp",
+      "patch": "@@ -145,7 +145,7 @@ class common_task_execution_context : public task_execution_context\n     return true;\n   }\n \n-  SRSRAN_NODISCARD bool store_executor(const std::string& exec_name, std::unique_ptr<task_executor> exec)\n+  [[nodiscard]] bool store_executor(const std::string& exec_name, std::unique_ptr<task_executor> exec)\n   {\n     if (exec_name.empty()) {\n       logger.error(\"Failed to create executor in context \\\"{}\\\". Cause: Executor name is emtpy.\", name());",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/network/io_broker_epoll.h",
+      "patch": "@@ -25,7 +25,7 @@ class io_broker_epoll final : public io_broker\n   explicit io_broker_epoll(const io_broker_config& config);\n   ~io_broker_epoll() override;\n \n-  SRSRAN_NODISCARD subscriber register_fd(int fd, recv_callback_t handler, error_callback_t err_handler) override;\n+  [[nodiscard]] subscriber register_fd(int fd, recv_callback_t handler, error_callback_t err_handler) override;\n \n private:\n   // Event enqueued to be handled in the io_broker thread.\n@@ -47,7 +47,7 @@ class io_broker_epoll final : public io_broker\n   };\n \n   // Note: Blocking function.\n-  SRSRAN_NODISCARD bool unregister_fd(int fd) override;\n+  [[nodiscard]] bool unregister_fd(int fd) override;\n \n   void thread_loop();\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/network/sctp_socket.cpp",
+      "patch": "@@ -212,8 +212,7 @@ bool sctp_socket::close()\n   return true;\n }\n \n-SRSRAN_NODISCARD bool\n-sctp_socket::bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, const std::string& bind_interface)\n+bool sctp_socket::bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, const std::string& bind_interface)\n {\n   if (not is_open()) {\n     logger.error(\"Failed to bind to {}. Cause: Socket is closed\", get_nameinfo(ai_addr, ai_addrlen));\n@@ -243,7 +242,7 @@ sctp_socket::bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, const s\n   return true;\n }\n \n-SRSRAN_NODISCARD bool sctp_socket::connect(struct sockaddr& ai_addr, const socklen_t& ai_addrlen)\n+bool sctp_socket::connect(struct sockaddr& ai_addr, const socklen_t& ai_addrlen)\n {\n   logger.debug(\"{}: Connecting to {}...\", if_name, get_nameinfo(ai_addr, ai_addrlen));\n   if (not is_open()) {\n@@ -266,7 +265,7 @@ SRSRAN_NODISCARD bool sctp_socket::connect(struct sockaddr& ai_addr, const sockl\n   return true;\n }\n \n-SRSRAN_NODISCARD bool sctp_socket::listen()\n+bool sctp_socket::listen()\n {\n   if (not is_open()) {\n     logger.error(\"{}: Failed to listen for new SCTP connections. Cause: socket is closed\", if_name);",
+      "additions": 3,
+      "deletions": 4,
+      "changes": 7
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pdsch_processor_benchmark.cpp",
+      "patch": "@@ -714,10 +714,9 @@ static void thread_process(pdsch_processor& proc, const pdsch_processor::pdu_t&\n \n     // Process PDU.\n     if (worker_pool) {\n-      bool success = worker_pool->push_task([&proc, &grid, &notifier, &data, &config]() mutable {\n+      (void)worker_pool->push_task([&proc, &grid, &notifier, &data, &config]() mutable {\n         proc.process(grid->get_mapper(), notifier, {data}, config);\n       });\n-      (void)success;\n     } else {\n       proc.process(grid->get_mapper(), notifier, {data}, config);\n     }",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_cp_test_messages.cpp",
+      "patch": "@@ -43,8 +43,7 @@ srsran::srs_cu_cp::generate_pdu_session_resource_setup(ue_index_t ue_index,\n \n     cu_cp_pdu_session_res_setup_item item;\n     item.pdu_session_id = pdu_session_id;\n-    bool ret            = item.pdu_session_nas_pdu.resize(2);\n-    (void)ret;\n+    (void)item.pdu_session_nas_pdu.resize(2);\n     item.pdu_session_nas_pdu[0] = 0xaa;\n     item.pdu_session_nas_pdu[1] = 0xbb;\n     item.s_nssai.sst            = 1;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/cu_up/cu_up_test_helpers.h",
+      "patch": "@@ -100,15 +100,15 @@ class dummy_gtpu_teid_pool final : public gtpu_teid_pool\n   dummy_gtpu_teid_pool()           = default;\n   ~dummy_gtpu_teid_pool() override = default;\n \n-  SRSRAN_NODISCARD expected<gtpu_teid_t> request_teid() override\n+  [[nodiscard]] expected<gtpu_teid_t> request_teid() override\n   {\n     expected<gtpu_teid_t> teid = gtpu_teid_t{next_teid++};\n     return teid;\n   }\n \n-  SRSRAN_NODISCARD bool release_teid(gtpu_teid_t teid) override { return true; }\n+  [[nodiscard]] bool release_teid(gtpu_teid_t teid) override { return true; }\n \n-  bool full() const override { return true; };\n+  [[nodiscard]] bool full() const override { return true; };\n \n   uint32_t get_max_nof_teids() override { return UINT32_MAX; }\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/du_manager/du_manager_test_helpers.h",
+      "patch": "@@ -24,16 +24,16 @@ namespace srs_du {\n class dummy_teid_pool final : public gtpu_teid_pool\n {\n public:\n-  SRSRAN_NODISCARD expected<gtpu_teid_t> request_teid() override\n+  [[nodiscard]] expected<gtpu_teid_t> request_teid() override\n   {\n     expected<gtpu_teid_t> ret{int_to_gtpu_teid(next_gtpu_teid)};\n     next_gtpu_teid++;\n     return ret;\n   }\n \n-  SRSRAN_NODISCARD bool release_teid(gtpu_teid_t teid) override { return true; }\n+  [[nodiscard]] bool release_teid(gtpu_teid_t teid) override { return true; }\n \n-  bool full() const override { return false; }\n+  [[nodiscard]] bool full() const override { return false; }\n \n   uint32_t get_max_nof_teids() override { return std::numeric_limits<uint32_t>::max(); }\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/e2/common/e2_test_helpers.h",
+      "patch": "@@ -183,8 +183,7 @@ inline e2_message generate_ric_control_request_style2_action6(srslog::basic_logg\n     logger.error(\"Failed to pack E2SM RC control header\\n\");\n   }\n \n-  bool ret = ric_control_request->ric_ctrl_hdr.resize(ctrl_hdr_buff.length());\n-  (void)ret;\n+  (void)ric_control_request->ric_ctrl_hdr.resize(ctrl_hdr_buff.length());\n   std::copy(ctrl_hdr_buff.begin(), ctrl_hdr_buff.end(), ric_control_request->ric_ctrl_hdr.begin());\n \n   asn1::e2sm::e2sm_rc_ctrl_msg_s ctrl_msg;\n@@ -215,8 +214,7 @@ inline e2_message generate_ric_control_request_style2_action6(srslog::basic_logg\n     logger.error(\"Failed to pack E2SM RC control message\\n\");\n   }\n \n-  ret = ric_control_request->ric_ctrl_msg.resize(ctrl_msg_buff.length());\n-  (void)ret;\n+  (void)ric_control_request->ric_ctrl_msg.resize(ctrl_msg_buff.length());\n   std::copy(ctrl_msg_buff.begin(), ctrl_msg_buff.end(), ric_control_request->ric_ctrl_msg.begin());\n   return e2_msg;\n }\n@@ -255,8 +253,7 @@ inline e2_message generate_ric_control_request(srslog::basic_logger& logger,\n     logger.error(\"Failed to pack E2SM RC control header\\n\");\n   }\n \n-  bool ret = ric_control_request->ric_ctrl_hdr.resize(ctrl_hdr_buff.length());\n-  (void)ret;\n+  (void)ric_control_request->ric_ctrl_hdr.resize(ctrl_hdr_buff.length());\n   std::copy(ctrl_hdr_buff.begin(), ctrl_hdr_buff.end(), ric_control_request->ric_ctrl_hdr.begin());\n \n   asn1::e2sm::e2sm_rc_ctrl_msg_s ctrl_msg;\n@@ -280,8 +277,7 @@ inline e2_message generate_ric_control_request(srslog::basic_logger& logger,\n     logger.error(\"Failed to pack E2SM RC control message\\n\");\n   }\n \n-  ret = ric_control_request->ric_ctrl_msg.resize(ctrl_msg_buff.length());\n-  (void)ret;\n+  (void)ric_control_request->ric_ctrl_msg.resize(ctrl_msg_buff.length());\n   std::copy(ctrl_msg_buff.begin(), ctrl_msg_buff.end(), ric_control_request->ric_ctrl_msg.begin());\n   return e2_msg;\n }\n@@ -616,8 +612,7 @@ generate_e2sm_kpm_ric_action(asn1::e2sm::e2sm_kpm_action_definition_s& action_de\n     return {};\n   }\n \n-  bool ret = ric_action.ric_action_definition.resize(buf.length());\n-  (void)ret;\n+  (void)ric_action.ric_action_definition.resize(buf.length());\n   std::copy(buf.begin(), buf.end(), ric_action.ric_action_definition.begin());\n   return ric_action;\n }\n@@ -639,8 +634,7 @@ inline e2_message generate_e2sm_kpm_subscription_request(asn1::e2ap::ric_action_\n     return {};\n   }\n \n-  bool ret = ric_subscript_reqs->ric_sub_details.ric_event_trigger_definition.resize(buf.length());\n-  (void)ret;\n+  (void)ric_subscript_reqs->ric_sub_details.ric_event_trigger_definition.resize(buf.length());\n   std::copy(buf.begin(), buf.end(), ric_subscript_reqs->ric_sub_details.ric_event_trigger_definition.begin());\n \n   e2_message e2_msg;\n@@ -665,11 +659,9 @@ inline e2_message generate_e2_ind_msg(byte_buffer& ind_hdr_bytes, byte_buffer& i\n   e2_ind.indication->ric_call_process_id_present     = false;\n \n   // put RIC indication content into message\n-  bool ret = e2_ind.indication->ric_ind_msg.resize(ind_msg_bytes.length());\n-  (void)ret;\n+  (void)e2_ind.indication->ric_ind_msg.resize(ind_msg_bytes.length());\n   std::copy(ind_msg_bytes.begin(), ind_msg_bytes.end(), e2_ind.indication->ric_ind_msg.begin());\n-  ret = e2_ind.indication->ric_ind_hdr.resize(ind_hdr_bytes.length());\n-  (void)ret;\n+  (void)e2_ind.indication->ric_ind_hdr.resize(ind_hdr_bytes.length());\n   std::copy(ind_hdr_bytes.begin(), ind_hdr_bytes.end(), e2_ind.indication->ric_ind_hdr.begin());\n \n   e2_message e2_msg;",
+      "additions": 8,
+      "deletions": 16,
+      "changes": 24
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_test_helpers.h",
+      "patch": "@@ -29,7 +29,7 @@ class dummy_io_broker : public io_broker\n   error_callback_t handle_error;\n   int              last_unregistered_fd = -1;\n \n-  subscriber register_fd(\n+  [[nodiscard]] subscriber register_fd(\n       int              fd,\n       recv_callback_t  handler_,\n       error_callback_t err_handler_ = [](error_code) {}) override\n@@ -43,7 +43,7 @@ class dummy_io_broker : public io_broker\n     return subscriber{*this, fd};\n   }\n \n-  bool unregister_fd(int fd) override\n+  [[nodiscard]] bool unregister_fd(int fd) override\n   {\n     last_unregistered_fd = fd;\n     handle_receive       = {};",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/ngap/ngap_test_messages.cpp",
+      "patch": "@@ -123,8 +123,7 @@ cu_cp_initial_ue_message srsran::srs_cu_cp::generate_initial_ue_message(ue_index\n {\n   cu_cp_initial_ue_message msg = {};\n   msg.ue_index                 = ue_index;\n-  bool ret                     = msg.nas_pdu.resize(nas_pdu_len);\n-  (void)ret;\n+  (void)msg.nas_pdu.resize(nas_pdu_len);\n   msg.establishment_cause               = static_cast<establishment_cause_t>(rrc_establishment_cause_opts::mo_sig);\n   msg.user_location_info.nr_cgi.plmn_id = plmn_identity::test_value();\n   msg.user_location_info.nr_cgi.nci     = nr_cell_identity::create(gnb_id_t{411, 22}, 0).value();\n@@ -146,8 +145,7 @@ ngap_message srsran::srs_cu_cp::generate_downlink_nas_transport_message(amf_ue_i\n   dl_nas_transport_msg->amf_ue_ngap_id = amf_ue_id_to_uint(amf_ue_id);\n   dl_nas_transport_msg->ran_ue_ngap_id = ran_ue_id_to_uint(ran_ue_id);\n   if (nas_pdu.empty()) {\n-    bool ret = dl_nas_transport_msg->nas_pdu.resize(nas_pdu_len);\n-    (void)ret;\n+    (void)dl_nas_transport_msg->nas_pdu.resize(nas_pdu_len);\n   } else {\n     dl_nas_transport_msg->nas_pdu = nas_pdu.copy();\n   }\n@@ -172,8 +170,7 @@ cu_cp_ul_nas_transport srsran::srs_cu_cp::generate_ul_nas_transport_message(ue_i\n {\n   cu_cp_ul_nas_transport ul_nas_transport = {};\n   ul_nas_transport.ue_index               = ue_index;\n-  bool ret                                = ul_nas_transport.nas_pdu.resize(nas_pdu_len);\n-  (void)ret;\n+  (void)ul_nas_transport.nas_pdu.resize(nas_pdu_len);\n   ul_nas_transport.user_location_info.nr_cgi.plmn_id = plmn_identity::test_value();\n   ul_nas_transport.user_location_info.nr_cgi.nci     = nr_cell_identity::create(gnb_id_t{411, 22}, 0).value();\n   ul_nas_transport.user_location_info.tai.plmn_id    = plmn_identity::test_value();\n@@ -192,8 +189,7 @@ ngap_message srsran::srs_cu_cp::generate_uplink_nas_transport_message(amf_ue_id_\n   auto& ul_nas_transport_msg           = ul_nas_transport.pdu.init_msg().value.ul_nas_transport();\n   ul_nas_transport_msg->amf_ue_ngap_id = amf_ue_id_to_uint(amf_ue_id);\n   ul_nas_transport_msg->ran_ue_ngap_id = ran_ue_id_to_uint(ran_ue_id);\n-  bool ret                             = ul_nas_transport_msg->nas_pdu.resize(nas_pdu_len);\n-  (void)ret;\n+  (void)ul_nas_transport_msg->nas_pdu.resize(nas_pdu_len);\n \n   auto& user_loc_info_nr = ul_nas_transport_msg->user_location_info.set_user_location_info_nr();\n   user_loc_info_nr.nr_cgi.plmn_id.from_string(\"00f110\");",
+      "additions": 4,
+      "deletions": 8,
+      "changes": 12
+    },
+    {
+      "filename": "tests/unittests/rrc/rrc_ue_test_helpers.h",
+      "patch": "@@ -86,8 +86,7 @@ class rrc_ue_test_helper\n     rrc_ue_creation_message rrc_ue_create_msg{};\n     rrc_ue_create_msg.ue_index = allocated_ue_index;\n     rrc_ue_create_msg.c_rnti   = to_rnti(0x1234);\n-    bool ret                   = rrc_ue_create_msg.du_to_cu_container.resize(1);\n-    (void)ret;\n+    (void)rrc_ue_create_msg.du_to_cu_container.resize(1);\n     rrc_ue_create_msg.f1ap_pdu_notifier     = &rrc_ue_f1ap_notifier;\n     rrc_ue_create_msg.rrc_ue_cu_cp_notifier = &rrc_ue_cu_cp_notifier;\n     rrc_ue_create_msg.measurement_notifier  = &rrc_ue_cu_cp_notifier;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/support/event_tracer_test.cpp",
+      "patch": "@@ -159,8 +159,8 @@ TEST(trace_executor_test, enqueue_and_run_traces)\n   auto trace_exec2 = make_trace_executor(\"testexec2\", exec, test_tracer);\n \n   int counter = 0;\n-  trace_exec1.defer([&counter]() mutable { counter++; });\n-  trace_exec2.execute([&counter]() mutable { counter++; });\n+  (void)trace_exec1.defer([&counter]() mutable { counter++; });\n+  (void)trace_exec2.execute([&counter]() mutable { counter++; });\n \n   worker.run_pending_tasks();\n   ASSERT_EQ(counter, 2);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/support/task_executor_test_doubles.h",
+      "patch": "@@ -25,9 +25,9 @@ class manual_task_worker_always_enqueue_tasks : public task_executor\n \n   std::thread::id get_thread_id() const { return t_id; }\n \n-  bool execute(unique_task task) override { return defer(std::move(task)); }\n+  [[nodiscard]] bool execute(unique_task task) override { return defer(std::move(task)); }\n \n-  bool defer(unique_task task) override\n+  [[nodiscard]] bool defer(unique_task task) override\n   {\n     pending_tasks.push_blocking(std::move(task));\n     return true;\n@@ -46,7 +46,7 @@ class manual_task_worker_always_enqueue_tasks : public task_executor\n \n   void request_stop()\n   {\n-    defer([this]() { stop(); });\n+    (void)defer([this]() { stop(); });\n   }\n \n   /// Run all pending tasks until queue is emptied.",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 50,
+  "commit_details_path": ".\\commit_metadata\\b5d8dce.json"
+}

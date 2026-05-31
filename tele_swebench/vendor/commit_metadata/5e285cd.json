@@ -1,0 +1,533 @@
+{
+  "commit_id": "5e285cd3bd3204d724868df7679272ce6b8f1908",
+  "commit_sha_short": "5e285cd",
+  "commit_folder": "5e285cd",
+  "commit_message": "support: move stats.h and math_utils.h to srsran/support/math",
+  "commit_message_first_line": "support: move stats.h and math_utils.h to srsran/support/math",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5e285cd3bd3204d724868df7679272ce6b8f1908",
+  "commit_date": "2024-11-04T17:54:28Z",
+  "parent_sha": "30ee24b121890e66cf27b8ca1a46626c1316a03d",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/30ee24b121890e66cf27b8ca1a46626c1316a03d",
+  "code_changes": [
+    {
+      "filename": "apps/examples/phy/radio_ssb.cpp",
+      "patch": "@@ -33,7 +33,7 @@\n #include \"srsran/phy/lower/lower_phy_rx_symbol_context.h\"\n #include \"srsran/radio/radio_factory.h\"\n #include \"srsran/support/executors/task_worker.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/signal_handling.h\"\n #include <atomic>\n #include <getopt.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/radio/radio_util_sample.cpp",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/radio/radio_factory.h\"\n #include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/file_vector.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/signal_handling.h\"\n #include <getopt.h>\n #include <random>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/scheduler/scheduler_metrics.h\"\n #include \"srsran/support/engineering_notation.h\"\n \n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <iomanip>\n #include <ostream>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/bounded_bitset.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/adt/span.h\"\n #include \"srsran/adt/static_vector.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include \"fmt/format.h\"\n #include <cstdint>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/fapi/message_builders.h",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/ran/pdcch/dci_packing.h\"\n #include \"srsran/ran/ptrs/ptrs.h\"\n #include \"srsran/ran/srs/srs_configuration.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/shared_transport_block.h\"\n #include <algorithm>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/adapters/phy_metrics_adapter.h",
+      "patch": "@@ -12,8 +12,8 @@\n \n #include \"srsran/phy/lower/lower_phy_baseband_metrics.h\"\n #include \"srsran/phy/lower/lower_phy_metrics_notifier.h\"\n-#include \"srsran/support/math_utils.h\"\n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/math_utils.h\"\n+#include \"srsran/support/math/stats.h\"\n #include <fmt/format.h>\n #include <mutex>\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/ldpc/ldpc.h",
+      "patch": "@@ -16,7 +16,7 @@\n #pragma once\n \n #include \"srsran/ran/sch/ldpc_base_graph.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/units.h\"\n #include <array>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_decoder_result.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/stats.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/pucch_orthogonal_sequence.h",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/adt/complex.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pucch/pucch_constants.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <array>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/cyclic_prefix.h",
+      "patch": "@@ -14,7 +14,7 @@\n #pragma once\n \n #include \"srsran/ran/phy_time_unit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <algorithm>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/phy_time_unit.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/ran/subcarrier_spacing.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/precoding/precoding_constants.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ssb_mapping.h",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/ran/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <array>\n #include <cassert>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/uci/uci_info.h",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #pragma once\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/resource_grid_util.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/scheduler/sched_consts.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/ran/rnti.h\"\n #include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/stats.h\"\n #include <optional>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/math/math_utils.h",
+      "patch": "@@ -13,8 +13,8 @@\n \n #pragma once\n \n-#include \"srsran_assert.h\"\n #include \"srsran/adt/complex.h\"\n+#include \"srsran/support/srsran_assert.h\"\n #include <numeric>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_to_fapi_results_event_translator.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"srsran/fapi/message_builders.h\"\n #include \"srsran/fapi/message_validators.h\"\n #include \"srsran/srsvec/bit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_bfp_avx2.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"quantizer.h\"\n #include \"srsran/ofh/compression/compression_properties.h\"\n #include \"srsran/srsvec/prod.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n using namespace ofh;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_bfp_avx512.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"quantizer.h\"\n #include \"srsran/ofh/compression/compression_properties.h\"\n #include \"srsran/srsvec/prod.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/units.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_bfp_neon.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"packing_utils_neon.h\"\n #include \"quantizer.h\"\n #include \"srsran/ofh/compression/compression_properties.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n using namespace ofh;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/ethernet/ethernet_rx_buffer_pool.h",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/adt/expected.h\"\n #include \"srsran/adt/mpmc_queue.h\"\n #include \"srsran/adt/span.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include \"srsran/support/units.h\"\n #include <vector>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/generic_functions/dft_processor_generic_impl.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"dft_processor_generic_impl.h\"\n #include \"srsran/srsvec/simd.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/amplitude_controller/amplitude_controller_clipping_impl.h",
+      "patch": "@@ -14,7 +14,7 @@\n #pragma once\n \n #include \"srsran/phy/lower/amplitude_controller/amplitude_controller.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/amplitude_controller/amplitude_controller_scaling_impl.h",
+      "patch": "@@ -14,7 +14,7 @@\n #pragma once\n \n #include \"srsran/phy/lower/amplitude_controller/amplitude_controller.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/lower_phy_impl.h",
+      "patch": "@@ -29,7 +29,7 @@\n #include \"srsran/phy/lower/processors/downlink/downlink_processor.h\"\n #include \"srsran/phy/lower/processors/uplink/uplink_processor.h\"\n #include \"srsran/phy/support/resource_grid_pool.h\"\n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/stats.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/downlink/downlink_processor_baseband_impl.h",
+      "patch": "@@ -19,7 +19,7 @@\n #include \"srsran/phy/lower/processors/downlink/pdxch/pdxch_processor_baseband.h\"\n #include \"srsran/phy/lower/sampling_rate.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/stats.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/uplink/uplink_processor_impl.cpp",
+      "patch": "@@ -19,7 +19,7 @@\n #include \"srsran/srsvec/compare.h\"\n #include \"srsran/srsvec/dot_prod.h\"\n #include \"srsran/srsvec/zero.h\"\n-#include \"srsran/support/stats.h\"\n+#include \"srsran/support/math/stats.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_generic_impl.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"crc_calculator_generic_impl.h\"\n #include \"srsran/srsvec/bit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_lut_impl.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"crc_calculator_lut_impl.h\"\n #include \"srsran/srsvec/bit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n #if __SSE4_1__\n #include <immintrin.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_segmenter_impl.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/phy/upper/codeblock_metadata.h\"\n #include \"srsran/srsvec/bit.h\"\n #include \"srsran/srsvec/copy.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_impl.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"demodulation_mapper_qam256.h\"\n #include \"demodulation_mapper_qam64.h\"\n #include \"demodulation_mapper_qpsk.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_intervals.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/modulation_mapper_avx512_impl.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"modulation_mapper_lut_impl.h\"\n #include \"srsran/phy/upper/channel_modulation/modulation_mapper.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <map>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/modulation_mapper_lut_impl.h",
+      "patch": "@@ -11,7 +11,7 @@\n #pragma once\n \n #include \"srsran/phy/upper/channel_modulation/modulation_mapper.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <map>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/neon_helpers.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <arm_neon.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch_processor_impl.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"pdcch_processor_impl.h\"\n #include \"srsran/ran/pdcch/cce_to_prb_mapping.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n using namespace pdcch_constants;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch/pdsch_modulator_impl.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"pdsch_modulator_impl.h\"\n #include \"srsran/phy/support/resource_grid_mapper.h\"\n #include \"srsran/srsvec/bit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/prach_detector_generic_impl.cpp",
+      "patch": "@@ -25,7 +25,7 @@\n #include \"srsran/srsvec/prod.h\"\n #include \"srsran/srsvec/sc_prod.h\"\n #include \"srsran/srsvec/zero.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/ssb_processor_impl.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"ssb_processor_impl.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/rx_buffer_codeblock_pool.h",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/adt/mpmc_queue.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/phy/upper/log_likelihood_ratio.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <cstdint>\n #include <vector>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/low_papr_sequence_collection_impl.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"low_papr_sequence_collection_impl.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/low_papr_sequence_generator_impl.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/srsvec/prod.h\"\n #include \"srsran/srsvec/sc_prod.h\"\n #include \"srsran/support/error_handling.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/pseudo_random_generator_impl.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"pseudo_random_generator_fast_advance.h\"\n #include \"pseudo_random_generator_initializers.h\"\n #include \"pseudo_random_generator_sequence.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n #if __SSE3__",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/sequence_generator_factories.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"low_papr_sequence_collection_impl.h\"\n #include \"low_papr_sequence_generator_impl.h\"\n #include \"pseudo_random_generator_impl.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/dmrs_pdcch_processor_impl.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/phy/support/mask_types.h\"\n #include \"srsran/phy/support/re_pattern.h\"\n #include \"srsran/phy/support/resource_grid_mapper.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/dmrs_pdsch_processor_impl.h",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/phy/support/resource_grid_writer.h\"\n #include \"srsran/phy/upper/sequence_generators/pseudo_random_generator.h\"\n #include \"srsran/phy/upper/signal_processors/dmrs_pdsch_processor.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/vrb_to_prb_mapper.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/phy/upper/vrb_to_prb_mapper.h\"\n #include \"srsran/adt/span.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <numeric>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"srsran/adt/interval.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pdcch/dci_packing_formatters.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/precoding/precoding_codebooks.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n #include \"srsran/ran/precoding/precoding_codebooks.h\"\n #include \"srsran/adt/interval.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pusch/pusch_tpmi_select.cpp",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/ran/pusch/pusch_constants.h\"\n #include \"srsran/ran/srs/srs_channel_matrix.h\"\n #include \"srsran/srsvec/mean.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <algorithm>\n #include <array>\n #include <cmath>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/sch/tbs_calculator.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <algorithm>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/uci/uci_part2_size_calculator.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/ran/uci/uci_part2_size_calculator.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ru/dummy/ru_dummy_impl.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/ru/ru_dummy_configuration.h\"\n #include \"srsran/support/error_handling.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <chrono>\n #include <cstdint>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ru/generic/ru_controller_generic_impl.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"ru_controller_generic_impl.h\"\n #include \"srsran/phy/lower/lower_phy_controller.h\"\n #include \"srsran/radio/radio_session.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/config/ue_configuration.cpp",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"../support/pdsch/pdsch_resource_allocation.h\"\n #include \"../support/pusch/pusch_default_time_allocation.h\"\n #include \"../support/pusch/pusch_resource_allocation.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <algorithm>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/prbs_calculator.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/ran/resource_block.h\"\n #include \"srsran/ran/sch/modulation_scheme.h\"\n #include \"srsran/ran/sch/sch_mcs.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/srsvec/bit.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"srsran/srsvec/bit.h\"\n #include \"srsran/srsvec/copy.h\"\n #include \"srsran/srsvec/zero.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n #ifdef __x86_64__",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/srsvec/clip.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/srsvec/clip.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/srsvec/compare.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/srsvec/compare.h\"\n #include \"srsran/srsvec/simd.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <numeric>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/bit_encoding.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"srsran/support/bit_encoding.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/math_utils.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/srsran_assert.h\"\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pdsch_processor_benchmark.cpp",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/support/benchmark_utils.h\"\n #include \"srsran/support/executors/task_worker_pool.h\"\n #include \"srsran/support/executors/unique_thread.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #ifdef HWACC_PDSCH_ENABLED\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pusch/pusch_processor_benchmark.cpp",
+      "patch": "@@ -19,7 +19,7 @@\n #include \"srsran/support/complex_normal_random.h\"\n #include \"srsran/support/executors/task_worker_pool.h\"\n #include \"srsran/support/executors/unique_thread.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #ifdef HWACC_PUSCH_ENABLED\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/equalization/channel_equalizer_benchmark.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/phy/upper/equalization/equalization_factories.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/support/benchmark_utils.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #include <getopt.h>\n #include <random>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/fapi_to_mac_data_msg_translator_test.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"../../../lib/fapi_adaptor/mac/fapi_to_mac_data_msg_translator.h\"\n #include \"srsran/fapi/messages.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/phy/messages/dl_pdcch_pdu_test.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/fapi_adaptor/phy/messages/pdcch.h\"\n #include \"srsran/fapi_adaptor/precoding_matrix_table_generator.h\"\n #include \"srsran/srsvec/bit.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include <gtest/gtest.h>\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/generic_functions/dft_processor_test.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"srsran/phy/generic_functions/generic_functions_factories.h\"\n #include \"srsran/srsvec/compare.h\"\n #include \"srsran/srsvec/dot_prod.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #include <cmath>\n #include <getopt.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch/pusch_decoder_vectortest.cpp",
+      "patch": "@@ -23,7 +23,7 @@\n #include \"srsran/phy/upper/channel_processors/pusch/pusch_decoder_buffer.h\"\n #include \"srsran/phy/upper/rx_buffer_pool.h\"\n #include \"srsran/phy/upper/unique_rx_buffer.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/test_utils.h\"\n #ifdef HWACC_PUSCH_ENABLED\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch/pusch_processor_vectortest.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/phy/upper/channel_processors/pusch/factories.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/formatters.h\"\n #include \"srsran/phy/upper/equalization/equalization_factories.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #ifdef HWACC_PUSCH_ENABLED\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc.h\"\n #include \"srsran/hal/dpdk/bbdev/bbdev_acc_factory.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_compare_test.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/srsvec/aligned_vec.h\"\n #include \"srsran/srsvec/compare.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_modulus_square_test.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"srsran/srsvec/aligned_vec.h\"\n #include \"srsran/srsvec/modulus_square.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_test.h\"\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/stats_test.cpp",
+      "patch": "@@ -14,8 +14,8 @@\n /// The test takes a sample of 100 random real values and compares the statistics provided by the sample_statistics\n /// class with benchmark ones computed off line.\n \n+#include \"srsran/support/math/stats.h\"\n #include \"srsran/support/srsran_test.h\"\n-#include \"srsran/support/stats.h\"\n #include <array>\n \n /// \\cond",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "utils/trx_srsran/trx_srsran.cpp",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/radio/radio_factory.h\"\n #include \"srsran/support/complex_normal_random.h\"\n #include \"srsran/support/executors/task_worker.h\"\n-#include \"srsran/support/math_utils.h\"\n+#include \"srsran/support/math/math_utils.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <algorithm>\n #include <cstdlib>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 74,
+  "commit_details_path": ".\\commit_metadata\\5e285cd.json"
+}

@@ -1,0 +1,78 @@
+{
+  "commit_id": "4c61f427bc8da63397ad8354b92cac9b7008c800",
+  "commit_sha_short": "4c61f42",
+  "commit_folder": "4c61f42",
+  "commit_message": "fapi: update FAPI config request to specify frequency reference for the frequencies.\napp_units: remove band from DU low configuration",
+  "commit_message_first_line": "fapi: update FAPI config request to specify frequency reference for the frequencies.",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/4c61f427bc8da63397ad8354b92cac9b7008c800",
+  "commit_date": "2025-08-05T06:15:43Z",
+  "parent_sha": "56d6e282ea22378a447c0b6ecf3aef18d052504c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/56d6e282ea22378a447c0b6ecf3aef18d052504c",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/split_6/o_du_low/split6_constants.h",
+      "patch": "@@ -10,26 +10,31 @@\n \n #pragma once\n \n+#include \"srsran/ran/frequency_range.h\"\n+\n namespace srsran {\n namespace split6_du_low {\n \n /// [Implementation defined] PRACH is always in port 0.\n-static constexpr unsigned PRACH_PORT = 0U;\n+constexpr unsigned PRACH_PORT = 0U;\n \n /// [Implementation defined] Cell identifier for building the split.\n-static constexpr unsigned CELL_ID = 0U;\n+constexpr unsigned CELL_ID = 0U;\n \n /// [Implementation defined] Number of PRACH ports.\n-static constexpr unsigned PRACH_NOF_PORTS = 1U;\n+constexpr unsigned PRACH_NOF_PORTS = 1U;\n \n /// [Implementation defined] Maximum number of layers for PUSCH.\n-static constexpr unsigned PUSCH_MAX_NOF_LAYERS = 1U;\n+constexpr unsigned PUSCH_MAX_NOF_LAYERS = 1U;\n \n /// [Implementation defined] Maximum number of cells supported by the split 6 O-DU low.\n-static constexpr unsigned NOF_CELLS_SUPPORTED = 1U;\n+constexpr unsigned NOF_CELLS_SUPPORTED = 1U;\n \n /// [Implementation defined] Maximum number of transmission antennas supported.\n-static constexpr unsigned NOF_TX_ANTENNA_SUPPORTED = 4U;\n+constexpr unsigned NOF_TX_ANTENNA_SUPPORTED = 4U;\n+\n+/// [Implementation defined] Frequency range supported for O-DU low split 6.\n+constexpr frequency_range freq_range = frequency_range::FR1;\n \n } // namespace split6_du_low\n } // namespace srsran",
+      "additions": 11,
+      "deletions": 6,
+      "changes": 17
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_6/o_du_low/split6_flexible_o_du_low_session_factory.cpp",
+      "patch": "@@ -168,7 +168,7 @@ get_du_low_validation_dependencies(const fapi::fapi_cell_config& config)\n   // Get PRACH info.\n   subcarrier_spacing common_scs = config.phy_cfg.scs;\n \n-  prach_configuration prach_info = prach_configuration_get(frequency_range::FR1,\n+  prach_configuration prach_info = prach_configuration_get(split6_du_low::freq_range,\n                                                            static_cast<duplex_mode>(config.cell_cfg.frame_duplex_type),\n                                                            config.prach_cfg.prach_config_index);\n   // PRACH format type.\n@@ -217,7 +217,7 @@ split6_flexible_o_du_low_session_factory::create_o_du_low(const fapi::fapi_cell_\n   auto& du_low_cell = odu_low_cfg.cells.emplace_back();\n \n   du_low_cell.duplex               = static_cast<duplex_mode>(config.cell_cfg.frame_duplex_type);\n-  du_low_cell.freq_range           = frequency_range::FR1;\n+  du_low_cell.freq_range           = split6_du_low::freq_range;\n   du_low_cell.bw_rb                = config.carrier_cfg.dl_grid_size[to_numerology_value(config.phy_cfg.scs)];\n   du_low_cell.nof_rx_antennas      = config.carrier_cfg.num_rx_ant;\n   du_low_cell.nof_tx_antennas      = config.carrier_cfg.num_tx_ant;\n@@ -249,11 +249,11 @@ static flexible_o_du_ru_config generate_o_du_ru_config(const fapi::fapi_cell_con\n   out_cell.nof_rx_antennas = config.carrier_cfg.num_rx_ant;\n   out_cell.nof_tx_antennas = config.carrier_cfg.num_tx_ant;\n   out_cell.scs             = config.phy_cfg.scs;\n-  out_cell.dl_arfcn        = band_helper::freq_to_nr_arfcn(config.carrier_cfg.dl_freq);\n-  out_cell.ul_arfcn        = band_helper::freq_to_nr_arfcn(config.carrier_cfg.ul_freq);\n+  out_cell.dl_arfcn        = config.carrier_cfg.dl_f_ref_arfcn;\n+  out_cell.ul_arfcn        = config.carrier_cfg.ul_f_ref_arfcn;\n   out_cell.bw              = MHz_to_bs_channel_bandwidth(config.carrier_cfg.dl_bandwidth);\n-  out_cell.band = band_helper::get_band_from_dl_arfcn(band_helper::freq_to_nr_arfcn(config.carrier_cfg.dl_freq));\n-  out_cell.cp   = config.phy_cfg.cp;\n+  out_cell.cp              = config.phy_cfg.cp;\n+  out_cell.freq_range      = split6_du_low::freq_range;\n \n   // TDD pattern.\n   if (config.cell_cfg.frame_duplex_type == 1) {",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_8/helpers/ru_sdr_config_translator.cpp",
+      "patch": "@@ -24,15 +24,14 @@ static lower_phy_configuration generate_low_phy_config(const flexible_o_du_ru_co\n   /// Static configuration that the gnb supports.\n   static constexpr cyclic_prefix cp = cyclic_prefix::NORMAL;\n \n-  const frequency_range freq_range = band_helper::get_freq_range(config.band);\n-  const unsigned        bandwidth_sc =\n-      NOF_SUBCARRIERS_PER_RB * band_helper::get_n_rbs_from_bw(config.bw, config.scs, freq_range);\n+  const unsigned bandwidth_sc =\n+      NOF_SUBCARRIERS_PER_RB * band_helper::get_n_rbs_from_bw(config.bw, config.scs, config.freq_range);\n \n   lower_phy_configuration out_cfg;\n \n   out_cfg.scs                        = config.scs;\n   out_cfg.cp                         = cp;\n-  out_cfg.bandwidth_rb               = band_helper::get_n_rbs_from_bw(config.bw, config.scs, freq_range);\n+  out_cfg.bandwidth_rb               = band_helper::get_n_rbs_from_bw(config.bw, config.scs, config.freq_range);\n   out_cfg.dl_freq_hz                 = band_helper::nr_arfcn_to_freq(config.dl_arfcn);\n   out_cfg.ul_freq_hz                 = band_helper::nr_arfcn_to_freq(config.ul_arfcn);\n   out_cfg.nof_rx_ports               = config.nof_rx_antennas;\n@@ -43,7 +42,7 @@ static lower_phy_configuration generate_low_phy_config(const flexible_o_du_ru_co\n \n   out_cfg.srate = sampling_rate::from_MHz(ru_cfg.srate_MHz);\n \n-  out_cfg.ta_offset = band_helper::get_ta_offset(config.band);\n+  out_cfg.ta_offset = band_helper::get_ta_offset(config.freq_range);\n   if (ru_cfg.time_alignment_calibration.has_value()) {\n     // Selects the user specific value.\n     out_cfg.time_alignment_calibration = ru_cfg.time_alignment_calibration.value();",
+      "additions": 4,
+      "deletions": 5,
+      "changes": 9
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_dynamic/dynamic_o_du_translators.cpp",
+      "patch": "@@ -30,8 +30,7 @@ ru_dummy_configuration srsran::generate_ru_dummy_config(const ru_dummy_unit_conf\n   const flexible_o_du_ru_config::cell_config& cell = du_cells.front();\n \n   // Derive parameters.\n-  frequency_range freq_range     = band_helper::get_freq_range(cell.band);\n-  unsigned        channel_bw_prb = band_helper::get_n_rbs_from_bw(cell.bw, cell.scs, freq_range);\n+  unsigned channel_bw_prb = band_helper::get_n_rbs_from_bw(cell.bw, cell.scs, cell.freq_range);\n \n   // Fill configuration parameters.\n   out_cfg.are_metrics_enabled        = ru_cfg.metrics_cfg.enable_ru_metrics;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_helpers/flexible_o_du_configs.h",
+      "patch": "@@ -52,7 +52,7 @@ struct flexible_o_du_ru_config {\n     std::optional<tdd_ul_dl_config_common> tdd_config;\n     unsigned                               dl_arfcn;\n     unsigned                               ul_arfcn;\n-    nr_band                                band;\n+    frequency_range                        freq_range;\n   };\n \n   std::vector<cell_config> cells;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_helpers/flexible_o_du_factory.cpp",
+      "patch": "@@ -137,7 +137,7 @@ static flexible_o_du_ru_config generate_o_du_ru_config(span<const srs_du::du_cel\n     out_cell.ul_arfcn        = cell.ul_carrier.arfcn_f_ref;\n     out_cell.tdd_config      = cell.tdd_ul_dl_cfg_common;\n     out_cell.bw              = MHz_to_bs_channel_bandwidth(cell.dl_carrier.carrier_bw_mhz);\n-    out_cell.band            = cell.dl_carrier.band;\n+    out_cell.freq_range      = band_helper::get_freq_range(cell.dl_carrier.band);\n     out_cell.cp              = cell.dl_cfg_common.init_dl_bwp.generic_params.cp;\n   }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/fapi/messages/config_request_tlvs.h",
+      "patch": "@@ -38,12 +38,12 @@ struct phy_config {\n /// Encodes the carrier configuration.\n struct carrier_config {\n   uint16_t                dl_bandwidth;\n-  uint32_t                dl_freq;\n+  uint32_t                dl_f_ref_arfcn;\n   std::array<uint16_t, 5> dl_k0;\n   std::array<uint16_t, 5> dl_grid_size;\n   uint16_t                num_tx_ant;\n   uint16_t                ul_bandwidth;\n-  uint32_t                ul_freq;\n+  uint32_t                ul_f_ref_arfcn;\n   std::array<uint16_t, 5> ul_k0;\n   std::array<uint16_t, 5> ul_grid_size;\n   uint16_t                num_rx_ant;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -345,6 +345,9 @@ unsigned get_nof_coreset0_rbs_not_intersecting_ssb(unsigned              cset0_i\n /// \\return Value of n_ta_offset.\n n_ta_offset get_ta_offset(nr_band band);\n \n+/// Returns the n_ta_offset for a given frequency range.\n+n_ta_offset get_ta_offset(frequency_range freq_range);\n+\n /// \\brief Returns SSB ARFCN for a given cell configuration.\n /// \\param[in] dl_arfcn is <em>DL-ARFCN<\\em> corresponding to \\f$F_{REF}\\f$, as per TS 38.104, Section 5.4.2.1.\n /// \\param[in] nr_band is <em>NR operating band<\\em>, as per TS 38.104, Table 5.2-1. Only FR1 values are supported.",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -1551,7 +1551,12 @@ unsigned srsran::band_helper::get_nof_coreset0_rbs_not_intersecting_ssb(unsigned\n \n n_ta_offset srsran::band_helper::get_ta_offset(nr_band band)\n {\n-  if (get_freq_range(band) == frequency_range::FR1) {\n+  return get_ta_offset(get_freq_range(band));\n+}\n+\n+n_ta_offset srsran::band_helper::get_ta_offset(frequency_range freq_range)\n+{\n+  if (freq_range == frequency_range::FR1) {\n     // Assume no LTE-NR coexistence.\n     return n_ta_offset::n25600;\n   } else {",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7
+    }
+  ],
+  "num_files_changed": 9,
+  "commit_details_path": ".\\commit_metadata\\4c61f42.json"
+}

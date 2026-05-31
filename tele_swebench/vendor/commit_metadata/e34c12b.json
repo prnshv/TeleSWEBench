@@ -1,0 +1,29 @@
+{
+  "commit_id": "e34c12b710575b4dd66a146e07d8e1dcce6bad9d",
+  "commit_sha_short": "e34c12b",
+  "commit_folder": "e34c12b",
+  "commit_message": "asn1: use const char* in json_writer",
+  "commit_message_first_line": "asn1: use const char* in json_writer",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e34c12b710575b4dd66a146e07d8e1dcce6bad9d",
+  "commit_date": "2023-06-07T18:14:44Z",
+  "parent_sha": "604f73526e68c540a3fc72495b7dd07e629a0ff8",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/604f73526e68c540a3fc72495b7dd07e629a0ff8",
+  "code_changes": [
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -1405,18 +1405,20 @@ class json_writer\n {\n public:\n   json_writer();\n-  void        write_fieldname(const std::string& fieldname);\n-  void        write_str(const std::string& fieldname, const std::string& value);\n+  void        write_fieldname(const char* fieldname);\n+  void        write_str(const char* fieldname, const std::string& value);\n+  void        write_str(const char* fieldname, const char* value);\n+  void        write_str(const char* value);\n   void        write_str(const std::string& value);\n-  void        write_int(const std::string& fieldname, int64_t value);\n+  void        write_int(const char* fieldname, int64_t value);\n   void        write_int(int64_t value);\n-  void        write_bool(const std::string& fieldname, bool value);\n+  void        write_bool(const char* fieldname, bool value);\n   void        write_bool(bool value);\n-  void        write_null(const std::string& fieldname);\n+  void        write_null(const char* fieldname);\n   void        write_null();\n-  void        start_obj(const std::string& fieldname = \"\");\n+  void        start_obj(const char* fieldname = \"\");\n   void        end_obj();\n-  void        start_array(const std::string& fieldname = \"\");\n+  void        start_array(const char* fieldname = \"\");\n   void        end_array();\n   std::string to_string() const;\n ",
+      "additions": 9,
+      "deletions": 7,
+      "changes": 16
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1483,29 +1483,40 @@ varlength_field_unpack_guard::~varlength_field_unpack_guard()\n \n json_writer::json_writer() : ident(\"\"), sep(NONE) {}\n \n-void json_writer::write_fieldname(const std::string& fieldname)\n+void json_writer::write_fieldname(const char* fieldname)\n {\n   constexpr static const char* septable[] = {\",\\n\", \"\\n\", \"\"};\n \n   fmt::format_to(buffer, \"{}{}\", septable[sep], sep != NONE ? ident : \"\");\n-  if (not fieldname.empty()) {\n+  if (strlen(fieldname) != 0) {\n     fmt::format_to(buffer, \"\\\"{}\\\": \", fieldname);\n   }\n   sep = NONE;\n }\n \n-void json_writer::write_str(const std::string& fieldname, const std::string& value)\n+void json_writer::write_str(const char* fieldname, const char* value)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"\\\"{}\\\"\", value);\n   sep = COMMA;\n }\n+\n+void json_writer::write_str(const char* fieldname, const std::string& value)\n+{\n+  write_str(fieldname, value.c_str());\n+}\n+\n+void json_writer::write_str(const char* value)\n+{\n+  write_str(\"\", value);\n+}\n+\n void json_writer::write_str(const std::string& value)\n {\n   write_str(\"\", value);\n }\n \n-void json_writer::write_int(const std::string& fieldname, int64_t value)\n+void json_writer::write_int(const char* fieldname, int64_t value)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"{}\", value);\n@@ -1516,7 +1527,7 @@ void json_writer::write_int(int64_t value)\n   write_int(\"\", value);\n }\n \n-void json_writer::write_bool(const std::string& fieldname, bool value)\n+void json_writer::write_bool(const char* fieldname, bool value)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"{}\", value ? \"true\" : \"false\");\n@@ -1527,7 +1538,7 @@ void json_writer::write_bool(bool value)\n   write_bool(\"\", value);\n }\n \n-void json_writer::write_null(const std::string& fieldname)\n+void json_writer::write_null(const char* fieldname)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"null\");\n@@ -1538,7 +1549,7 @@ void json_writer::write_null()\n   write_null(\"\");\n }\n \n-void json_writer::start_obj(const std::string& fieldname)\n+void json_writer::start_obj(const char* fieldname)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"{{\");\n@@ -1552,7 +1563,7 @@ void json_writer::end_obj()\n   sep = COMMA;\n }\n \n-void json_writer::start_array(const std::string& fieldname)\n+void json_writer::start_array(const char* fieldname)\n {\n   write_fieldname(fieldname);\n   fmt::format_to(buffer, \"[\");",
+      "additions": 19,
+      "deletions": 8,
+      "changes": 27
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\e34c12b.json"
+}

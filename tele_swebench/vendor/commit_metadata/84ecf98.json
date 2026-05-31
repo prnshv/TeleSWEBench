@@ -1,0 +1,169 @@
+{
+  "commit_id": "84ecf98b61bd92422c5b0aa533158f17f76437c8",
+  "commit_sha_short": "84ecf98",
+  "commit_folder": "84ecf98",
+  "commit_message": "du: complete closed loop UL-MIMO\n\ndu: review UL-MIMO related",
+  "commit_message_first_line": "du: complete closed loop UL-MIMO",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/84ecf98b61bd92422c5b0aa533158f17f76437c8",
+  "commit_date": "2024-11-06T18:12:26Z",
+  "parent_sha": "b02fef38b5851d143c1e64f3b4d04cc3bd781a14",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b02fef38b5851d143c1e64f3b4d04cc3bd781a14",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_du/o_du_high/du_high/du_high_config.h",
+      "patch": "@@ -168,6 +168,8 @@ struct du_high_unit_pusch_config {\n   unsigned max_consecutive_kos = 100;\n   /// Redundancy version sequence to use. Each element can have one of the following values: {0, 1, 2, 3}.\n   std::vector<unsigned> rv_sequence = {0};\n+  /// Maximum rank. Limits the number of layers for PUSCH transmissions.\n+  unsigned max_rank = 4;\n   /// MCS table to use for PUSCH\n   pusch_mcs_table mcs_table = pusch_mcs_table::qam64;\n   /// \\c msg3-DeltaPreamble, TS 38.331. Values: {-1,...,6}.",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_du/o_du_high/du_high/du_high_config_cli11_schema.cpp",
+      "patch": "@@ -645,6 +645,13 @@ static void configure_cli11_pusch_args(CLI::App& app, du_high_unit_pusch_config&\n       \"MCS table to use PUSCH\")\n       ->default_str(\"qam64\")\n       ->check(CLI::IsMember({\"qam64\", \"qam256\"}, CLI::ignore_case));\n+  add_option(app,\n+             \"--max_rank\",\n+             pusch_params.max_rank,\n+             \"Maximum number of PUSCH transmission layers. The actual maximum is limited by the number of receive \"\n+             \"ports and UE capabilities.\")\n+      ->capture_default_str()\n+      ->check(CLI::Range(1, 4));\n   add_option(app,\n              \"--msg3_delta_preamble\",\n              pusch_params.msg3_delta_preamble,",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "apps/units/flexible_du/o_du_high/du_high/du_high_config_translators.cpp",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"srsran/du/du_high/du_qos_config_helpers.h\"\n #include \"srsran/du/du_update_config_helpers.h\"\n #include \"srsran/e2/e2ap_configuration_helpers.h\"\n+#include \"srsran/phy/upper/channel_processors/pusch/pusch_processor_phy_capabilities.h\"\n #include \"srsran/ran/duplex_mode.h\"\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/rlc/rlc_srb_config_factory.h\"\n@@ -431,6 +432,12 @@ std::vector<srs_du::du_cell_config> srsran::generate_du_cell_config(const du_hig\n         base_cell.pusch_cfg.p0_nominal_with_grant;\n     out_cell.ul_cfg_common.init_ul_bwp.pusch_cfg_common.value().msg3_delta_power = base_cell.pusch_cfg.msg3_delta_power;\n \n+    // Determine the PUSCH transmission maximum number of layers. Selects the most limiting factor among the physical\n+    // layer, number of antennas and configured maximum rank.\n+    pusch_processor_phy_capabilities phy_capabilities = get_pusch_processor_phy_capabilities();\n+    out_cell.pusch_max_nof_layers =\n+        std::min(cell.cell.nof_antennas_ul, std::min(phy_capabilities.max_nof_layers, cell.cell.pusch_cfg.max_rank));\n+\n     if (config.ntn_cfg.has_value()) {\n       out_cell.ntn_cs_koffset = config.ntn_cfg.value().cell_specific_koffset;\n     }",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "apps/units/flexible_du/o_du_high/du_high/du_high_config_yaml_writer.cpp",
+      "patch": "@@ -350,6 +350,7 @@ static YAML::Node build_du_high_pusch_section(const du_high_unit_pusch_config& c\n   node[\"max_ue_mcs\"]               = config.max_ue_mcs;\n   node[\"max_consecutive_kos\"]      = config.max_consecutive_kos;\n   node[\"mcs_table\"]                = to_string(config.mcs_table);\n+  node[\"max_rank\"]                 = config.max_rank;\n   node[\"msg3_delta_preamble\"]      = config.msg3_delta_preamble;\n   node[\"p0_nominal_with_grant\"]    = config.p0_nominal_with_grant;\n   node[\"max_puschs_per_slot\"]      = config.max_puschs_per_slot;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_du/o_du_low/du_low_config_translator.cpp",
+      "patch": "@@ -110,6 +110,7 @@ static void generate_du_low_config(srs_du::du_low_config&             out_config\n     }\n \n     upper_phy_cell.nof_slots_request_headroom = du_low.expert_phy_cfg.nof_slots_request_headroom;\n+    upper_phy_cell.pusch_max_nof_layers       = cell.pusch_max_nof_layers;\n     upper_phy_cell.log_level                  = du_low.loggers.phy_level;\n     upper_phy_cell.enable_logging_broadcast   = du_low.loggers.broadcast_enabled;\n     upper_phy_cell.rx_symbol_printer_filename = du_low.loggers.phy_rx_symbols_filename;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/du/du_cell_config.h",
+      "patch": "@@ -206,6 +206,9 @@ struct du_cell_config {\n   /// Defines the maximum allowable channel delay in slots when runnning in NTN mode. see TS38.300 section 16.14.2.\n   unsigned ntn_cs_koffset = 0;\n \n+  /// PUSCH Maximum of transmission layers. Limits the PUSCH maximum rank the UE is configrued with.\n+  unsigned pusch_max_nof_layers = 1;\n+\n   /// List of RAN slices to support in the scheduler.\n   std::vector<slice_rrm_policy_config> rrm_policy_members;\n };",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/phy/upper/upper_phy_factories.h",
+      "patch": "@@ -314,6 +314,8 @@ struct upper_phy_config {\n   unsigned ul_bw_rb;\n   /// Request headroom size in slots.\n   unsigned nof_slots_request_headroom;\n+  /// Maximum number of layers for PUSCH transmissions.\n+  unsigned pusch_max_nof_layers;\n   /// List of active subcarrier spacing, indexed by numerology.\n   std::array<bool, to_numerology_value(subcarrier_spacing::invalid)> active_scs;\n   /// Receive buffer pool configuration.",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/pusch_tpmi_select.h",
+      "patch": "@@ -67,10 +67,12 @@ class pusch_tpmi_select_info\n ///\n /// \\param[in] channel         Channel coefficient matrix.\n /// \\param[in] noise_variance  Linear noise variance.\n+/// \\param[in] max_rank        Maximum number of layers.\n /// \\param[in] codebook_subset Transmission scheme codebook subset.\n /// \\return The TPMI information given the channel coefficients and noise variance.\n pusch_tpmi_select_info get_tpmi_select_info(const srs_channel_matrix& channel,\n                                             float                     noise_variance,\n+                                            unsigned                  max_rank,\n                                             tx_scheme_codebook_subset codebook_subset);\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/du_srs_resource_manager.cpp",
+      "patch": "@@ -249,8 +249,7 @@ bool du_srs_policy_max_ul_rate::alloc_resources(cell_group_config& cell_grp_cfg)\n                     cells[primary_cell_index].cell_cfg.ul_carrier.nof_ant == 2 or\n                     cells[primary_cell_index].cell_cfg.ul_carrier.nof_ant == 4,\n                 \"The number of UL antenna ports is not valid\");\n-  only_ue_srs_res.nof_ports =\n-      static_cast<srs_config::srs_resource::nof_srs_ports>(cells[primary_cell_index].cell_cfg.ul_carrier.nof_ant);\n+  only_ue_srs_res.nof_ports                    = srs_config::srs_resource::nof_srs_ports::port1;\n   only_ue_srs_res.tx_comb.size                 = cells[primary_cell_index].cell_cfg.srs_cfg.tx_comb;\n   only_ue_srs_res.tx_comb.tx_comb_offset       = du_res.tx_comb_offset.to_uint();\n   only_ue_srs_res.tx_comb.tx_comb_cyclic_shift = du_res.cs;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/ue_capability_manager.cpp",
+      "patch": "@@ -97,6 +97,28 @@ static void set_pusch_mcs_table(serving_cell_config& cell_cfg, pusch_mcs_table m\n   }\n }\n \n+// Configure dedicated UE configuration to set UL-MIMO related parameters.\n+static void set_ul_mimo(serving_cell_config&      cell_cfg,\n+                        unsigned                  max_rank,\n+                        unsigned                  nof_srs_ports,\n+                        tx_scheme_codebook_subset codebook_subset)\n+{\n+  // Skip if the UL configuration is not present.\n+  if (SRSRAN_UNLIKELY(!cell_cfg.ul_config.has_value() || !cell_cfg.ul_config->init_ul_bwp.pusch_cfg ||\n+                      !cell_cfg.ul_config->init_ul_bwp.srs_cfg)) {\n+    return;\n+  }\n+\n+  // Prepare codebook transmission parameters.\n+  cell_cfg.ul_config->init_ul_bwp.pusch_cfg->tx_cfg =\n+      tx_scheme_codebook{.max_rank = max_rank, .codebook_subset = codebook_subset};\n+\n+  // Force the number of ports for all SRS resources to the maximum the UE supports.\n+  for (auto& srs_res : cell_cfg.ul_config->init_ul_bwp.srs_cfg->srs_res_list) {\n+    srs_res.nof_ports = static_cast<srs_config::srs_resource::nof_srs_ports>(nof_srs_ports);\n+  }\n+}\n+\n ue_capability_manager::ue_capability_manager(span<const du_cell_config> cell_cfg_list_, srslog::basic_logger& logger_) :\n   base_cell_cfg_list(cell_cfg_list_), logger(logger_)\n {\n@@ -120,6 +142,10 @@ void ue_capability_manager::update(du_ue_resource_config& ue_res_cfg, const byte\n \n   // Enable 256QAM for PUSCH, if supported.\n   set_pusch_mcs_table(pcell_cfg, select_pusch_mcs_table(cell_idx));\n+\n+  // Setup UL MIMO parameters.\n+  set_ul_mimo(\n+      pcell_cfg, select_pusch_max_rank(cell_idx), select_srs_nof_ports(cell_idx), select_tx_codebook_subset(cell_idx));\n }\n \n bool ue_capability_manager::decode_ue_capability_list(const byte_buffer& ue_cap_rat_list)\n@@ -198,41 +224,39 @@ pusch_mcs_table ue_capability_manager::select_pusch_mcs_table(du_cell_index_t ce\n \n tx_scheme_codebook_subset ue_capability_manager::select_tx_codebook_subset(du_cell_index_t cell_idx) const\n {\n-  nr_band     band        = base_cell_cfg_list[cell_idx].ul_carrier.band;\n-  const auto& base_ul_cfg = base_cell_cfg_list[cell_idx].ue_ded_serv_cell_cfg.ul_config;\n+  nr_band band = base_cell_cfg_list[cell_idx].ul_carrier.band;\n \n-  // Default to non-coherent, if no PUSCH config or no UE capabilities decoded yet.\n-  if (not base_ul_cfg.has_value() or not base_ul_cfg->init_ul_bwp.pusch_cfg.has_value() or not ue_caps.has_value()) {\n-    return tx_scheme_codebook_subset::non_coherent;\n+  // If UE capabilities or the band are not available, return default value.\n+  if (not ue_caps.has_value() || ue_caps->bands.count(band) == 0) {\n+    return ue_capability_summary::default_pusch_tx_coherence;\n   }\n \n-  // If the band capability is present, select the codebook from this band.\n-  if (ue_caps->bands.count(band)) {\n-    return ue_caps->bands.at(band).pusch_tx_coherence;\n-  }\n+  return ue_caps->bands.at(band).pusch_tx_coherence;\n+}\n \n-  // Find the band with the most limiting transmit codebook subset across all the bands.\n-  const auto min_tx_codebook_subset =\n-      std::min_element(ue_caps->bands.begin(), ue_caps->bands.end(), [](const auto& lhs, const auto& rhs) {\n-        // The most limiting codebook subset has the greater integer value.\n-        return rhs.second.pusch_tx_coherence > lhs.second.pusch_tx_coherence;\n-      });\n+unsigned ue_capability_manager::select_srs_nof_ports(du_cell_index_t cell_idx) const\n+{\n+  nr_band band = base_cell_cfg_list[cell_idx].ul_carrier.band;\n \n-  // Select the most limiting transmit subset if the band list is not emtpy.\n-  if (min_tx_codebook_subset != ue_caps->bands.end()) {\n-    return min_tx_codebook_subset->second.pusch_tx_coherence;\n+  // If UE capabilities or the band are not available, return default value.\n+  if (not ue_caps.has_value() || ue_caps->bands.count(band) == 0) {\n+    return ue_capability_summary::default_nof_srs_tx_ports;\n   }\n \n-  // Otherwise, default to non-coherent.\n-  return tx_scheme_codebook_subset::non_coherent;\n+  return ue_caps->bands.at(band).nof_srs_tx_ports;\n }\n \n-unsigned ue_capability_manager::select_srs_nof_ports() const\n+unsigned ue_capability_manager::select_pusch_max_rank(du_cell_index_t cell_idx) const\n {\n-  // Default to one port if the UE capabilities are not present.\n-  if (not ue_caps.has_value()) {\n-    return 1;\n+  nr_band band = base_cell_cfg_list[cell_idx].ul_carrier.band;\n+\n+  // Configured maximum number of layers.\n+  unsigned pusch_max_rank = base_cell_cfg_list[cell_idx].pusch_max_nof_layers;\n+\n+  // If UE capabilities or the band are not available, return default value.\n+  if (not ue_caps.has_value() || ue_caps->bands.count(band) == 0) {\n+    return std::min(pusch_max_rank, ue_capability_summary::default_pusch_max_rank);\n   }\n \n-  return ue_caps->nof_srs_tx_ports;\n+  return std::min(pusch_max_rank, ue_caps->bands.at(band).pusch_max_rank);\n }",
+      "additions": 49,
+      "deletions": 25,
+      "changes": 74
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/ue_capability_manager.h",
+      "patch": "@@ -28,6 +28,16 @@ namespace srs_du {\n \n /// Flat structure summarizing the decoded ASN.1 UE capabilities.\n struct ue_capability_summary {\n+  /// \\defgroup default_caps Default parameters.\n+  /// @{\n+  /// Default PUSCH transmit coherence.\n+  static constexpr tx_scheme_codebook_subset default_pusch_tx_coherence = tx_scheme_codebook_subset::non_coherent;\n+  /// Default PUSCH maximum number of layers.\n+  static constexpr unsigned default_pusch_max_rank = 1;\n+  /// Default SRS number of transmit ports.\n+  static constexpr unsigned default_nof_srs_tx_ports = 1;\n+  /// @}\n+\n   /// Contains band specific parameters.\n   struct supported_band {\n     /// Set to true if QAM-256 is supported for PUSCH transmissions.\n@@ -37,14 +47,15 @@ struct ue_capability_summary {\n     /// It is given by field \\e pusch-TransCoherence in Information Element \\e MIMO-ParametersPerBand.\n     ///\n     /// The most limiting transmit codebook subset is selected by default.\n-    tx_scheme_codebook_subset pusch_tx_coherence = tx_scheme_codebook_subset::non_coherent;\n+    tx_scheme_codebook_subset pusch_tx_coherence = default_pusch_tx_coherence;\n+    /// Maximum PUSCH number of layers.\n+    unsigned pusch_max_rank = default_pusch_max_rank;\n+    /// Maximum number of ports that can be simultaneously used for transmiting Sounding Reference Signals.\n+    uint8_t nof_srs_tx_ports = default_nof_srs_tx_ports;\n   };\n \n   /// Set to true if QAM-256 MCS table are supported for PDSCH transmissions.\n   bool pdsch_qam256_supported = false;\n-  /// Number of Sounding Reference Signals transmit ports. It is set to the most limiting band combination of\n-  /// transmitters.\n-  uint8_t nof_srs_tx_ports = 1;\n   /// Contains specific bands capabilities.\n   std::unordered_map<nr_band, supported_band> bands;\n   /// Set to true if Long DRX cycle is supported.\n@@ -84,7 +95,9 @@ class ue_capability_manager\n   /// Selects the PUSCH transmission codebook subset.\n   tx_scheme_codebook_subset select_tx_codebook_subset(du_cell_index_t cell_idx) const;\n   /// Selects the SRS transmission number of ports.\n-  unsigned select_srs_nof_ports() const;\n+  unsigned select_srs_nof_ports(du_cell_index_t cell_idx) const;\n+  /// Selects the PUSCH maximum number of layers.\n+  unsigned select_pusch_max_rank(du_cell_index_t cell_idx) const;\n \n   span<const du_cell_config> base_cell_cfg_list;\n   srslog::basic_logger&      logger;",
+      "additions": 18,
+      "deletions": 5,
+      "changes": 23
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_factories.cpp",
+      "patch": "@@ -23,6 +23,7 @@\n #include \"srsran/phy/upper/channel_processors/pdsch/factories.h\"\n #include \"srsran/phy/upper/channel_processors/pucch/factories.h\"\n #include \"srsran/phy/upper/channel_processors/pusch/factories.h\"\n+#include \"srsran/phy/upper/channel_processors/pusch/pusch_processor_phy_capabilities.h\"\n #include \"srsran/phy/upper/signal_processors/srs/srs_estimator_factory.h\"\n #include \"srsran/phy/upper/unique_rx_buffer.h\"\n #include \"srsran/support/error_handling.h\"\n@@ -335,6 +336,14 @@ create_ul_resource_grid_pool(const upper_phy_config& config, std::shared_ptr<res\n \n static std::shared_ptr<uplink_processor_factory> create_ul_processor_factory(const upper_phy_config& config)\n {\n+  // Verify the PUSCH processor capabilities.\n+  pusch_processor_phy_capabilities pusch_capabilities = get_pusch_processor_phy_capabilities();\n+  report_fatal_error_if_not(pusch_capabilities.max_nof_layers >= config.pusch_max_nof_layers,\n+                            \"The configured PUSCH maximum number of layers (i.e., {}) exceeds the maximum PUSCH \"\n+                            \"processor capable number of layers (i.e., {}).\",\n+                            pusch_capabilities.max_nof_layers,\n+                            config.pusch_max_nof_layers);\n+\n   std::shared_ptr<low_papr_sequence_generator_factory> sequence_factory =\n       create_low_papr_sequence_generator_sw_factory();\n   report_fatal_error_if_not(sequence_factory, \"Invalid sequence factory.\");\n@@ -412,7 +421,7 @@ static std::shared_ptr<uplink_processor_factory> create_ul_processor_factory(con\n     decoder_config.nof_pusch_decoder_threads = config.nof_pusch_decoder_threads;\n     decoder_config.executor                  = config.pusch_decoder_executor;\n     decoder_config.nof_prb                   = config.ul_bw_rb;\n-    decoder_config.nof_layers                = 1;\n+    decoder_config.nof_layers                = config.pusch_max_nof_layers;\n     pusch_config.decoder_factory             = create_pusch_decoder_factory_sw(decoder_config);\n   } else {\n     pusch_decoder_factory_hw_configuration decoder_config;\n@@ -466,7 +475,7 @@ static std::shared_ptr<uplink_processor_factory> create_ul_processor_factory(con\n \n   // :TODO: check these values in the future. Extract them to more public config.\n   pusch_config.ch_estimate_dimensions.nof_symbols        = MAX_NSYMB_PER_SLOT;\n-  pusch_config.ch_estimate_dimensions.nof_tx_layers      = 1;\n+  pusch_config.ch_estimate_dimensions.nof_tx_layers      = config.pusch_max_nof_layers;\n   pusch_config.ch_estimate_dimensions.nof_prb            = config.ul_bw_rb;\n   pusch_config.ch_estimate_dimensions.nof_rx_ports       = config.nof_rx_ports;\n   std::shared_ptr<pusch_processor_factory> pusch_factory = create_pusch_processor_factory_sw(pusch_config);",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_rx_symbol_handler_impl.h",
+      "patch": "@@ -34,7 +34,7 @@ class rx_payload_buffer_pool\n   /// Maximum number of slots to store.\n   static constexpr size_t nof_slots = 40U;\n   /// Maximum number of bits that could potentially be allocated in a slot.\n-  static constexpr units::bits max_buffer_size = units::bits(MAX_RB * 156 * 8);\n+  static constexpr units::bits max_buffer_size = units::bits(MAX_RB * 156 * 8 * 2);\n   /// Minimum block size. It ensures that the payload offsets are selected using multiples of blocks.\n   static constexpr unsigned min_block_size = 64;\n \n@@ -45,7 +45,8 @@ class rx_payload_buffer_pool\n     // Convert the maximum buffer size from bits to bytes for comparison and allocation.\n     static constexpr units::bytes max_buffer_size_bytes = max_buffer_size.truncate_to_bytes();\n \n-    srsran_assert(size <= max_buffer_size_bytes, \"Buffer size (i.e., {}) exceeds maximum {}.\", size, pool.size());\n+    srsran_assert(\n+        size <= max_buffer_size_bytes, \"Buffer size (i.e., {}) exceeds maximum {}.\", size, max_buffer_size_bytes);\n \n     // Round the number of consumed bytes to the next block.\n     size_t count = divide_ceil(size.value(), min_block_size) * min_block_size;",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/ran/pusch/pusch_antenna_port_mapping.cpp",
+      "patch": "@@ -15,10 +15,10 @@ using namespace srsran;\n // Current range of supported number of layers.\n static constexpr interval<unsigned, true> nof_layers_range(1, 1);\n \n-unsigned srsran::get_pusch_antenna_port_mapping_row_index(unsigned         nof_layers,\n-                                                          bool             transform_precoder,\n-                                                          dmrs_config_type dmrs_cfg_type,\n-                                                          dmrs_max_length  dmrs_max_len)\n+SRSRAN_WEAK_SYMB unsigned srsran::get_pusch_antenna_port_mapping_row_index(unsigned         nof_layers,\n+                                                                           bool             transform_precoder,\n+                                                                           dmrs_config_type dmrs_cfg_type,\n+                                                                           dmrs_max_length  dmrs_max_len)\n {\n   srsran_assert(nof_layers_range.contains(nof_layers),\n                 \"The number of layers (i.e., {}) is out of the range {}.\",\n@@ -38,13 +38,14 @@ unsigned srsran::get_pusch_antenna_port_mapping_row_index(unsigned         nof_l\n   return 2;\n }\n \n-unsigned srsran::get_pusch_precoding_info_row_index(unsigned                                      nof_layers,\n-                                                    unsigned                                      max_rank,\n-                                                    srs_resource_configuration::one_two_four_enum nof_srs_ports,\n-                                                    bool                                          transform_precoder,\n-                                                    dmrs_config_type                              dmrs_cfg_type,\n-                                                    dmrs_max_length                               dmrs_max_len,\n-                                                    unsigned                                      tpmi)\n+SRSRAN_WEAK_SYMB unsigned\n+srsran::get_pusch_precoding_info_row_index(unsigned                                      nof_layers,\n+                                           unsigned                                      max_rank,\n+                                           srs_resource_configuration::one_two_four_enum nof_srs_ports,\n+                                           bool                                          transform_precoder,\n+                                           dmrs_config_type                              dmrs_cfg_type,\n+                                           dmrs_max_length                               dmrs_max_len,\n+                                           unsigned                                      tpmi)\n {\n   static constexpr interval<unsigned, true> max_rank_range(1, 4);\n   srsran_assert(",
+      "additions": 12,
+      "deletions": 11,
+      "changes": 23
+    },
+    {
+      "filename": "lib/ran/pusch/pusch_tpmi_select.cpp",
+      "patch": "@@ -296,11 +296,12 @@ static pusch_tpmi_select_info::tpmi_info get_tpmi_select_info_2layer(const srs_c\n \n pusch_tpmi_select_info srsran::get_tpmi_select_info(const srs_channel_matrix& channel,\n                                                     float                     noise_variance,\n+                                                    unsigned                  max_rank,\n                                                     tx_scheme_codebook_subset codebook_subset)\n {\n   unsigned nof_tx_ports   = channel.get_nof_tx_ports();\n   unsigned nof_rx_ports   = channel.get_nof_rx_ports();\n-  unsigned max_nof_layers = std::min(nof_tx_ports, nof_rx_ports);\n+  unsigned max_nof_layers = std::min(std::min(nof_tx_ports, nof_rx_ports), max_rank);\n \n   static_vector<pusch_tpmi_select_info::tpmi_info, pusch_constants::MAX_NOF_LAYERS> info;\n ",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/config/serving_cell_config_factory.cpp",
+      "patch": "@@ -429,7 +429,7 @@ ssb_configuration srsran::config_helpers::make_default_ssb_config(const cell_con\n pusch_config srsran::config_helpers::make_default_pusch_config(const cell_config_builder_params_extended& params)\n {\n   // Default PUSCH transmission scheme is codebook with at maximum one layer. It assumes the UE Capability parameter\n-  // pusch-TransCoherence is fullCoherent.\n+  // pusch-TransCoherence is nonCoherent.\n   static constexpr unsigned                  max_rank        = 1;\n   static constexpr tx_scheme_codebook_subset codebook_subset = tx_scheme_codebook_subset::non_coherent;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/config/ue_configuration.h",
+      "patch": "@@ -170,12 +170,12 @@ class ue_cell_configuration\n     return cell_cfg_ded.ul_config->init_ul_bwp.pusch_cfg->trans_precoder == pusch_config::transform_precoder::enabled;\n   }\n \n-  /// \\brief Gets the PUSCH transmit scheme codebook subset.\n+  /// \\brief Gets the PUSCH transmit scheme codebook configuration.\n   ///\n-  /// The codebook subset is selection procedure is described in TS 38.214 Section 6.1.1.1.\n+  /// The codebook subset selection procedure is described in TS 38.214 Section 6.1.1.1.\n   ///\n   /// \\remark An assertion is triggered if the transmission scheme is not present or not set to codebook.\n-  tx_scheme_codebook_subset get_pusch_codebook_subset() const\n+  const tx_scheme_codebook& get_pusch_codebook_config() const\n   {\n     srsran_assert(cell_cfg_ded.ul_config.has_value(), \"Missing dedicated UL configuration.\");\n     srsran_assert(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.has_value(),\n@@ -185,29 +185,7 @@ class ue_cell_configuration\n     srsran_assert(std::holds_alternative<tx_scheme_codebook>(\n                       cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.value()),\n                   \"PUSCH Transmission scheme must be set to codebook.\");\n-    const auto& tx_config =\n-        std::get<tx_scheme_codebook>(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.value());\n-    return tx_config.codebook_subset;\n-  }\n-\n-  /// \\brief Gets the PUSCH maximum number of layers.\n-  ///\n-  /// The maximum number of layers selection procedudre is described in TS 38.214 Section 6.1.1.1.\n-  ///\n-  /// \\remark An assertion is triggered if the transmission scheme is not present or not set to codebook.\n-  uint8_t get_pusch_max_rank() const\n-  {\n-    srsran_assert(cell_cfg_ded.ul_config.has_value(), \"Missing dedicated UL configuration.\");\n-    srsran_assert(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.has_value(),\n-                  \"Missing dedicated PUSCH configuration.\");\n-    srsran_assert(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.has_value(),\n-                  \"Missing transmit configuration.\");\n-    srsran_assert(std::holds_alternative<tx_scheme_codebook>(\n-                      cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.value()),\n-                  \"PUSCH Transmission scheme must be set to codebook.\");\n-    const auto& tx_config =\n-        std::get<tx_scheme_codebook>(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.value());\n-    return tx_config.max_rank.to_uint();\n+    return std::get<tx_scheme_codebook>(cell_cfg_ded.ul_config.value().init_ul_bwp.pusch_cfg.value().tx_cfg.value());\n   }\n \n private:",
+      "additions": 4,
+      "deletions": 26,
+      "changes": 30
+    },
+    {
+      "filename": "lib/scheduler/support/dci_builder.cpp",
+      "patch": "@@ -407,7 +407,7 @@ void srsran::build_dci_f0_1_c_rnti(dci_ul_info&                  dci,\n       nof_layers, use_transform_precoder, dmrs_config_type::type1, dmrs_max_length::len1);\n   f0_1.precoding_info_nof_layers =\n       get_pusch_precoding_info_row_index(nof_layers,\n-                                         ue_cell_cfg.get_pusch_max_rank(),\n+                                         ue_cell_cfg.get_pusch_codebook_config().max_rank.value(),\n                                          srs_resource_configuration::one_two_four_enum::four,\n                                          use_transform_precoder,\n                                          dmrs_config_type::type1,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_context/ue_cell.cpp",
+      "patch": "@@ -292,7 +292,7 @@ int ue_cell::handle_crc_pdu(slot_point pusch_slot, const ul_crc_pdu_indication&\n \n void ue_cell::handle_srs_channel_matrix(const srs_channel_matrix& channel_matrix)\n {\n-  channel_state.update_srs_channel_matrix(channel_matrix, ue_cfg->get_pusch_codebook_subset());\n+  channel_state.update_srs_channel_matrix(channel_matrix, ue_cfg->get_pusch_codebook_config());\n }\n \n void ue_cell::handle_csi_report(const csi_report_data& csi_report)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_context/ue_channel_state_manager.cpp",
+      "patch": "@@ -63,11 +63,16 @@ bool ue_channel_state_manager::handle_csi_report(const csi_report_data& csi_repo\n   return true;\n }\n \n-void ue_channel_state_manager::update_srs_channel_matrix(const srsran::srs_channel_matrix& channel_matrix,\n-                                                         tx_scheme_codebook_subset         cb_subset)\n+void ue_channel_state_manager::update_srs_channel_matrix(const srs_channel_matrix& channel_matrix,\n+                                                         tx_scheme_codebook        codebook_cfg)\n {\n-  float norm                  = channel_matrix.frobenius_norm();\n-  last_pusch_tpmi_select_info = get_tpmi_select_info(channel_matrix, norm * norm, cb_subset);\n+  // [Implementation-defined] Assume noise variance is 30dB below the average received power.\n+  float norm      = channel_matrix.frobenius_norm();\n+  float noise_var = norm * norm / 1000;\n+\n+  // Calculate TPMI information.\n+  last_pusch_tpmi_select_info =\n+      get_tpmi_select_info(channel_matrix, noise_var, codebook_cfg.max_rank.value(), codebook_cfg.codebook_subset);\n }\n \n SRSRAN_WEAK_SYMB unsigned ue_channel_state_manager::get_nof_ul_layers() const",
+      "additions": 9,
+      "deletions": 4,
+      "changes": 13
+    },
+    {
+      "filename": "lib/scheduler/ue_context/ue_channel_state_manager.h",
+      "patch": "@@ -68,7 +68,7 @@ class ue_channel_state_manager\n   bool handle_csi_report(const csi_report_data& csi_report);\n \n   /// Update UE with the latest Sounding Reference Signal (SRS) channel matrix.\n-  void update_srs_channel_matrix(const srs_channel_matrix& channel_matrix, tx_scheme_codebook_subset cb_subset);\n+  void update_srs_channel_matrix(const srs_channel_matrix& channel_matrix, tx_scheme_codebook codebook_cfg);\n \n   /// Update UE with the latest PHR for a given cell.\n   void handle_phr(const cell_ph_report& phr);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/pusch/pusch_tpmi_select_test.cpp",
+      "patch": "@@ -119,8 +119,8 @@ TEST_P(PuschTpmiSelectFixture, VectorTest)\n   }\n \n   // Get UL-SCH information parameters.\n-  pusch_tpmi_select_info info =\n-      get_tpmi_select_info(test_case.channel_matrix, test_case.noise_variance, test_case.codebook_subset);\n+  pusch_tpmi_select_info info = get_tpmi_select_info(\n+      test_case.channel_matrix, test_case.noise_variance, max_nof_layers, test_case.codebook_subset);\n \n   // Compare with expected.\n   ASSERT_EQ(info, test_case.info);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 22,
+  "commit_details_path": ".\\commit_metadata\\84ecf98.json"
+}

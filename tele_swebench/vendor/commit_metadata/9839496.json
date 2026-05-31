@@ -1,0 +1,29 @@
+{
+  "commit_id": "9839496eb2e0122e8e4929e6da266541233c10d1",
+  "commit_sha_short": "9839496",
+  "commit_folder": "9839496",
+  "commit_message": "remove default arg in byte_buffer method",
+  "commit_message_first_line": "remove default arg in byte_buffer method",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9839496eb2e0122e8e4929e6da266541233c10d1",
+  "commit_date": "2024-11-15T09:22:12Z",
+  "parent_sha": "a0f1eba349a1ee1b15fae733f5abe7f6b85a7701",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/a0f1eba349a1ee1b15fae733f5abe7f6b85a7701",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -397,9 +397,7 @@ class byte_buffer\n private:\n   bool has_ctrl_block() const { return ctrl_blk_ptr != nullptr; }\n \n-  [[nodiscard]] bool default_construct_unsafe(byte_buffer_memory_resource& segment_pool,\n-                                              unsigned sz_hint = byte_buffer_segment_pool_default_segment_size() -\n-                                                                 sizeof(node_t) - sizeof(control_block));\n+  [[nodiscard]] bool default_construct_unsafe(byte_buffer_memory_resource& segment_pool, unsigned sz_hint);\n \n   [[nodiscard]] bool append(span<const uint8_t> bytes, byte_buffer_memory_resource& segment_pool);\n ",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -194,7 +194,8 @@ void byte_buffer::control_block::destroy_cb()\n expected<byte_buffer> byte_buffer::create(byte_buffer_memory_resource& segment_pool)\n {\n   byte_buffer result;\n-  if (not result.default_construct_unsafe(segment_pool)) {\n+  if (not result.default_construct_unsafe(segment_pool,\n+                                          default_segment_size - sizeof(control_block) - sizeof(node_t))) {\n     return make_unexpected(default_error_t{});\n   }\n   return result;\n@@ -373,7 +374,7 @@ bool byte_buffer::append(span<const uint8_t> bytes, byte_buffer_memory_resource&\n   if (bytes.empty()) {\n     // No bytes are being appended. However, we may still need to create a control block to store the pool.\n     if (not has_ctrl_block()) {\n-      return default_construct_unsafe(segment_pool);\n+      return default_construct_unsafe(segment_pool, default_segment_size - sizeof(control_block) - sizeof(node_t));\n     }\n     return true;\n   }",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\9839496.json"
+}

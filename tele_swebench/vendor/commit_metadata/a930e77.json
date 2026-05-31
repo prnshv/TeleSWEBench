@@ -1,0 +1,29 @@
+{
+  "commit_id": "a930e77ce43befd8685713ab89b7279a65af9c5e",
+  "commit_sha_short": "a930e77",
+  "commit_folder": "a930e77",
+  "commit_message": "sched: add helper function to fetch PDSCH time allocation for SI-RNTI",
+  "commit_message_first_line": "sched: add helper function to fetch PDSCH time allocation for SI-RNTI",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a930e77ce43befd8685713ab89b7279a65af9c5e",
+  "commit_date": "2023-07-11T05:58:43Z",
+  "parent_sha": "1857cfd91f2cbcdc53e07097f0a175f910230306",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/1857cfd91f2cbcdc53e07097f0a175f910230306",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/pdsch/pdsch_default_time_allocation.cpp",
+      "patch": "@@ -118,7 +118,7 @@ srsran::pdsch_default_time_allocations_default_A_table(cyclic_prefix cp, dmrs_ty\n       pdsch_default_time_allocation_config cfg = pdsch_default_time_allocation_default_A_get(cp_, i, dmrs_pos_);\n       table[i].k0                              = cfg.pdcch_to_pdsch_delay;\n       table[i].map_type                        = cfg.mapping_type;\n-      table[i].symbols                         = {cfg.start_symbol, cfg.duration};\n+      table[i].symbols                         = {cfg.start_symbol, cfg.start_symbol + cfg.duration};\n     }\n     return table;\n   };\n@@ -158,3 +158,12 @@ srsran::get_c_rnti_pdsch_time_domain_list(const search_space_configuration& ss_c\n   // default A table case.\n   return pdsch_default_time_allocations_default_A_table(active_bwp_dl_common.generic_params.cp, dmrs_typeA_pos);\n }\n+\n+span<const pdsch_time_domain_resource_allocation>\n+srsran::get_si_rnti_pdsch_time_domain_list(cyclic_prefix cp, dmrs_typeA_position dmrs_typeA_pos)\n+{\n+  // TODO: Check for multiplexing pattern and SearchSpace type (Type0 common or Type0A common).\n+  // NOTE: Type0 common PDCCH and multiplexing pattern 1 is assumed to fetch applicable PDSCH time domain resource\n+  // allocation.\n+  return pdsch_default_time_allocations_default_A_table(cp, dmrs_typeA_pos);\n+}",
+      "additions": 10,
+      "deletions": 1,
+      "changes": 11
+    },
+    {
+      "filename": "lib/scheduler/support/pdsch/pdsch_default_time_allocation.h",
+      "patch": "@@ -70,4 +70,13 @@ get_c_rnti_pdsch_time_domain_list(const search_space_configuration& ss_cfg,\n                                   const bwp_downlink_dedicated*     active_bwp_dl_ded,\n                                   dmrs_typeA_position               dmrs_typeA_pos);\n \n+/// \\brief Determines the time domain resource allocation table to be used for PDSCH scheduled with SI-RNTI as per\n+/// TS 38.214, clause 5.1.2.1.1-1.\n+///\n+/// \\param[in] cp        Cyclic prefix.\n+/// \\param[in] dmrs_pos  DM-RS for mapping Type A position.\n+/// \\return A list of valid PDSCH time-domain allocation configurations to choose from.\n+span<const pdsch_time_domain_resource_allocation>\n+get_si_rnti_pdsch_time_domain_list(cyclic_prefix cp, dmrs_typeA_position dmrs_typeA_pos);\n+\n } // namespace srsran",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\a930e77.json"
+}

@@ -1,0 +1,22 @@
+{
+  "commit_id": "7749ca45c9a872dc2edef9d47d83474935e595be",
+  "commit_sha_short": "7749ca4",
+  "commit_folder": "7749ca4",
+  "commit_message": "ran: fix dci f0_1 precoding info and nof. layers field size for maxRank=1 and 2 SRS ports",
+  "commit_message_first_line": "ran: fix dci f0_1 precoding info and nof. layers field size for maxRank=1 and 2 SRS ports",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/7749ca45c9a872dc2edef9d47d83474935e595be",
+  "commit_date": "2024-12-12T12:10:56Z",
+  "parent_sha": "d91f05ada8ce6aecc61dc548a065c7e3872e07b2",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/d91f05ada8ce6aecc61dc548a065c7e3872e07b2",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -212,7 +212,7 @@ static units::bits ul_precoding_info_size_2port_maxrank1(tx_scheme_codebook_subs\n     return 3_bits;\n   }\n \n-  return 2_bits;\n+  return 1_bits;\n }\n \n // Computes the UL precoding information field size for DCI format 0_1.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\7749ca4.json"
+}

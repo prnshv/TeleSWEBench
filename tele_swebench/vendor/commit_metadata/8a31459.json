@@ -1,0 +1,22 @@
+{
+  "commit_id": "8a31459c4c0ffaf1c03029cf7c26182a6f1f8e2d",
+  "commit_sha_short": "8a31459",
+  "commit_folder": "8a31459",
+  "commit_message": "sched: increase metric ue event capacity",
+  "commit_message_first_line": "sched: increase metric ue event capacity",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8a31459c4c0ffaf1c03029cf7c26182a6f1f8e2d",
+  "commit_date": "2025-04-09T09:13:01Z",
+  "parent_sha": "9fcd03f86299bbc604dc2a1756c9df4120e5b448",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9fcd03f86299bbc604dc2a1756c9df4120e5b448",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -22,7 +22,9 @@ cell_metrics_handler::cell_metrics_handler(msecs                       metrics_r\n   notifier(notifier_), report_period(metrics_report_period), cell_cfg(cell_cfg_)\n {\n   next_report.ue_metrics.reserve(MAX_NOF_DU_UES);\n-  next_report.events.reserve(MAX_NOF_DU_UES);\n+  // Note: there can be more than one event per UE.\n+  constexpr unsigned prereserved_events_per_ue = 3;\n+  next_report.events.reserve(MAX_NOF_DU_UES * prereserved_events_per_ue);\n   ues.reserve(MAX_NOF_DU_UES);\n   rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n }",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\8a31459.json"
+}

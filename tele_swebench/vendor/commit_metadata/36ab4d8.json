@@ -1,0 +1,50 @@
+{
+  "commit_id": "36ab4d81e98ffef9a7ab5c4c1e0ddc8286b63962",
+  "commit_sha_short": "36ab4d8",
+  "commit_folder": "36ab4d8",
+  "commit_message": "phy: review docs",
+  "commit_message_first_line": "phy: review docs",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/36ab4d81e98ffef9a7ab5c4c1e0ddc8286b63962",
+  "commit_date": "2022-10-26T22:17:53Z",
+  "parent_sha": "1c96d7906d5697ce4acca9fb019e22e587c4ee60",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/1c96d7906d5697ce4acca9fb019e22e587c4ee60",
+  "code_changes": [
+    {
+      "filename": "include/srsgnb/phy/upper/channel_coding/ldpc/ldpc.h",
+      "patch": "@@ -165,11 +165,12 @@ inline unsigned compute_lifting_size(unsigned tbs, ldpc_base_graph_type base_gra\n   return lifting_size;\n }\n \n-/// \\brief Computes the length of each segment, as per TS38.212 Section 5.2.2.\n-/// \\param[in] base_graph       LDPC base graph selected for the transmission.\n-/// \\param[in] lifting_size     Lifting size used to encode/decode the current transport block.\n-/// \\return The segment size according to the LDPC base graph and lifting size.\n-inline unsigned compute_segment_length(ldpc_base_graph_type base_graph, unsigned lifting_size)\n+/// \\brief Computes the codeblock size for the given base graph and lifting size.\n+///\n+/// As per TS38.212 Section 5.2.2, the number bits to encode is fixed for a given base graph and a given lifting size.\n+/// The codeblock consists of information bits, CRC bits and the number of filler bits required to match the codeblock\n+/// size.\n+inline unsigned compute_codeblock_size(ldpc_base_graph_type base_graph, unsigned lifting_size)\n {\n   constexpr unsigned base_length_BG1 = 22;\n   constexpr unsigned base_length_BG2 = 10;",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "include/srsgnb/ran/sch/sch_segmentation.h",
+      "patch": "@@ -28,7 +28,7 @@ struct sch_information {\n   unsigned nof_filler_bits_per_cb;\n   /// LDPC lifting size. Parameter \\f$Z_c\\f$.\n   unsigned lifting_size;\n-  /// Number of bits per codeblock after CRC appending. Parameter \\f$K\\f$.\n+  /// Number of bits per codeblock including filler bits. Parameter \\f$K\\f$.\n   unsigned nof_bits_per_cb;\n };\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_segmenter_impl.cpp",
+      "patch": "@@ -122,7 +122,7 @@ void ldpc_segmenter_impl::segment(static_vector<described_segment, MAX_NOF_SEGME\n     nof_tb_bits_out += nof_segments * SEG_CRC_LENGTH;\n   }\n   lifting_size   = compute_lifting_size(nof_tb_bits_tmp, base_graph, nof_segments);\n-  segment_length = compute_segment_length(base_graph, lifting_size);\n+  segment_length = compute_codeblock_size(base_graph, lifting_size);\n \n   unsigned nof_crc_bits = 0;\n   if (nof_segments > 1) {\n@@ -215,7 +215,7 @@ void ldpc_segmenter_impl::segment(static_vector<described_rx_codeblock, MAX_NOF_\n     nof_tb_bits_out += nof_segments * SEG_CRC_LENGTH;\n   }\n   lifting_size   = compute_lifting_size(tbs, base_graph, nof_segments);\n-  segment_length = compute_segment_length(base_graph, lifting_size);\n+  segment_length = compute_codeblock_size(base_graph, lifting_size);\n \n   unsigned nof_crc_bits = 0;\n   if (nof_segments > 1) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ran/pusch/ulsch_info.cpp",
+      "patch": "@@ -169,7 +169,7 @@ ulsch_information srsgnb::get_ulsch_information(const ulsch_configuration& confi\n   srsgnb_assert(config.nof_csi_part2_bits == 0, \"CSI Part 2 is not currently implemented.\");\n   result.nof_csi_part2_re = 0;\n \n-  // Calculate actual number of RE used by HARQ-ACK. The RE used for HARQ-ACK bits are only accounted when there are\n+  // Calculate actual number of RE used by HARQ-ACK. The RE used for HARQ-ACK bits are only considered when there are\n   // more than 2 HARQ-ACK bits.\n   unsigned nof_harq_ack_re = 0;\n   if (config.nof_harq_ack_bits > 2) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/sch/sch_segmentation.cpp",
+      "patch": "@@ -36,7 +36,7 @@ sch_information srsgnb::get_sch_segmentation_info(unsigned tbs, float target_cod\n   result.lifting_size = ldpc::compute_lifting_size(tbs, result.base_graph, result.nof_cb);\n \n   // Calculate the codeblock size.\n-  result.nof_bits_per_cb = ldpc::compute_segment_length(result.base_graph, result.lifting_size);\n+  result.nof_bits_per_cb = ldpc::compute_codeblock_size(result.base_graph, result.lifting_size);\n \n   // Calculate the number of filler bits per codeblock.\n   result.nof_filler_bits_per_cb = result.nof_bits_per_cb - nof_payload_bits_per_cb;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\36ab4d8.json"
+}

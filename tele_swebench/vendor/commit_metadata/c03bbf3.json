@@ -1,0 +1,22 @@
+{
+  "commit_id": "c03bbf38fe98ff10433adeb474b2aec9df1a37fb",
+  "commit_sha_short": "c03bbf3",
+  "commit_folder": "c03bbf3",
+  "commit_message": "Fix format",
+  "commit_message_first_line": "Fix format",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/c03bbf38fe98ff10433adeb474b2aec9df1a37fb",
+  "commit_date": "2023-01-13T18:01:56Z",
+  "parent_sha": "450dfa3d01708f4c65c1d4acc58fc7b423af1e40",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/450dfa3d01708f4c65c1d4acc58fc7b423af1e40",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/pusch/pusch_dmrs_symbol_mask.cpp",
+      "patch": "@@ -29,7 +29,8 @@ dmrs_symbol_mask srsgnb::pusch_dmrs_symbol_mask_mapping_type_A_single_get(\n     return mask;\n   }\n \n-  if (config.last_symbol < 13 && (config.last_symbol != 12 || config.additional_position < dmrs_additional_positions::pos3)) {\n+  if (config.last_symbol < 13 &&\n+      (config.last_symbol != 12 || config.additional_position < dmrs_additional_positions::pos3)) {\n     mask.set(9);\n     if (config.additional_position >= dmrs_additional_positions::pos2) {\n       mask.set(6);",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\c03bbf3.json"
+}

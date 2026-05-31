@@ -1,0 +1,85 @@
+{
+  "commit_id": "22c53c78e299c6842a2f158be1fcfdabd6a201b3",
+  "commit_sha_short": "22c53c7",
+  "commit_folder": "22c53c7",
+  "commit_message": "mac: add notifier for mac metrics",
+  "commit_message_first_line": "mac: add notifier for mac metrics",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/22c53c78e299c6842a2f158be1fcfdabd6a201b3",
+  "commit_date": "2025-02-13T16:42:24Z",
+  "parent_sha": "a01376c81c5455be580cd03a5a2fac1c1939bbdf",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/a01376c81c5455be580cd03a5a2fac1c1939bbdf",
+  "code_changes": [
+    {
+      "filename": "include/srsran/mac/mac_config.h",
+      "patch": "@@ -21,6 +21,7 @@\n namespace srsran {\n \n class timer_manager;\n+class mac_metrics_notifier;\n \n /// \\brief Implementation-specific parameters used to tune MAC operation.\n struct mac_expert_config {\n@@ -47,10 +48,11 @@ struct mac_config {\n   mac_result_notifier&                  phy_notifier;\n   mac_expert_config                     mac_cfg;\n   mac_pcap&                             pcap;\n+  timer_manager&                        timers;\n+  mac_metrics_notifier&                 metrics_notifier;\n   // Parameters passed to MAC scheduler.\n   scheduler_expert_config     sched_cfg;\n-  scheduler_metrics_notifier& metric_notifier;\n-  timer_manager&              timers;\n+  scheduler_metrics_notifier& sched_metric_notifier;\n };\n \n } // namespace srsran",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/mac/mac_metrics.h",
+      "patch": "@@ -0,0 +1,47 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/support/tracing/resource_usage.h\"\n+#include <chrono>\n+#include <vector>\n+\n+namespace srsran {\n+\n+/// Metrics relative to a specific MAC cell.\n+struct mac_dl_cell_metric_report {\n+  unsigned                 nof_slots;\n+  double                   avg_latency_ms;\n+  std::chrono::nanoseconds max_latency;\n+  unsigned                 count_voluntary_context_switches;\n+  unsigned                 count_involuntary_context_switches;\n+};\n+\n+struct mac_dl_metric_report {\n+  std::vector<mac_dl_cell_metric_report> cells;\n+};\n+\n+/// \\brief Structure holding the metrics of a MAC layer.\n+struct mac_metric_report {\n+  /// Metrics of the MAC DL.\n+  mac_dl_metric_report dl;\n+};\n+\n+/// Notifier used by MAC to report new metrics.\n+class mac_metrics_notifier\n+{\n+public:\n+  virtual ~mac_metrics_notifier() = default;\n+\n+  virtual void on_new_metrics_report(const mac_metric_report& report) = 0;\n+};\n+\n+} // namespace srsran",
+      "additions": 47,
+      "deletions": 0,
+      "changes": 47
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.cpp",
+      "patch": "@@ -9,12 +9,15 @@\n  */\n \n #include \"du_high_impl.h\"\n+\n+#include \"../../mac/mac_dl/mac_cell_processor.h\"\n #include \"adapters/adapters.h\"\n #include \"adapters/du_high_adapter_factories.h\"\n #include \"adapters/f1ap_adapters.h\"\n #include \"test_mode/f1ap_test_mode_adapter.h\"\n #include \"srsran/du/du_high/du_manager/du_manager_factory.h\"\n #include \"srsran/f1ap/du/f1ap_du_factory.h\"\n+#include \"srsran/mac/mac_metrics.h\"\n #include \"srsran/support/executors/task_redispatcher.h\"\n #include \"srsran/support/timers.h\"\n \n@@ -94,27 +97,39 @@ class scheduler_ue_metrics_null_notifier final : public scheduler_metrics_notifi\n   }\n };\n \n+class mac_metrics_null_notifier final : public mac_metrics_notifier\n+{\n+public:\n+  void on_new_metrics_report(const mac_metric_report& metrics) override\n+  {\n+    // do nothing.\n+  }\n+};\n+\n du_high_impl::du_high_impl(const du_high_configuration& config_, const du_high_dependencies& dependencies) :\n   cfg(config_),\n   logger(srslog::fetch_basic_logger(\"DU\")),\n   timers(*dependencies.timers),\n   adapters(std::make_unique<layer_connector>(*dependencies.timers, dependencies.exec_mapper->du_control_executor())),\n-  metrics_notifier(std::make_unique<scheduler_ue_metrics_null_notifier>())\n+  sched_metrics_notifier(\n+      dependencies.sched_ue_metrics_notifier ? nullptr : std::make_unique<scheduler_ue_metrics_null_notifier>()),\n+  mac_metrics_notif(std::make_unique<mac_metrics_null_notifier>())\n {\n   // Create layers\n-  mac = create_du_high_mac(\n-      mac_config{adapters->mac_ev_notifier,\n-                 dependencies.exec_mapper->ue_mapper(),\n-                 dependencies.exec_mapper->cell_mapper(),\n-                 dependencies.exec_mapper->du_control_executor(),\n-                 *dependencies.phy_adapter,\n-                 cfg.ran.mac_cfg,\n-                 *dependencies.mac_p,\n-                 cfg.ran.sched_cfg,\n-                 dependencies.sched_ue_metrics_notifier ? *dependencies.sched_ue_metrics_notifier : *metrics_notifier,\n-                 timers},\n-      cfg.test_cfg,\n-      cfg.ran.cells.size());\n+  mac  = create_du_high_mac(mac_config{adapters->mac_ev_notifier,\n+                                      dependencies.exec_mapper->ue_mapper(),\n+                                      dependencies.exec_mapper->cell_mapper(),\n+                                      dependencies.exec_mapper->du_control_executor(),\n+                                      *dependencies.phy_adapter,\n+                                      cfg.ran.mac_cfg,\n+                                      *dependencies.mac_p,\n+                                      timers,\n+                                      *mac_metrics_notif,\n+                                      cfg.ran.sched_cfg,\n+                                      dependencies.sched_ue_metrics_notifier ? *dependencies.sched_ue_metrics_notifier\n+                                                                              : *sched_metrics_notifier},\n+                           cfg.test_cfg,\n+                           cfg.ran.cells.size());\n   f1ap = create_du_high_f1ap(*dependencies.f1c_client,\n                              adapters->f1_to_du_notifier,\n                              dependencies.exec_mapper->du_control_executor(),",
+      "additions": 29,
+      "deletions": 14,
+      "changes": 43
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.h",
+      "patch": "@@ -58,7 +58,8 @@ class du_high_impl final : public du_high\n   std::unique_ptr<layer_connector> adapters;\n \n   std::unique_ptr<scheduler_metrics_notifier> hub_metrics;\n-  std::unique_ptr<scheduler_metrics_notifier> metrics_notifier;\n+  std::unique_ptr<scheduler_metrics_notifier> sched_metrics_notifier;\n+  std::unique_ptr<mac_metrics_notifier>       mac_metrics_notif;\n \n   // DU-high Layers.\n   std::unique_ptr<du_manager_interface> du_manager;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -600,8 +600,9 @@ std::unique_ptr<mac_interface> srsran::srs_du::create_du_high_mac(const mac_conf\n                                               mac_testmode->get_phy_notifier(),\n                                               mac_cfg.mac_cfg,\n                                               mac_cfg.pcap,\n+                                              mac_cfg.timers,\n+                                              mac_cfg.metrics_notifier,\n                                               mac_cfg.sched_cfg,\n-                                              mac_cfg.metric_notifier,\n-                                              mac_cfg.timers}));\n+                                              mac_cfg.sched_metric_notifier}));\n   return mac_testmode;\n }",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_processor.h",
+      "patch": "@@ -20,13 +20,17 @@\n \n namespace srsran {\n \n+class mac_metrics_notifier;\n+\n struct mac_dl_config {\n   srs_du::du_high_ue_executor_mapper&   ue_exec_mapper;\n   srs_du::du_high_cell_executor_mapper& cell_exec_mapper;\n   task_executor&                        ctrl_exec;\n   mac_result_notifier&                  phy_notifier;\n   mac_pcap&                             pcap;\n   timer_manager&                        timers;\n+  std::chrono::milliseconds             metrics_report_period;\n+  mac_metrics_notifier&                 metrics_notifier;\n };\n \n class mac_dl_processor final : public mac_dl_configurator",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_impl.cpp",
+      "patch": "@@ -21,7 +21,9 @@ mac_impl::mac_impl(const mac_config& params) :\n                         params.ctrl_exec,\n                         params.phy_notifier,\n                         params.pcap,\n-                        params.timers},\n+                        params.timers,\n+                        params.sched_cfg.metrics_report_period,\n+                        params.metrics_notifier},\n           *mac_sched,\n           rnti_table),\n   ul_unit(mac_ul_config{params.ctrl_exec,",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.cpp",
+      "patch": "@@ -44,7 +44,7 @@ srsran_scheduler_adapter::srsran_scheduler_adapter(const mac_config& params, rnt\n   ctrl_exec(params.ctrl_exec),\n   logger(srslog::fetch_basic_logger(\"MAC\")),\n   notifier(*this),\n-  sched_impl(create_scheduler(scheduler_config{params.sched_cfg, notifier, params.metric_notifier})),\n+  sched_impl(create_scheduler(scheduler_config{params.sched_cfg, notifier, params.sched_metric_notifier})),\n   rach_handler(*sched_impl, rnti_mng, logger)\n {\n   srsran_assert(last_slot_point.is_lock_free(), \"slot point is not lock free\");",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/mac/dummy_mac_metrics_notifier.h",
+      "patch": "@@ -0,0 +1,25 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/mac/mac_metrics.h\"\n+\n+namespace srsran {\n+\n+class dummy_mac_metrics_notifier : public mac_metrics_notifier\n+{\n+public:\n+  std::optional<mac_metric_report> last_report;\n+\n+  void on_new_metrics_report(const mac_metric_report& report) override { last_report = report; }\n+};\n+\n+} // namespace srsran",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25
+    },
+    {
+      "filename": "tests/unittests/mac/mac_dl_cfg_test.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"lib/mac/rnti_manager.h\"\n #include \"mac_ctrl_test_dummies.h\"\n #include \"mac_test_helpers.h\"\n+#include \"tests/test_doubles/mac/dummy_mac_metrics_notifier.h\"\n #include \"tests/test_doubles/mac/dummy_scheduler_ue_metric_notifier.h\"\n #include \"srsran/mac/config/mac_config_helpers.h\"\n #include \"srsran/support/async/eager_async_task.h\"\n@@ -97,21 +98,30 @@ TEST(test_mac_dl_cfg, test_dl_ue_procedure_execution_contexts)\n   dummy_dl_executor_mapper            dl_exec_mapper{dl_execs[0]};\n   dummy_mac_event_indicator           du_mng_notifier;\n   dummy_mac_result_notifier           phy_notifier;\n-  dummy_scheduler_ue_metrics_notifier metrics_notif;\n+  dummy_scheduler_ue_metrics_notifier sched_metrics_notif;\n+  dummy_mac_metrics_notifier          mac_metrics_notif;\n   null_mac_pcap                       pcap;\n   timer_manager                       timers;\n-  mac_dl_config mac_dl_cfg{ul_exec_mapper, dl_exec_mapper, ctrl_worker, phy_notifier, pcap, timers};\n-  mac_config    maccfg{du_mng_notifier,\n+  mac_dl_config                       mac_dl_cfg{ul_exec_mapper,\n+                           dl_exec_mapper,\n+                           ctrl_worker,\n+                           phy_notifier,\n+                           pcap,\n+                           timers,\n+                           std::chrono::milliseconds{1000},\n+                           mac_metrics_notif};\n+  mac_config                          maccfg{du_mng_notifier,\n                     ul_exec_mapper,\n                     dl_exec_mapper,\n                     ctrl_worker,\n                     phy_notifier,\n                     mac_expert_config{.configs = {{10000, 10000, 10000}}},\n                     pcap,\n+                    timers,\n+                    mac_metrics_notif,\n                     scheduler_expert_config{},\n-                    metrics_notif,\n-                    timers};\n-  rnti_manager  rnti_mng;\n+                    sched_metrics_notif};\n+  rnti_manager                        rnti_mng;\n \n   srsran_scheduler_adapter sched_cfg_adapter{maccfg, rnti_mng};\n   mac_dl_processor         mac_dl(mac_dl_cfg, sched_cfg_adapter, rnti_mng);\n@@ -154,19 +164,28 @@ TEST(test_mac_dl_cfg, test_dl_ue_procedure_tsan)\n   dummy_mac_result_notifier           phy_notifier;\n   null_mac_pcap                       pcap;\n   timer_manager                       timers;\n-  dummy_scheduler_ue_metrics_notifier metrics_notif;\n-  mac_dl_config mac_dl_cfg{ul_exec_mapper, dl_exec_mapper, ctrl_worker, phy_notifier, pcap, timers};\n-  mac_config    maccfg{du_mng_notifier,\n+  dummy_scheduler_ue_metrics_notifier sched_metrics_notif;\n+  dummy_mac_metrics_notifier          mac_metrics_notif;\n+  mac_dl_config                       mac_dl_cfg{ul_exec_mapper,\n+                           dl_exec_mapper,\n+                           ctrl_worker,\n+                           phy_notifier,\n+                           pcap,\n+                           timers,\n+                           std::chrono::milliseconds{1000},\n+                           mac_metrics_notif};\n+  mac_config                          maccfg{du_mng_notifier,\n                     ul_exec_mapper,\n                     dl_exec_mapper,\n                     ctrl_worker,\n                     phy_notifier,\n                     mac_expert_config{.configs = {{10000, 10000, 10000}}},\n                     pcap,\n+                    timers,\n+                    mac_metrics_notif,\n                     scheduler_expert_config{},\n-                    metrics_notif,\n-                    timers};\n-  rnti_manager  rnti_mng;\n+                    sched_metrics_notif};\n+  rnti_manager                        rnti_mng;\n \n   srsran_scheduler_adapter sched_cfg_adapter{maccfg, rnti_mng};\n   mac_dl_processor         mac_dl(mac_dl_cfg, sched_cfg_adapter, rnti_mng);",
+      "additions": 31,
+      "deletions": 12,
+      "changes": 43
+    }
+  ],
+  "num_files_changed": 10,
+  "commit_details_path": ".\\commit_metadata\\22c53c7.json"
+}

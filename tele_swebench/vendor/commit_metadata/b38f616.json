@@ -1,0 +1,169 @@
+{
+  "commit_id": "b38f616b1e01ccaa0dda80192cf312f1521a46af",
+  "commit_sha_short": "b38f616",
+  "commit_folder": "b38f616",
+  "commit_message": "du-high: implementation of f1ap metrics and du tests",
+  "commit_message_first_line": "du-high: implementation of f1ap metrics and du tests",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b38f616b1e01ccaa0dda80192cf312f1521a46af",
+  "commit_date": "2025-04-15T11:44:08Z",
+  "parent_sha": "accbb152f32f5bb0be73225f632dc542d8aaca40",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/accbb152f32f5bb0be73225f632dc542d8aaca40",
+  "code_changes": [
+    {
+      "filename": "include/srsran/du/du_high/du_high_configuration.h",
+      "patch": "@@ -46,7 +46,6 @@ struct du_high_configuration {\n     bool                      enable_rlc   = false;\n     bool                      enable_f1ap  = false;\n     std::chrono::milliseconds period{1000};\n-    du_metrics_notifier*      du_notifier = nullptr;\n   };\n \n   du_high_ran_config  ran;\n@@ -61,6 +60,7 @@ struct du_high_dependencies {\n   f1u_du_gateway*             f1u_gw                 = nullptr;\n   mac_result_notifier*        phy_adapter            = nullptr;\n   timer_manager*              timers                 = nullptr;\n+  du_metrics_notifier*        du_notifier            = nullptr;\n   scheduler_metrics_notifier* sched_metrics_notifier = nullptr;\n   rlc_metrics_notifier*       rlc_metrics_notif      = nullptr;\n   mac_metrics_notifier*       mac_metrics_notif      = nullptr;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/du/du_high/du_metrics_notifier.h",
+      "patch": "@@ -36,7 +36,7 @@ class du_metrics_notifier\n \n   /// \\brief Called when a new DU metrics report is generated.\n   /// \\param report Generated report.\n-  virtual void on_new_metric_report(du_metrics_report& report) = 0;\n+  virtual void on_new_metric_report(const du_metrics_report& report) = 0;\n };\n \n } // namespace srs_du",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/f1ap/du/f1ap_du_metrics_collector.h",
+      "patch": "@@ -19,9 +19,12 @@ namespace srs_du {\n \n struct f1ap_metrics_report {\n   struct ue_metrics {\n+    du_ue_index_t       ue_index;\n     gnb_du_ue_f1ap_id_t ue_id;\n   };\n \n+  /// Number of PDUs received by the F1AP-DU.\n+  unsigned nof_rx_pdus = 0;\n   /// List of UE metrics.\n   static_vector<ue_metrics, MAX_NOF_DU_UES> ues;\n };",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.cpp",
+      "patch": "@@ -129,7 +129,11 @@ du_high_impl::du_high_impl(const du_high_configuration& config_, const du_high_d\n        cfg.ran.sched_cfg,\n        dependencies.mac_metrics_notif,\n        dependencies.sched_metrics_notifier},\n-      {cfg.metrics.period, cfg.metrics.du_notifier, cfg.metrics.enable_f1ap},\n+      {cfg.metrics.period,\n+       dependencies.du_notifier,\n+       cfg.metrics.enable_f1ap,\n+       cfg.metrics.enable_mac,\n+       cfg.metrics.enable_sched},\n       cfg.test_cfg});\n \n   // Connect Layer<->DU manager adapters.",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/du_manager_impl.cpp",
+      "patch": "@@ -62,7 +62,7 @@ void du_manager_impl::start()\n           CORO_BEGIN(ctx);\n \n           // Connect to CU-CP and send F1 Setup Request and await for F1 setup response.\n-          CORO_AWAIT(launch_async<initial_du_setup_procedure>(params, cell_mng));\n+          CORO_AWAIT(launch_async<initial_du_setup_procedure>(params, cell_mng, metrics));\n \n           // Signal start() caller thread that the operation is complete.\n           std::lock_guard<std::mutex> lock(mutex);\n@@ -167,7 +167,7 @@ async_task<void> du_manager_impl::handle_f1_reset_request(const std::vector<du_u\n async_task<gnbcu_config_update_response>\n du_manager_impl::handle_cu_context_update_request(const gnbcu_config_update_request& request)\n {\n-  return launch_async<cu_configuration_procedure>(request, cell_mng, ue_mng, params);\n+  return launch_async<cu_configuration_procedure>(request, cell_mng, ue_mng, params, metrics);\n }\n \n async_task<f1ap_ue_context_creation_response>",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/du_metrics_collector_impl.cpp",
+      "patch": "@@ -101,7 +101,9 @@ class du_manager_metrics_collector_impl::sched_metrics_aggregator\n   {\n     srsran_assert(metrics.pci != INVALID_PCI, \"Invalid PCI in scheduler metrics report.\");\n \n-    if (not next_sched_report.cells.empty() and next_sched_report.cells[0].slot != metrics.slot) {\n+    if (not next_sched_report.cells.empty() and\n+        std::abs(metrics.slot - next_sched_report.cells[0].slot) >\n+            parent.params.period.count() * metrics.slot.nof_slots_per_subframe() / 2) {\n       // A new report has been detected before expected.\n       logger.warning(\"New scheduler metric report detected before expected ({} != {})\",\n                      metrics.slot,\n@@ -168,14 +170,16 @@ du_manager_metrics_collector_impl::du_manager_metrics_collector_impl(\n                                                                     srslog::fetch_basic_logger(\"DU-MNG\"))\n                        : nullptr)\n {\n-  if (params.f1ap_enabled) {\n-    next_report.f1ap.emplace();\n-  }\n-  if (params.sched_enabled) {\n-    next_report.scheduler.emplace();\n-  }\n-  if (params.mac_enabled) {\n-    next_report.mac.emplace();\n+  if (params.du_metrics != nullptr) {\n+    if (params.f1ap_enabled) {\n+      next_report.f1ap.emplace();\n+    }\n+    if (params.sched_enabled) {\n+      next_report.scheduler.emplace();\n+    }\n+    if (params.mac_enabled) {\n+      next_report.mac.emplace();\n+    }\n   }\n }\n \n@@ -190,7 +194,10 @@ void du_manager_metrics_collector_impl::handle_mac_metrics_report(const mac_metr\n \n   // In case the DU metrics notifier was specified, report the DU metrics.\n   if (params.du_metrics != nullptr) {\n-    defer_until_success(du_mng_exec, timers, [this]() { trigger_report(); });\n+    defer_until_success(du_mng_exec, timers, [this, report]() {\n+      next_report.mac = report;\n+      trigger_report();\n+    });\n   }\n }\n \n@@ -255,10 +262,14 @@ void du_manager_metrics_collector_impl::handle_scheduler_metrics_report(const sc\n \n void du_manager_metrics_collector_impl::handle_cell_start(du_cell_index_t cell_index)\n {\n-  sched_aggregator->add_cell();\n+  if (sched_aggregator != nullptr) {\n+    sched_aggregator->add_cell();\n+  }\n }\n \n void du_manager_metrics_collector_impl::handle_cell_stop(du_cell_index_t cell_index)\n {\n-  sched_aggregator->rem_cell();\n+  if (sched_aggregator != nullptr) {\n+    sched_aggregator->rem_cell();\n+  }\n }",
+      "additions": 23,
+      "deletions": 12,
+      "changes": 35
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/cu_configuration_procedure.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"cu_configuration_procedure.h\"\n #include \"../du_cell_manager.h\"\n+#include \"../du_metrics_collector_impl.h\"\n #include \"../du_ue/du_ue_manager.h\"\n #include \"srsran/support/async/async_no_op_task.h\"\n #include \"srsran/support/async/async_timer.h\"\n@@ -20,8 +21,9 @@ using namespace srs_du;\n cu_configuration_procedure::cu_configuration_procedure(const gnbcu_config_update_request& request_,\n                                                        du_cell_manager&                   cell_mng_,\n                                                        du_ue_manager&                     ue_mng_,\n-                                                       const du_manager_params&           du_params_) :\n-  request(request_), cell_mng(cell_mng_), ue_mng(ue_mng_), du_params(du_params_)\n+                                                       const du_manager_params&           du_params_,\n+                                                       du_manager_metrics_collector_impl& metrics_) :\n+  request(request_), cell_mng(cell_mng_), ue_mng(ue_mng_), du_params(du_params_), metrics(metrics_)\n {\n }\n \n@@ -41,6 +43,9 @@ void cu_configuration_procedure::operator()(coro_context<async_task<gnbcu_config\n       // Failed to start cell.\n       resp.cells_failed_to_activate.push_back(request.cells_to_activate[list_index].cgi);\n     }\n+\n+    // Add cell to metrics.\n+    metrics.handle_cell_start(cell_mng.get_cell_index(request.cells_to_activate[list_index].cgi));\n   }\n \n   CORO_RETURN(resp);",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/cu_configuration_procedure.h",
+      "patch": "@@ -19,6 +19,7 @@ namespace srs_du {\n class du_cell_manager;\n class du_ue_manager;\n struct du_manager_params;\n+class du_manager_metrics_collector_impl;\n \n /// \\brief Procedure to handle context update request provided by CU.\n class cu_configuration_procedure\n@@ -27,18 +28,20 @@ class cu_configuration_procedure\n   cu_configuration_procedure(const gnbcu_config_update_request& request_,\n                              du_cell_manager&                   cell_mng_,\n                              du_ue_manager&                     ue_mng_,\n-                             const du_manager_params&           du_params_);\n+                             const du_manager_params&           du_params_,\n+                             du_manager_metrics_collector_impl& metrics_);\n \n   void operator()(coro_context<async_task<gnbcu_config_update_response>>& ctx);\n \n private:\n   async_task<bool> start_cell(const nr_cell_global_id_t& cgi);\n   async_task<void> stop_cell(const nr_cell_global_id_t& cgi);\n \n-  const gnbcu_config_update_request request;\n-  du_cell_manager&                  cell_mng;\n-  du_ue_manager&                    ue_mng;\n-  const du_manager_params&          du_params;\n+  const gnbcu_config_update_request  request;\n+  du_cell_manager&                   cell_mng;\n+  du_ue_manager&                     ue_mng;\n+  const du_manager_params&           du_params;\n+  du_manager_metrics_collector_impl& metrics;\n \n   unsigned list_index = 0;\n ",
+      "additions": 8,
+      "deletions": 5,
+      "changes": 13
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/initial_du_setup_procedure.cpp",
+      "patch": "@@ -19,8 +19,10 @@\n using namespace srsran;\n using namespace srs_du;\n \n-initial_du_setup_procedure::initial_du_setup_procedure(const du_manager_params& params_, du_cell_manager& cell_mng_) :\n-  params(params_), cell_mng(cell_mng_), logger(srslog::fetch_basic_logger(\"DU-MNG\"))\n+initial_du_setup_procedure::initial_du_setup_procedure(const du_manager_params&           params_,\n+                                                       du_cell_manager&                   cell_mng_,\n+                                                       du_manager_metrics_collector_impl& metrics_) :\n+  params(params_), cell_mng(cell_mng_), metrics(metrics_), logger(srslog::fetch_basic_logger(\"DU-MNG\"))\n {\n }\n \n@@ -154,6 +156,9 @@ async_task<void> initial_du_setup_procedure::handle_f1_setup_response(const f1_s\n         for (; i != cells_to_activ.size(); ++i) {\n           // Start MAC cell.\n           CORO_AWAIT(cell_mng.start(cell_mng.get_cell_index(cells_to_activ[i].cgi)));\n+\n+          // Add cell to metrics.\n+          metrics.handle_cell_start(cell_mng.get_cell_index(cells_to_activ[i].cgi));\n         }\n \n         CORO_RETURN();",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/initial_du_setup_procedure.h",
+      "patch": "@@ -10,6 +10,7 @@\n \n #pragma once\n \n+#include \"../du_metrics_collector_impl.h\"\n #include \"srsran/f1ap/du/f1ap_du_connection_manager.h\"\n #include \"srsran/srslog/srslog.h\"\n \n@@ -22,7 +23,9 @@ struct du_manager_params;\n class initial_du_setup_procedure\n {\n public:\n-  initial_du_setup_procedure(const du_manager_params& params_, du_cell_manager& cell_mng_);\n+  initial_du_setup_procedure(const du_manager_params&           params_,\n+                             du_cell_manager&                   cell_mng_,\n+                             du_manager_metrics_collector_impl& metrics_);\n \n   void operator()(coro_context<async_task<void>>& ctx);\n \n@@ -35,9 +38,10 @@ class initial_du_setup_procedure\n   // Handle F1 setup response with list of cells to activate.\n   async_task<void> handle_f1_setup_response(const f1_setup_result& resp);\n \n-  const du_manager_params& params;\n-  du_cell_manager&         cell_mng;\n-  srslog::basic_logger&    logger;\n+  const du_manager_params&           params;\n+  du_cell_manager&                   cell_mng;\n+  du_manager_metrics_collector_impl& metrics;\n+  srslog::basic_logger&              logger;\n \n   f1_setup_result response_msg = {};\n };",
+      "additions": 8,
+      "deletions": 4,
+      "changes": 12
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_impl.cpp",
+      "patch": "@@ -65,7 +65,8 @@ f1ap_du_impl::f1ap_du_impl(f1c_connection_client&      f1c_client_handler_,\n   paging_notifier(paging_notifier_),\n   connection_handler(f1c_client_handler_, *this, du_mng, ctrl_exec),\n   ues(du_mng, ctrl_exec, ue_exec_mapper_, timers_),\n-  events(std::make_unique<f1ap_event_manager>(du_mng.get_timer_factory()))\n+  events(std::make_unique<f1ap_event_manager>(du_mng.get_timer_factory())),\n+  metrics(true)\n {\n }\n \n@@ -110,7 +111,7 @@ f1ap_du_impl::handle_du_config_update(const gnbdu_config_update_request& request\n \n f1ap_ue_creation_response f1ap_du_impl::handle_ue_creation_request(const f1ap_ue_creation_request& msg)\n {\n-  f1ap_ue_creation_response resp = create_f1ap_ue(msg, ues, ctxt, *events);\n+  f1ap_ue_creation_response resp = create_f1ap_ue(msg, ues, ctxt, *events, metrics);\n   if (resp.result) {\n     logger.info(\"{}: F1 UE context created successfully.\", ues[msg.ue_index].context);\n   } else {\n@@ -130,6 +131,7 @@ void f1ap_du_impl::handle_ue_deletion_request(du_ue_index_t ue_index)\n     logger.info(\"{}: F1 UE context removed.\", ues[ue_index].context);\n   }\n   ues.remove_ue(ue_index);\n+  metrics.on_ue_removal(ue_index);\n }\n \n void f1ap_du_impl::handle_reset(const reset_s& msg)\n@@ -349,6 +351,9 @@ void f1ap_du_impl::handle_message(const f1ap_message& msg)\n         // Log message.\n         log_pdu(true, msg);\n \n+        // Record metric.\n+        metrics.on_rx_pdu(msg);\n+\n         switch (msg.pdu.type().value) {\n           case pdu_types::init_msg:\n             handle_initiating_message(msg.pdu.init_msg());",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_impl.h",
+      "patch": "@@ -140,7 +140,7 @@ class f1ap_du_impl final : public f1ap_du\n \n   std::unique_ptr<f1ap_message_notifier> tx_pdu_notifier;\n \n-  f1ap_du_metrics_collector_impl metrics;\n+  f1ap_metrics_collector_impl metrics;\n };\n \n } // namespace srs_du",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_metrics_collector_impl.cpp",
+      "patch": "@@ -13,7 +13,48 @@\n using namespace srsran;\n using namespace srs_du;\n \n-void f1ap_du_metrics_collector_impl::handle_metrics_report_request(f1ap_metrics_report& report)\n+f1ap_metrics_collector_impl::f1ap_metrics_collector_impl(bool enabled) : enabled_flag(enabled) {}\n+\n+void f1ap_metrics_collector_impl::handle_metrics_report_request(f1ap_metrics_report& report)\n+{\n+  report = {};\n+  if (not enabled_flag) {\n+    return;\n+  }\n+\n+  // Prepare report.\n+  report.nof_rx_pdus = data.nof_rx_pdus;\n+  for (const auto& u : ues) {\n+    report.ues.push_back(u);\n+  }\n+\n+  // Reset report data.\n+  data = {};\n+}\n+\n+void f1ap_metrics_collector_impl::on_ue_creation(du_ue_index_t ue_index, gnb_du_ue_f1ap_id_t du_ue_id)\n {\n-  // do nothing\n+  if (not enabled_flag) {\n+    return;\n+  }\n+\n+  ues.emplace(ue_index, f1ap_metrics_report::ue_metrics{ue_index, du_ue_id});\n+}\n+\n+void f1ap_metrics_collector_impl::on_ue_removal(du_ue_index_t ue_index)\n+{\n+  if (not enabled_flag) {\n+    return;\n+  }\n+\n+  ues.erase(ue_index);\n+}\n+\n+void f1ap_metrics_collector_impl::on_rx_pdu(const f1ap_message& msg)\n+{\n+  if (not enabled_flag) {\n+    return;\n+  }\n+\n+  data.nof_rx_pdus++;\n }",
+      "additions": 43,
+      "deletions": 2,
+      "changes": 45
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_metrics_collector_impl.h",
+      "patch": "@@ -10,15 +10,41 @@\n \n #pragma once\n \n+#include \"srsran/adt/slotted_vector.h\"\n #include \"srsran/f1ap/du/f1ap_du_metrics_collector.h\"\n \n namespace srsran {\n+\n+struct f1ap_message;\n+\n namespace srs_du {\n \n-class f1ap_du_metrics_collector_impl final : public f1ap_metrics_collector\n+/// Collector of F1AP metrics.\n+class f1ap_metrics_collector_impl final : public f1ap_metrics_collector\n {\n public:\n+  f1ap_metrics_collector_impl(bool enabled);\n+\n   void handle_metrics_report_request(f1ap_metrics_report& report) override;\n+\n+  /// Called on every UE creation in the F1AP.\n+  void on_ue_creation(du_ue_index_t ue_index, gnb_du_ue_f1ap_id_t du_ue_id);\n+\n+  /// Called on every UE removal in the F1AP.\n+  void on_ue_removal(du_ue_index_t ue_index);\n+\n+  /// Called on every received PDU from the F1-C.\n+  void on_rx_pdu(const f1ap_message& msg);\n+\n+private:\n+  struct non_persistent_common_data {\n+    unsigned nof_rx_pdus = 0;\n+  };\n+\n+  bool enabled_flag;\n+\n+  non_persistent_common_data                                        data;\n+  slotted_id_vector<du_ue_index_t, f1ap_metrics_report::ue_metrics> ues;\n };\n \n } // namespace srs_du",
+      "additions": 27,
+      "deletions": 1,
+      "changes": 28
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue_config_update.cpp",
+      "patch": "@@ -9,14 +9,16 @@\n  */\n \n #include \"f1ap_du_ue_config_update.h\"\n+#include \"../f1ap_du_metrics_collector_impl.h\"\n \n using namespace srsran;\n using namespace srs_du;\n \n f1ap_ue_creation_response srsran::srs_du::create_f1ap_ue(const f1ap_ue_creation_request& req,\n                                                          f1ap_du_ue_manager&             ues,\n                                                          const f1ap_du_context&          du_ctx,\n-                                                         f1ap_event_manager&             ev_mng)\n+                                                         f1ap_event_manager&             ev_mng,\n+                                                         f1ap_metrics_collector_impl&    metrics)\n {\n   f1ap_du_ue& u                        = ues.add_ue(req.ue_index);\n   u.context.rnti                       = req.c_rnti;\n@@ -31,6 +33,9 @@ f1ap_ue_creation_response srsran::srs_du::create_f1ap_ue(const f1ap_ue_creation_\n     }\n   }\n \n+  // Update metrics.\n+  metrics.on_ue_creation(req.ue_index, u.context.gnb_du_ue_f1ap_id);\n+\n   // Prepare response.\n   f1ap_ue_creation_response resp{};\n   resp.result = true;",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue_config_update.h",
+      "patch": "@@ -17,12 +17,15 @@\n namespace srsran {\n namespace srs_du {\n \n+class f1ap_metrics_collector_impl;\n+\n /// \\brief Creates a new UE in the F1AP, on request by DU management plane.\n /// \\return Result of the F1 UE creation that contains the outcome (success/failure) and list of created F1c bearers.\n f1ap_ue_creation_response create_f1ap_ue(const f1ap_ue_creation_request& req,\n                                          f1ap_du_ue_manager&             ues,\n                                          const f1ap_du_context&          du_ctx,\n-                                         f1ap_event_manager&             ev_mng);\n+                                         f1ap_event_manager&             ev_mng,\n+                                         f1ap_metrics_collector_impl&    metrics);\n \n /// \\brief Update existing UE configuration on request by DU management plane.\n f1ap_ue_configuration_response update_f1ap_ue_config(const f1ap_ue_configuration_request& req, f1ap_du_ue_manager& ues);",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -283,6 +283,8 @@ void cell_metrics_handler::report_metrics()\n     next_report.ue_metrics.push_back(ue.compute_report(report_period, nof_slots_per_sf));\n   }\n \n+  next_report.pci                       = cell_cfg.pci;\n+  next_report.slot                      = last_slot_tx - report_period_slots;\n   next_report.nof_slots                 = report_period_slots;\n   next_report.nof_error_indications     = data.error_indication_counter;\n   next_report.average_decision_latency  = data.decision_latency_sum / report_period_slots;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/du_high_many_cells_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"test_utils/du_high_env_simulator.h\"\n #include \"tests/test_doubles/f1ap/f1ap_test_message_validators.h\"\n #include \"tests/test_doubles/f1ap/f1ap_test_messages.h\"\n+#include \"tests/test_doubles/mac/mac_test_messages.h\"\n #include \"tests/test_doubles/pdcp/pdcp_pdu_generator.h\"\n #include \"tests/test_doubles/scheduler/scheduler_result_test.h\"\n #include \"srsran/asn1/f1ap/common.h\"\n@@ -286,3 +287,59 @@ TEST_P(du_high_many_cells_tester, when_cell_restarted_then_ues_can_be_created)\n INSTANTIATE_TEST_SUITE_P(du_high_many_cells_test_suite,\n                          du_high_many_cells_tester,\n                          ::testing::Values(test_params{2}, test_params{4}));\n+\n+class du_high_many_cells_metrics_test : public du_high_env_simulator, public testing::Test\n+{\n+protected:\n+  constexpr static std::chrono::milliseconds METRICS_PERIOD{100};\n+  constexpr static unsigned                  nof_cells = 4;\n+\n+  du_high_many_cells_metrics_test() :\n+    du_high_env_simulator([this]() {\n+      du_high_env_sim_params params;\n+      params.nof_cells   = nof_cells;\n+      auto cfg           = create_du_high_configuration(params);\n+      cfg.metrics.period = METRICS_PERIOD;\n+      // TODO: Remove these extra parameters.\n+      cfg.ran.sched_cfg.metrics_report_period = METRICS_PERIOD;\n+      return cfg;\n+    }())\n+  {\n+  }\n+};\n+\n+TEST_F(du_high_many_cells_metrics_test, when_du_metrics_are_configured_then_metrics_are_collected_periodically)\n+{\n+  // Create UEs.\n+  rnti_t rnti1 = to_rnti(0x4601);\n+  ASSERT_TRUE(add_ue(rnti1));\n+  ASSERT_TRUE(run_rrc_setup(rnti1));\n+  ASSERT_TRUE(run_ue_context_setup(rnti1));\n+  rnti_t rnti2 = to_rnti(0x4602);\n+  ASSERT_TRUE(add_ue(rnti2, to_du_cell_index(1)));\n+  ASSERT_TRUE(run_rrc_setup(rnti2));\n+  ASSERT_TRUE(run_ue_context_setup(rnti2));\n+\n+  const unsigned nof_test_slots =\n+      METRICS_PERIOD.count() * get_nof_slots_per_subframe(du_high_cfg.ran.cells[0].scs_common) * 1.1;\n+  ASSERT_TRUE(this->run_until([this]() { return du_metrics.last_report.has_value(); }, nof_test_slots));\n+  // Metrics received.\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells.size(), nof_cells);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[0].ue_metrics.size(), 1);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[1].ue_metrics.size(), 1);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[2].ue_metrics.size(), 0);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[3].ue_metrics.size(), 0);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[0].ue_metrics[0].rnti, rnti1);\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells[1].ue_metrics[0].rnti, rnti2);\n+  ASSERT_EQ(du_metrics.last_report.value().mac.value().dl.cells.size(), nof_cells);\n+  ASSERT_EQ(du_metrics.last_report.value().f1ap.value().ues.size(), 2);\n+  ASSERT_GT(du_metrics.last_report.value().f1ap.value().nof_rx_pdus, 0);\n+\n+  // After one metric period elapses, we should receive a new report.\n+  du_metrics.last_report.reset();\n+  ASSERT_TRUE(this->run_until([this]() { return du_metrics.last_report.has_value(); }, nof_test_slots));\n+  // Metrics received.\n+  ASSERT_EQ(du_metrics.last_report.value().scheduler.value().cells.size(), nof_cells);\n+  ASSERT_EQ(du_metrics.last_report.value().mac.value().dl.cells.size(), nof_cells);\n+  ASSERT_EQ(du_metrics.last_report.value().f1ap.value().ues.size(), 2);\n+}",
+      "additions": 57,
+      "deletions": 0,
+      "changes": 57
+    },
+    {
+      "filename": "tests/integrationtests/du_high/du_high_test.cpp",
+      "patch": "@@ -14,12 +14,14 @@\n #include \"tests/integrationtests/du_high/test_utils/du_high_env_simulator.h\"\n #include \"tests/test_doubles/f1ap/f1ap_test_message_validators.h\"\n #include \"tests/test_doubles/f1ap/f1ap_test_messages.h\"\n+#include \"tests/test_doubles/mac/mac_test_messages.h\"\n #include \"tests/test_doubles/pdcp/pdcp_pdu_generator.h\"\n #include \"tests/test_doubles/scheduler/scheduler_result_test.h\"\n #include \"tests/unittests/f1ap/du/f1ap_du_test_helpers.h\"\n #include \"srsran/asn1/f1ap/common.h\"\n #include \"srsran/asn1/f1ap/f1ap_pdu_contents_ue.h\"\n #include \"srsran/asn1/rrc_nr/cell_group_config.h\"\n+#include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n \n using namespace srsran;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/test_utils/du_high_env_simulator.cpp",
+      "patch": "@@ -151,50 +151,63 @@ static void init_loggers()\n   srslog::init();\n }\n \n-du_high_env_simulator::du_high_env_simulator(du_high_env_sim_params params) :\n-  cu_notifier(workers.test_worker),\n-  du_high_cfg([params]() {\n-    init_loggers();\n-\n-    du_high_configuration cfg{};\n-    cfg.ran.sched_cfg.log_broadcast_messages = false;\n-    cfg.ran.cells.reserve(params.nof_cells);\n-    auto builder_params =\n-        params.builder_params.has_value() ? params.builder_params.value() : cell_config_builder_params{};\n-    for (unsigned i = 0; i < params.nof_cells; ++i) {\n-      builder_params.pci = (pci_t)i;\n-      auto du_cell_cfg   = config_helpers::make_default_du_cell_config(builder_params);\n-      if (params.prach_frequency_start.has_value()) {\n-        du_cell_cfg.ul_cfg_common.init_ul_bwp.rach_cfg_common.value().rach_cfg_generic.msg1_frequency_start =\n-            params.prach_frequency_start.value();\n-      }\n-      du_cell_cfg.ue_ded_serv_cell_cfg.init_dl_bwp.pdsch_cfg->mcs_table = pdsch_mcs_table::qam256;\n-      cfg.ran.cells.push_back(du_cell_cfg);\n-      cfg.ran.cells.back().nr_cgi.nci = nr_cell_identity::create(i).value();\n-      if (params.pucch_cfg.has_value()) {\n-        cfg.ran.cells.back().pucch_cfg = params.pucch_cfg.value();\n-      }\n-      cfg.ran.mac_cfg.configs.push_back({10000, 10000, 10000});\n+du_high_configuration srs_du::create_du_high_configuration(const du_high_env_sim_params& params)\n+{\n+  du_high_configuration cfg{};\n+  cfg.ran.sched_cfg.log_broadcast_messages = false;\n+  cfg.ran.cells.reserve(params.nof_cells);\n+  auto builder_params =\n+      params.builder_params.has_value() ? params.builder_params.value() : cell_config_builder_params{};\n+  for (unsigned i = 0; i < params.nof_cells; ++i) {\n+    builder_params.pci = (pci_t)i;\n+    auto du_cell_cfg   = config_helpers::make_default_du_cell_config(builder_params);\n+    if (params.prach_frequency_start.has_value()) {\n+      du_cell_cfg.ul_cfg_common.init_ul_bwp.rach_cfg_common.value().rach_cfg_generic.msg1_frequency_start =\n+          params.prach_frequency_start.value();\n+    }\n+    du_cell_cfg.ue_ded_serv_cell_cfg.init_dl_bwp.pdsch_cfg->mcs_table = pdsch_mcs_table::qam256;\n+    cfg.ran.cells.push_back(du_cell_cfg);\n+    cfg.ran.cells.back().nr_cgi.nci = nr_cell_identity::create(i).value();\n+    if (params.pucch_cfg.has_value()) {\n+      cfg.ran.cells.back().pucch_cfg = params.pucch_cfg.value();\n     }\n+    cfg.ran.mac_cfg.configs.push_back({10000, 10000, 10000});\n+  }\n \n-    cfg.ran.qos       = config_helpers::make_default_du_qos_config_list(/* warn_on_drop */ true, 0);\n-    cfg.ran.sched_cfg = config_helpers::make_default_scheduler_expert_config();\n+  cfg.ran.qos       = config_helpers::make_default_du_qos_config_list(/* warn_on_drop */ true, 0);\n+  cfg.ran.sched_cfg = config_helpers::make_default_scheduler_expert_config();\n \n-    return cfg;\n-  }()),\n+  cfg.metrics.enable_f1ap  = true;\n+  cfg.metrics.enable_mac   = true;\n+  cfg.metrics.enable_rlc   = true;\n+  cfg.metrics.enable_sched = true;\n+\n+  return cfg;\n+}\n+\n+du_high_env_simulator::du_high_env_simulator(du_high_env_sim_params params) :\n+  du_high_env_simulator(create_du_high_configuration(params))\n+{\n+}\n+\n+du_high_env_simulator::du_high_env_simulator(const du_high_configuration& du_hi_cfg_) :\n+  cu_notifier(workers.test_worker),\n+  du_high_cfg(du_hi_cfg_),\n   du_hi_dependencies([this]() {\n+    init_loggers();\n     du_high_dependencies dependencies;\n     dependencies.exec_mapper = workers.exec_mapper.get();\n     dependencies.f1c_client  = &cu_notifier;\n     dependencies.f1u_gw      = &cu_up_sim;\n+    dependencies.du_notifier = &du_metrics;\n     dependencies.phy_adapter = &phy;\n     dependencies.timers      = &timers;\n     dependencies.mac_p       = &mac_pcap;\n     dependencies.rlc_p       = &rlc_pcap;\n     return dependencies;\n   }()),\n   du_hi(make_du_high(du_high_cfg, du_hi_dependencies)),\n-  phy(params.nof_cells, workers.test_worker),\n+  phy(du_high_cfg.ran.cells.size(), workers.test_worker),\n   next_slot(to_numerology_value(du_high_cfg.ran.cells[0].scs_common),\n             test_rgen::uniform_int<unsigned>(0, 10239) *\n                 get_nof_slots_per_subframe(du_high_cfg.ran.cells[0].scs_common))",
+      "additions": 42,
+      "deletions": 29,
+      "changes": 71
+    },
+    {
+      "filename": "tests/integrationtests/du_high/test_utils/du_high_env_simulator.h",
+      "patch": "@@ -13,9 +13,9 @@\n #include \"du_high_worker_manager.h\"\n #include \"tests/test_doubles/f1u/dummy_f1u_du_gateway.h\"\n #include \"tests/test_doubles/mac/dummy_mac_result_notifier.h\"\n-#include \"tests/test_doubles/mac/mac_test_messages.h\"\n #include \"srsran/du/du_high/du_high.h\"\n #include \"srsran/du/du_high/du_high_configuration.h\"\n+#include \"srsran/du/du_high/du_metrics_notifier.h\"\n #include \"srsran/f1ap/f1ap_ue_id_types.h\"\n #include \"srsran/scheduler/config/cell_config_builder_params.h\"\n \n@@ -37,6 +37,14 @@ class dummy_f1c_test_client : public f1c_connection_client\n   task_executor& test_exec;\n };\n \n+class dummy_du_metrics_notifier : public du_metrics_notifier\n+{\n+public:\n+  std::optional<du_metrics_report> last_report;\n+\n+  void on_new_metric_report(const du_metrics_report& report) override { last_report = report; }\n+};\n+\n bool is_ue_context_release_complete_valid(const f1ap_message& msg,\n                                           gnb_du_ue_f1ap_id_t du_ue_id,\n                                           gnb_cu_ue_f1ap_id_t cu_ue_id);\n@@ -49,10 +57,13 @@ struct du_high_env_sim_params {\n   std::optional<unsigned>                   prach_frequency_start;\n };\n \n+du_high_configuration create_du_high_configuration(const du_high_env_sim_params& params = {});\n+\n class du_high_env_simulator\n {\n public:\n   du_high_env_simulator(du_high_env_sim_params params = du_high_env_sim_params{});\n+  du_high_env_simulator(const du_high_configuration& du_hi_cfg);\n   virtual ~du_high_env_simulator();\n \n   bool add_ue(rnti_t rnti, du_cell_index_t cell_index = to_du_cell_index(0));\n@@ -82,10 +93,11 @@ class du_high_env_simulator\n \n   virtual void handle_slot_results(du_cell_index_t cell_index);\n \n-  du_high_worker_manager  workers;\n-  timer_manager           timers;\n-  dummy_f1c_test_client   cu_notifier;\n-  srs_du::cu_up_simulator cu_up_sim;\n+  du_high_worker_manager    workers;\n+  timer_manager             timers;\n+  dummy_f1c_test_client     cu_notifier;\n+  cu_up_simulator           cu_up_sim;\n+  dummy_du_metrics_notifier du_metrics;\n \n   du_high_configuration    du_high_cfg;\n   du_high_dependencies     du_hi_dependencies;",
+      "additions": 17,
+      "deletions": 5,
+      "changes": 22
+    },
+    {
+      "filename": "tests/integrationtests/du_high/test_utils/du_high_worker_manager.h",
+      "patch": "@@ -10,10 +10,8 @@\n \n #pragma once\n \n-#include \"srsran/adt/static_vector.h\"\n #include \"srsran/du/du_high/du_high_executor_mapper.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n-#include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/executors/task_worker_pool.h\"\n #include <array>\n ",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 22,
+  "commit_details_path": ".\\commit_metadata\\b38f616.json"
+}

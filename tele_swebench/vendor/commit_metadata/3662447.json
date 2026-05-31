@@ -1,0 +1,22 @@
+{
+  "commit_id": "366244796f17f4c5cb644620e95ba29ba7a3afb6",
+  "commit_sha_short": "3662447",
+  "commit_folder": "3662447",
+  "commit_message": "support: fix byte_buffer deallocation to avoid invalidation of next pointer before its fetch",
+  "commit_message_first_line": "support: fix byte_buffer deallocation to avoid invalidation of next pointer before its fetch",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/366244796f17f4c5cb644620e95ba29ba7a3afb6",
+  "commit_date": "2024-02-18T22:01:54Z",
+  "parent_sha": "3696e25266d4ab9cc1ba4de07a3370918057287d",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3696e25266d4ab9cc1ba4de07a3370918057287d",
+  "code_changes": [
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -139,7 +139,8 @@ void byte_buffer::control_block::destroy_node(node_t* node) const\n byte_buffer::control_block::~control_block()\n {\n   // Destroy and return all segments back to the segment memory pool.\n-  for (node_t* node = segments.head; node != nullptr; node = node->next) {\n+  for (node_t *next_node = segments.head, *node = next_node; node != nullptr; node = next_node) {\n+    next_node = node->next;\n     destroy_node(node);\n   }\n }",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\3662447.json"
+}

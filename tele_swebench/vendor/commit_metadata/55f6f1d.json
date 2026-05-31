@@ -1,0 +1,36 @@
+{
+  "commit_id": "55f6f1d3410cca2ff82e769ef137d52964e07f2f",
+  "commit_sha_short": "55f6f1d",
+  "commit_folder": "55f6f1d",
+  "commit_message": "adt: add method to pre-initialize byte buffer pool worker cache",
+  "commit_message_first_line": "adt: add method to pre-initialize byte buffer pool worker cache",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/55f6f1d3410cca2ff82e769ef137d52964e07f2f",
+  "commit_date": "2025-02-27T16:07:45Z",
+  "parent_sha": "329116ad3949d66f95953486e8006fcf72461e88",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/329116ad3949d66f95953486e8006fcf72461e88",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -43,6 +43,10 @@ byte_buffer_memory_resource& get_default_byte_buffer_segment_pool();\n /// \\brief Default byte buffer segment pool with fallback to the heap on failure to allocate.\n byte_buffer_memory_resource& get_default_fallback_byte_buffer_segment_pool();\n \n+/// \\brief Preinitialize the byte buffer segment pool thread-local storage.\n+/// This method is useful to avoid the overhead of thread_local initialization in latency-critical parts of the code.\n+void init_byte_buffer_segment_pool_tls();\n+\n class byte_buffer_slice;\n \n /// \\brief Byte sequence, which represents its data in memory via an intrusive linked list of memory chunks.",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/fixed_size_memory_block_pool.h",
+      "patch": "@@ -228,6 +228,7 @@ class fixed_size_memory_block_pool\n   {\n     return central_mem_cache.size_approx() * block_batch_size;\n   }\n+\n   /// Get thread local cache current size in number of memory blocks.\n   size_t get_local_cache_size()\n   {\n@@ -245,6 +246,13 @@ class fixed_size_memory_block_pool\n     return ptr >= allocated_memory.data() and ptr < allocated_memory.data() + allocated_memory.size();\n   }\n \n+  /// \\brief Initialize worker cache for caller thread.\n+  /// This method is useful to avoid the overhead of thread_local initialization in critical paths.\n+  void init_worker_cache()\n+  {\n+    (void)get_worker_cache();\n+  }\n+\n private:\n   static std::shared_ptr<pool_type> get_instance_ptr(size_t nof_blocks = 0, size_t mem_block_size = 0)\n   {",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -58,6 +58,11 @@ size_t srsran::get_byte_buffer_segment_pool_current_size_approx()\n   return pool.get_central_cache_approx_size() + pool.get_local_cache_size();\n }\n \n+void srsran::init_byte_buffer_segment_pool_tls()\n+{\n+  detail::get_default_byte_buffer_segment_pool().init_worker_cache();\n+}\n+\n // ------ memory resource -------\n \n namespace {",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\55f6f1d.json"
+}

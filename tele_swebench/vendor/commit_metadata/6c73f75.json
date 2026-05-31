@@ -1,0 +1,71 @@
+{
+  "commit_id": "6c73f758ea27818391ed294405456bad589699f3",
+  "commit_sha_short": "6c73f75",
+  "commit_folder": "6c73f75",
+  "commit_message": "sched: add metrics to count missed PXSCH grants because of late HARQs",
+  "commit_message_first_line": "sched: add metrics to count missed PXSCH grants because of late HARQs",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/6c73f758ea27818391ed294405456bad589699f3",
+  "commit_date": "2025-05-22T10:12:10Z",
+  "parent_sha": "4dbae636ab5c72f880836a15c463f75958a97651",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/4dbae636ab5c72f880836a15c463f75958a97651",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/consumers/scheduler_metrics_consumers.cpp",
+      "patch": "@@ -109,6 +109,8 @@ DECLARE_METRIC(\"latency_histogram\", latency_histogram, std::vector<unsigned>, \"\"\n DECLARE_METRIC(\"msg3_nof_ok\", metric_msg3_nof_ok, unsigned, \"\");\n DECLARE_METRIC(\"msg3_nof_nok\", metric_msg3_nof_nok, unsigned, \"\");\n DECLARE_METRIC(\"avg_prach_delay\", metric_avg_prach_delay, std::optional<float>, \"ms\");\n+DECLARE_METRIC(\"late_dl_harqs\", metric_nof_failed_pdsch_alloc_late_harqs, unsigned, \"\");\n+DECLARE_METRIC(\"late_ul_harqs\", metric_nof_failed_pusch_alloc_late_harqs, unsigned, \"\");\n DECLARE_METRIC_SET(\"cell_metrics\",\n                    cell_metrics,\n                    metric_error_indication_count,\n@@ -119,7 +121,9 @@ DECLARE_METRIC_SET(\"cell_metrics\",\n                    latency_histogram,\n                    metric_msg3_nof_ok,\n                    metric_msg3_nof_nok,\n-                   metric_avg_prach_delay);\n+                   metric_avg_prach_delay,\n+                   metric_nof_failed_pdsch_alloc_late_harqs,\n+                   metric_nof_failed_pusch_alloc_late_harqs);\n \n /// Metrics root object.\n DECLARE_METRIC(\"timestamp\", metric_timestamp_tag, double, \"\");\n@@ -364,6 +368,8 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const std::optional<sch\n     cell_output.write<metric_msg3_nof_ok>(cell.nof_msg3_ok);\n     cell_output.write<metric_msg3_nof_nok>(cell.nof_msg3_nok);\n     cell_output.write<metric_avg_prach_delay>(cell.avg_prach_delay_ms);\n+    cell_output.write<metric_nof_failed_pdsch_alloc_late_harqs>(cell.nof_failed_pdsch_allocs_late_harqs);\n+    cell_output.write<metric_nof_failed_pusch_alloc_late_harqs>(cell.nof_failed_pusch_allocs_late_harqs);\n \n     // Log the context.\n     ctx.write<metric_timestamp_tag>(get_time_stamp());\n@@ -420,7 +426,7 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n         \" total_dl_brate={}bps total_ul_brate={}bps nof_prbs={} nof_dl_slots={} nof_ul_slots={} nof_prach_preambles={} \"\n         \"error_indications={} pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} \"\n         \"failed_pdcch={} failed_uci={} nof_ues={} mean_latency={}usec max_latency={}usec max_latency_slot={} \"\n-        \"latency_hist=[{}] msg3_ok={} msg3_nok={}\",\n+        \"latency_hist=[{}] msg3_ok={} msg3_nok={} late_dl_harqs={} late_ul_harqs={}\",\n         float_to_eng_string(sum_dl_bitrate_kbps * 1e3, 1, false),\n         float_to_eng_string(sum_ul_bitrate_kbps * 1e3, 1, false),\n         cell.nof_prbs,\n@@ -440,7 +446,9 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n         cell.max_decision_latency_slot,\n         fmt::join(cell.latency_histogram.begin(), cell.latency_histogram.end(), \", \"),\n         cell.nof_msg3_ok,\n-        cell.nof_msg3_nok);\n+        cell.nof_msg3_nok,\n+        cell.nof_failed_pdsch_allocs_late_harqs,\n+        cell.nof_failed_pusch_allocs_late_harqs);\n     if (max_crc_delay != std::numeric_limits<float>::min()) {\n       fmt::format_to(std::back_inserter(buffer), \" max_crc_delay={}ms\", max_crc_delay);\n     }",
+      "additions": 11,
+      "deletions": 3,
+      "changes": 14
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -146,6 +146,10 @@ struct scheduler_cell_metrics {\n   unsigned nof_msg3_nok = 0;\n   /// Average PRACH delay in ms.\n   std::optional<float> avg_prach_delay_ms;\n+  /// Number of failed PDSCH allocations due to late HARQs.\n+  unsigned nof_failed_pdsch_allocs_late_harqs = 0;\n+  /// Number of failed PUSCH allocations due to late HARQs.\n+  unsigned nof_failed_pusch_allocs_late_harqs = 0;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -356,6 +356,16 @@ void cell_metrics_handler::handle_error_indication()\n   ++data.error_indication_counter;\n }\n \n+void cell_metrics_handler::handle_late_dl_harqs()\n+{\n+  ++data.nof_failed_pdsch_allocs_late_harqs;\n+}\n+\n+void cell_metrics_handler::handle_late_ul_harqs()\n+{\n+  ++data.nof_failed_pusch_allocs_late_harqs;\n+}\n+\n void cell_metrics_handler::report_metrics()\n {\n   for (ue_metric_context& ue : ues) {\n@@ -385,6 +395,8 @@ void cell_metrics_handler::report_metrics()\n       data.nof_prach_preambles\n           ? std::optional{static_cast<float>(data.sum_prach_delay_slots) / static_cast<float>(data.nof_prach_preambles)}\n           : std::nullopt;\n+  next_report->nof_failed_pdsch_allocs_late_harqs = data.nof_failed_pdsch_allocs_late_harqs;\n+  next_report->nof_failed_pusch_allocs_late_harqs = data.nof_failed_pusch_allocs_late_harqs;\n \n   // Reset cell-wide metric counters.\n   data = {};\n@@ -462,8 +474,8 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n   ++data.decision_latency_hist[bin_idx];\n \n   // Failed allocation attempts.\n-  data.nof_failed_pdcch_allocs = slot_result.failed_attempts.pdcch;\n-  data.nof_failed_uci_allocs   = slot_result.failed_attempts.uci;\n+  data.nof_failed_pdcch_allocs += slot_result.failed_attempts.pdcch;\n+  data.nof_failed_uci_allocs += slot_result.failed_attempts.uci;\n }\n \n void cell_metrics_handler::push_result(slot_point                sl_tx,",
+      "additions": 14,
+      "deletions": 2,
+      "changes": 16
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -137,6 +137,10 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n     unsigned nof_msg3_nok = 0;\n     // Total PRACH delay in slots.\n     unsigned sum_prach_delay_slots = 0;\n+    // Number of failed PDSCH allocations due to late HARQs.\n+    unsigned nof_failed_pdsch_allocs_late_harqs = 0;\n+    // Number of failed PUSCH allocations due to late HARQs.\n+    unsigned nof_failed_pusch_allocs_late_harqs = 0;\n   };\n \n   scheduler_cell_metrics_notifier& notifier;\n@@ -215,6 +219,12 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   /// \\brief Handle Error Indication reported to the scheduler for a given cell.\n   void handle_error_indication();\n \n+  /// \\brief Handle late DL HARQ indication.\n+  void handle_late_dl_harqs();\n+\n+  /// \\brief Handle late UL HARQ indication.\n+  void handle_late_ul_harqs();\n+\n   /// \\brief Handle results stored in the scheduler result and push new entry.\n   void push_result(slot_point sl_tx, const sched_result& slot_result, std::chrono::microseconds slot_decision_latency);\n ",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/intra_slice_scheduler.cpp",
+      "patch": "@@ -100,10 +100,12 @@ intra_slice_scheduler::intra_slice_scheduler(const scheduler_ue_expert_config& e\n                                              pdcch_resource_allocator&         pdcch_alloc,\n                                              uci_allocator&                    uci_alloc_,\n                                              cell_resource_allocator&          cell_alloc_,\n+                                             cell_metrics_handler&             cell_metrics_,\n                                              cell_harq_manager&                cell_harqs_,\n                                              srslog::basic_logger&             logger_) :\n   expert_cfg(expert_cfg_),\n   cell_alloc(cell_alloc_),\n+  cell_metrics(cell_metrics_),\n   cell_harqs(cell_harqs_),\n   uci_alloc(uci_alloc_),\n   logger(logger_),\n@@ -661,7 +663,6 @@ bool intra_slice_scheduler::can_allocate_pusch(const slice_ue& u, const ue_cell&\n   // Check if PDCCH/PUSCH are possible for the provided slots (e.g. not in UL slot or measGap)\n   return ue_cc.is_pusch_enabled(pdcch_slot, pusch_slot);\n }\n-\n std::optional<ue_newtx_candidate> intra_slice_scheduler::create_newtx_dl_candidate(const slice_ue& u) const\n {\n   const ue_cell& ue_cc = u.get_cc();\n@@ -682,19 +683,19 @@ std::optional<ue_newtx_candidate> intra_slice_scheduler::create_newtx_dl_candida\n     if (not ue_cc.harqs.find_pending_dl_retx().has_value()) {\n       // All HARQs are waiting for their respective HARQ-ACK. This may be a symptom of a long RTT for the PDSCH\n       // and HARQ-ACK.\n-      logger.warning(\n+      logger.info(\n           \"ue={} rnti={} PDSCH allocation skipped. Cause: All the HARQs are allocated and waiting for their \"\n           \"respective HARQ-ACK. Check if any HARQ-ACK went missing in the lower layers or is arriving too late to \"\n           \"the scheduler.\",\n           fmt::underlying(ue_cc.ue_index),\n           ue_cc.rnti());\n+      cell_metrics.handle_late_dl_harqs();\n     }\n     return std::nullopt;\n   }\n \n   return ue_newtx_candidate{&u, &ue_cc, pending_bytes, forbid_sched_priority};\n }\n-\n std::optional<ue_newtx_candidate> intra_slice_scheduler::create_newtx_ul_candidate(const slice_ue& u) const\n {\n   const ue_cell& ue_cc = u.get_cc();\n@@ -714,11 +715,12 @@ std::optional<ue_newtx_candidate> intra_slice_scheduler::create_newtx_ul_candida\n     // No available HARQs.\n     if (not ue_cc.harqs.find_pending_ul_retx().has_value()) {\n       // All HARQs are waiting for their respective CRC. This may be a symptom of a slow PUSCH processing chain.\n-      logger.warning(\"ue={} rnti={} PUSCH allocation skipped. Cause: All the UE HARQs are busy waiting for \"\n-                     \"their respective CRC result. Check if any CRC PDU went missing in the lower layers or is \"\n-                     \"arriving too late to the scheduler.\",\n-                     fmt::underlying(ue_cc.ue_index),\n-                     ue_cc.rnti());\n+      logger.info(\"ue={} rnti={} PUSCH allocation skipped. Cause: All the UE HARQs are busy waiting for \"\n+                  \"their respective CRC result. Check if any CRC PDU went missing in the lower layers or is \"\n+                  \"arriving too late to the scheduler.\",\n+                  fmt::underlying(ue_cc.ue_index),\n+                  ue_cc.rnti());\n+      cell_metrics.handle_late_ul_harqs();\n     }\n     return std::nullopt;\n   }",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/intra_slice_scheduler.h",
+      "patch": "@@ -10,6 +10,7 @@\n \n #pragma once\n \n+#include \"../logging/scheduler_metrics_handler.h\"\n #include \"../policy/scheduler_policy.h\"\n #include \"../slicing/ran_slice_candidate.h\"\n #include \"ue_cell_grid_allocator.h\"\n@@ -28,6 +29,7 @@ class intra_slice_scheduler\n                         pdcch_resource_allocator&         pdcch_alloc,\n                         uci_allocator&                    uci_alloc,\n                         cell_resource_allocator&          cell_alloc,\n+                        cell_metrics_handler&             cell_metrics_,\n                         cell_harq_manager&                cell_harqs_,\n                         srslog::basic_logger&             logger_);\n \n@@ -92,6 +94,7 @@ class intra_slice_scheduler\n \n   const scheduler_ue_expert_config& expert_cfg;\n   const cell_resource_allocator&    cell_alloc;\n+  cell_metrics_handler&             cell_metrics;\n   cell_harq_manager&                cell_harqs;\n   uci_allocator&                    uci_alloc;\n   srslog::basic_logger&             logger;",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler_impl.cpp",
+      "patch": "@@ -226,6 +226,7 @@ ue_scheduler_impl::cell_context::cell_context(const scheduler_ue_expert_config&\n                     *params.pdcch_sched,\n                     *params.uci_alloc,\n                     *params.cell_res_alloc,\n+                    *params.cell_metrics,\n                     cell_harqs,\n                     srslog::fetch_basic_logger(\"SCHED\")),\n   srs_sched(params.cell_res_alloc->cfg, ues)",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/policy/scheduler_policy_test.cpp",
+      "patch": "@@ -54,7 +54,8 @@ class base_scheduler_policy_test\n       return cell_cfg_list.emplace(to_du_cell_index(0), std::make_unique<cell_configuration>(sched_cfg, msg)).get();\n     }()),\n     slice_sched(cell_cfg, ues),\n-    intra_slice_sched(cell_cfg.expert_cfg.ue, ues, pdcch_alloc, uci_alloc, res_grid, cell_harqs, logger)\n+    cell_metrics(cell_cfg, msg.metrics),\n+    intra_slice_sched(cell_cfg.expert_cfg.ue, ues, pdcch_alloc, uci_alloc, res_grid, cell_metrics, cell_harqs, logger)\n   {\n     logger.set_level(srslog::basic_levels::debug);\n     srslog::init();\n@@ -184,6 +185,7 @@ class base_scheduler_policy_test\n   ue_repository        ues;\n   // NOTE: Policy scheduler is part of RAN slice instances created in slice scheduler.\n   inter_slice_scheduler slice_sched;\n+  cell_metrics_handler  cell_metrics;\n   intra_slice_scheduler intra_slice_sched;\n \n   slot_point next_slot{0, test_rgen::uniform_int<unsigned>(0, 10239)};",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 8,
+  "commit_details_path": ".\\commit_metadata\\6c73f75.json"
+}

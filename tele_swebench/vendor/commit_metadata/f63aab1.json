@@ -1,0 +1,29 @@
+{
+  "commit_id": "f63aab1695cb2361e2573429a0a8180558f894ce",
+  "commit_sha_short": "f63aab1",
+  "commit_folder": "f63aab1",
+  "commit_message": "asn1: fix boundary check in cbit_ref::unpack",
+  "commit_message_first_line": "asn1: fix boundary check in cbit_ref::unpack",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/f63aab1695cb2361e2573429a0a8180558f894ce",
+  "commit_date": "2023-09-11T15:09:13Z",
+  "parent_sha": "6166739632f0bbc2e6c5a4cc8e9fd48a05be235e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/6166739632f0bbc2e6c5a4cc8e9fd48a05be235e",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -200,6 +200,10 @@ SRSASN_CODE cbit_ref::unpack(T& val, uint32_t n_bits)\n   srsran_assert(n_bits <= sizeof(T) * 8, \"unpack_bits() only supports up to {} bits\", sizeof(T) * 8);\n   val = 0;\n   while (n_bits > 0) {\n+    if (it == buffer.end()) {\n+      log_error(\"{}: Buffer size limit {} was reached.\", __FUNCTION__, buffer.length());\n+      return SRSASN_ERROR_DECODE_FAIL;\n+    }\n     if ((uint32_t)(8 - offset) > n_bits) {\n       uint8_t mask = (uint8_t)(1u << (8u - offset)) - (uint8_t)(1u << (8u - offset - n_bits));\n       val += ((uint32_t)((*it) & mask)) >> (8u - offset - n_bits);\n@@ -210,10 +214,6 @@ SRSASN_CODE cbit_ref::unpack(T& val, uint32_t n_bits)\n       val += ((uint64_t)((*it) & mask)) << (n_bits - 8 + offset);\n       n_bits -= 8 - offset;\n       offset = 0;\n-      if (it == buffer.end()) {\n-        log_error(\"{}: Buffer size limit {} was achieved.\", __FUNCTION__, buffer.length());\n-        return SRSASN_ERROR_DECODE_FAIL;\n-      }\n       ++it;\n     }\n   }",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -25,6 +25,20 @@ std::mt19937       g(rd());\n \n srsran::log_sink_spy* test_spy = nullptr;\n \n+TEST(asn1_bit_ref_test, unpack_empty_buffer)\n+{\n+  byte_buffer pdu;\n+  cbit_ref    bref(pdu);\n+  uint8_t     dummy  = 0;\n+  SRSASN_CODE result = bref.unpack(dummy, 1);\n+  ASSERT_EQ(result, SRSASN_ERROR_DECODE_FAIL);\n+\n+  // Make sure the log backend has already processed the generated log entries.\n+  srslog::flush();\n+  TESTASSERT(test_spy->get_error_counter() == 1 and test_spy->get_warning_counter() == 0);\n+  test_spy->reset_counters();\n+}\n+\n TEST(asn1_bit_ref_test, if_no_pack_is_called_buffer_stays_empty)\n {\n   byte_buffer pdu;\n@@ -598,6 +612,7 @@ TEST(asn1_enumerated, pack_unpack)\n   // Make sure the log backend has already processed the generated log entries.\n   srslog::flush();\n   TESTASSERT(test_spy->get_error_counter() == 2 and test_spy->get_warning_counter() == 0);\n+  test_spy->reset_counters();\n }\n \n class EnumBoolTest",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\f63aab1.json"
+}

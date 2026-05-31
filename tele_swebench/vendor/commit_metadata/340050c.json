@@ -1,0 +1,22 @@
+{
+  "commit_id": "340050cfd17fda138894d5605f9d21ff2fa12392",
+  "commit_sha_short": "340050c",
+  "commit_folder": "340050c",
+  "commit_message": "band_helper: fix UL ARFCN derivation\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "band_helper: fix UL ARFCN derivation",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/340050cfd17fda138894d5605f9d21ff2fa12392",
+  "commit_date": "2024-10-02T08:59:52Z",
+  "parent_sha": "1eaad26485c641211dff6a8b8cb2a14a9d239acb",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/1eaad26485c641211dff6a8b8cb2a14a9d239acb",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -815,7 +815,7 @@ uint32_t srsran::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn, std:\n \n   // Derive UL ARFCN for FDD bands.\n   for (const nr_band_raster& b_it : nr_band_table) {\n-    if (b_it.band == get_band_from_dl_arfcn(dl_arfcn)) {\n+    if (b_it.band == operating_band) {\n       const uint32_t offset = (dl_arfcn - b_it.dl_nref_first) / b_it.dl_nref_step;\n       return (b_it.ul_nref_first + offset * b_it.ul_nref_step);\n     }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\340050c.json"
+}

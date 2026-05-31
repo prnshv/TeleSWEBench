@@ -1,0 +1,71 @@
+{
+  "commit_id": "fe290383f192a9d05319512b6a191e472ec6e9cd",
+  "commit_sha_short": "fe29038",
+  "commit_folder": "fe29038",
+  "commit_message": "Support: minor cosmetic changes",
+  "commit_message_first_line": "Support: minor cosmetic changes",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/fe290383f192a9d05319512b6a191e472ec6e9cd",
+  "commit_date": "2024-08-12T17:34:37Z",
+  "parent_sha": "343bf5c06396f52caa687b1cc544020c05900c28",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/343bf5c06396f52caa687b1cc544020c05900c28",
+  "code_changes": [
+    {
+      "filename": "include/srsran/support/async/protocol_transaction_manager.h",
+      "patch": "@@ -165,7 +165,7 @@ class protocol_transaction_manager\n \n public:\n   /// Time limit for a transaction to complete.\n-  const static std::chrono::milliseconds max_timeout;\n+  static const std::chrono::milliseconds max_timeout;\n \n   explicit protocol_transaction_manager(protocol_transaction_id_t nof_transaction_ids_, timer_factory timer_service_) :\n     nof_transaction_ids(nof_transaction_ids_), timer_service(timer_service_)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/fixed_size_memory_block_pool.h",
+      "patch": "@@ -56,10 +56,10 @@ template <typename IdTag, bool DebugSanitizeAddress = false>\n class fixed_size_memory_block_pool\n {\n   /// The number of blocks in batch that the worker can steal from the central cache.\n-  constexpr static size_t block_batch_size = 32U;\n+  static constexpr size_t block_batch_size = 32U;\n \n   /// The number of batches of blocks that a worker can store in its own thread for non-contended access.\n-  constexpr static size_t MAX_LOCAL_BATCH_CAPACITY = 64U;\n+  static constexpr size_t MAX_LOCAL_BATCH_CAPACITY = 64U;\n \n   /// A batch of memory blocks that is exchanged in bulk between the central and local caches.\n   using memory_block_batch = free_memory_block_list;\n@@ -71,7 +71,7 @@ class fixed_size_memory_block_pool\n   // to account the potential number of producers. The way to exactly over-dimension this queue is inconvenient, so\n   // we just try to conservatively ensure it can accommodate up to 32 producers for a block size of 32. If this is\n   // not enough, the queue will resize itself and malloc in the process.\n-  const static size_t OVER_DIM_CENTRAL_CACHE = 2 * 32 * 32;\n+  static const size_t OVER_DIM_CENTRAL_CACHE = 2 * 32 * 32;\n \n   /// Ctor of the memory pool. It is set as private because the class works as a singleton.\n   explicit fixed_size_memory_block_pool(size_t nof_blocks_, size_t memory_block_size_) :",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/memory_block_list.h",
+      "patch": "@@ -32,8 +32,8 @@ class intrusive_memory_block_list\n   node*       tail  = nullptr;\n   std::size_t count = 0;\n \n-  constexpr static std::size_t min_memory_block_size() { return sizeof(node); }\n-  constexpr static std::size_t min_memory_block_align() { return alignof(node); }\n+  static constexpr std::size_t min_memory_block_size() { return sizeof(node); }\n+  static constexpr std::size_t min_memory_block_align() { return alignof(node); }\n \n   /// Pushes a new memory block to the linked list.\n   void push(void* block) noexcept\n@@ -227,4 +227,4 @@ class concurrent_free_memory_block_list\n   mutable std::mutex     mutex;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/bit_encoding.cpp",
+      "patch": "@@ -94,7 +94,7 @@ bool bit_decoder::advance_bits(uint32_t n_bits)\n   return true;\n }\n \n-template <class T>\n+template <typename T>\n bool bit_decoder::unpack(T& val, uint32_t n_bits)\n {\n   srsran_assert(n_bits <= sizeof(T) * 8U, \"unpack_bits() only supports up to {} bits\", sizeof(T) * 8U);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -25,7 +25,7 @@ detail::byte_buffer_segment_pool& srsran::detail::get_default_byte_buffer_segmen\n {\n   // Initialize byte buffer segment pool, if not yet initialized.\n   // Note: In case of unit tests, this function will be called rather than init_byte_buffer_segment_pool(...).\n-  constexpr static size_t default_byte_buffer_segment_pool_size = 16384;\n+  static constexpr size_t default_byte_buffer_segment_pool_size = 16384;\n   static auto&            pool = detail::byte_buffer_segment_pool::get_instance(default_byte_buffer_segment_pool_size,\n                                                                      byte_buffer_segment_pool_default_segment_size());\n   return pool;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/support/executors/task_execution_manager.cpp",
+      "patch": "@@ -391,8 +391,8 @@ struct priority_worker_pool_context final : public common_task_execution_context\n         [&params]() {\n           std::vector<concurrent_queue_params> qparams{params.queues.size()};\n           for (unsigned i = 0; i != params.queues.size(); ++i) {\n-            report_error_if_not(params.queues[i].policy != srsran::concurrent_queue_policy::lockfree_mpmc or\n-                                    params.queues[i].policy != srsran::concurrent_queue_policy::locking_mpmc,\n+            report_error_if_not(params.queues[i].policy != concurrent_queue_policy::lockfree_mpmc or\n+                                    params.queues[i].policy != concurrent_queue_policy::locking_mpmc,\n                                 \"Only MPMC queues are supported for worker pools\");\n             qparams[i].policy = params.queues[i].policy;\n             qparams[i].size   = params.queues[i].size;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/sdu_window_impl.h",
+      "patch": "@@ -58,8 +58,8 @@ class sdu_window_impl final : public sdu_window<T>\n   bool has_sn(uint32_t sn) const override { return window.contains(sn); }\n \n private:\n-  PREFIXED_LOGGER&                               logger;\n-  srsran::circular_map<uint32_t, T, WINDOW_SIZE> window;\n+  PREFIXED_LOGGER&                       logger;\n+  circular_map<uint32_t, T, WINDOW_SIZE> window;\n };\n \n } // namespace srsran",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/sysinfo.cpp",
+      "patch": "@@ -233,7 +233,7 @@ bool srsran::check_cpu_governor(srslog::basic_logger& logger)\n {\n   static const char* filename_base = \"/sys/devices/system/cpu/cpu\";\n \n-  for (unsigned int i = 0, e = std::thread::hardware_concurrency(); i != e; ++i) {\n+  for (unsigned i = 0, e = std::thread::hardware_concurrency(); i != e; ++i) {\n     std::string filename = fmt::format(\"{}{}{}\", filename_base, i, \"/cpufreq/scaling_governor\");\n \n     std::ifstream input(filename);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 8,
+  "commit_details_path": ".\\commit_metadata\\fe29038.json"
+}

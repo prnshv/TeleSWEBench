@@ -1,0 +1,36 @@
+{
+  "commit_id": "08c1696c1c775380ae6c85804d533096384badd6",
+  "commit_sha_short": "08c1696",
+  "commit_folder": "08c1696",
+  "commit_message": "gnb: fix error message for invalid band and arfcn",
+  "commit_message_first_line": "gnb: fix error message for invalid band and arfcn",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/08c1696c1c775380ae6c85804d533096384badd6",
+  "commit_date": "2023-02-20T22:03:26Z",
+  "parent_sha": "ec692e2857092df907c7bd78d58e8743e213b03f",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/ec692e2857092df907c7bd78d58e8743e213b03f",
+  "code_changes": [
+    {
+      "filename": "apps/gnb/gnb_appconfig_validators.cpp",
+      "patch": "@@ -113,9 +113,17 @@ static bool validate_base_cell_appconfig(const base_cell_appconfig& config)\n     fmt::print(\"Currently, only one UL antenna is supported.\\n\", config.nof_antennas_ul);\n     return false;\n   }\n-  if (config.band.has_value() and not band_helper::is_dl_arfcn_valid_given_band(*config.band, config.dl_arfcn)) {\n-    fmt::print(\"Chosen band={} does not include chosen DL ARFCN={}.\\n\", *config.band, config.dl_arfcn);\n-    return false;\n+  if (config.band.has_value()) {\n+    error_type<std::string> ret = band_helper::is_dl_arfcn_valid_given_band(*config.band, config.dl_arfcn);\n+    if (ret.is_error()) {\n+      fmt::print(\"Invalid DL ARFCN={} for band {}. Cause: {}.\\n\", config.dl_arfcn, *config.band, ret.error());\n+      return false;\n+    }\n+  } else {\n+    if (band_helper::get_band_from_dl_arfcn(config.dl_arfcn) == nr_band::invalid) {\n+      fmt::print(\"Invalid DL ARFCN={}. Cause: Could not find a valid band.\\n\", config.dl_arfcn);\n+      return false;\n+    }\n   }\n \n   if (!validate_pdcch_cell_app_config(config.pdcch_cfg)) {",
+      "additions": 11,
+      "deletions": 3,
+      "changes": 14
+    },
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -13,6 +13,7 @@\n /// This header is currently used only by the MAC to compute extra SSB parameters (needed for scheduling) from those\n /// provided by DU.\n \n+#include \"srsran/adt/expected.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/ssb_properties.h\"\n #include <stdint.h>\n@@ -98,8 +99,8 @@ nr_band get_band_from_dl_arfcn(uint32_t arfcn);\n /// \\brief     Checks whether a Downlink ARFCN is valid for a given band.\n /// \\param[in] band Given NR band.\n /// \\param[in] arfcn Given Downlink ARFCN.\n-/// \\return    True if band includes Downlink ARFCN. False, otherwise.\n-bool is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn);\n+/// \\return    If the DL ARFCN is invalid for the band, a std::string value is returned with the reason.\n+error_type<std::string> is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn);\n \n /// @brief Get the respective UL ARFCN of a DL ARFCN.\n ///",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -285,22 +285,28 @@ nr_band srsran::band_helper::get_band_from_dl_arfcn(uint32_t arfcn)\n {\n   for (const nr_band_raster& band : nr_band_table_fr1) {\n     // Check given ARFCN is between the first and last possible ARFCN.\n-    if (arfcn >= band.dl_nref_first and arfcn <= band.dl_nref_last) {\n+    if (arfcn >= band.dl_nref_first and arfcn <= band.dl_nref_last and (arfcn % band.dl_nref_step) == 0) {\n       return band.band;\n     }\n   }\n   return nr_band::invalid;\n }\n \n-bool srsran::band_helper::is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn)\n+error_type<std::string> srsran::band_helper::is_dl_arfcn_valid_given_band(nr_band band, uint32_t arfcn)\n {\n   for (const nr_band_raster& raster_band : nr_band_table_fr1) {\n     if (raster_band.band == band) {\n-      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n-             (arfcn % raster_band.dl_nref_step) == 0;\n+      if (arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n+          (arfcn % raster_band.dl_nref_step) == 0) {\n+        return {};\n+      }\n+      return {fmt::format(\"DL ARFCN must be within the interval [{},{}], step {}, for the chosen band\",\n+                          raster_band.dl_nref_first,\n+                          raster_band.dl_nref_last,\n+                          raster_band.dl_nref_step)};\n     }\n   }\n-  return false;\n+  return {fmt::format(\"Band is not valid\")};\n }\n \n uint32_t srsran::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn)\n@@ -313,7 +319,7 @@ uint32_t srsran::band_helper::get_ul_arfcn_from_dl_arfcn(uint32_t dl_arfcn)\n   }\n \n   // Derive UL ARFCN for FDD bands.\n-  for (const auto& band : nr_band_table_fr1) {\n+  for (const nr_band_raster& band : nr_band_table_fr1) {\n     if (band.band == get_band_from_dl_arfcn(dl_arfcn)) {\n       uint32_t offset = (dl_arfcn - band.dl_nref_first) / band.dl_nref_step;\n       return (band.ul_nref_first + offset * band.ul_nref_step);",
+      "additions": 12,
+      "deletions": 6,
+      "changes": 18
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\08c1696.json"
+}

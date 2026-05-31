@@ -1,0 +1,29 @@
+{
+  "commit_id": "0b400a0f6eafa719ee15661067aa592b33bcd37f",
+  "commit_sha_short": "0b400a0",
+  "commit_folder": "0b400a0",
+  "commit_message": "increase ring size for test mode internal storage",
+  "commit_message_first_line": "increase ring size for test mode internal storage",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/0b400a0f6eafa719ee15661067aa592b33bcd37f",
+  "commit_date": "2024-12-19T18:55:56Z",
+  "parent_sha": "213ca4c5891943f49d50f2b0f9ddf24c66256f95",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/213ca4c5891943f49d50f2b0f9ddf24c66256f95",
+  "code_changes": [
+    {
+      "filename": "include/srsran/scheduler/resource_grid_util.h",
+      "patch": "@@ -25,8 +25,8 @@ namespace srsran {\n /// the numerology mu=0 (SCS=15kHz), it will be also satisfied for the same RING_ALLOCATOR_SIZE and larger numerologies.\n /// This means that in contexts where mu is not known (e.g. compile time), mu=0 can be used for generality sake,\n /// at the expense of more memory overhead.\n-constexpr inline unsigned get_allocator_ring_size_gt_min(unsigned           minimum_value,\n-                                                         subcarrier_spacing scs = subcarrier_spacing::kHz15)\n+constexpr unsigned get_allocator_ring_size_gt_min(unsigned           minimum_value,\n+                                                  subcarrier_spacing scs = subcarrier_spacing::kHz15)\n {\n   auto power2_ceil = [](unsigned x) {\n     if (x <= 1)\n@@ -44,7 +44,7 @@ constexpr inline unsigned get_allocator_ring_size_gt_min(unsigned           mini\n }\n \n /// \\brief Retrieves how far in advance the scheduler can allocate resources in the UL resource grid.\n-constexpr inline unsigned get_max_slot_ul_alloc_delay(unsigned ntn_cs_koffset)\n+constexpr unsigned get_max_slot_ul_alloc_delay(unsigned ntn_cs_koffset)\n {\n   return SCHEDULER_MAX_K0 + std::max(SCHEDULER_MAX_K1, SCHEDULER_MAX_K2 + MAX_MSG3_DELTA) + ntn_cs_koffset;\n }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -55,9 +55,12 @@ class test_ue_mac_sdu_tx_builder_adapter : public mac_sdu_tx_builder\n \n size_t get_ring_size(const mac_cell_creation_request& cell_cfg)\n {\n+  // Estimation of the time it takes the UL lower-layers to process and forward CRC/UCI indications.\n+  constexpr static unsigned MAX_UL_PHY_DELAY = 40;\n   // Note: The history ring size has to be a multiple of the TDD frame size in slots.\n   // Number of slots managed by this container.\n-  return get_allocator_ring_size_gt_min(get_max_slot_ul_alloc_delay(cell_cfg.sched_req.ntn_cs_koffset));\n+  return get_allocator_ring_size_gt_min(get_max_slot_ul_alloc_delay(cell_cfg.sched_req.ntn_cs_koffset) +\n+                                        MAX_UL_PHY_DELAY);\n }\n \n } // namespace",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\0b400a0.json"
+}

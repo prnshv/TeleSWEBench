@@ -1,0 +1,50 @@
+{
+  "commit_id": "9cec4b3ccb086bd33cd3f6136801fc80721395d8",
+  "commit_sha_short": "9cec4b3",
+  "commit_folder": "9cec4b3",
+  "commit_message": "sched: invalid HARQs metric for PUCCH Formats 0 and 1",
+  "commit_message_first_line": "sched: invalid HARQs metric for PUCCH Formats 0 and 1",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9cec4b3ccb086bd33cd3f6136801fc80721395d8",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "8ab25e5f04d4e52de0b31d27d92f7db814b63345",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/8ab25e5f04d4e52de0b31d27d92f7db814b63345",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -41,6 +41,7 @@ DECLARE_METRIC(\"ul_brate\", metric_ul_brate, double, \"\");\n DECLARE_METRIC(\"ul_nof_ok\", metric_ul_nof_ok, unsigned, \"\");\n DECLARE_METRIC(\"ul_nof_nok\", metric_ul_nof_nok, unsigned, \"\");\n DECLARE_METRIC(\"bsr\", metric_bsr, unsigned, \"\");\n+DECLARE_METRIC(\"nof_pucch_f0f1_invalid_harqs\", metric_nof_pucch_f0f1_invalid_harqs, unsigned, \"\");\n DECLARE_METRIC(\"nof_pucch_f2f3f4_invalid_harqs\", metric_nof_pucch_f2f3f4_invalid_harqs, unsigned, \"\");\n DECLARE_METRIC(\"nof_pucch_f2f3f4_invalid_csis\", metric_nof_pucch_f2f3f4_invalid_csis, unsigned, \"\");\n DECLARE_METRIC(\"nof_pusch_invalid_harqs\", metric_nof_pusch_invalid_harqs, unsigned, \"\");\n@@ -67,6 +68,7 @@ DECLARE_METRIC_SET(\"ue_container\",\n                    metric_ul_nof_ok,\n                    metric_ul_nof_nok,\n                    metric_bsr,\n+                   metric_nof_pucch_f0f1_invalid_harqs,\n                    metric_nof_pucch_f2f3f4_invalid_harqs,\n                    metric_nof_pucch_f2f3f4_invalid_csis,\n                    metric_nof_pusch_invalid_harqs,\n@@ -253,6 +255,7 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const app_services::met\n     output.write<metric_dl_nof_ok>(ue.dl_nof_ok);\n     output.write<metric_dl_nof_nok>(ue.dl_nof_nok);\n     output.write<metric_dl_bs>(ue.dl_bs);\n+    output.write<metric_nof_pucch_f0f1_invalid_harqs>(ue.nof_pucch_f0f1_invalid_harqs);\n     output.write<metric_nof_pucch_f2f3f4_invalid_harqs>(ue.nof_pucch_f2f3f4_invalid_harqs);\n     output.write<metric_nof_pucch_f2f3f4_invalid_csis>(ue.nof_pucch_f2f3f4_invalid_csis);\n     output.write<metric_nof_pusch_invalid_harqs>(ue.nof_pusch_invalid_harqs);",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -42,6 +42,7 @@ struct scheduler_ue_metrics {\n   unsigned             bsr;\n   unsigned             sr_count;\n   unsigned             dl_bs;\n+  unsigned             nof_pucch_f0f1_invalid_harqs;\n   unsigned             nof_pucch_f2f3f4_invalid_harqs;\n   unsigned             nof_pucch_f2f3f4_invalid_csis;\n   unsigned             nof_pusch_invalid_harqs;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -140,7 +140,7 @@ void cell_metrics_handler::handle_harq_timeout(du_ue_index_t ue_index, bool is_d\n   }\n }\n \n-void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_pdu& pdu)\n+void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_pdu& pdu, bool is_sr_opportunity_and_f1)\n {\n   if (ues.contains(pdu.ue_index)) {\n     auto& u = ues[pdu.ue_index];\n@@ -154,6 +154,11 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n         u.data.ta.update(f0f1->time_advance_offset->to_seconds());\n         u.data.pucch_ta.update(f0f1->time_advance_offset->to_seconds());\n       }\n+\n+      if (not is_sr_opportunity_and_f1 and not f0f1->harqs.empty() and\n+          f0f1->harqs[0] != mac_harq_ack_report_status::dtx) {\n+        u.data.nof_pucch_f0f1_invalid_harqs++;\n+      }\n     } else if (const auto* f2f3f4 = std::get_if<uci_indication::uci_pdu::uci_pucch_f2_or_f3_or_f4_pdu>(&pdu.pdu)) {\n       if (f2f3f4->ul_sinr_dB.has_value()) {\n         handle_pucch_sinr(u, f2f3f4->ul_sinr_dB.value());\n@@ -395,6 +400,8 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   if (data.nof_ul_ces > 0) {\n     ret.mean_ce_delay_msec = (static_cast<float>(data.sum_ul_ce_delay_slots) / (data.nof_ul_ces * slots_per_sf));\n   }\n+  ret.nof_pucch_f0f1_invalid_harqs   = data.nof_pucch_f0f1_invalid_harqs;\n+  ret.nof_pucch_f2f3f4_invalid_harqs = data.nof_pucch_f2f3f4_invalid_harqs;\n   ret.nof_pucch_f2f3f4_invalid_harqs = data.nof_pucch_f2f3f4_invalid_harqs;\n   ret.nof_pucch_f2f3f4_invalid_csis  = data.nof_pucch_f2f3f4_invalid_csis;\n   ret.nof_pusch_invalid_harqs        = data.nof_pusch_invalid_harqs;",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -50,6 +50,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n       double   sum_pusch_rsrp                 = 0;\n       unsigned sum_crc_delay_slots            = 0;\n       unsigned nof_pucch_snr_reports          = 0;\n+      unsigned nof_pucch_f0f1_invalid_harqs   = 0;\n       unsigned nof_pucch_f2f3f4_invalid_harqs = 0;\n       unsigned nof_pucch_f2f3f4_invalid_csis  = 0;\n       unsigned nof_pusch_snr_reports          = 0;\n@@ -155,7 +156,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   void handle_harq_timeout(du_ue_index_t ue_index, bool is_dl);\n \n   /// \\brief Handle UCI PDU indication.\n-  void handle_uci_pdu_indication(const uci_indication::uci_pdu& pdu);\n+  void handle_uci_pdu_indication(const uci_indication::uci_pdu& pdu, bool is_sr_opportunity_and_f1);\n \n   /// \\brief Handle SR indication.\n   void handle_sr_indication(du_ue_index_t ue_index);",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"../logging/scheduler_event_logger.h\"\n #include \"../logging/scheduler_metrics_handler.h\"\n #include \"../srs/srs_scheduler.h\"\n+#include \"../support/sr_helper.h\"\n #include \"../uci_scheduling/uci_scheduler_impl.h\"\n #include \"srsran/support/memory_pool/unbounded_object_pool.h\"\n \n@@ -545,8 +546,29 @@ void ue_event_manager::handle_uci_indication(const uci_indication& ind)\n     if (not cell_specific_events[ind.cell_index].try_push(cell_event_t{\n             ind.ucis[i].ue_index,\n             [this, uci_sl = ind.slot_rx, uci_pdu = std::move(uci_ptr)](ue_cell& ue_cc) {\n+              bool is_sr_opportunity_and_f1 = false;\n               if (const auto* pucch_f0f1 =\n                       std::get_if<uci_indication::uci_pdu::uci_pucch_f0_or_f1_pdu>(&uci_pdu->pdu)) {\n+                // Check if this UCI is from slot with a SR opportunity.\n+                if (ue_cc.cfg().cfg_dedicated().ul_config.has_value() and\n+                    ue_cc.cfg().cfg_dedicated().ul_config.value().init_ul_bwp.pucch_cfg.has_value()) {\n+                  const auto& pucch_cfg = ue_cc.cfg().cfg_dedicated().ul_config.value().init_ul_bwp.pucch_cfg.value();\n+\n+                  bool is_format_1 = false;\n+                  for (const auto& pucch_res : pucch_cfg.pucch_res_list) {\n+                    if (pucch_res.format == pucch_format::FORMAT_1) {\n+                      is_format_1 = true;\n+                      break;\n+                    }\n+                    if (pucch_res.format == pucch_format::FORMAT_0) {\n+                      break;\n+                    }\n+                  }\n+\n+                  // This check is only needed for PUCCH Format 1.\n+                  is_sr_opportunity_and_f1 = is_format_1 and sr_helper::is_sr_opportunity_slot(pucch_cfg, uci_sl);\n+                }\n+\n                 // Process DL HARQ ACKs.\n                 if (not pucch_f0f1->harqs.empty()) {\n                   handle_harq_ind(ue_cc, uci_sl, pucch_f0f1->harqs, pucch_f0f1->ul_sinr_dB);\n@@ -634,7 +656,7 @@ void ue_event_manager::handle_uci_indication(const uci_indication& ind)\n               }\n \n               // Report the UCI PDU to the metrics handler.\n-              du_cells[ue_cc.cell_index].metrics->handle_uci_pdu_indication(*uci_pdu);\n+              du_cells[ue_cc.cell_index].metrics->handle_uci_pdu_indication(*uci_pdu, is_sr_opportunity_and_f1);\n             },\n             \"UCI\",\n             // Note: We do not warn if the UE is not found, because there is this transient period when the UE",
+      "additions": 23,
+      "deletions": 1,
+      "changes": 24
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\9cec4b3.json"
+}

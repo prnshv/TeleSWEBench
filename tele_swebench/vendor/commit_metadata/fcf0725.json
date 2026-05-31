@@ -1,0 +1,22 @@
+{
+  "commit_id": "fcf0725882372a76215f4e3720876e2927877d44",
+  "commit_sha_short": "fcf0725",
+  "commit_folder": "fcf0725",
+  "commit_message": "support: fix make_byte_buffer funciton",
+  "commit_message_first_line": "support: fix make_byte_buffer funciton",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/fcf0725882372a76215f4e3720876e2927877d44",
+  "commit_date": "2024-04-22T13:48:22Z",
+  "parent_sha": "cd460b950b2a46955e5b9eaff9b057c92bdf7332",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/cd460b950b2a46955e5b9eaff9b057c92bdf7332",
+  "code_changes": [
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -576,7 +576,7 @@ byte_buffer srsran::make_byte_buffer(const std::string& hex_str)\n   for (size_t i = 0, e = hex_str.size(); i != e; i += 2) {\n     uint8_t val;\n     std::sscanf(hex_str.data() + i, \"%02hhX\", &val);\n-    bool success = not ret.append(val);\n+    bool success = ret.append(val);\n     srsran_sanity_check(success, \"Failed to append byte to byte_buffer with fallback allocator\");\n     (void)success;\n   }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\fcf0725.json"
+}

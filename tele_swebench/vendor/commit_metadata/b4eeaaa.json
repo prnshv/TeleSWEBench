@@ -1,0 +1,29 @@
+{
+  "commit_id": "b4eeaaad4c138f4bf92fd9d501ccc7d7f8839853",
+  "commit_sha_short": "b4eeaaa",
+  "commit_folder": "b4eeaaa",
+  "commit_message": "sched: fix prbs calculation for small-payloads high-capacity\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "sched: fix prbs calculation for small-payloads high-capacity",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b4eeaaad4c138f4bf92fd9d501ccc7d7f8839853",
+  "commit_date": "2025-06-04T16:20:52Z",
+  "parent_sha": "06acadf71c63a5ae9e1154677c4fd0913493f1cc",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/06acadf71c63a5ae9e1154677c4fd0913493f1cc",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/support/prbs_calculator.cpp",
+      "patch": "@@ -20,7 +20,7 @@ static float estimate_nof_info_payload_higher_3824_bits(unsigned payload_bits, f\n {\n   // Approximation of the inverse of the TBS derivation based on nof_info_prime.\n   // TODO: Improve this estimation algorithm.\n-  unsigned nof_info_prime_estim = std::max(3840U, payload_bits + 24);\n+  const unsigned nof_info_prime_estim = std::max(3840U, payload_bits + 24);\n \n   unsigned C = 1;\n   if (tcr <= 0.25F) {\n@@ -37,7 +37,7 @@ unsigned srsran::estimate_required_nof_prbs(const prbs_calculator_sch_config& sc\n                                             unsigned                          max_nof_available_rbs)\n {\n   // Convert size into bits, as per TS procedures for TBS.\n-  unsigned payload_size = sch_config.payload_size_bytes * NOF_BITS_PER_BYTE;\n+  const unsigned payload_size = sch_config.payload_size_bytes * NOF_BITS_PER_BYTE;\n \n   float                 nof_info_estimate;\n   static const unsigned payload_step_threshold = 3824;\n@@ -50,17 +50,20 @@ unsigned srsran::estimate_required_nof_prbs(const prbs_calculator_sch_config& sc\n     nof_info_estimate = static_cast<float>(tbs_calculator_table_find_smallest_not_less_than(payload_size));\n   }\n \n-  unsigned nof_bit_per_symbol = get_bits_per_symbol(sch_config.mcs_descr.modulation);\n+  const unsigned nof_bit_per_symbol = get_bits_per_symbol(sch_config.mcs_descr.modulation);\n \n   // Get N_re (as per Section 5.1.3.2, TS 38.214) from N_info.\n   float nof_re =\n       nof_info_estimate / (sch_config.mcs_descr.get_normalised_target_code_rate() *\n                            static_cast<float>(nof_bit_per_symbol) * static_cast<float>(sch_config.nof_layers) *\n                            tbs_calculator_pdsch_get_scaling_factor(sch_config.tb_scaling_field));\n+  // Ensure N_re is at least 1, otherwise for very small-payloads and high MCS + multiple DL layers, we end up with 0\n+  // PRBs.\n+  nof_re = std::max(nof_re, 1.0f);\n \n   // N_info_prime as per Section 5.1.3.2, TS 38.214.\n-  int nof_re_prime = static_cast<int>(NOF_SUBCARRIERS_PER_RB) * static_cast<int>(sch_config.nof_symb_sh) -\n-                     static_cast<int>(sch_config.nof_dmrs_prb) - static_cast<int>(sch_config.nof_oh_prb);\n+  const int nof_re_prime = static_cast<int>(NOF_SUBCARRIERS_PER_RB) * static_cast<int>(sch_config.nof_symb_sh) -\n+                           static_cast<int>(sch_config.nof_dmrs_prb) - static_cast<int>(sch_config.nof_oh_prb);\n   srsran_assert(nof_re_prime > 0, \"nof_re_prime is expected to be positive\");\n \n   // Get the estimated number of PRBs from the N_re and N_info_prime. Cap the returned value to the maximum nof RBs for\n@@ -81,7 +84,7 @@ static sch_prbs_tbs linear_search_nof_prbs_upper_bound(const prbs_calculator_sch\n                                                        unsigned                          max_nof_available_rbs,\n                                                        unsigned                          max_prb_inc_iterations = 5)\n {\n-  unsigned                     payload_size_bits = pdsch_cfg.payload_size_bytes * NOF_BITS_PER_BYTE;\n+  const unsigned               payload_size_bits = pdsch_cfg.payload_size_bytes * NOF_BITS_PER_BYTE;\n   tbs_calculator_configuration tbs_cfg{pdsch_cfg.nof_symb_sh,\n                                        pdsch_cfg.nof_dmrs_prb,\n                                        pdsch_cfg.nof_oh_prb,\n@@ -129,7 +132,7 @@ sch_prbs_tbs srsran::get_nof_prbs(const prbs_calculator_sch_config& sch_config,\n   srsran_assert(max_nof_available_rbs <= MAX_NOF_PRBS, \"Invalid number of RBs provided\");\n \n   // Get a first estimate for the number of PRBs.\n-  unsigned nof_prbs_estimate = estimate_required_nof_prbs(sch_config, max_nof_available_rbs);\n+  const unsigned nof_prbs_estimate = estimate_required_nof_prbs(sch_config, max_nof_available_rbs);\n \n   // Linearly search for the optimal number of PRBs using \"nof_prbs_estimate\" as initial guess.\n   return linear_search_nof_prbs_upper_bound(sch_config, nof_prbs_estimate, max_nof_available_rbs);",
+      "additions": 10,
+      "deletions": 7,
+      "changes": 17
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/prbs_calculator_test.cpp",
+      "patch": "@@ -111,6 +111,9 @@ TEST(nof_prb_calculation, test_entries_match)\n       {{372, 12, 36, 0, {modulation_scheme::QPSK,  379}, 1, 0}, 37U, 372U},\n       // This entry is the edge-case when TBS derivation stops being table-based (3824 bits, or 478 bytes).\n       {{478, 12, 36, 0, {modulation_scheme::QPSK,  379}, 1, 0}, 48U, 480U},\n+      // This entry is to test the PRB computation in case of small-payload and high-capacity, it should be\n+      // at least 1 PRB.\n+      {{2,  13, 36, 0, {modulation_scheme::QAM256,  948}, 4, 0}, 1U,  453U},\n       // clang-format on\n   };\n ",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\b4eeaaa.json"
+}

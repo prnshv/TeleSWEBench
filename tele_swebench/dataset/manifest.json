@@ -1,0 +1,14 @@
+{
+  "name": "TeleSWEBench-734",
+  "total_questions": 734,
+  "counts_by_difficulty": {
+    "easy": 142,
+    "medium": 279,
+    "hard": 313
+  },
+  "files": {
+    "easy": "bundled/easy.json",
+    "medium": "bundled/medium.json",
+    "hard": "bundled/hard.json"
+  }
+}

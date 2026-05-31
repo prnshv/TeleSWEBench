@@ -1,0 +1,50 @@
+{
+  "commit_id": "601c1e556738affaac02eca562856ae28d109385",
+  "commit_sha_short": "601c1e5",
+  "commit_folder": "601c1e5",
+  "commit_message": "phy,ran: review comments and docs",
+  "commit_message_first_line": "phy,ran: review comments and docs",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/601c1e556738affaac02eca562856ae28d109385",
+  "commit_date": "2023-01-09T10:08:18Z",
+  "parent_sha": "293e12242fee0a01033b80471f488b82dfcc84ab",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/293e12242fee0a01033b80471f488b82dfcc84ab",
+  "code_changes": [
+    {
+      "filename": "include/srsgnb/ran/pdsch/dlsch_info.h",
+      "patch": "@@ -49,7 +49,7 @@ struct dlsch_information {\n   /// Number of encoded and rate-matched DL-SCH data bits.\n   units::bits nof_dl_sch_bits;\n \n-  /// \\brief Calculates the effective code rate normalised between 0 and 1.\n+  /// \\brief Calculates the effective code rate normalized between 0 and 1.\n   ///\n   /// The effective code rate is determined as the quotient of the number of information bits plus CRCs and the total\n   /// number of channel bits.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsgnb/ran/pusch/ulsch_info.h",
+      "patch": "@@ -83,7 +83,7 @@ struct ulsch_information {\n   /// Number of resource elements occupied by CSI Part 1 information. Parameter \\f$Q'_\\textup{CSI-2}\\f$.\n   unsigned nof_csi_part2_re;\n \n-  /// \\brief Calculates the effective code rate normalised between 0 and 1.\n+  /// \\brief Calculates the effective code rate normalized between 0 and 1.\n   ///\n   /// The effective code rate is determined as the quotient of the number of information bits plus CRCs and the total\n   /// number of channel bits.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/ulsch_demultiplex_impl.cpp",
+      "patch": "@@ -45,7 +45,7 @@ unsigned get_ulsch_demultiplex_nof_re_prb_dmrs(dmrs_type dmrs_, unsigned nof_cdm\n {\n   dmrs_config_type dmrs = (dmrs_ == dmrs_type::TYPE1) ? dmrs_config_type::type1 : dmrs_config_type::type2;\n \n-  // Check DM-RS number of CDM groups without data is valid.\n+  // Check whether the number of CDM groups without data is valid.\n   srsgnb_assert(nof_cdm_groups_without_data >= 1 &&\n                     nof_cdm_groups_without_data <= get_max_nof_cdm_groups_without_data(dmrs),\n                 \"The number of CDM groups without data (i.e., {}) exceeds the maximum (i.e., {}).\",",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pdsch/dlsch_info.cpp",
+      "patch": "@@ -20,7 +20,7 @@ dlsch_information srsgnb::get_dlsch_information(const dlsch_configuration& confi\n   // Get shared channel parameters.\n   result.sch = get_sch_segmentation_info(config.tbs, config.mcs_descr.get_normalised_target_code_rate());\n \n-  // Check DM-RS number of CDM groups without data is valid.\n+  // Check whether the number of CDM groups without data is valid.\n   srsgnb_assert(config.nof_cdm_groups_without_data >= 1 &&\n                     config.nof_cdm_groups_without_data <= get_max_nof_cdm_groups_without_data(config.dmrs_type),\n                 \"The number of CDM groups without data (i.e., {}) is invalid (min. 1, max. {}).\",",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pusch/ulsch_info.cpp",
+      "patch": "@@ -80,7 +80,7 @@ ulsch_information srsgnb::get_ulsch_information(const ulsch_configuration& confi\n   // Get shared channel parameters.\n   result.sch = get_sch_segmentation_info(config.tbs, config.mcs_descr.get_normalised_target_code_rate());\n \n-  // Check DM-RS number of CDM groups without data is valid.\n+  // Check whether the number of CDM groups without data is valid.\n   srsgnb_assert(config.nof_cdm_groups_without_data >= 1 &&\n                     config.nof_cdm_groups_without_data <= get_max_nof_cdm_groups_without_data(config.dmrs_type),\n                 \"The number of CDM groups without data (i.e., {}) is invalid (min. 1, max. {}).\",",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 5,
+  "commit_details_path": ".\\commit_metadata\\601c1e5.json"
+}

@@ -1,0 +1,36 @@
+{
+  "commit_id": "18d1f53280196997d1315d1bc433322e47553201",
+  "commit_sha_short": "18d1f53",
+  "commit_folder": "18d1f53",
+  "commit_message": "support: remove default byte buffer pool segment size from header",
+  "commit_message_first_line": "support: remove default byte buffer pool segment size from header",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/18d1f53280196997d1315d1bc433322e47553201",
+  "commit_date": "2023-12-21T21:03:48Z",
+  "parent_sha": "32ea70bb62e05f7ffbb75b5e7a34bf7ad05eeb8b",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/32ea70bb62e05f7ffbb75b5e7a34bf7ad05eeb8b",
+  "code_changes": [
+    {
+      "filename": "apps/gnb/gnb_appconfig.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"gnb_os_sched_affinity_manager.h\"\n+#include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/adt/variant.h\"\n #include \"srsran/ran/band_helper.h\"\n@@ -1019,7 +1020,7 @@ struct ru_ofh_appconfig {\n \n struct buffer_pool_appconfig {\n   std::size_t nof_segments = 1048576;\n-  std::size_t segment_size = 1024;\n+  std::size_t segment_size = byte_buffer_segment_pool_default_segment_size();\n };\n \n /// CPU isolation configuration in the gNB app.",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -16,7 +16,7 @@\n namespace srsran {\n \n /// Default byte buffer segment size in the byte buffer pool.\n-constexpr static size_t default_byte_buffer_segment_size = 1024;\n+size_t byte_buffer_segment_pool_default_segment_size();\n \n /// \\brief Sets the default size of the default byte_buffer segment pool.\n ///\n@@ -25,7 +25,7 @@ constexpr static size_t default_byte_buffer_segment_size = 1024;\n /// \\param memory_block_size Number, in bytes, for each memory block on which a buffer_byte_segment header and payload\n /// will be stored.\n void init_byte_buffer_segment_pool(std::size_t nof_segments,\n-                                   std::size_t memory_block_size = default_byte_buffer_segment_size);\n+                                   std::size_t memory_block_size = byte_buffer_segment_pool_default_segment_size());\n \n /// \\brief Non-owning view to a byte sequence.\n /// The underlying byte sequence is not contiguous in memory. Instead, it is represented as an intrusive linked list of",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -13,14 +13,19 @@\n \n using namespace srsran;\n \n+size_t srsran::byte_buffer_segment_pool_default_segment_size()\n+{\n+  return 1024;\n+}\n+\n /// Get default byte buffer segment pool. Initialize pool if not initialized before.\n detail::byte_buffer_segment_pool& srsran::detail::get_default_byte_buffer_segment_pool()\n {\n   // Initialize byte buffer segment pool, if not yet initialized.\n   // Note: In case of unit tests, this function will be called rather than init_byte_buffer_segment_pool(...)\n   constexpr static size_t default_byte_buffer_segment_pool_size = 16384;\n   static auto&            pool = detail::byte_buffer_segment_pool::get_instance(default_byte_buffer_segment_pool_size,\n-                                                                     default_byte_buffer_segment_size);\n+                                                                     byte_buffer_segment_pool_default_segment_size());\n   return pool;\n }\n ",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\18d1f53.json"
+}

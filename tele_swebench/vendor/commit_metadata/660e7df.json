@@ -1,0 +1,36 @@
+{
+  "commit_id": "660e7df193cc2a944cb4b7fa51555bb1c2524c5b",
+  "commit_sha_short": "660e7df",
+  "commit_folder": "660e7df",
+  "commit_message": "gnb: use the tool for derive the SSB pointA and k_ssb parameters.",
+  "commit_message_first_line": "gnb: use the tool for derive the SSB pointA and k_ssb parameters.",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/660e7df193cc2a944cb4b7fa51555bb1c2524c5b",
+  "commit_date": "2022-12-13T11:39:36Z",
+  "parent_sha": "f319a5b5a1779dd0321e2560f3d81f902882ba58",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/f319a5b5a1779dd0321e2560f3d81f902882ba58",
+  "code_changes": [
+    {
+      "filename": "apps/gnb/gnb_appconfig_translators.cpp",
+      "patch": "@@ -26,24 +26,10 @@ srs_cu_cp::cu_cp_configuration srsgnb::generate_cu_cp_config(const gnb_appconfig\n   return out_cfg;\n }\n \n-static unsigned calculate_offset_pointA_from_dl_arfcn(unsigned dl_arfcn)\n+static unsigned get_ssb_arfcn_from_ssb_params(unsigned dl_arfcn, unsigned ssb_offset_pointA, unsigned k_ssb)\n {\n-  // :TODO: Implement the functionality.\n-  if (dl_arfcn != 536020) {\n-    srsgnb_terminate(\"dl_arfcn not supported\");\n-  }\n-\n-  return 40U;\n-}\n-\n-static unsigned calculate_k_ssb_from_dl_arfcn(unsigned dl_arfcn, unsigned offset_pointA)\n-{\n-  // :TODO: Implement the functionality.\n-  if (dl_arfcn != 536020) {\n-    srsgnb_terminate(\"dl_arfcn not supported\");\n-  }\n-\n-  return 6U;\n+  // :TODO: Implement me!\n+  return 0;\n }\n \n std::vector<du_cell_config> srsgnb::generate_du_cell_config(const gnb_appconfig& config)\n@@ -61,9 +47,38 @@ std::vector<du_cell_config> srsgnb::generate_du_cell_config(const gnb_appconfig&\n     param.nof_crbs = band_helper::get_n_rbs_from_bw(base_cell.channel_bw_mhz, param.scs_common, frequency_range::FR1);\n     param.dl_arfcn = base_cell.dl_arfcn;\n     param.band     = band_helper::get_band_from_dl_arfcn(base_cell.dl_arfcn);\n-    param.offset_to_point_a = calculate_offset_pointA_from_dl_arfcn(base_cell.dl_arfcn);\n-    param.coreset0_index    = 6;\n-    param.k_ssb             = calculate_k_ssb_from_dl_arfcn(base_cell.dl_arfcn, param.offset_to_point_a.to_uint());\n+\n+    band_helper::ssb_coreset0_freq_location ssb_freq_loc =\n+        band_helper::get_ssb_coreset0_freq_location(base_cell.dl_arfcn, base_cell.band, param.nof_crbs, scs, scs);\n+\n+    if (!ssb_freq_loc.is_valid) {\n+      srsgnb_terminate(\"Invalid SSB pointA ({}) and k_SSB ({}) derivation for cell id ({}). Exiting.\",\n+                       ssb_freq_loc.offset_to_point_A.to_uint(),\n+                       ssb_freq_loc.k_ssb.to_uint(),\n+                       cell.pci);\n+    }\n+\n+    srslog::basic_logger& logger = srslog::fetch_basic_logger(\"gNB appconfig translator\");\n+    logger.set_level(srslog::basic_levels::info);\n+\n+    logger.info(\"SSB derived parameters for cell:{}, dl_arfcn:{}, crbs: {} scs:{}, ssb_scs:{}:\\n\\t - SSB offset \"\n+                \"pointA: {} \\n\\t - k_SSB: {} \\n\\t - SSB arfcn: {}\",\n+                cell.pci,\n+                base_cell.dl_arfcn,\n+                param.nof_crbs,\n+                scs,\n+                scs,\n+                ssb_freq_loc.offset_to_point_A.to_uint(),\n+                ssb_freq_loc.k_ssb.to_uint(),\n+                get_ssb_arfcn_from_ssb_params(\n+                    base_cell.dl_arfcn, ssb_freq_loc.offset_to_point_A.to_uint(), ssb_freq_loc.k_ssb.to_uint()));\n+\n+    //    param.offset_to_point_a = ssb_freq_loc.offset_to_point_A;\n+    //    param.k_ssb             = ssb_freq_loc.k_ssb;\n+    param.offset_to_point_a = 40;\n+    param.k_ssb             = 6;\n+\n+    param.coreset0_index = 6;\n \n     // Create the configuration.\n     out_cfg.push_back(config_helpers::make_default_du_cell_config(param));",
+      "additions": 35,
+      "deletions": 20,
+      "changes": 55
+    },
+    {
+      "filename": "include/srsgnb/ran/pdcch/pdcch_type0_css_occasions.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"../../adt/static_vector.h\"\n+#include \"srsgnb/adt/static_vector.h\"\n \n namespace srsgnb {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -97,7 +97,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 32;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-    // clang-format off\n+       // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\660e7df.json"
+}

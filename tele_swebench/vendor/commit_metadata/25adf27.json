@@ -1,0 +1,120 @@
+{
+  "commit_id": "25adf273d99a38ffe8f56375d2b901506e3e7baf",
+  "commit_sha_short": "25adf27",
+  "commit_folder": "25adf27",
+  "commit_message": "mac: implementation of SI modification request procedure in MAC",
+  "commit_message_first_line": "mac: implementation of SI modification request procedure in MAC",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/25adf273d99a38ffe8f56375d2b901506e3e7baf",
+  "commit_date": "2025-03-31T08:48:43Z",
+  "parent_sha": "b2207bd79d58e5c435bce0876278467d3850fbb2",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b2207bd79d58e5c435bce0876278467d3850fbb2",
+  "code_changes": [
+    {
+      "filename": "include/srsran/mac/mac_cell_manager.h",
+      "patch": "@@ -70,7 +70,7 @@ class mac_cell_manager\n   virtual ~mac_cell_manager() = default;\n \n   /// Add new cell configuration.\n-  virtual void add_cell(const mac_cell_creation_request& cell_cfg) = 0;\n+  virtual mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) = 0;\n \n   /// Remove an existing cell configuration.\n   virtual void remove_cell(du_cell_index_t cell_index) = 0;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -459,10 +459,10 @@ void mac_test_mode_adapter::connect(std::unique_ptr<mac_interface> mac_ptr)\n   mac_adapted = std::move(mac_ptr);\n }\n \n-void mac_test_mode_adapter::add_cell(const mac_cell_creation_request& cell_cfg)\n+mac_cell_controller& mac_test_mode_adapter::add_cell(const mac_cell_creation_request& cell_cfg)\n {\n   // Create cell in real MAC.\n-  mac_adapted->get_cell_manager().add_cell(cell_cfg);\n+  mac_cell_controller& cell = mac_adapted->get_cell_manager().add_cell(cell_cfg);\n \n   // Create the cell in the MAC test mode.\n   auto func_dl_bs_push = [this](rnti_t rnti) {\n@@ -485,6 +485,8 @@ void mac_test_mode_adapter::add_cell(const mac_cell_creation_request& cell_cfg)\n   cell_info_handler[cell_cfg.cell_index] = std::move(new_cell);\n \n   phy_notifier->connect(cell_cfg.cell_index, *cell_info_handler[cell_cfg.cell_index]);\n+\n+  return cell;\n }\n \n void mac_test_mode_adapter::remove_cell(du_cell_index_t cell_index)",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.h",
+      "patch": "@@ -132,7 +132,7 @@ class mac_test_mode_adapter final : public mac_interface,\n   void connect(std::unique_ptr<mac_interface> mac_ptr);\n \n   // mac_cell_manager\n-  void                 add_cell(const mac_cell_creation_request& cell_cfg) override;\n+  mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) override;\n   void                 remove_cell(du_cell_index_t cell_index) override;\n   mac_cell_controller& get_cell_controller(du_cell_index_t cell_index) override;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/CMakeLists.txt",
+      "patch": "@@ -15,6 +15,8 @@ set(SOURCES mac_factory.cpp\n         mac_ctrl/ue_creation_procedure.cpp\n         mac_ctrl/ue_reconfiguration_procedure.cpp\n         mac_ctrl/ue_delete_procedure.cpp\n+        mac_ctrl/mac_cell_controller_impl.cpp\n+        mac_ctrl/bcch_dl_sch_message_broker.cpp\n         mac_dl/mac_dl_processor.cpp\n         mac_dl/mac_cell_processor.cpp\n         mac_dl/rar_pdu_assembler.cpp",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/bcch_dl_sch_message_broker.cpp",
+      "patch": "@@ -0,0 +1,158 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#include \"bcch_dl_sch_message_broker.h\"\n+#include \"srsran/adt/lockfree_triple_buffer.h\"\n+#include \"srsran/srslog/srslog.h\"\n+#include \"srsran/support/units.h\"\n+\n+using namespace srsran;\n+\n+// Max SI Message PDU size. This value is implementation-defined.\n+static constexpr unsigned MAX_BCCH_DL_SCH_PDU_SIZE = 2048;\n+\n+// Payload of zeros sent to when an error occurs.\n+static const std::vector<uint8_t> zeros_payload(MAX_BCCH_DL_SCH_PDU_SIZE, 0);\n+\n+namespace {\n+\n+struct bcch_message_buffer {\n+  unsigned             version = 0;\n+  units::bytes         length{0};\n+  std::vector<uint8_t> payload;\n+\n+  bcch_message_buffer() = default;\n+\n+  void set(si_version_type version_, const byte_buffer& pdu)\n+  {\n+    srsran_assert(pdu.length() <= MAX_BCCH_DL_SCH_PDU_SIZE, \"Invalid SI PDU length\");\n+    // Note: Resizing the bcch_payload after this point onwards is forbidden to avoid vector memory relocations and\n+    // invalidation of pointers passed to the lower layers. For this reason, we pre-reserve space for any potential\n+    // padding bytes.\n+    payload.resize(MAX_BCCH_DL_SCH_PDU_SIZE, 0);\n+    unsigned len = copy_segments(pdu, payload);\n+    if (len < length.value()) {\n+      // Zero-fill previously set bytes.\n+      std::fill(payload.begin() + len, payload.begin() + length.value(), 0);\n+    }\n+    length  = units::bytes{len};\n+    version = version_;\n+  }\n+};\n+\n+class versioned_bcch_dl_sch_message_encoder final : public bcch_dl_sch_message_broker::message_handler\n+{\n+public:\n+  versioned_bcch_dl_sch_message_encoder(si_version_type       si_version,\n+                                        const byte_buffer&    pdu,\n+                                        srslog::basic_logger& logger_) :\n+    logger(logger_)\n+  {\n+    current.set(si_version, pdu);\n+  }\n+\n+  span<const uint8_t> get_pdu(slot_point sl_tx, const sib_information& si_info) override\n+  {\n+    unsigned tbs = si_info.pdsch_cfg.codewords[0].tb_size_bytes;\n+    srsran_assert(tbs <= MAX_BCCH_DL_SCH_PDU_SIZE, \"BCCH-DL-SCH is too long. Revisit constant\");\n+\n+    if (current.version != si_info.version) {\n+      // Current SI message version is too old. Fetch new version from shared buffer.\n+      bcch_message_buffer& next = pending.read();\n+      if (next.version == current.version) {\n+        // This SI message, in particular, has not been updated. Bump its version.\n+        next.version    = si_info.version;\n+        current.version = si_info.version;\n+      } else {\n+        // The SI message was updated. Take PDU from the shared buffer.\n+        if (next.version != si_info.version) {\n+          // PDU in shared buffer does not match in version requested. This should not happen.\n+          logger.warning(\"SI message version mismatch. Expected: {}, got: {}\", si_info.version, next.version);\n+          next.version = si_info.version;\n+        }\n+        current.version = next.version;\n+        current.length  = next.length;\n+        srsran_assert(next.payload.size() >= tbs, \"Invalidation of SI message buffer detected\");\n+        std::swap(next.payload, current.payload);\n+      }\n+    }\n+\n+    return span<const uint8_t>(current.payload).first(tbs);\n+  }\n+\n+  si_version_type update(si_version_type si_version, const byte_buffer& pdu) override\n+  {\n+    bcch_message_buffer& next = pending.write();\n+    next.set(si_version, pdu);\n+    pending.commit();\n+    return si_version;\n+  }\n+\n+private:\n+  srslog::basic_logger& logger;\n+\n+  bcch_message_buffer current;\n+\n+  lockfree_triple_buffer<bcch_message_buffer> pending;\n+};\n+\n+} // namespace\n+\n+bcch_dl_sch_message_broker::bcch_dl_sch_message_broker() : logger(srslog::fetch_basic_logger(\"MAC\")) {}\n+\n+span<const uint8_t> bcch_dl_sch_message_broker::get_pdu(slot_point sl_tx, const sib_information& si_info)\n+{\n+  if (si_info.si_indicator == sib_information::si_indicator_type::sib1) {\n+    return sib1_encoder->get_pdu(sl_tx, si_info);\n+  }\n+\n+  srsran_assert(si_info.si_msg_index.has_value(), \"Invalid SI message index\");\n+  if (si_encoders[si_info.si_msg_index.value()] == nullptr) {\n+    logger.error(\"Invalid SI message index {}\", si_info.si_msg_index.value());\n+    return span<const uint8_t>{zeros_payload}.first(si_info.pdsch_cfg.codewords[0].tb_size_bytes);\n+  }\n+  return si_encoders[si_info.si_msg_index.value()]->get_pdu(sl_tx, si_info);\n+}\n+\n+si_change_response bcch_dl_sch_message_broker::handle_si_change_request(const si_change_request& req)\n+{\n+  // Prepare response.\n+  last_resp.version++;\n+  last_resp.sib1_len = units::bytes{static_cast<unsigned>(req.sib1.length())};\n+  for (const auto& rem : req.si_messages_to_rem) {\n+    last_resp.si_msg_lens.erase(rem);\n+  }\n+  for (const auto& addmod : req.si_messages_to_addmod) {\n+    last_resp.si_msg_lens.emplace(addmod.first, units::bytes{static_cast<unsigned>(addmod.second.length())});\n+  }\n+\n+  // Update SIB1.\n+  si_version_type version = last_resp.version;\n+  if (sib1_encoder == nullptr) {\n+    sib1_encoder = std::make_unique<versioned_bcch_dl_sch_message_encoder>(version, req.sib1, logger);\n+  } else {\n+    sib1_encoder->update(version, req.sib1);\n+  }\n+\n+  // TODO: dealloc SI messages to remove\n+  // Note: This is tricky because it can only be done when the PHY has finished using the SI message.\n+\n+  // Update SI message contents.\n+  for (const auto& si_msg : req.si_messages_to_addmod) {\n+    if (si_encoders[si_msg.first] == nullptr) {\n+      si_encoders[si_msg.first] =\n+          std::make_unique<versioned_bcch_dl_sch_message_encoder>(version, si_msg.second, logger);\n+    } else {\n+      si_encoders[si_msg.first]->update(version, si_msg.second);\n+    }\n+  }\n+\n+  return last_resp;\n+}",
+      "additions": 158,
+      "deletions": 0,
+      "changes": 158
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/bcch_dl_sch_message_broker.h",
+      "patch": "@@ -0,0 +1,86 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/adt/byte_buffer.h\"\n+#include \"srsran/adt/slotted_vector.h\"\n+#include \"srsran/scheduler/result/pdsch_info.h\"\n+#include \"srsran/srslog/logger.h\"\n+#include \"srsran/support/units.h\"\n+\n+namespace srsran {\n+\n+using si_version_type       = unsigned;\n+using si_message_index_type = unsigned;\n+\n+/// Handler of BCCH-DL-SCH PDU encoding.\n+class bcch_dl_sch_message_encoder\n+{\n+public:\n+  virtual ~bcch_dl_sch_message_encoder() = default;\n+\n+  /// Retrieve encoded SI bytes for a given SI scheduling opportunity.\n+  virtual span<const uint8_t> get_pdu(slot_point sl_tx, const sib_information& si_info) = 0;\n+};\n+\n+/// SI message update request.\n+struct si_change_request {\n+  /// \\brief New SIB1 payload.\n+  /// \\remark It contains the si-SchedulingInfo for the UE to acquire other SI messages.\n+  byte_buffer sib1;\n+  /// \\brief SI messages that are part of the si-SchedulingInfo broadcast by SIB1 that have been added or modified.\n+  std::vector<std::pair<si_message_index_type, byte_buffer>> si_messages_to_addmod;\n+  /// \\brief SI messages that are to be removed.\n+  std::vector<si_message_index_type> si_messages_to_rem;\n+};\n+\n+/// SI message update outcome.\n+struct si_change_response {\n+  /// Current SI version.\n+  si_version_type version = 0;\n+  /// Length of SIB1.\n+  units::bytes sib1_len{0};\n+  /// SI message lengths.\n+  slotted_id_vector<si_message_index_type, units::bytes> si_msg_lens;\n+};\n+\n+class bcch_dl_sch_message_broker final : public bcch_dl_sch_message_encoder\n+{\n+  static constexpr size_t MAX_SI_MESSAGES = 32;\n+\n+public:\n+  class message_handler : public bcch_dl_sch_message_encoder\n+  {\n+  public:\n+    virtual si_version_type update(si_version_type si_version, const byte_buffer& pdu) = 0;\n+  };\n+\n+  bcch_dl_sch_message_broker();\n+\n+  /// Update the SIB1 and SI messages.\n+  si_change_response handle_si_change_request(const si_change_request& req);\n+\n+  /// \\brief Retrieve the encoded SI message.\n+  span<const uint8_t> get_pdu(slot_point sl_tx, const sib_information& si_info) override;\n+\n+private:\n+  srslog::basic_logger& logger;\n+\n+  /// SIB1 message.\n+  std::unique_ptr<message_handler> sib1_encoder;\n+\n+  /// SI message handlers.\n+  std::array<std::unique_ptr<message_handler>, MAX_SI_MESSAGES> si_encoders;\n+\n+  si_change_response last_resp;\n+};\n+\n+} // namespace srsran",
+      "additions": 86,
+      "deletions": 0,
+      "changes": 86
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_cell_controller_impl.cpp",
+      "patch": "@@ -0,0 +1,48 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#include \"mac_cell_controller_impl.h\"\n+#include \"../mac_config_interfaces.h\"\n+#include \"mac_scheduler_configurator.h\"\n+\n+using namespace srsran;\n+\n+mac_cell_controller_impl::mac_cell_controller_impl(const mac_cell_creation_request& cell_cfg,\n+                                                   mac_scheduler_configurator&      sched_,\n+                                                   mac_dl_configurator&             dl_unit_) :\n+  cell_index(cell_cfg.cell_index), sched(sched_), dl_unit(dl_unit_)\n+{\n+  // Add cell to MAC DL.\n+  mac_dl_cell = &dl_unit.add_cell(cell_cfg);\n+\n+  // Add cell to scheduler.\n+  sched.add_cell(cell_cfg);\n+\n+  // SI modification request.\n+  si_change_request si_req;\n+  for (unsigned i = 0, e = cell_cfg.bcch_dl_sch_payloads.size(); i != e; ++i) {\n+    if (i == 0) {\n+      si_req.sib1 = cell_cfg.bcch_dl_sch_payloads[i].copy();\n+    } else {\n+      si_req.si_messages_to_addmod.push_back(std::make_pair(i - 1, cell_cfg.bcch_dl_sch_payloads[i].copy()));\n+    }\n+  }\n+  si_change_response si_resp = si_broker.handle_si_change_request(si_req);\n+  (void)si_resp;\n+}\n+\n+mac_cell_controller_impl::~mac_cell_controller_impl()\n+{\n+  // Remove cell from scheduler.\n+  sched.remove_cell(cell_index);\n+\n+  // Remove cell from MAC DL.\n+  dl_unit.remove_cell(cell_index);\n+}",
+      "additions": 48,
+      "deletions": 0,
+      "changes": 48
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_cell_controller_impl.h",
+      "patch": "@@ -0,0 +1,46 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"bcch_dl_sch_message_broker.h\"\n+#include \"srsran/mac/mac_cell_manager.h\"\n+\n+namespace srsran {\n+\n+class mac_dl_configurator;\n+class mac_scheduler_configurator;\n+\n+class mac_cell_controller_impl final : public mac_cell_controller\n+{\n+public:\n+  mac_cell_controller_impl(const mac_cell_creation_request& cell_cfg,\n+                           mac_scheduler_configurator&      sched,\n+                           mac_dl_configurator&             dl_unit);\n+  ~mac_cell_controller_impl() override;\n+\n+  async_task<void>                       start() override { return mac_dl_cell->start(); }\n+  async_task<void>                       stop() override { return mac_dl_cell->stop(); }\n+  async_task<mac_cell_reconfig_response> reconfigure(const mac_cell_reconfig_request& request) override\n+  {\n+    return mac_dl_cell->reconfigure(request);\n+  }\n+\n+private:\n+  const du_cell_index_t       cell_index;\n+  mac_scheduler_configurator& sched;\n+  mac_dl_configurator&        dl_unit;\n+\n+  mac_cell_controller* mac_dl_cell = nullptr;\n+\n+  bcch_dl_sch_message_broker si_broker;\n+};\n+\n+} // namespace srsran",
+      "additions": 46,
+      "deletions": 0,
+      "changes": 46
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_controller.cpp",
+      "patch": "@@ -25,27 +25,19 @@ mac_controller::mac_controller(const mac_control_config&   cfg_,\n {\n }\n \n-void mac_controller::add_cell(const mac_cell_creation_request& cell_cfg)\n+mac_cell_controller& mac_controller::add_cell(const mac_cell_creation_request& cell_cfg)\n {\n-  // > Fill sched cell configuration message and pass it to the scheduler.\n-  sched_cfg.add_cell(cell_cfg);\n+  srsran_assert(not cell_db.contains(cell_cfg.cell_index), \"Duplicate cell index detected\");\n \n-  // > Create MAC Cell DL Handler.\n-  dl_unit.add_cell(cell_cfg);\n+  cell_db.emplace(cell_cfg.cell_index, std::make_unique<mac_cell_controller_impl>(cell_cfg, sched_cfg, dl_unit));\n+  return *cell_db[cell_cfg.cell_index];\n }\n \n void mac_controller::remove_cell(du_cell_index_t cell_index)\n {\n-  // > Remove cell from MAC Cell Handler.\n-  dl_unit.remove_cell(cell_index);\n+  srsran_assert(cell_db.contains(cell_index), \"Duplicate cell index removal\");\n \n-  // > Remove cell from scheduler.\n-  sched_cfg.remove_cell(cell_index);\n-}\n-\n-mac_cell_controller& mac_controller::get_cell_controller(du_cell_index_t cell_index)\n-{\n-  return dl_unit.get_cell_controller(cell_index);\n+  cell_db.erase(cell_index);\n }\n \n async_task<mac_ue_create_response> mac_controller::handle_ue_create_request(const mac_ue_create_request& msg)",
+      "additions": 6,
+      "deletions": 14,
+      "changes": 20
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_controller.h",
+      "patch": "@@ -11,8 +11,10 @@\n #pragma once\n \n #include \"../mac_config_interfaces.h\"\n+#include \"mac_cell_controller_impl.h\"\n #include \"mac_config.h\"\n #include \"mac_scheduler_configurator.h\"\n+#include \"srsran/adt/slotted_vector.h\"\n #include \"srsran/mac/mac_config.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/du_ue_list.h\"\n@@ -37,12 +39,12 @@ class mac_controller : public mac_ctrl_configurator, public mac_ue_configurator,\n                  mac_scheduler_configurator& sched_cfg_);\n \n   /// Adds new cell configuration to MAC. The configuration is forwarded to the scheduler.\n-  void add_cell(const mac_cell_creation_request& cell_cfg) override;\n+  mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) override;\n \n   /// Removes cell configuration from MAC. The cell is also removed from the scheduler.\n   void remove_cell(du_cell_index_t cell_index) override;\n \n-  mac_cell_controller& get_cell_controller(du_cell_index_t cell_index) override;\n+  mac_cell_controller& get_cell_controller(du_cell_index_t cell_index) override { return *cell_db[cell_index]; }\n \n   /// Creates UE in MAC and scheduler.\n   async_task<mac_ue_create_response> handle_ue_create_request(const mac_ue_create_request& msg) override;\n@@ -82,6 +84,9 @@ class mac_controller : public mac_ctrl_configurator, public mac_ue_configurator,\n \n   // UE database\n   du_ue_list<mac_ue_context> ue_db;\n+\n+  // Cell database.\n+  slotted_id_vector<du_cell_index_t, std::unique_ptr<mac_cell_controller_impl>> cell_db;\n };\n \n } // namespace srsran",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_processor.cpp",
+      "patch": "@@ -28,7 +28,7 @@ bool mac_dl_processor::has_cell(du_cell_index_t cell_index) const\n   return cell_index < MAX_NOF_DU_CELLS and cells[cell_index] != nullptr;\n }\n \n-void mac_dl_processor::add_cell(const mac_cell_creation_request& cell_cfg_req)\n+mac_cell_controller& mac_dl_processor::add_cell(const mac_cell_creation_request& cell_cfg_req)\n {\n   srsran_assert(not has_cell(cell_cfg_req.cell_index), \"Overwriting existing cell is invalid.\");\n \n@@ -48,6 +48,8 @@ void mac_dl_processor::add_cell(const mac_cell_creation_request& cell_cfg_req)\n                                            cfg.pcap,\n                                            cfg.timers,\n                                            cell_metrics);\n+\n+  return *cells[cell_cfg_req.cell_index];\n }\n \n void mac_dl_processor::remove_cell(du_cell_index_t cell_index)",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_processor.h",
+      "patch": "@@ -44,7 +44,7 @@ class mac_dl_processor final : public mac_dl_configurator\n   bool has_cell(du_cell_index_t cell_index) const;\n \n   /// Adds new cell configuration to MAC DL.\n-  void add_cell(const mac_cell_creation_request& cell_cfg) override;\n+  mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) override;\n \n   /// Removes cell configuration from MAC DL.\n   void remove_cell(du_cell_index_t cell_index) override;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/mac_test_mode_adapter_test.cpp",
+      "patch": "@@ -83,7 +83,7 @@ class mac_dummy : public mac_interface,\n     result_notifier.get_cell(to_du_cell_index(0)).on_cell_results_completion(sl_tx);\n   }\n   void                               handle_error_indication(slot_point sl_tx, error_event event) override {}\n-  void                               add_cell(const mac_cell_creation_request& cell_cfg) override {}\n+  mac_cell_controller&               add_cell(const mac_cell_creation_request& cell_cfg) override { return *this; }\n   void                               remove_cell(du_cell_index_t cell_index) override {}\n   mac_cell_controller&               get_cell_controller(du_cell_index_t cell_index) override { return *this; }\n   async_task<mac_ue_create_response> handle_ue_create_request(const mac_ue_create_request& cfg) override",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/du_manager/du_manager_test_helpers.h",
+      "patch": "@@ -271,7 +271,7 @@ class mac_test_dummy : public mac_cell_manager,\n   wait_manual_event_tester<mac_ue_delete_response>          wait_ue_delete;\n   bool                                                      next_ul_ccch_msg_result = true;\n \n-  void                 add_cell(const mac_cell_creation_request& cell_cfg) override {}\n+  mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) override { return mac_cell; }\n   void                 remove_cell(du_cell_index_t cell_index) override {}\n   mac_cell_controller& get_cell_controller(du_cell_index_t cell_index) override { return mac_cell; }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ctrl_test_dummies.h",
+      "patch": "@@ -84,7 +84,7 @@ class mac_dl_dummy_configurer final : public mac_dl_configurator\n   async_task<bool>\n   remove_bearers(du_ue_index_t ue_index, du_cell_index_t pcell_index, span<const lcid_t> lcids_to_rem) override;\n \n-  void                 add_cell(const mac_cell_creation_request& cell_cfg) override {}\n+  mac_cell_controller& add_cell(const mac_cell_creation_request& cell_cfg) override { return cell_ctrl; }\n   void                 remove_cell(du_cell_index_t cell_index) override {}\n   mac_cell_controller& get_cell_controller(du_cell_index_t cell_index) override { return cell_ctrl; }\n };",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 15,
+  "commit_details_path": ".\\commit_metadata\\25adf27.json"
+}

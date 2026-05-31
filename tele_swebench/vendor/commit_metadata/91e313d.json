@@ -1,0 +1,141 @@
+{
+  "commit_id": "91e313d36c93ca597eef52637e79cd05c7a7a50f",
+  "commit_sha_short": "91e313d",
+  "commit_folder": "91e313d",
+  "commit_message": "sched: fix data race in ue_event_manager during cell deactivation",
+  "commit_message_first_line": "sched: fix data race in ue_event_manager during cell deactivation",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/91e313d36c93ca597eef52637e79cd05c7a7a50f",
+  "commit_date": "2025-08-29T11:06:24Z",
+  "parent_sha": "3baf31eab089f7f695a5c296c9fb1ab18d73064c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3baf31eab089f7f695a5c296c9fb1ab18d73064c",
+  "code_changes": [
+    {
+      "filename": "include/srsran/mac/mac_cell_slot_handler.h",
+      "patch": "@@ -34,6 +34,12 @@ class mac_cell_slot_handler\n   /// This indication may occur when the MAC took too long to send its slot result to the lower layers or when the\n   /// lower layers were not able to process that slot result.\n   virtual void handle_error_indication(slot_point sl_tx, error_event event) = 0;\n+\n+  /// \\brief Handles a stop indication sent by the lower layers for a given slot.\n+  ///\n+  /// This function is called after the lower layers receive a STOP request for a cell in RUNNING state and after\n+  /// the lower layers stop all the pending RX/TX operations.\n+  virtual void handle_stop_indication() = 0;\n };\n \n } // namespace srsran",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/async/async_timer.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/support/async/coroutine.h\"\n+#include \"srsran/support/timers.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/async/execute_on_blocking.h",
+      "patch": "@@ -188,7 +188,8 @@ auto dispatch_and_continue_on_blocking(DispatchTaskExecutor& dispatch_exec,\n /// \\param[in] timers Timer service used to handle reattempts to dispatch task to new execution context.\n /// \\param[in] on_failure Callback invoked in case the dispatch to executor fails at first attempt.\n template <typename TaskExecutor, typename OnFailureToDispatch = noop_operation>\n-auto execute_on_blocking(TaskExecutor& exec, timer_manager& timers, OnFailureToDispatch&& on_failure = noop_operation{})\n+[[nodiscard]] auto\n+execute_on_blocking(TaskExecutor& exec, timer_manager& timers, OnFailureToDispatch&& on_failure = noop_operation{})\n {\n   return detail::dispatch_on_blocking<true, TaskExecutor, OnFailureToDispatch>(\n       exec, timers, std::forward<OnFailureToDispatch>(on_failure));\n@@ -200,7 +201,8 @@ auto execute_on_blocking(TaskExecutor& exec, timer_manager& timers, OnFailureToD\n /// \\param[in] timers Timer service used to handle reattempts to dispatch task to new execution context.\n /// \\param[in] on_failure Callback invoked in case the dispatch to executor fails at first attempt.\n template <typename TaskExecutor, typename OnFailureToDispatch = noop_operation>\n-auto defer_on_blocking(TaskExecutor& exec, timer_manager& timers, OnFailureToDispatch&& on_failure = noop_operation{})\n+[[nodiscard]] auto\n+defer_on_blocking(TaskExecutor& exec, timer_manager& timers, OnFailureToDispatch&& on_failure = noop_operation{})\n {\n   return detail::dispatch_on_blocking<false, TaskExecutor, OnFailureToDispatch>(\n       exec, timers, std::forward<OnFailureToDispatch>(on_failure));",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/ue_deletion_procedure.h",
+      "patch": "@@ -13,7 +13,6 @@\n #include \"../du_ue/du_ue.h\"\n #include \"../du_ue/du_ue_manager_repository.h\"\n #include \"procedure_logger.h\"\n-#include \"srsran/du/du_high/du_manager/du_manager.h\"\n #include \"srsran/du/du_high/du_manager/du_manager_params.h\"\n #include \"srsran/support/async/async_task.h\"\n ",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -152,6 +152,11 @@ void mac_test_mode_cell_adapter::handle_error_indication(slot_point sl_tx, error\n   }\n }\n \n+void mac_test_mode_cell_adapter::handle_stop_indication()\n+{\n+  slot_handler.handle_stop_indication();\n+}\n+\n void mac_test_mode_cell_adapter::handle_crc(const mac_crc_indication_message& msg)\n {\n   mac_crc_indication_message msg_copy = msg;",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.h",
+      "patch": "@@ -80,6 +80,7 @@ class mac_test_mode_cell_adapter : public mac_cell_control_information_handler,\n \n   void handle_slot_indication(const mac_cell_timing_context& context) override;\n   void handle_error_indication(slot_point sl_tx, error_event event) override;\n+  void handle_stop_indication() override;\n \n   void handle_crc(const mac_crc_indication_message& msg) override;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_error_msg_translator.cpp",
+      "patch": "@@ -23,6 +23,7 @@ class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n public:\n   void handle_slot_indication(const mac_cell_timing_context& context) override {}\n   void handle_error_indication(slot_point sl_tx, error_event event) override {}\n+  void handle_stop_indication() override {}\n };\n \n } // namespace",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_time_msg_translator.cpp",
+      "patch": "@@ -23,6 +23,7 @@ class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n public:\n   void handle_slot_indication(const mac_cell_timing_context& context) override {}\n   void handle_error_indication(slot_point sl_tx, error_event event) override {}\n+  void handle_stop_indication() override {}\n };\n \n } // namespace",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_to_fapi_translator.cpp",
+      "patch": "@@ -60,6 +60,8 @@ class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n   {\n     report_error(\"Dummy MAC cell slot handler cannot handle error indication\");\n   }\n+\n+  void handle_stop_indication() override { report_error(\"Dummy MAC cell slot handler cannot handle stop indication\"); }\n };\n \n } // namespace",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -17,7 +17,9 @@\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n #include \"srsran/scheduler/result/sched_result.h\"\n+#include \"srsran/support/async/async_timer.h\"\n #include \"srsran/support/async/execute_on_blocking.h\"\n+#include \"srsran/support/executors/execute_until_success.h\"\n #include \"srsran/support/rtsan.h\"\n \n using namespace srsran;\n@@ -81,7 +83,7 @@ async_task<void> mac_cell_processor::start()\n         }\n \n         // Notify scheduler about activation.\n-        sched.start_cell(cell_cfg.cell_index);\n+        sched.handle_cell_activation(cell_cfg.cell_index);\n \n         state = cell_state::active;\n         logger.info(\"cell={}: Cell was activated\", fmt::underlying(cell_cfg.cell_index));\n@@ -94,39 +96,46 @@ async_task<void> mac_cell_processor::start()\n \n async_task<void> mac_cell_processor::stop()\n {\n-  return execute_and_continue_on_blocking(\n-      cell_exec,\n-      ctrl_exec,\n-      timers,\n-      [this]() noexcept SRSRAN_RTSAN_NONBLOCKING {\n-        if (state == cell_state::inactive) {\n-          return;\n-        }\n+  return launch_async([this](coro_context<async_task<void>>& ctx) {\n+    CORO_BEGIN(ctx);\n \n-        // Set cell state as inactive to stop answering to slot indications.\n-        // Note: No more slot indications will reach the scheduler after this point.\n-        state = cell_state::inactive;\n+    // Switch to respective cell executor context.\n+    CORO_AWAIT(defer_on_blocking(cell_exec, timers));\n \n-        // TODO: Call time_source->on_cell_deactivation() once FAPI supports stop procedure.\n+    if (state == cell_state::inactive) {\n+      // No state change detected.\n+      CORO_EARLY_RETURN();\n+    }\n+    // Set cell state as inactive.\n+    // Note: No more slot indications will reach the scheduler after this point. So, we will stop observing new\n+    // scheduled grants.\n+    state = cell_state::inactive;\n \n-        // Signal time source that the cell is being deactivated.\n-        time_source->on_cell_deactivation();\n+    // Notify time source that the cell is being deactivated and no slot indications will be received anymore.\n+    time_source->on_cell_deactivation();\n \n-        // Notify scheduler about activation.\n-        sched.stop_cell(cell_cfg.cell_index);\n+    // Notify lower layers that the cell is being stopped.\n+    // TODO: Rely on FAPI STOP procedure to signal the cell stop. For now, we just call it directly.\n+    stop_completed.reset();\n+    handle_stop_indication();\n+    CORO_AWAIT(stop_completed);\n \n-        // Notify that cell metrics stopped being collected.\n-        metrics.on_cell_deactivation();\n+    // Signal to the scheduler that the cell was successfully stopped in the lower layers.\n+    sched.handle_cell_deactivation(cell_cfg.cell_index);\n \n-        // Clear all UEs.\n-        ue_mng.clear();\n+    // Notify that cell metrics stopped being collected.\n+    metrics.on_cell_deactivation();\n \n-        logger.info(\"cell={}: Cell was stopped.\", fmt::underlying(cell_cfg.cell_index));\n-      },\n-      [this, cell_index = cell_cfg.cell_index]() {\n-        logger.warning(\"cell={}: Postponed cell stop operation. Cause: Task queue is full\",\n-                       fmt::underlying(cell_index));\n-      });\n+    // Clear all UEs.\n+    ue_mng.clear();\n+\n+    // Switch back to respective ctrl executor context.\n+    CORO_AWAIT(defer_on_blocking(ctrl_exec, timers));\n+\n+    logger.info(\"cell={}: Cell was stopped.\", fmt::underlying(cell_cfg.cell_index));\n+\n+    CORO_RETURN();\n+  });\n }\n \n async_task<mac_cell_reconfig_response> mac_cell_processor::reconfigure(const mac_cell_reconfig_request& request)\n@@ -137,7 +146,7 @@ async_task<mac_cell_reconfig_response> mac_cell_processor::reconfigure(const mac\n \n     if (request.new_sys_info.has_value()) {\n       // Change to respective DL cell executor context.\n-      CORO_AWAIT(execute_on_blocking(cell_exec, timers));\n+      CORO_AWAIT(defer_on_blocking(cell_exec, timers));\n \n       {\n         SRSRAN_RTSAN_SCOPED_ENABLER;\n@@ -154,7 +163,7 @@ async_task<mac_cell_reconfig_response> mac_cell_processor::reconfigure(const mac\n       }\n \n       // Change back to CTRL executor context.\n-      CORO_AWAIT(execute_on_blocking(ctrl_exec, timers));\n+      CORO_AWAIT(defer_on_blocking(ctrl_exec, timers));\n     }\n \n     if (request.positioning.has_value()) {\n@@ -192,6 +201,14 @@ void mac_cell_processor::handle_error_indication(slot_point sl_tx, error_event e\n   sched.handle_error_indication(sl_tx, cell_cfg.cell_index, event);\n }\n \n+void mac_cell_processor::handle_stop_indication() noexcept\n+{\n+  defer_until_success(cell_exec, timers, [this]() {\n+    // Signal the cell stop procedure that the FAPI completed the FAPI STOP procedure.\n+    stop_completed.set();\n+  });\n+}\n+\n async_task<bool> mac_cell_processor::add_ue(const mac_ue_create_request& request)\n {\n   // > Allocate DL HARQ resources for the new UE.",
+      "additions": 46,
+      "deletions": 29,
+      "changes": 75
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.h",
+      "patch": "@@ -20,6 +20,7 @@\n #include \"rar_pdu_assembler.h\"\n #include \"sib_pdu_assembler.h\"\n #include \"ssb_assembler.h\"\n+#include \"srsran/support/async/manual_event.h\"\n #include \"srsran/support/memory_pool/ring_buffer_pool.h\"\n \n namespace srsran {\n@@ -52,6 +53,7 @@ class mac_cell_processor final : public mac_cell_slot_handler, public mac_cell_c\n \n   void handle_slot_indication(const mac_cell_timing_context& context) noexcept override;\n   void handle_error_indication(slot_point sl_tx, error_event event) noexcept override;\n+  void handle_stop_indication() noexcept override;\n \n   /// Creates new UE DL context, updates logical channel MUX, adds UE in scheduler.\n   async_task<bool> add_ue(const mac_ue_create_request& request);\n@@ -124,6 +126,7 @@ class mac_cell_processor final : public mac_cell_slot_handler, public mac_cell_c\n \n   // Represents cell activation state.\n   enum class cell_state { inactive, active } state = cell_state::inactive;\n+  manual_event_flag stop_completed;\n \n   mac_pcap& pcap;\n ",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_scheduler_cell_info_handler.h",
+      "patch": "@@ -28,12 +28,12 @@ class mac_scheduler_cell_info_handler : public mac_ue_control_information_handle\n   /// \\brief Start scheduling for a given cell. If cell was already activated, this operation has no effect.\n   /// \\param cell_idx DU-specific index of the cell for which the slot is being processed.\n   /// \\remark This function must be called before the first slot indication is processed.\n-  virtual void start_cell(du_cell_index_t cell_idx) = 0;\n+  virtual void handle_cell_activation(du_cell_index_t cell_idx) = 0;\n \n   /// \\brief Stop running cell. If cell was already deactivated, this operation has no effect.\n   /// \\param cell_idx DU-specific index of the cell for which the slot is being processed.\n   /// \\remark This function must be called after the last slot indication is processed.\n-  virtual void stop_cell(du_cell_index_t cell_idx) = 0;\n+  virtual void handle_cell_deactivation(du_cell_index_t cell_idx) = 0;\n \n   /// \\brief Processes a new slot for a specific cell in the MAC scheduler.\n   /// \\param slot_tx SFN + slot index of the Transmit slot to be processed.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.h",
+      "patch": "@@ -43,9 +43,15 @@ class srsran_scheduler_adapter final : public mac_scheduler_adapter\n \n   void remove_cell(du_cell_index_t cell_index) override;\n \n-  void start_cell(du_cell_index_t cell_index) override { sched_impl->handle_cell_activation_request(cell_index); }\n+  void handle_cell_activation(du_cell_index_t cell_index) override\n+  {\n+    sched_impl->handle_cell_activation_request(cell_index);\n+  }\n \n-  void stop_cell(du_cell_index_t cell_index) override { sched_impl->handle_cell_deactivation_request(cell_index); }\n+  void handle_cell_deactivation(du_cell_index_t cell_index) override\n+  {\n+    sched_impl->handle_cell_deactivation_request(cell_index);\n+  }\n \n   async_task<bool> handle_ue_creation_request(const mac_ue_create_request& msg) override;\n ",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -981,13 +981,13 @@ void ue_event_manager::add_cell(const cell_creation_event& cell_ev)\n \n void ue_event_manager::start_cell(du_cell_index_t cell_index)\n {\n-  du_cells[cell_index].active = true;\n+  cell_active[cell_index].store(true, std::memory_order_relaxed);\n }\n \n void ue_event_manager::stop_cell(du_cell_index_t cell_index)\n {\n+  cell_active[cell_index].store(false, std::memory_order_relaxed);\n   clear_cell_events(cell_index);\n-  du_cells[cell_index].active = false;\n }\n \n void ue_event_manager::clear_cell_events(du_cell_index_t cell_index)\n@@ -1015,8 +1015,8 @@ void ue_event_manager::rem_cell(du_cell_index_t cell_index)\n \n void ue_event_manager::push_cell_event(du_cell_index_t cell_index, cell_event_t event)\n {\n-  if (SRSRAN_UNLIKELY(not du_cells[cell_index].active)) {\n-    // Note: Some PHY events may arrive after the cell has been stopped.\n+  if (SRSRAN_UNLIKELY(not cell_active[cell_index].load(std::memory_order_relaxed))) {\n+    // Note: PHY events should not arrive after the cell has been stopped.\n     logger.warning(\"cell={} ue={}: Discarding {} event. Cause: Cell is not active\",\n                    fmt::underlying(cell_index),\n                    fmt::underlying(event.ue_index),",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.h",
+      "patch": "@@ -149,15 +149,15 @@ class ue_event_manager final : public sched_ue_configuration_handler,\n     srs_scheduler*            srs_sched      = nullptr;\n     cell_metrics_handler*     metrics        = nullptr;\n     scheduler_event_logger*   ev_logger      = nullptr;\n-    bool                      active         = false;\n   };\n \n   ue_repository&        ue_db;\n   srslog::basic_logger& logger;\n \n   std::unique_ptr<pdu_indication_pool> ind_pdu_pool;\n \n-  std::array<du_cell, MAX_NOF_DU_CELLS> du_cells{};\n+  std::array<std::atomic<bool>, MAX_NOF_DU_CELLS> cell_active{false};\n+  std::array<du_cell, MAX_NOF_DU_CELLS>           du_cells{};\n \n   /// Pending Events list per cell.\n   static_vector<cell_event_queue, MAX_NOF_DU_CELLS> cell_specific_events;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/integrationtests/du_high/mac_test_mode_adapter_test.cpp",
+      "patch": "@@ -85,6 +85,7 @@ class mac_dummy : public mac_interface,\n     result_notifier.get_cell(to_du_cell_index(0)).on_cell_results_completion(context.sl_tx);\n   }\n   void                               handle_error_indication(slot_point sl_tx, error_event event) override {}\n+  void                               handle_stop_indication() override {}\n   mac_cell_controller&               add_cell(const mac_cell_creation_request& cell_cfg) override { return *this; }\n   void                               remove_cell(du_cell_index_t cell_index) override {}\n   mac_cell_controller&               get_cell_controller(du_cell_index_t cell_index) override { return *this; }",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/mac_to_fapi_translator_test.cpp",
+      "patch": "@@ -102,6 +102,7 @@ class mac_cell_slot_handler_spy : public mac_cell_slot_handler\n     error             = event;\n     has_been_notified = true;\n   }\n+  void handle_stop_indication() override {}\n \n   bool               has_error_been_notified() const { return has_been_notified; }\n   const error_event& get_error() const { return error; }",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/mac/mac_test_helpers.h",
+      "patch": "@@ -124,9 +124,9 @@ class dummy_mac_scheduler_adapter : public mac_scheduler_cell_info_handler\n \n   void handle_dl_buffer_state_update(const mac_dl_buffer_state_indication_message& dl_bs) override {}\n \n-  void start_cell(du_cell_index_t cell_idx) override { active = true; }\n+  void handle_cell_activation(du_cell_index_t cell_idx) override { active = true; }\n \n-  void stop_cell(du_cell_index_t cell_idx) override { active = false; }\n+  void handle_cell_deactivation(du_cell_index_t cell_idx) override { active = false; }\n \n   const sched_result& slot_indication(slot_point slot_tx, du_cell_index_t cell_idx) override\n   {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 18,
+  "commit_details_path": ".\\commit_metadata\\91e313d.json"
+}

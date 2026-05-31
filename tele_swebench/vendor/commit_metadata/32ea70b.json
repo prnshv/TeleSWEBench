@@ -1,0 +1,43 @@
+{
+  "commit_id": "32ea70bb62e05f7ffbb75b5e7a34bf7ad05eeb8b",
+  "commit_sha_short": "32ea70b",
+  "commit_folder": "32ea70b",
+  "commit_message": "support: move default segment size to byte_buffer header",
+  "commit_message_first_line": "support: move default segment size to byte_buffer header",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/32ea70bb62e05f7ffbb75b5e7a34bf7ad05eeb8b",
+  "commit_date": "2023-12-21T21:03:48Z",
+  "parent_sha": "b89c8e57c5a3643ac0ded459f4dccb087d84e9ee",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b89c8e57c5a3643ac0ded459f4dccb087d84e9ee",
+  "code_changes": [
+    {
+      "filename": "include/srsran/adt/byte_buffer.h",
+      "patch": "@@ -15,13 +15,17 @@\n \n namespace srsran {\n \n+/// Default byte buffer segment size in the byte buffer pool.\n+constexpr static size_t default_byte_buffer_segment_size = 1024;\n+\n /// \\brief Sets the default size of the default byte_buffer segment pool.\n ///\n /// This function asserts if the pool has already been initialized.\n /// \\param nof_segments Number of byte_buffer_segments stored in the pool.\n /// \\param memory_block_size Number, in bytes, for each memory block on which a buffer_byte_segment header and payload\n /// will be stored.\n-void init_byte_buffer_segment_pool(std::size_t nof_segments, std::size_t memory_block_size = 1024);\n+void init_byte_buffer_segment_pool(std::size_t nof_segments,\n+                                   std::size_t memory_block_size = default_byte_buffer_segment_size);\n \n /// \\brief Non-owning view to a byte sequence.\n /// The underlying byte sequence is not contiguous in memory. Instead, it is represented as an intrusive linked list of",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/adt/detail/byte_buffer_segment_pool.h",
+      "patch": "@@ -20,15 +20,7 @@ struct byte_buffer_pool_tag {};\n using byte_buffer_segment_pool = fixed_size_memory_block_pool<byte_buffer_pool_tag>;\n \n /// Get default byte buffer segment pool. Initialize pool if not initialized before.\n-inline detail::byte_buffer_segment_pool& get_default_byte_buffer_segment_pool()\n-{\n-  // Initialize byte buffer segment pool, if not yet initialized.\n-  constexpr static size_t default_byte_buffer_segment_pool_size = 16384;\n-  constexpr static size_t default_byte_buffer_segment_size      = 1024;\n-  static auto&            pool = detail::byte_buffer_segment_pool::get_instance(default_byte_buffer_segment_pool_size,\n-                                                                     default_byte_buffer_segment_size);\n-  return pool;\n-}\n+detail::byte_buffer_segment_pool& get_default_byte_buffer_segment_pool();\n \n } // namespace detail\n } // namespace srsran\n\\ No newline at end of file",
+      "additions": 1,
+      "deletions": 9,
+      "changes": 10
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -13,6 +13,17 @@\n \n using namespace srsran;\n \n+/// Get default byte buffer segment pool. Initialize pool if not initialized before.\n+detail::byte_buffer_segment_pool& srsran::detail::get_default_byte_buffer_segment_pool()\n+{\n+  // Initialize byte buffer segment pool, if not yet initialized.\n+  // Note: In case of unit tests, this function will be called rather than init_byte_buffer_segment_pool(...)\n+  constexpr static size_t default_byte_buffer_segment_pool_size = 16384;\n+  static auto&            pool = detail::byte_buffer_segment_pool::get_instance(default_byte_buffer_segment_pool_size,\n+                                                                     default_byte_buffer_segment_size);\n+  return pool;\n+}\n+\n void srsran::init_byte_buffer_segment_pool(std::size_t nof_segments, std::size_t memory_block_size)\n {\n   auto& pool = detail::byte_buffer_segment_pool::get_instance(nof_segments, memory_block_size);",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11
+    },
+    {
+      "filename": "tests/unittests/adt/byte_buffer_test.cpp",
+      "patch": "@@ -48,8 +48,10 @@ static_assert(is_byte_buffer_range<byte_buffer_slice>::value, \"Invalid metafunct\n \n namespace {\n \n+const size_t memory_block_size = detail::get_default_byte_buffer_segment_pool().memory_block_size();\n+\n const size_t  small_vec_size = 6;\n-const size_t  large_vec_size = detail::get_default_byte_buffer_segment_pool().memory_block_size() * 4;\n+const size_t  large_vec_size = memory_block_size * 4;\n static size_t random_vec_size(unsigned lb = 1, unsigned ub = large_vec_size)\n {\n   return test_rgen::uniform_int<unsigned>(lb, ub);\n@@ -391,10 +393,9 @@ TEST(byte_buffer_test, trim)\n \n TEST(byte_buffer_test, prepend_and_trim_tail)\n {\n-  byte_buffer pdu;\n-  byte_buffer sdu;\n-  uint32_t    pdu_len =\n-      detail::get_default_byte_buffer_segment_pool().memory_block_size() - 5 + test_rgen::uniform_int<unsigned>(0, 10);\n+  byte_buffer        pdu;\n+  byte_buffer        sdu;\n+  uint32_t           pdu_len    = memory_block_size - 5 + test_rgen::uniform_int<unsigned>(0, 10);\n   constexpr uint32_t trim_len   = 4;\n   constexpr uint32_t prefix_len = 3;\n   for (uint32_t i = 0; i < pdu_len; i++) {",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\32ea70b.json"
+}

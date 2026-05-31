@@ -1,0 +1,29 @@
+{
+  "commit_id": "aadf21e581082e0bc8491f91c62851e0831b72ac",
+  "commit_sha_short": "aadf21e",
+  "commit_folder": "aadf21e",
+  "commit_message": "metrics: multiple small fixes",
+  "commit_message_first_line": "metrics: multiple small fixes",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/aadf21e581082e0bc8491f91c62851e0831b72ac",
+  "commit_date": "2025-03-04T17:21:06Z",
+  "parent_sha": "6f2e4a83e00b040379b445dcd9ac2744aaad523e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/6f2e4a83e00b040379b445dcd9ac2744aaad523e",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/split_helpers/metrics/consumers/o_du_low_metrics_consumers.cpp",
+      "patch": "@@ -685,7 +685,7 @@ void o_du_low_metrics_consumer_log::handle_metric(const srs_du::o_du_low_metrics\n                    \"ldpc_encoder_avg_latency={:.1f}us \"\n                    \"ldpc_encoder_max_latency={:.1f}us \"\n                    \"ldpc_decoder_avg_latency={:.1f}us \"\n-                   \"ldp_decoder_max_latency={:.1f}us \"\n+                   \"ldpc_decoder_max_latency={:.1f}us \"\n                    \"ldpc_decoder_avg_nof_iter={:.1f}\",\n                    validate_fp_value(upper_metrics.dl_processor_metrics.max_latency_us.first),\n                    upper_metrics.dl_processor_metrics.max_latency_us.second,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -396,6 +396,9 @@ scheduler_ue_metrics\n cell_metrics_handler::ue_metric_context::compute_report(std::chrono::milliseconds metric_report_period,\n                                                         unsigned                  slots_per_sf)\n {\n+  auto convert_slots_to_ms = [slots_per_sf](unsigned slots) {\n+    return static_cast<float>(slots) / static_cast<float>(slots_per_sf);\n+  };\n   scheduler_ue_metrics ret{};\n   ret.pci                 = pci;\n   ret.rnti                = rnti;\n@@ -438,23 +441,22 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.nof_pusch_invalid_harqs        = data.nof_pusch_invalid_harqs;\n   ret.nof_pusch_invalid_csis         = data.nof_pusch_invalid_csis;\n   if (data.nof_ul_ces > 0) {\n-    ret.avg_ce_delay_ms = (static_cast<float>(data.sum_ul_ce_delay_slots) / (data.nof_ul_ces * slots_per_sf));\n-    ret.max_ce_delay_ms = data.max_ul_ce_delay_slots;\n+    ret.avg_ce_delay_ms = convert_slots_to_ms(data.sum_ul_ce_delay_slots) / static_cast<float>(data.nof_ul_ces);\n+    ret.max_ce_delay_ms = convert_slots_to_ms(data.max_ul_ce_delay_slots);\n   }\n   if (data.count_crc_pdus > 0) {\n-    ret.avg_crc_delay_ms =\n-        static_cast<double>(data.sum_crc_delay_slots) / static_cast<double>(data.count_crc_pdus * slots_per_sf);\n-    ret.max_crc_delay_ms = data.max_crc_delay_slots;\n+    ret.avg_crc_delay_ms = convert_slots_to_ms(data.sum_crc_delay_slots) / static_cast<float>(data.count_crc_pdus);\n+    ret.max_crc_delay_ms = convert_slots_to_ms(data.max_crc_delay_slots);\n   }\n   if (data.count_pucch_harq_pdus > 0) {\n-    ret.avg_pucch_harq_delay_ms = static_cast<double>(data.sum_pucch_harq_delay_slots) /\n-                                  static_cast<double>(data.count_pucch_harq_pdus * slots_per_sf);\n-    ret.max_pucch_harq_delay_ms = data.max_pucch_harq_delay_slots;\n+    ret.avg_pucch_harq_delay_ms =\n+        convert_slots_to_ms(data.sum_pucch_harq_delay_slots) / static_cast<float>(data.count_pucch_harq_pdus);\n+    ret.max_pucch_harq_delay_ms = convert_slots_to_ms(data.max_pucch_harq_delay_slots);\n   }\n   if (data.count_pusch_harq_pdus > 0) {\n-    ret.avg_pusch_harq_delay_ms = static_cast<double>(data.sum_pusch_harq_delay_slots) /\n-                                  static_cast<double>(data.count_pusch_harq_pdus * slots_per_sf);\n-    ret.max_pusch_harq_delay_ms = data.max_pusch_harq_delay_slots;\n+    ret.avg_pusch_harq_delay_ms =\n+        convert_slots_to_ms(data.sum_pusch_harq_delay_slots) / static_cast<float>(data.count_pusch_harq_pdus);\n+    ret.max_pusch_harq_delay_ms = convert_slots_to_ms(data.max_pusch_harq_delay_slots);\n   }\n \n   // Reset UE stats metrics on every report.",
+      "additions": 13,
+      "deletions": 11,
+      "changes": 24
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\aadf21e.json"
+}

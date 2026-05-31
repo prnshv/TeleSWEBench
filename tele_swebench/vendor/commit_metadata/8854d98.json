@@ -1,0 +1,22 @@
+{
+  "commit_id": "8854d98a0d33fdb168cb4cbc083e208251211e5a",
+  "commit_sha_short": "8854d98",
+  "commit_folder": "8854d98",
+  "commit_message": "band_helper: add fnc to compute SSB crbs\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "band_helper: add fnc to compute SSB crbs",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8854d98a0d33fdb168cb4cbc083e208251211e5a",
+  "commit_date": "2022-12-22T11:55:28Z",
+  "parent_sha": "9db5bf43bb0d2f537fb5900eb4e7c6ee439b17b2",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9db5bf43bb0d2f537fb5900eb4e7c6ee439b17b2",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -574,11 +574,27 @@ get_max_coreset0_index(subcarrier_spacing scs_common, subcarrier_spacing scs_ssb\n }\n \n // \\brief Computes the CRB index where the first SSB's subcarrier is located.\n-static unsigned get_ssb_crb(subcarrier_spacing scs_common, ssb_offset_to_pointA offset_to_point_A)\n+static unsigned get_ssb_crb_0(subcarrier_spacing scs_common, ssb_offset_to_pointA offset_to_point_A)\n {\n   return scs_common == subcarrier_spacing::kHz15 ? offset_to_point_A.to_uint() : offset_to_point_A.to_uint() / 2;\n }\n \n+// \\brief Computes the CRBs (based on SCS_common) that intersect with the SSB's PRBs.\n+static interval<unsigned> get_ssb_crbs(subcarrier_spacing    scs_common,\n+                                       subcarrier_spacing    scs_ssb,\n+                                       ssb_offset_to_pointA  offset_to_point_A,\n+                                       ssb_subcarrier_offset k_ssb)\n+{\n+  // Space occupied by SSB in RBs, using SCScommon as reference.\n+  const unsigned ssb_nof_crbs = NOF_SSB_PRBS * scs_to_khz(scs_ssb) / scs_to_khz(scs_common);\n+\n+  // Add a CRB to the SSB occupancy if k_ssb > 0; this is because the SSB is not aligned with the first CRB's first\n+  // subcarrier and will terminate in an extra CRB.\n+  unsigned additional_crb = k_ssb > 0 ? 1 : 0;\n+  unsigned ssb_crb_0      = get_ssb_crb_0(scs_common, offset_to_point_A);\n+  return interval<unsigned>{ssb_crb_0, ssb_crb_0 + ssb_nof_crbs + additional_crb};\n+}\n+\n optional<ssb_coreset0_freq_location> srsgnb::band_helper::get_ssb_coreset0_freq_location(unsigned           dl_arfcn,\n                                                                                          nr_band            band,\n                                                                                          unsigned           n_rbs,\n@@ -694,18 +710,13 @@ unsigned srsgnb::band_helper::get_nof_coreset0_rbs_not_intersecting_ssb(unsigned\n                                                                         ssb_offset_to_pointA  offset_to_point_A,\n                                                                         ssb_subcarrier_offset k_ssb)\n {\n-  // Space occupied by SSB in RBs, using SCScommon as reference.\n-  const unsigned ssb_nof_crbs = NOF_SSB_PRBS * scs_to_khz(scs_ssb) / scs_to_khz(scs_common);\n-  // Start RB for SSB.\n-  unsigned crb_ssb = get_ssb_crb(scs_common, offset_to_point_A.to_uint());\n   // Coreset0 configuration for the provided CORESET#0 index.\n   auto cset0_cfg = pdcch_type0_css_coreset_get(\n       band_helper::get_min_channel_bw(band, scs_common), scs_ssb, scs_common, cset0_idx, k_ssb.to_uint());\n \n-  // Add a CRB to the SSB occupancy if k_ssb > 0; this is because the SSB is not aligned with the first CRB's first\n-  // subcarrier and will terminate in an extra CRB.\n-  unsigned           additional_crb = k_ssb > 0 ? 1 : 0;\n-  interval<unsigned> ssb_prbs       = {crb_ssb, crb_ssb + ssb_nof_crbs + additional_crb};\n-  interval<unsigned> cset0_prbs = {crb_ssb - cset0_cfg.offset, crb_ssb - cset0_cfg.offset + cset0_cfg.nof_rb_coreset};\n+  interval<unsigned> ssb_prbs   = get_ssb_crbs(scs_common, scs_ssb, offset_to_point_A, k_ssb);\n+  unsigned           crb_ssb_0  = get_ssb_crb_0(scs_common, offset_to_point_A.to_uint());\n+  interval<unsigned> cset0_prbs = {crb_ssb_0 - cset0_cfg.offset,\n+                                   crb_ssb_0 - cset0_cfg.offset + cset0_cfg.nof_rb_coreset};\n   return cset0_cfg.nof_rb_coreset - cset0_prbs.intersect(ssb_prbs).length();\n }",
+      "additions": 21,
+      "deletions": 10,
+      "changes": 31
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\8854d98.json"
+}

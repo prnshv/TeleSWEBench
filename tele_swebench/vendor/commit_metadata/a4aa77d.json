@@ -1,0 +1,2115 @@
+{
+  "commit_id": "a4aa77d8bffa460d029a668e8e42b979b9beeb51",
+  "commit_sha_short": "a4aa77d",
+  "commit_folder": "a4aa77d",
+  "commit_message": "all: apply new clang-format to all code base",
+  "commit_message_first_line": "all: apply new clang-format to all code base",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/a4aa77d8bffa460d029a668e8e42b979b9beeb51",
+  "commit_date": "2025-03-11T16:44:51Z",
+  "parent_sha": "3a9e1708dc60ca0d24662c05ca3949365d7285a4",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3a9e1708dc60ca0d24662c05ca3949365d7285a4",
+  "code_changes": [
+    {
+      "filename": "apps/du/du_appconfig_validators.h",
+      "patch": "@@ -17,4 +17,4 @@ namespace srsran {\n /// Validates the given DU application configuration. Returns true on success, false otherwise.\n bool validate_appconfig(const du_appconfig& config);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/fapi/fapi_config_translator.cpp",
+      "patch": "@@ -25,4 +25,4 @@ void srsran::fill_fapi_worker_manager_config(worker_manager_config&  config,\n \n   auto& fapi_cfg     = config.fapi_cfg.emplace();\n   fapi_cfg.nof_cells = nof_cells;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/o_cu_cp/o_cu_cp_unit_impl.cpp",
+      "patch": "@@ -29,4 +29,4 @@ srs_cu_cp::cu_cp& o_cu_cp_unit_impl::get_cu_cp()\n srs_cu_cp::cu_cp_operation_controller& o_cu_cp_unit_impl::get_operation_controller()\n {\n   return o_cu->get_operation_controller();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/bounded_integer.h",
+      "patch": "@@ -21,8 +21,7 @@ namespace detail {\n \n /// Tag struct to uniquely identify bounded integers by template types and values.\n template <typename Integer>\n-struct bounded_integer_tag {\n-};\n+struct bounded_integer_tag {};\n \n template <typename Integer>\n using bounded_integer_base = strong_type<Integer,",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/adt/complex.h",
+      "patch": "@@ -87,16 +87,13 @@ inline cf_t to_cf(ci16_t value)\n \n /// Checks if T is compatible with a complex floating point.\n template <typename T>\n-struct is_complex : std::false_type {\n-};\n+struct is_complex : std::false_type {};\n \n template <typename T>\n-struct is_complex<std::complex<T>> : std::true_type {\n-};\n+struct is_complex<std::complex<T>> : std::true_type {};\n \n template <typename T>\n-struct is_complex<const std::complex<T>> : std::true_type {\n-};\n+struct is_complex<const std::complex<T>> : std::true_type {};\n \n } // namespace srsran\n \n@@ -153,14 +150,11 @@ struct formatter_template {\n };\n \n template <>\n-struct formatter<srsran::cf_t> : public formatter_template<srsran::cf_t> {\n-};\n+struct formatter<srsran::cf_t> : public formatter_template<srsran::cf_t> {};\n template <>\n-struct formatter<srsran::ci8_t> : public formatter_template<srsran::ci8_t> {\n-};\n+struct formatter<srsran::ci8_t> : public formatter_template<srsran::ci8_t> {};\n template <>\n-struct formatter<srsran::ci16_t> : public formatter_template<srsran::ci16_t> {\n-};\n+struct formatter<srsran::ci16_t> : public formatter_template<srsran::ci16_t> {};\n \n /// FMT formatter of cbf16_t type.\n template <>",
+      "additions": 6,
+      "deletions": 12,
+      "changes": 18
+    },
+    {
+      "filename": "include/srsran/adt/detail/byte_buffer_memory_resource.h",
+      "patch": "@@ -56,4 +56,4 @@ inline bool operator!=(const byte_buffer_memory_resource& lhs, const byte_buffer\n   return not(lhs == rhs);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/detail/byte_buffer_segment.h",
+      "patch": "@@ -175,4 +175,4 @@ class byte_buffer_segment\n };\n \n } // namespace detail\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/detail/intrusive_ptr.h",
+      "patch": "@@ -141,4 +141,4 @@ inline bool operator!=(const intrusive_ptr<T>& lhs, std::nullptr_t rhs)\n   return (lhs.get() != rhs);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/detail/tuple_utils.h",
+      "patch": "@@ -69,4 +69,4 @@ constexpr bool any_of(const std::tuple<Elements...>& t, Pred&& pred)\n \n } // namespace detail\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/detail/type_storage.h",
+      "patch": "@@ -42,27 +42,12 @@ struct type_storage {\n   }\n \n   /// Get created object handle. UB if object is not created\n-  T& get() noexcept\n-  {\n-    return *std::launder(reinterpret_cast<T*>(buffer));\n-  }\n-  const T& get() const noexcept\n-  {\n-    return *std::launder(reinterpret_cast<const T*>(buffer));\n-  }\n+  T&       get() noexcept { return *std::launder(reinterpret_cast<T*>(buffer)); }\n+  const T& get() const noexcept { return *std::launder(reinterpret_cast<const T*>(buffer)); }\n \n-  void* addr() noexcept\n-  {\n-    return static_cast<void*>(&buffer);\n-  }\n-  const void* addr() const noexcept\n-  {\n-    return static_cast<void*>(&buffer);\n-  }\n-  explicit operator void*() noexcept\n-  {\n-    return addr();\n-  }\n+  void*       addr() noexcept { return static_cast<void*>(&buffer); }\n+  const void* addr() const noexcept { return static_cast<void*>(&buffer); }\n+  explicit    operator void*() noexcept { return addr(); }\n \n   static constexpr size_t obj_size   = sizeof(T) > MinSize ? sizeof(T) : MinSize;\n   static constexpr size_t align_size = alignof(T) > AlignSize ? alignof(T) : AlignSize;\n@@ -72,11 +57,11 @@ struct type_storage {\n \n /// Helper method to copy optional object from rhs to lhs\n template <typename T, size_t MinSize, size_t AlignSize>\n-void copy_if_present_helper(\n-    type_storage<T, MinSize, AlignSize>&       lhs,\n-    const type_storage<T, MinSize, AlignSize>& rhs,\n-    bool                                       lhs_present,\n-    bool rhs_present) noexcept(std::is_nothrow_copy_constructible<T>::value&& std::is_nothrow_copy_assignable<T>::value)\n+void copy_if_present_helper(type_storage<T, MinSize, AlignSize>&       lhs,\n+                            const type_storage<T, MinSize, AlignSize>& rhs,\n+                            bool                                       lhs_present,\n+                            bool rhs_present) noexcept(std::is_nothrow_copy_constructible<T>::value &&\n+                                                       std::is_nothrow_copy_assignable<T>::value)\n {\n   if (lhs_present and rhs_present) {\n     lhs.get() = rhs.get();\n@@ -89,11 +74,11 @@ void copy_if_present_helper(\n \n /// Helper method to move optional object from rhs to lhs\n template <typename T, size_t MinSize, size_t AlignSize>\n-void move_if_present_helper(\n-    type_storage<T, MinSize, AlignSize>& lhs,\n-    type_storage<T, MinSize, AlignSize>& rhs,\n-    bool                                 lhs_present,\n-    bool rhs_present) noexcept(std::is_nothrow_move_constructible<T>::value&& std::is_nothrow_move_assignable<T>::value)\n+void move_if_present_helper(type_storage<T, MinSize, AlignSize>& lhs,\n+                            type_storage<T, MinSize, AlignSize>& rhs,\n+                            bool                                 lhs_present,\n+                            bool rhs_present) noexcept(std::is_nothrow_move_constructible<T>::value &&\n+                                                       std::is_nothrow_move_assignable<T>::value)\n {\n   if (lhs_present and rhs_present) {\n     lhs.get() = std::move(rhs.get());",
+      "additions": 15,
+      "deletions": 30,
+      "changes": 45
+    },
+    {
+      "filename": "include/srsran/adt/detail/type_traits.h",
+      "patch": "@@ -17,11 +17,9 @@ namespace srsran {\n namespace detail {\n \n template <typename U>\n-struct is_std_array : std::false_type {\n-};\n+struct is_std_array : std::false_type {};\n template <typename U, std::size_t N>\n-struct is_std_array<std::array<U, N>> : std::true_type {\n-};\n+struct is_std_array<std::array<U, N>> : std::true_type {};\n \n } // namespace detail\n } // namespace srsran",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/adt/expected.h",
+      "patch": "@@ -31,11 +31,9 @@ using expected = tl::expected<T, E>;\n \n namespace detail {\n template <typename T>\n-struct is_expected : std::false_type {\n-};\n+struct is_expected : std::false_type {};\n template <typename V, typename E>\n-struct is_expected<expected<V, E>> : std::true_type {\n-};\n+struct is_expected<expected<V, E>> : std::true_type {};\n } // namespace detail\n \n template <typename E>",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/adt/slotted_vector.h",
+      "patch": "@@ -27,8 +27,8 @@ class slotted_vector_iter_impl\n {\n   using iterator_type = slotted_vector_iter_impl<VectorData>;\n   using elem_type     = std::conditional_t<std::is_const_v<VectorData>,\n-                                       const typename VectorData::value_type,\n-                                       typename VectorData::value_type>;\n+                                           const typename VectorData::value_type,\n+                                           typename VectorData::value_type>;\n \n public:\n   using iterator_category = std::forward_iterator_tag;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/adt/span.h",
+      "patch": "@@ -31,18 +31,15 @@ namespace detail {\n /// Helper traits used by SFINAE expressions in constructors.\n \n template <typename U>\n-struct is_span : std::false_type {\n-};\n+struct is_span : std::false_type {};\n template <typename U>\n-struct is_span<span<U>> : std::true_type {\n-};\n+struct is_span<span<U>> : std::true_type {};\n \n template <typename U>\n using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;\n \n template <class Container, class U, class = void>\n-struct is_container_compatible : public std::false_type {\n-};\n+struct is_container_compatible : public std::false_type {};\n template <class Container, class U>\n struct is_container_compatible<\n     Container,\n@@ -60,8 +57,7 @@ struct is_container_compatible<\n         // Check type compatibility between the contained type and the span type.\n         std::enable_if_t<\n             std::is_convertible_v<std::remove_pointer_t<decltype(std::declval<Container>().data())> (*)[], U (*)[]>,\n-            int>>> : public std::true_type {\n-};\n+            int>>> : public std::true_type {};\n \n } // namespace detail\n \n@@ -234,8 +230,7 @@ using const_span = span<const T>;\n namespace fmt {\n \n template <typename T>\n-struct is_range<srsran::span<T>, char> : std::false_type {\n-};\n+struct is_range<srsran::span<T>, char> : std::false_type {};\n \n /// \\brief Custom formatter for \\c span<T>.\n ///\n@@ -307,8 +302,7 @@ struct formatter<srsran::span<T>> {\n };\n \n template <typename T>\n-struct is_range<std::vector<T>, char> : std::false_type {\n-};\n+struct is_range<std::vector<T>, char> : std::false_type {};\n \n /// Custom formatter used by the \\c copy_loggable_type defined below.\n template <typename T>\n@@ -326,8 +320,7 @@ struct formatter<std::vector<T>> : public formatter<srsran::span<T>> {\n };\n \n template <typename T, size_t N>\n-struct is_range<srsran::static_vector<T, N>, char> : std::false_type {\n-};\n+struct is_range<srsran::static_vector<T, N>, char> : std::false_type {};\n \n /// Custom formatter used by the \\c copy_loggable_type defined below.\n template <typename T, size_t N>",
+      "additions": 7,
+      "deletions": 14,
+      "changes": 21
+    },
+    {
+      "filename": "include/srsran/adt/static_vector.h",
+      "patch": "@@ -25,8 +25,8 @@ struct trivial_storage {\n   static_assert(std::is_trivial<T>::value, \"Implementation only works for trivial types\");\n \n   using array_type     = std::conditional_t<std::is_const<T>::value,\n-                                        const std::array<std::remove_const_t<T>, Capacity>,\n-                                        std::array<T, Capacity>>;\n+                                            const std::array<std::remove_const_t<T>, Capacity>,\n+                                            std::array<T, Capacity>>;\n   using iterator       = T*;\n   using const_iterator = const T*;\n \n@@ -99,8 +99,8 @@ struct non_trivial_storage {\n \n   using element_storage_t = std::aligned_storage_t<sizeof(T), alignof(T)>;\n   using array_type        = std::conditional_t<std::is_const<T>::value,\n-                                        const std::array<element_storage_t, Capacity>,\n-                                        std::array<element_storage_t, Capacity>>;\n+                                               const std::array<element_storage_t, Capacity>,\n+                                               std::array<element_storage_t, Capacity>>;\n   using iterator          = T*;\n   using const_iterator    = const T*;\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/adt/strong_type.h",
+      "patch": "@@ -127,8 +127,7 @@ struct strong_equality_with {\n \n   template <typename T>\n   class strong_property : public detail::strong_equality_with_type<T, Ts>...\n-  {\n-  };\n+  {};\n };\n \n /// Multiplication operator definitions for strong types and the list of types in the template argument pack.\n@@ -138,8 +137,7 @@ struct strong_multiplication_with {\n \n   template <typename T>\n   class strong_property : public detail::strong_multiplication_with_type<T, Ts>...\n-  {\n-  };\n+  {};\n };\n \n struct strong_comparison {\n@@ -167,8 +165,7 @@ struct strong_comparison_with {\n \n   template <typename T>\n   class strong_property : public detail::strong_comparison_with_type<T, Ts>...\n-  {\n-  };\n+  {};\n };\n \n struct strong_increment_decrement {\n@@ -450,8 +447,7 @@ struct strong_conversion_to {\n \n   template <typename T>\n   class strong_property : public detail::strong_convertion_to_type<T, Ts>...\n-  {\n-  };\n+  {};\n };\n \n } // namespace srsran",
+      "additions": 4,
+      "deletions": 8,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/adt/unique_function.h",
+      "patch": "@@ -95,11 +95,9 @@ class heap_table_t final : public oper_table_t<R, Args...>\n \n /// Metafunction to check if a type is an instantiation of unique_function<R(Args...)>\n template <class>\n-struct is_unique_function : std::false_type {\n-};\n+struct is_unique_function : std::false_type {};\n template <class Sig, size_t Capacity, bool ForbidAlloc>\n-struct is_unique_function<unique_function<Sig, Capacity, ForbidAlloc>> : std::true_type {\n-};\n+struct is_unique_function<unique_function<Sig, Capacity, ForbidAlloc>> : std::true_type {};\n \n template <typename FunT, typename R, typename... Args>\n const auto& get_unique_heap_oper_ptr()",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_ap_utils.h",
+      "patch": "@@ -92,18 +92,15 @@ struct base_ie_field : public IEItem {\n \n // ProtocolIE-Field{LAYER-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE{{IEsSetParam}}\n template <class IEsSetParam>\n-struct protocol_ie_field_s : public detail::base_ie_field<detail::ie_field_value_item<IEsSetParam>> {\n-};\n+struct protocol_ie_field_s : public detail::base_ie_field<detail::ie_field_value_item<IEsSetParam>> {};\n \n // ProtocolIE-SingleContainer{LAYER-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE{{IEsSetParam}}\n template <class ies_set_paramT_>\n-struct protocol_ie_single_container_s : public protocol_ie_field_s<ies_set_paramT_> {\n-};\n+struct protocol_ie_single_container_s : public protocol_ie_field_s<ies_set_paramT_> {};\n \n // ProtocolExtensionField{LAYER-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE{{LAYER-PROTOCOL-EXTENSION}}\n template <class ExtensionSetParam>\n-struct protocol_ext_field_s : public detail::base_ie_field<detail::ie_field_ext_item<ExtensionSetParam>> {\n-};\n+struct protocol_ext_field_s : public detail::base_ie_field<detail::ie_field_ext_item<ExtensionSetParam>> {};\n \n template <typename IEValue>\n SRSASN_CODE pack_ie_container_item(bit_ref& bref, uint32_t id, crit_e crit, const IEValue& value)",
+      "additions": 3,
+      "deletions": 6,
+      "changes": 9
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -649,7 +649,7 @@ class integer\n   IntType              value;\n   integer() = default;\n   integer(IntType value_) : value(value_) {}\n-              operator IntType() const { return value; }\n+  operator IntType() const { return value; }\n   SRSASN_CODE pack(bit_ref& bref) const { return pack_integer(bref, value, lb, ub, has_ext, is_aligned); }\n   SRSASN_CODE unpack(cbit_ref& bref) { return unpack_integer(value, bref, lb, ub, has_ext, is_aligned); }\n };\n@@ -1376,8 +1376,7 @@ struct choice_buffer_base_t {\n \n template <typename... Ts>\n struct choice_buffer_t : public choice_buffer_base_t<max_size({sizeof(alignment_t), sizeof(Ts)...}),\n-                                                     max_size({alignof(alignment_t), alignof(Ts)...})> {\n-};\n+                                                     max_size({alignof(alignment_t), alignof(Ts)...})> {};\n \n using pod_choice_buffer_t = choice_buffer_t<>;\n ",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "include/srsran/cu_cp/common_task_scheduler.h",
+      "patch": "@@ -26,4 +26,4 @@ class common_task_scheduler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/cu_cp/cu_cp_metrics_handler.h",
+      "patch": "@@ -99,4 +99,4 @@ class metrics_handler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/cu_cp/cu_cp_ng_handler.h",
+      "patch": "@@ -35,4 +35,4 @@ class cu_cp_ng_handler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/cu_cp/o_cu_cp_factory.h",
+      "patch": "@@ -22,4 +22,4 @@ struct o_cu_cp_dependencies;\n std::unique_ptr<o_cu_cp> create_o_cu_cp(const o_cu_cp_config& config, const o_cu_cp_dependencies& dependencies);\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/e1ap/common/e1ap_message.h",
+      "patch": "@@ -19,4 +19,4 @@ struct e1ap_message {\n   asn1::e1ap::e1ap_pdu_c pdu;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/e2/e2_messages.h",
+      "patch": "@@ -72,4 +72,4 @@ struct e2_ric_control_response {\n   bool                        success;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/e2/gateways/e2_connection_client.h",
+      "patch": "@@ -29,4 +29,4 @@ class e2_connection_client\n   handle_e2_connection_request(std::unique_ptr<e2_message_notifier> e2_rx_pdu_notifier) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/f1ap/cu_cp/f1ap_configuration.h",
+      "patch": "@@ -24,4 +24,4 @@ struct f1ap_configuration {\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/f1ap/cu_cp/f1ap_du_context.h",
+      "patch": "@@ -24,4 +24,4 @@ struct f1ap_du_context {\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/gateways/sctp_network_client.h",
+      "patch": "@@ -48,4 +48,4 @@ class sctp_network_client : public sctp_network_gateway_info\n              std::unique_ptr<sctp_association_sdu_notifier> recv_handler) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/instrumentation/traces/du_traces.h",
+      "patch": "@@ -19,14 +19,14 @@ namespace srsran {\n #ifndef SRSRAN_L1_TRACE\n constexpr bool L1_TRACE_ENABLED = false;\n #else\n-constexpr bool L1_TRACE_ENABLED      = true;\n+constexpr bool L1_TRACE_ENABLED = true;\n #endif\n \n /// Set to true for enabling layer 2 trace.\n #ifndef SRSRAN_L2_TRACE\n constexpr bool L2_TRACE_ENABLED = false;\n #else\n-constexpr bool L2_TRACE_ENABLED      = true;\n+constexpr bool L2_TRACE_ENABLED = true;\n #endif\n /// L1 event tracing. This tracer is used to analyze latencies in the L1 processing.\n extern file_event_tracer<L1_TRACE_ENABLED> l1_tracer;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/instrumentation/traces/ru_traces.h",
+      "patch": "@@ -20,4 +20,4 @@ constexpr bool RU_TRACE_ENABLED = false;\n /// RU event tracing. This tracer is used to analyze latencies in the RU processing.\n extern file_event_tracer<RU_TRACE_ENABLED> ru_tracer;\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ngap/gateways/n2_connection_client.h",
+      "patch": "@@ -33,4 +33,4 @@ class n2_connection_client\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ngap/ngap_message.h",
+      "patch": "@@ -21,4 +21,4 @@ struct ngap_message {\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/pdcp/pdcp_t_reordering.h",
+      "patch": "@@ -111,4 +111,4 @@ constexpr int16_t pdcp_t_reordering_to_int(pdcp_t_reordering t_reordering)\n   return static_cast<int16_t>(t_reordering);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/downlink_processor.h",
+      "patch": "@@ -46,4 +46,4 @@ class lower_phy_downlink_processor\n   virtual downlink_processor_baseband& get_baseband() = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/downlink_processor_factories.h",
+      "patch": "@@ -54,4 +54,4 @@ std::shared_ptr<lower_phy_downlink_processor_factory>\n create_downlink_processor_factory_sw(std::shared_ptr<pdxch_processor_factory>      pdxch_proc_factory,\n                                      std::shared_ptr<amplitude_controller_factory> amplitude_control_factory);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/downlink_processor_notifier.h",
+      "patch": "@@ -37,4 +37,4 @@ class downlink_processor_notifier\n   virtual void on_new_metrics(const lower_phy_baseband_metrics& metrics) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/pdxch/pdxch_processor.h",
+      "patch": "@@ -42,4 +42,4 @@ class pdxch_processor\n   virtual pdxch_processor_baseband& get_baseband() = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/pdxch/pdxch_processor_factories.h",
+      "patch": "@@ -56,4 +56,4 @@ std::shared_ptr<pdxch_processor_factory>\n create_pdxch_processor_factory_sw(unsigned                                request_queue_size,\n                                   std::shared_ptr<ofdm_modulator_factory> ofdm_mod_factory);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/downlink/pdxch/pdxch_processor_request_handler.h",
+      "patch": "@@ -35,4 +35,4 @@ class pdxch_processor_request_handler\n   virtual void handle_request(const shared_resource_grid& grid, const resource_grid_context& context) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/prach/prach_processor.h",
+      "patch": "@@ -41,4 +41,4 @@ class prach_processor\n   virtual prach_processor_baseband& get_baseband() = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/prach/prach_processor_factories.h",
+      "patch": "@@ -45,4 +45,4 @@ create_prach_processor_factory_sw(std::shared_ptr<ofdm_prach_demodulator_factory\n                                   unsigned                                        max_nof_ports,\n                                   unsigned                                        max_nof_concurrent_requests);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/prach/prach_processor_notifier.h",
+      "patch": "@@ -45,4 +45,4 @@ class prach_processor_notifier\n   virtual void on_rx_prach_window(const prach_buffer& buffer, const prach_buffer_context& context) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/prach/prach_processor_request_handler.h",
+      "patch": "@@ -35,4 +35,4 @@ class prach_processor_request_handler\n   virtual void handle_request(prach_buffer& buffer, const prach_buffer_context& context) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/puxch/puxch_processor.h",
+      "patch": "@@ -42,4 +42,4 @@ class puxch_processor\n   virtual puxch_processor_baseband& get_baseband() = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/puxch/puxch_processor_factories.h",
+      "patch": "@@ -57,4 +57,4 @@ std::shared_ptr<puxch_processor_factory>\n create_puxch_processor_factory_sw(unsigned                                  request_queue_size,\n                                   std::shared_ptr<ofdm_demodulator_factory> ofdm_demod_factory);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/puxch/puxch_processor_request_handler.h",
+      "patch": "@@ -35,4 +35,4 @@ class puxch_processor_request_handler\n   virtual void handle_request(const shared_resource_grid& grid, const resource_grid_context& context) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/uplink_processor.h",
+      "patch": "@@ -52,4 +52,4 @@ class lower_phy_uplink_processor\n   virtual uplink_processor_baseband& get_baseband() = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/lower/processors/uplink/uplink_processor_factories.h",
+      "patch": "@@ -53,4 +53,4 @@ std::shared_ptr<lower_phy_uplink_processor_factory>\n create_uplink_processor_factory_sw(std::shared_ptr<prach_processor_factory> prach_proc_factory,\n                                    std::shared_ptr<puxch_processor_factory> puxch_proc_factory);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_coding/ldpc/ldpc_encoder_buffer.h",
+      "patch": "@@ -37,4 +37,4 @@ class ldpc_encoder_buffer\n   virtual void write_codeblock(span<uint8_t> data, unsigned offset) const = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pdcch/factories.h",
+      "patch": "@@ -62,4 +62,4 @@ std::shared_ptr<pdcch_processor_factory>\n create_pdcch_processor_pool_factory(std::shared_ptr<pdcch_processor_factory> processor_factory,\n                                     unsigned                                 nof_concurrent_threads);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pdcch/formatters.h",
+      "patch": "@@ -98,4 +98,4 @@ struct formatter<srsran::pdcch_processor::pdu_t> {\n   }\n };\n \n-} // namespace fmt\n\\ No newline at end of file\n+} // namespace fmt",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pucch/factories.h",
+      "patch": "@@ -67,4 +67,4 @@ create_pucch_processor_factory_sw(std::shared_ptr<dmrs_pucch_estimator_factory>\n std::shared_ptr<pucch_processor_factory>\n create_pucch_processor_pool_factory(std::shared_ptr<pucch_processor_factory> factory, unsigned nof_concurrent_threads);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_decoder_notifier.h",
+      "patch": "@@ -26,4 +26,4 @@ class pusch_decoder_notifier\n   virtual void on_sch_data(const pusch_decoder_result& result) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_decoder_result.h",
+      "patch": "@@ -28,4 +28,4 @@ struct pusch_decoder_result {\n   sample_statistics<unsigned> ldpc_decoder_stats;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_processor_phy_capabilities.h",
+      "patch": "@@ -24,4 +24,4 @@ struct pusch_processor_phy_capabilities {\n /// Gets the physical layer PUSCH processor capabilities.\n pusch_processor_phy_capabilities get_pusch_processor_phy_capabilities();\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pusch/pusch_processor_result_notifier.h",
+      "patch": "@@ -80,4 +80,4 @@ class pusch_processor_result_notifier\n   virtual void on_sch(const pusch_processor_result_data& sch) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/equalization/channel_equalizer_algorithm_type.h",
+      "patch": "@@ -32,4 +32,4 @@ inline const char* to_string(channel_equalizer_algorithm_type type)\n   }\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/equalization/dynamic_ch_est_list.h",
+      "patch": "@@ -70,4 +70,4 @@ class dynamic_ch_est_list : public channel_equalizer::ch_est_list\n   dynamic_tensor<std::underlying_type_t<ch_dims>(ch_dims::nof_dims), cbf16_t, ch_dims> data;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/equalization/modular_ch_est_list.h",
+      "patch": "@@ -107,4 +107,4 @@ class modular_ch_est_list : public channel_equalizer::ch_est_list\n   static_tensor<std::underlying_type_t<ch_dims>(ch_dims::nof_dims), span<const cbf16_t>, MaxNofElements, ch_dims> data;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/signal_processors/prs/formatters.h",
+      "patch": "@@ -52,4 +52,4 @@ struct formatter<srsran::prs_generator_configuration> {\n   }\n };\n \n-} // namespace fmt\n\\ No newline at end of file\n+} // namespace fmt",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/signal_processors/ptrs/ptrs_pdsch_generator_factory.h",
+      "patch": "@@ -35,4 +35,4 @@ std::shared_ptr<ptrs_pdsch_generator_factory>\n create_ptrs_pdsch_generator_generic_factory(std::shared_ptr<pseudo_random_generator_factory> pseudo_random_gen_factory,\n                                             std::shared_ptr<resource_grid_mapper_factory>    rg_mapper_factory);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/signal_processors/srs/srs_estimator.h",
+      "patch": "@@ -32,4 +32,4 @@ class srs_estimator\n                                         const srs_estimator_configuration& config) = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/radio/radio_notification_handler.h",
+      "patch": "@@ -60,8 +60,8 @@ class radio_notification_handler : public radio_base\n     event_source(sources value_) : value(value_) {}\n     bool operator==(const event_source& other) const { return value == other.value; }\n     bool operator==(const sources& other) const { return value == other; }\n-         operator sources() const { return value; }\n-         operator sources&() { return value; }\n+    operator sources() const { return value; }\n+    operator sources&() { return value; }\n \n   private:\n     sources value = sources::UNDEFINED;\n@@ -116,8 +116,8 @@ class radio_notification_handler : public radio_base\n     event_type(types value_) : value(value_) {}\n     bool operator==(const event_type& other) const { return value == other.value; }\n     bool operator==(const types& other) const { return value == other; }\n-         operator types() const { return value; }\n-         operator types&() { return value; }\n+    operator types() const { return value; }\n+    operator types&() { return value; }\n \n   private:\n     types value = types::UNDEFINED;",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/ran/csi_report/csi_report_packed.h",
+      "patch": "@@ -24,4 +24,4 @@ static constexpr units::bits csi_report_max_size(17U);\n /// Packed Channel State Information (CSI) report data type.\n using csi_report_packed = bounded_bitset<csi_report_max_size.value(), false>;\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/csi_rs/csi_rs_pattern.h",
+      "patch": "@@ -76,4 +76,4 @@ struct csi_rs_pattern {\n /// Generates the CSI-RS pattern.\n csi_rs_pattern get_csi_rs_pattern(const csi_rs_pattern_configuration& config);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/csi_rs/csi_rs_types.h",
+      "patch": "@@ -96,4 +96,4 @@ static constexpr unsigned get_cdm_group_size(csi_rs_cdm_type cdm)\n   return cdm_group_size;\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/logical_channel/bsr_format.h",
+      "patch": "@@ -25,4 +25,4 @@ inline const char* to_string(bsr_format bsr)\n   return idx < names.size() ? names[idx] : \"Invalid BSR format\";\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/prach/prach_cyclic_shifts.h",
+      "patch": "@@ -38,4 +38,4 @@ uint16_t prach_cyclic_shifts_get(prach_subcarrier_spacing prach_scs,\n                                  restricted_set_config    restricted_set,\n                                  unsigned                 zero_correlation_zone);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/prach/prach_frequency_mapping.h",
+      "patch": "@@ -35,4 +35,4 @@ static constexpr prach_frequency_mapping_information PRACH_FREQUENCY_MAPPING_INF\n prach_frequency_mapping_information prach_frequency_mapping_get(prach_subcarrier_spacing prach_scs,\n                                                                 subcarrier_spacing       pusch_scs);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/prach/prach_subcarrier_spacing.h",
+      "patch": "@@ -122,4 +122,4 @@ inline prach_subcarrier_spacing to_ra_subcarrier_spacing(const char* str)\n   return to_ra_subcarrier_spacing(in_scs_Hz);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/prach/restricted_set_config.h",
+      "patch": "@@ -32,4 +32,4 @@ inline const char* to_string(restricted_set_config config)\n   }\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ptrs/ptrs.h",
+      "patch": "@@ -83,4 +83,4 @@ inline unsigned to_value(ptrs_re_offset re_offset)\n   return static_cast<unsigned>(re_offset);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ptrs/ptrs_constants.h",
+      "patch": "@@ -19,4 +19,4 @@ static constexpr unsigned max_nof_ports = 6;\n \n } // namespace ptrs_constants\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ptrs/ptrs_pattern.h",
+      "patch": "@@ -60,4 +60,4 @@ struct ptrs_pattern {\n /// Generates the PT-RS pattern from the given PT-RS parameters.\n ptrs_pattern get_ptrs_pattern(const ptrs_pattern_configuration& pattern_config);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/qos/packet_error_rate.h",
+      "patch": "@@ -44,4 +44,4 @@ struct packet_error_rate_t {\n   }\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/resource_allocation/rb_interval.h",
+      "patch": "@@ -82,17 +82,14 @@ namespace fmt {\n \n /// FMT formatter for prb_intervals.\n template <>\n-struct formatter<srsran::prb_interval> : public formatter<srsran::interval<uint32_t>> {\n-};\n+struct formatter<srsran::prb_interval> : public formatter<srsran::interval<uint32_t>> {};\n \n /// FMT formatter for crb_intervals.\n template <>\n-struct formatter<srsran::crb_interval> : public formatter<srsran::interval<uint32_t>> {\n-};\n+struct formatter<srsran::crb_interval> : public formatter<srsran::interval<uint32_t>> {};\n \n /// FMT formatter for vrb_intervals.\n template <>\n-struct formatter<srsran::vrb_interval> : public formatter<srsran::interval<uint32_t>> {\n-};\n+struct formatter<srsran::vrb_interval> : public formatter<srsran::interval<uint32_t>> {};\n \n } // namespace fmt",
+      "additions": 3,
+      "deletions": 6,
+      "changes": 9
+    },
+    {
+      "filename": "include/srsran/ran/sch/sch_dmrs_power.h",
+      "patch": "@@ -29,4 +29,4 @@ inline float get_sch_to_dmrs_ratio_dB(unsigned nof_cdm_groups_without_data)\n   return beta_dmrs_values[nof_cdm_groups_without_data];\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/slot_point.h",
+      "patch": "@@ -188,7 +188,7 @@ class slot_point\n   slot_point operator++(int)\n   {\n     slot_point ret{*this};\n-    this->     operator++();\n+    this->operator++();\n     return ret;\n   }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_feedback_handler.h",
+      "patch": "@@ -118,10 +118,10 @@ class harq_ack_report_list\n \n   mac_harq_ack_report_status&       operator[](unsigned idx) { return to_span()[idx]; }\n   const mac_harq_ack_report_status& operator[](unsigned idx) const { return to_span()[idx]; }\n-                                    operator span<mac_harq_ack_report_status>() { return to_span(); }\n-                                    operator span<const mac_harq_ack_report_status>() const { return to_span(); }\n-  size_t                            size() const { return to_span().size(); }\n-  bool                              empty() const { return to_span().empty(); }\n+  operator span<mac_harq_ack_report_status>() { return to_span(); }\n+  operator span<const mac_harq_ack_report_status>() const { return to_span(); }\n+  size_t size() const { return to_span().size(); }\n+  bool   empty() const { return to_span().empty(); }\n \n   auto begin() { return to_span().begin(); }\n   auto begin() const { return to_span().begin(); }",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/security/ciphering.h",
+      "patch": "@@ -123,7 +123,7 @@ inline void security_nea2(const sec_128_key& key,\n       nonce_cnt[0] = (count >> 24) & 0xff;\n       nonce_cnt[1] = (count >> 16) & 0xff;\n       nonce_cnt[2] = (count >> 8) & 0xff;\n-      nonce_cnt[3] = (count)&0xff;\n+      nonce_cnt[3] = (count) & 0xff;\n       nonce_cnt[4] = ((bearer & 0x1f) << 3) | ((to_number(direction) & 0x01) << 2);\n \n       // Encryption\n@@ -170,7 +170,7 @@ inline void security_nea3(const sec_128_key& key,\n     iv[0]  = (count >> 24) & 0xff;\n     iv[1]  = (count >> 16) & 0xff;\n     iv[2]  = (count >> 8) & 0xff;\n-    iv[3]  = (count)&0xff;\n+    iv[3]  = (count) & 0xff;\n     iv[4]  = ((bearer & 0x1f) << 3) | ((to_number(direction) & 0x01) << 2);\n     iv[5]  = 0;\n     iv[6]  = 0;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/srslog/context.h",
+      "patch": "@@ -193,10 +193,16 @@ using build_context_type = context<std::decay_t<Ts>...>;\n #define DECLARE_METRIC(_name_rep, _type, _value_type, _units)                                                          \\\n   namespace metric_info {                                                                                              \\\n   struct _type##__units {                                                                                              \\\n-    static const char* units() { return _units; }                                                                      \\\n+    static const char* units()                                                                                         \\\n+    {                                                                                                                  \\\n+      return _units;                                                                                                   \\\n+    }                                                                                                                  \\\n   };                                                                                                                   \\\n   struct _type##__name_rep {                                                                                           \\\n-    static const char* name() { return _name_rep; }                                                                    \\\n+    static const char* name()                                                                                          \\\n+    {                                                                                                                  \\\n+      return _name_rep;                                                                                                \\\n+    }                                                                                                                  \\\n   };                                                                                                                   \\\n   }                                                                                                                    \\\n   using _type = srslog::                                                                                               \\\n@@ -217,7 +223,10 @@ using build_context_type = context<std::decay_t<Ts>...>;\n #define DECLARE_METRIC_SET(_name_rep, _type, ...)                                                                      \\\n   namespace metric_set_info {                                                                                          \\\n   struct _type##__name_rep {                                                                                           \\\n-    static const char* name() { return _name_rep; }                                                                    \\\n+    static const char* name()                                                                                          \\\n+    {                                                                                                                  \\\n+      return _name_rep;                                                                                                \\\n+    }                                                                                                                  \\\n   };                                                                                                                   \\\n   }                                                                                                                    \\\n   using _type = srslog::detail::build_metric_set_type<metric_set_info::_type##__name_rep, __VA_ARGS__>\n@@ -236,7 +245,10 @@ using build_context_type = context<std::decay_t<Ts>...>;\n #define DECLARE_METRIC_LIST(_name_rep, _type, _list_type)                                                              \\\n   namespace list_info {                                                                                                \\\n   struct _type##__name_rep {                                                                                           \\\n-    static const char* name() { return _name_rep; }                                                                    \\\n+    static const char* name()                                                                                          \\\n+    {                                                                                                                  \\\n+      return _name_rep;                                                                                                \\\n+    }                                                                                                                  \\\n   };                                                                                                                   \\\n   }                                                                                                                    \\\n   using _type = srslog::metric_list<list_info::_type##__name_rep, typename std::decay<_list_type>::type>",
+      "additions": 16,
+      "deletions": 4,
+      "changes": 20
+    },
+    {
+      "filename": "include/srsran/srslog/detail/support/any.h",
+      "patch": "@@ -25,11 +25,9 @@ struct in_place_type_t {\n \n /// Type trait to detect if T is a in_place_type_t tag.\n template <typename T>\n-struct is_in_place_type_t : std::false_type {\n-};\n+struct is_in_place_type_t : std::false_type {};\n template <typename T>\n-struct is_in_place_type_t<in_place_type_t<T>> : std::true_type {\n-};\n+struct is_in_place_type_t<in_place_type_t<T>> : std::true_type {};\n \n /// This is a very minimalist and non compliant implementation of std::any which\n /// is included in C++17.",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/srslog/detail/support/tmpl_utils.h",
+      "patch": "@@ -24,12 +24,10 @@ namespace detail {\n ///\n \n template <std::size_t...>\n-struct index_sequence {\n-};\n+struct index_sequence {};\n \n template <std::size_t N, std::size_t... Next>\n-struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, Next...> {\n-};\n+struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, Next...> {};\n \n template <std::size_t... Next>\n struct index_sequence_helper<0U, Next...> {\n@@ -70,16 +68,14 @@ template <typename...>\n using void_t = void;\n \n template <typename, typename = void>\n-struct is_byte_iterable : public std::false_type {\n-};\n+struct is_byte_iterable : public std::false_type {};\n \n template <typename T>\n struct is_byte_iterable<\n     T,\n     void_t<decltype(++std::declval<T>()),\n            typename std::enable_if<std::is_same<typename T::value_type, uint8_t>::value, int>::type>>\n-  : public std::true_type {\n-};\n+  : public std::true_type {};\n \n } // namespace detail\n ",
+      "additions": 4,
+      "deletions": 8,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/srslog/logger.h",
+      "patch": "@@ -97,11 +97,9 @@ class logger_impl : public T\n \n /// Type trait to detect if T is a logger.\n template <typename T>\n-struct is_logger : std::false_type {\n-};\n+struct is_logger : std::false_type {};\n template <typename T, typename Enum>\n-struct is_logger<logger_impl<T, Enum>> : std::true_type {\n-};\n+struct is_logger<logger_impl<T, Enum>> : std::true_type {};\n \n } // namespace detail\n ",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/srsvec/simd.h",
+      "patch": "@@ -713,7 +713,7 @@ inline simd_cf_t srsran_simd_cfi_load(const cf_t* ptr)\n   ret.im    = _mm_shuffle_ps(i1, i2, _MM_SHUFFLE(3, 1, 3, 1));\n #else\n #ifdef __ARM_NEON\n-  ret        = vld2q_f32(reinterpret_cast<const float*>(ptr));\n+  ret = vld2q_f32(reinterpret_cast<const float*>(ptr));\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -737,10 +737,10 @@ inline simd_cf_t srsran_simd_cfi_loadu(const cf_t* ptr)\n       in2);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  __m256 in1        = _mm256_permute_ps(_mm256_loadu_ps(reinterpret_cast<const float*>(ptr)), 0b11011000);\n-  __m256 in2        = _mm256_permute_ps(_mm256_loadu_ps(reinterpret_cast<const float*>(ptr + 4)), 0b11011000);\n-  ret.re            = _mm256_unpacklo_ps(in1, in2);\n-  ret.im            = _mm256_unpackhi_ps(in1, in2);\n+  __m256 in1 = _mm256_permute_ps(_mm256_loadu_ps(reinterpret_cast<const float*>(ptr)), 0b11011000);\n+  __m256 in2 = _mm256_permute_ps(_mm256_loadu_ps(reinterpret_cast<const float*>(ptr + 4)), 0b11011000);\n+  ret.re     = _mm256_unpacklo_ps(in1, in2);\n+  ret.im     = _mm256_unpackhi_ps(in1, in2);\n \n   // Permute for AVX registers (reorders data across 128-bit registers).\n   const __m256i idx = _mm256_setr_epi32(0, 2, 4, 6, 1, 3, 5, 7);\n@@ -754,7 +754,7 @@ inline simd_cf_t srsran_simd_cfi_loadu(const cf_t* ptr)\n   ret.im    = _mm_shuffle_ps(i1, i2, _MM_SHUFFLE(3, 1, 3, 1));\n #else\n #ifdef __ARM_NEON\n-  ret        = vld2q_f32(reinterpret_cast<const float*>(ptr));\n+  ret = vld2q_f32(reinterpret_cast<const float*>(ptr));\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -770,12 +770,12 @@ inline simd_cf_t srsran_simd_cf_load(const float* re, const float* im)\n   ret.im = _mm512_load_ps(im);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_load_ps(re);\n-  ret.im            = _mm256_load_ps(im);\n+  ret.re = _mm256_load_ps(re);\n+  ret.im = _mm256_load_ps(im);\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re    = _mm_load_ps(re);\n-  ret.im    = _mm_load_ps(im);\n+  ret.re = _mm_load_ps(re);\n+  ret.im = _mm_load_ps(im);\n #else /* __ARM_NEON */\n #ifdef __ARM_NEON\n   ret.val[0] = vld1q_f32(re);\n@@ -795,12 +795,12 @@ inline simd_cf_t srsran_simd_cf_loadu(const float* re, const float* im)\n   ret.im = _mm512_loadu_ps(im);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_loadu_ps(re);\n-  ret.im            = _mm256_loadu_ps(im);\n+  ret.re = _mm256_loadu_ps(re);\n+  ret.im = _mm256_loadu_ps(im);\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re    = _mm_loadu_ps(re);\n-  ret.im    = _mm_loadu_ps(im);\n+  ret.re = _mm_loadu_ps(re);\n+  ret.im = _mm_loadu_ps(im);\n #else /* __ARM_NEON */\n #ifdef __ARM_NEON\n   ret.val[0] = vld1q_f32(re);\n@@ -937,7 +937,7 @@ inline simd_f_t srsran_simd_cf_re(simd_cf_t in)\n #ifdef __ARM_NEON\n   simd_f_t out = in.val[0];\n #else\n-  simd_f_t out      = in.re;\n+  simd_f_t out = in.re;\n #endif /* __ARM_NEON */\n   return out;\n }\n@@ -947,7 +947,7 @@ inline simd_f_t srsran_simd_cf_im(simd_cf_t in)\n #ifdef __ARM_NEON\n   simd_f_t out = in.val[1];\n #else\n-  simd_f_t out      = in.im;\n+  simd_f_t out = in.im;\n #endif /* __ARM_NEON */\n   return out;\n }\n@@ -960,16 +960,16 @@ inline simd_cf_t srsran_simd_cf_set1(cf_t x)\n   ret.im = _mm512_set1_ps(x.imag());\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_set1_ps(x.real());\n-  ret.im            = _mm256_set1_ps(x.imag());\n+  ret.re = _mm256_set1_ps(x.real());\n+  ret.im = _mm256_set1_ps(x.imag());\n #else\n #ifdef __SSE4_1__\n-  ret.re            = _mm_set1_ps(x.real());\n-  ret.im            = _mm_set1_ps(x.imag());\n+  ret.re = _mm_set1_ps(x.real());\n+  ret.im = _mm_set1_ps(x.imag());\n #else /* __ARM_NEON */\n #ifdef __ARM_NEON\n-  ret.val[0]        = vdupq_n_f32(x.real());\n-  ret.val[1]        = vdupq_n_f32(x.imag());\n+  ret.val[0] = vdupq_n_f32(x.real());\n+  ret.val[1] = vdupq_n_f32(x.imag());\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -986,20 +986,20 @@ inline simd_cf_t srsran_simd_cf_prod(simd_cf_t a, simd_cf_t b)\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n #ifdef __FMA__\n-  ret.re            = _mm256_fmsub_ps(a.re, b.re, _mm256_mul_ps(a.im, b.im));\n-  ret.im            = _mm256_fmadd_ps(a.re, b.im, _mm256_mul_ps(a.im, b.re));\n+  ret.re = _mm256_fmsub_ps(a.re, b.re, _mm256_mul_ps(a.im, b.im));\n+  ret.im = _mm256_fmadd_ps(a.re, b.im, _mm256_mul_ps(a.im, b.re));\n #else  /* __FMA__ */\n   ret.re = _mm256_sub_ps(_mm256_mul_ps(a.re, b.re), _mm256_mul_ps(a.im, b.im));\n   ret.im = _mm256_add_ps(_mm256_mul_ps(a.re, b.im), _mm256_mul_ps(a.im, b.re));\n #endif /* __FMA__ */\n #else\n #ifdef __SSE4_1__\n-  ret.re            = _mm_sub_ps(_mm_mul_ps(a.re, b.re), _mm_mul_ps(a.im, b.im));\n-  ret.im            = _mm_add_ps(_mm_mul_ps(a.re, b.im), _mm_mul_ps(a.im, b.re));\n+  ret.re = _mm_sub_ps(_mm_mul_ps(a.re, b.re), _mm_mul_ps(a.im, b.im));\n+  ret.im = _mm_add_ps(_mm_mul_ps(a.re, b.im), _mm_mul_ps(a.im, b.re));\n #else\n #ifdef __ARM_NEON\n-  ret.val[0]        = vsubq_f32(vmulq_f32(a.val[0], b.val[0]), vmulq_f32(a.val[1], b.val[1]));\n-  ret.val[1]        = vaddq_f32(vmulq_f32(a.val[0], b.val[1]), vmulq_f32(a.val[1], b.val[0]));\n+  ret.val[0] = vsubq_f32(vmulq_f32(a.val[0], b.val[0]), vmulq_f32(a.val[1], b.val[1]));\n+  ret.val[1] = vaddq_f32(vmulq_f32(a.val[0], b.val[1]), vmulq_f32(a.val[1], b.val[0]));\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1015,16 +1015,16 @@ inline simd_cf_t srsran_simd_cf_conjprod(simd_cf_t a, simd_cf_t b)\n   ret.im = _mm512_sub_ps(_mm512_mul_ps(a.im, b.re), _mm512_mul_ps(a.re, b.im));\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_add_ps(_mm256_mul_ps(a.re, b.re), _mm256_mul_ps(a.im, b.im));\n-  ret.im            = _mm256_sub_ps(_mm256_mul_ps(a.im, b.re), _mm256_mul_ps(a.re, b.im));\n+  ret.re = _mm256_add_ps(_mm256_mul_ps(a.re, b.re), _mm256_mul_ps(a.im, b.im));\n+  ret.im = _mm256_sub_ps(_mm256_mul_ps(a.im, b.re), _mm256_mul_ps(a.re, b.im));\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re            = _mm_add_ps(_mm_mul_ps(a.re, b.re), _mm_mul_ps(a.im, b.im));\n-  ret.im            = _mm_sub_ps(_mm_mul_ps(a.im, b.re), _mm_mul_ps(a.re, b.im));\n+  ret.re = _mm_add_ps(_mm_mul_ps(a.re, b.re), _mm_mul_ps(a.im, b.im));\n+  ret.im = _mm_sub_ps(_mm_mul_ps(a.im, b.re), _mm_mul_ps(a.re, b.im));\n #else\n #ifdef __ARM_NEON\n-  ret.val[0]        = vaddq_f32(vmulq_f32(a.val[0], b.val[0]), vmulq_f32(a.val[1], b.val[1]));\n-  ret.val[1]        = vsubq_f32(vmulq_f32(a.val[1], b.val[0]), vmulq_f32(a.val[0], b.val[1]));\n+  ret.val[0] = vaddq_f32(vmulq_f32(a.val[0], b.val[0]), vmulq_f32(a.val[1], b.val[1]));\n+  ret.val[1] = vsubq_f32(vmulq_f32(a.val[1], b.val[0]), vmulq_f32(a.val[0], b.val[1]));\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1040,16 +1040,16 @@ inline simd_cf_t srsran_simd_cf_add(simd_cf_t a, simd_cf_t b)\n   ret.im = _mm512_add_ps(a.im, b.im);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_add_ps(a.re, b.re);\n-  ret.im            = _mm256_add_ps(a.im, b.im);\n+  ret.re = _mm256_add_ps(a.re, b.re);\n+  ret.im = _mm256_add_ps(a.im, b.im);\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re            = _mm_add_ps(a.re, b.re);\n-  ret.im            = _mm_add_ps(a.im, b.im);\n+  ret.re = _mm_add_ps(a.re, b.re);\n+  ret.im = _mm_add_ps(a.im, b.im);\n #else /* __SSE4_1__ */\n #ifdef __ARM_NEON\n-  ret.val[0]        = vaddq_f32(a.val[0], b.val[0]);\n-  ret.val[1]        = vaddq_f32(a.val[1], b.val[1]);\n+  ret.val[0] = vaddq_f32(a.val[0], b.val[0]);\n+  ret.val[1] = vaddq_f32(a.val[1], b.val[1]);\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1065,16 +1065,16 @@ inline simd_cf_t srsran_simd_cf_sub(simd_cf_t a, simd_cf_t b)\n   ret.im = _mm512_sub_ps(a.im, b.im);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_sub_ps(a.re, b.re);\n-  ret.im            = _mm256_sub_ps(a.im, b.im);\n+  ret.re = _mm256_sub_ps(a.re, b.re);\n+  ret.im = _mm256_sub_ps(a.im, b.im);\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re            = _mm_sub_ps(a.re, b.re);\n-  ret.im            = _mm_sub_ps(a.im, b.im);\n+  ret.re = _mm_sub_ps(a.re, b.re);\n+  ret.im = _mm_sub_ps(a.im, b.im);\n #else /* __SSE4_1__ */\n #ifdef __ARM_NEON\n-  ret.val[0]        = vsubq_f32(a.val[0], b.val[0]);\n-  ret.val[1]        = vsubq_f32(a.val[1], b.val[1]);\n+  ret.val[0] = vsubq_f32(a.val[0], b.val[0]);\n+  ret.val[1] = vsubq_f32(a.val[1], b.val[1]);\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1096,16 +1096,16 @@ inline simd_cf_t srsran_simd_cf_mul(simd_cf_t a, simd_f_t b)\n   ret.im = _mm512_mul_ps(a.im, b);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_mul_ps(a.re, b);\n-  ret.im            = _mm256_mul_ps(a.im, b);\n+  ret.re = _mm256_mul_ps(a.re, b);\n+  ret.im = _mm256_mul_ps(a.im, b);\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re            = _mm_mul_ps(a.re, b);\n-  ret.im            = _mm_mul_ps(a.im, b);\n+  ret.re = _mm_mul_ps(a.re, b);\n+  ret.im = _mm_mul_ps(a.im, b);\n #else /* __SSE4_1__ */\n #ifdef __ARM_NEON\n-  ret.val[0]        = vmulq_f32(a.val[0], b);\n-  ret.val[1]        = vmulq_f32(a.val[1], b);\n+  ret.val[0] = vmulq_f32(a.val[0], b);\n+  ret.val[1] = vmulq_f32(a.val[1], b);\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1165,8 +1165,8 @@ inline simd_cf_t srsran_simd_cf_neg(simd_cf_t a)\n   ret.val[0] = srsran_simd_f_neg(a.val[0]);\n   ret.val[1] = srsran_simd_f_neg(a.val[1]);\n #else  /* __ARM_NEON */\n-  ret.re            = srsran_simd_f_neg(a.re);\n-  ret.im            = srsran_simd_f_neg(a.im);\n+  ret.re = srsran_simd_f_neg(a.re);\n+  ret.im = srsran_simd_f_neg(a.im);\n #endif /* __ARM_NEON */\n   return ret;\n }\n@@ -1178,8 +1178,8 @@ inline simd_cf_t srsran_simd_cf_neg_mask(simd_cf_t a, simd_f_t mask)\n   ret.val[0] = srsran_simd_f_neg_mask(a.val[0], mask);\n   ret.val[1] = srsran_simd_f_neg_mask(a.val[1], mask);\n #else  /* __ARM_NEON */\n-  ret.re            = srsran_simd_f_neg_mask(a.re, mask);\n-  ret.im            = srsran_simd_f_neg_mask(a.im, mask);\n+  ret.re = srsran_simd_f_neg_mask(a.re, mask);\n+  ret.im = srsran_simd_f_neg_mask(a.im, mask);\n #endif /* __ARM_NEON */\n   return ret;\n }\n@@ -1191,8 +1191,8 @@ inline simd_cf_t srsran_simd_cf_conj(simd_cf_t a)\n   ret.val[0] = a.val[0];\n   ret.val[1] = srsran_simd_f_neg(a.val[1]);\n #else  /* __ARM_NEON */\n-  ret.re            = a.re;\n-  ret.im            = srsran_simd_f_neg(a.im);\n+  ret.re = a.re;\n+  ret.im = srsran_simd_f_neg(a.im);\n #endif /* __ARM_NEON */\n   return ret;\n }\n@@ -1204,8 +1204,8 @@ inline simd_cf_t srsran_simd_cf_mulj(simd_cf_t a)\n   ret.val[0] = srsran_simd_f_neg(a.val[1]);\n   ret.val[1] = a.val[0];\n #else  /* __ARM_NEON */\n-  ret.re            = srsran_simd_f_neg(a.im);\n-  ret.im            = a.re;\n+  ret.re = srsran_simd_f_neg(a.im);\n+  ret.im = a.re;\n #endif /* __ARM_NEON */\n   return ret;\n }\n@@ -1218,16 +1218,16 @@ inline simd_cf_t srsran_simd_cf_zero()\n   ret.im = _mm512_setzero_ps();\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  ret.re            = _mm256_setzero_ps();\n-  ret.im            = _mm256_setzero_ps();\n+  ret.re = _mm256_setzero_ps();\n+  ret.im = _mm256_setzero_ps();\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n-  ret.re            = _mm_setzero_ps();\n-  ret.im            = _mm_setzero_ps();\n+  ret.re = _mm_setzero_ps();\n+  ret.im = _mm_setzero_ps();\n #else /* __SSE4_1__ */\n #ifdef __ARM_NEON\n-  ret.val[0]        = vdupq_n_f32(0);\n-  ret.val[1]        = vdupq_n_f32(0);\n+  ret.val[0] = vdupq_n_f32(0);\n+  ret.val[1] = vdupq_n_f32(0);\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -1249,8 +1249,8 @@ inline simd_cf_t srsran_simd_cf_interleave_low(simd_cf_t a, simd_cf_t b)\n       b.im);\n #else /* __AVX512F__ */\n #ifdef __AVX2__\n-  __m128 a_re       = _mm256_extractf128_ps(a.re, 0);\n-  __m128 b_re       = _mm256_extractf128_ps(b.re, 0);\n+  __m128 a_re = _mm256_extractf128_ps(a.re, 0);\n+  __m128 b_re = _mm256_extractf128_ps(b.re, 0);\n \n   __m128 a_im = _mm256_extractf128_ps(a.im, 0);\n   __m128 b_im = _mm256_extractf128_ps(b.im, 0);\n@@ -1261,8 +1261,8 @@ inline simd_cf_t srsran_simd_cf_interleave_low(simd_cf_t a, simd_cf_t b)\n   __m128 hi_im = _mm_unpackhi_ps(a_im, b_im);\n   __m128 lo_im = _mm_unpacklo_ps(a_im, b_im);\n \n-  ret.re      = _mm256_set_m128(hi_re, lo_re);\n-  ret.im      = _mm256_set_m128(hi_im, lo_im);\n+  ret.re = _mm256_set_m128(hi_re, lo_re);\n+  ret.im = _mm256_set_m128(hi_im, lo_im);\n #else  /* __AVX2__ */\n   cf_t reg_a[SRSRAN_SIMD_CF_SIZE], reg_b[SRSRAN_SIMD_CF_SIZE], reg_ret[SRSRAN_SIMD_CF_SIZE];\n   srsran_simd_cfi_storeu(reg_a, a);\n@@ -2003,7 +2003,7 @@ inline simd_c16_t srsran_simd_c16i_load(const c16_t* ptr)\n   ret.im      = _mm_blend_epi16(_mm_shufflelo_epi16(_mm_shufflehi_epi16(in1, 0b11110101), 0b11110101), in2, 0b10101010);\n #else /* __SSE4_1__*/\n #ifdef __ARM_NEON\n-  ret.m128     = vld2q_s16(reinterpret_cast<const int16_t*>(ptr));\n+  ret.m128 = vld2q_s16(reinterpret_cast<const int16_t*>(ptr));\n #endif /* __ARM_NEON */\n #endif /* __SSE4_1__ */\n #endif /* __AVX2__ */\n@@ -2019,8 +2019,8 @@ inline simd_c16_t srsran_simd_c16_load(const int16_t* re, const int16_t* im)\n   ret.im = _mm256_load_si256(reinterpret_cast<const __m256i*>(im));\n #else\n #ifdef __SSE4_1__\n-  ret.re        = _mm_load_si128(reinterpret_cast<const __m128i*>(re));\n-  ret.im        = _mm_load_si128(reinterpret_cast<const __m128i*>(im));\n+  ret.re = _mm_load_si128(reinterpret_cast<const __m128i*>(re));\n+  ret.im = _mm_load_si128(reinterpret_cast<const __m128i*>(im));\n #else /* __SSE4_1__*/\n #ifdef __ARM_NEON\n   ret.m128.val[0] = vld1q_s16(re);\n@@ -2039,8 +2039,8 @@ inline simd_c16_t srsran_simd_c16_loadu(const int16_t* re, const int16_t* im)\n   ret.im = _mm256_loadu_si256(reinterpret_cast<const__m256i*>(im));\n #else\n #ifdef __SSE4_1__\n-  ret.re        = _mm_loadu_si128(reinterpret_cast<const __m128i*>(re));\n-  ret.im        = _mm_loadu_si128(reinterpret_cast<const __m128i*>(im));\n+  ret.re = _mm_loadu_si128(reinterpret_cast<const __m128i*>(re));\n+  ret.im = _mm_loadu_si128(reinterpret_cast<const __m128i*>(im));\n #else /* __SSE4_1__*/\n #ifdef __ARM_NEON\n   ret.m128.val[0] = vld1q_s16(re);\n@@ -2156,8 +2156,8 @@ inline simd_c16_t srsran_simd_c16_add(simd_c16_t a, simd_c16_t b)\n   ret.im = _mm256_add_epi16(a.im, b.im);\n #else\n #ifdef __SSE4_1__\n-  ret.re     = _mm_add_epi16(a.re, b.re);\n-  ret.im     = _mm_add_epi16(a.im, b.im);\n+  ret.re = _mm_add_epi16(a.re, b.re);\n+  ret.im = _mm_add_epi16(a.im, b.im);\n #else\n #ifdef __ARM_NEON\n   ret.m128.val[0] = vaddq_s16(a.m128.val[0], a.m128.val[0]);\n@@ -2176,8 +2176,8 @@ inline simd_c16_t srsran_simd_c16_zero()\n   ret.im = _mm256_setzero_si256();\n #else\n #ifdef __SSE4_1__\n-  ret.re     = _mm_setzero_si128();\n-  ret.im     = _mm_setzero_si128();\n+  ret.re = _mm_setzero_si128();\n+  ret.im = _mm_setzero_si128();\n #else\n #ifdef __ARM_NEON\n   ret.m128.val[0] = vdupq_n_s16(0);\n@@ -2215,10 +2215,10 @@ inline simd_s_t srsran_simd_convert_2f_s(simd_f_t a, simd_f_t b)\n   return _mm256_packs_epi32(ai, bi);\n #else\n #ifdef __SSE4_1__\n-  __m128  aa      = _mm_round_ps(a, _MM_FROUND_NINT);\n-  __m128  bb      = _mm_round_ps(b, _MM_FROUND_NINT);\n-  __m128i ai      = _mm_cvtps_epi32(aa);\n-  __m128i bi      = _mm_cvtps_epi32(bb);\n+  __m128  aa = _mm_round_ps(a, _MM_FROUND_NINT);\n+  __m128  bb = _mm_round_ps(b, _MM_FROUND_NINT);\n+  __m128i ai = _mm_cvtps_epi32(aa);\n+  __m128i bi = _mm_cvtps_epi32(bb);\n   return _mm_packs_epi32(ai, bi);\n #else\n #ifdef __ARM_NEON\n@@ -2401,8 +2401,8 @@ static inline simd_s_t srsran_simd_convert_2f_bf16(simd_f_t a, simd_f_t b)\n   b_i32 = _mm256_srai_epi32(b_i32, 16);\n \n   // Pack results into an output vector.\n-  ret                = _mm256_packs_epi32(a_i32, b_i32);\n-  ret                = _mm256_permutevar8x32_epi32(ret, _mm256_setr_epi32(0x0, 0x1, 0x4, 0x5, 0x2, 0x3, 0x6, 0x7));\n+  ret = _mm256_packs_epi32(a_i32, b_i32);\n+  ret = _mm256_permutevar8x32_epi32(ret, _mm256_setr_epi32(0x0, 0x1, 0x4, 0x5, 0x2, 0x3, 0x6, 0x7));\n #else /* __AVX2__ */\n #ifdef __SSE4_1__\n   const __m128i bias = _mm_set1_epi32(0x7fff);\n@@ -2420,13 +2420,13 @@ static inline simd_s_t srsran_simd_convert_2f_bf16(simd_f_t a, simd_f_t b)\n   b_i32 = _mm_srai_epi32(b_i32, 16);\n \n   // Pack results into an output vector.\n-  ret                = _mm_packs_epi32(a_i32, b_i32);\n+  ret = _mm_packs_epi32(a_i32, b_i32);\n #else /* __ARM_NEON */\n #ifdef __ARM_NEON\n #ifdef __ARM_FEATURE_BF16_VECTOR_ARITHMETIC\n-  bfloat16x4_t tmp1     = vcvt_bf16_f32(a);\n-  bfloat16x4_t tmp2     = vcvt_bf16_f32(b);\n-  ret                   = vreinterpretq_s16_bf16(vcombine_bf16(tmp1, tmp2));\n+  bfloat16x4_t tmp1 = vcvt_bf16_f32(a);\n+  bfloat16x4_t tmp2 = vcvt_bf16_f32(b);\n+  ret               = vreinterpretq_s16_bf16(vcombine_bf16(tmp1, tmp2));\n #else  // __ARM_FEATURE_BF16_VECTOR_ARITHMETIC\n   const uint32x4_t bias = vdupq_n_u32(0x7fff);\n   const uint32x4_t one  = vdupq_n_u32(0x1);",
+      "additions": 89,
+      "deletions": 89,
+      "changes": 178
+    },
+    {
+      "filename": "include/srsran/srsvec/type_traits.h",
+      "patch": "@@ -59,8 +59,7 @@ using value_type_of_t = typename value_type_of_impl<T>::type;\n \n /// Checks if T is compatible with a span of integer types.\n template <typename T, typename = void>\n-struct is_integral_span_compatible : std::false_type {\n-};\n+struct is_integral_span_compatible : std::false_type {};\n \n template <typename T>\n struct is_integral_span_compatible<T,\n@@ -70,36 +69,30 @@ struct is_integral_span_compatible<T,\n \n /// Checks if T is compatible with a span of arithmetic types.\n template <typename T, typename = void>\n-struct is_arithmetic_span_compatible : std::false_type {\n-};\n+struct is_arithmetic_span_compatible : std::false_type {};\n \n template <typename T>\n struct is_arithmetic_span_compatible<T,\n                                      std::enable_if_t<std::is_convertible_v<T, span<detail::value_type_of_t<T>>> &&\n                                                       std::is_arithmetic_v<detail::value_type_of_t<T>>>>\n-  : std::true_type {\n-};\n+  : std::true_type {};\n \n /// Checks if T is compatible with a span of complex floating points (which are not arithmetic types).\n template <typename T, typename = void>\n-struct is_complex_span_compatible : std::false_type {\n-};\n+struct is_complex_span_compatible : std::false_type {};\n \n template <typename T>\n struct is_complex_span_compatible<T,\n                                   std::enable_if_t<std::is_convertible_v<T, span<detail::value_type_of_t<T>>> &&\n-                                                   is_complex<detail::value_type_of_t<T>>::value>> : std::true_type {\n-};\n+                                                   is_complex<detail::value_type_of_t<T>>::value>> : std::true_type {};\n \n /// Checks if T is compatible with a span.\n template <typename T, typename = void>\n-struct is_span_compatible : std::false_type {\n-};\n+struct is_span_compatible : std::false_type {};\n \n template <typename T>\n struct is_span_compatible<T, std::enable_if_t<std::is_convertible_v<T, span<detail::value_type_of_t<T>>>>>\n-  : std::true_type {\n-};\n+  : std::true_type {};\n \n } // namespace srsvec\n } // namespace srsran",
+      "additions": 7,
+      "deletions": 14,
+      "changes": 21
+    },
+    {
+      "filename": "include/srsran/support/async/detail/type_list.h",
+      "patch": "@@ -30,8 +30,7 @@ struct get_type_from_index_helper<I, I, T, Types...> {\n \n /// List of types.\n template <typename... Args>\n-struct type_list {\n-};\n+struct type_list {};\n \n /// Get size of type_list.\n template <typename... Args>",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/support/async/execute_on_blocking.h",
+      "patch": "@@ -190,4 +190,4 @@ auto defer_and_continue_on_blocking(DispatchTaskExecutor& dispatch_exec,\n                                                           std::forward<OnFailureToDispatch>(on_failure));\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/config/validator_helpers.h",
+      "patch": "@@ -66,8 +66,7 @@ bool has_unique_ids(const Range& r, IdType ValueType::*id_field)\n template <typename Range>\n bool are_all_unique(const Range& r)\n {\n-  return has_unique_ids(\n-      r, [](const auto& e) -> const auto& { return e; });\n+  return has_unique_ids(r, [](const auto& e) -> const auto& { return e; });\n }\n \n /// \\brief Find an ID in \\c id_set_list of \\c set that is not present in range \\c r.",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/support/executors/detail/task_executor_utils.h",
+      "patch": "@@ -23,8 +23,8 @@ class is_task_executor_ptr\n   template <typename U>\n   static auto test(U&& ptr) -> decltype((void)ptr->execute(std::declval<Args>()...), std::true_type{});\n   template <typename U>\n-  static auto test(const U* ptr)\n-      -> decltype((void)std::declval<U*>()->execute(std::declval<Args>()...), std::true_type{});\n+  static auto test(const U* ptr) -> decltype((void)std::declval<U*>()->execute(std::declval<Args>()...),\n+                                             std::true_type{});\n \n   static std::false_type test(...);\n \n@@ -38,8 +38,8 @@ class is_task_executor_ptr<T>\n   template <typename U>\n   static auto test(U&& ptr) -> decltype((void)ptr->execute(std::declval<unique_task>()), std::true_type{});\n   template <typename U>\n-  static auto test(const U* ptr)\n-      -> decltype((void)std::declval<U*>()->execute(std::declval<unique_task>()), std::true_type{});\n+  static auto test(const U* ptr) -> decltype((void)std::declval<U*>()->execute(std::declval<unique_task>()),\n+                                             std::true_type{});\n \n   static std::false_type test(...);\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/executors/execution_context_description.h",
+      "patch": "@@ -24,4 +24,4 @@ namespace execution_context {\n [[nodiscard]] unsigned get_current_worker_index();\n \n } // namespace execution_context\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/thread_utils.h",
+      "patch": "@@ -15,4 +15,4 @@ namespace srsran {\n /// Get caller thread name.\n const char* this_thread_name();\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/format/fmt_basic_parser.h",
+      "patch": "@@ -23,4 +23,4 @@ struct basic_parser {\n   }\n };\n \n-} // namespace fmt\n\\ No newline at end of file\n+} // namespace fmt",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/format/fmt_to_c_str.h",
+      "patch": "@@ -23,4 +23,4 @@ const char* to_c_str(fmt::basic_memory_buffer<char, N>& mem_buffer)\n   return mem_buffer.data();\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/fixed_size_memory_block_pool.h",
+      "patch": "@@ -224,10 +224,7 @@ class fixed_size_memory_block_pool\n   }\n \n   /// Get central cache current size in number of memory blocks.\n-  size_t get_central_cache_approx_size() const\n-  {\n-    return central_mem_cache.size_approx() * block_batch_size;\n-  }\n+  size_t get_central_cache_approx_size() const { return central_mem_cache.size_approx() * block_batch_size; }\n \n   /// Get thread local cache current size in number of memory blocks.\n   size_t get_local_cache_size()\n@@ -322,10 +319,7 @@ class fixed_size_memory_block_pool\n   }\n \n   /// Number of batches of memory blocks stored in the pool.\n-  size_t nof_total_batches() const\n-  {\n-    return (nof_blocks + block_batch_size - 1) / block_batch_size;\n-  }\n+  size_t nof_total_batches() const { return (nof_blocks + block_batch_size - 1) / block_batch_size; }\n \n   void validate_node_address(void* node)\n   {",
+      "additions": 2,
+      "deletions": 8,
+      "changes": 10
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/heap_memory_resource.h",
+      "patch": "@@ -33,4 +33,4 @@ class heap_memory_resource\n   span<uint8_t>              block_view;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/unbounded_object_pool.h",
+      "patch": "@@ -62,10 +62,7 @@ class unbounded_object_pool\n     return ptr{new T(), pool_deleter{*this}};\n   }\n \n-  unsigned current_capacity_approx() const\n-  {\n-    return objects.size_approx();\n-  }\n+  unsigned current_capacity_approx() const { return objects.size_approx(); }\n \n private:\n   moodycamel::ConcurrentQueue<std::unique_ptr<T>> objects;",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5
+    },
+    {
+      "filename": "include/srsran/support/tracing/event_tracing.h",
+      "patch": "@@ -162,8 +162,7 @@ class file_event_tracer\n /// Specialization of file_event_tracer that does not write any events.\n template <>\n class file_event_tracer<false> : public detail::null_event_tracer\n-{\n-};\n+{};\n \n /// Class that repurposes a log channel to write trace events.\n template <bool Enabled = true>\n@@ -205,8 +204,7 @@ class logger_event_tracer\n \n template <>\n class logger_event_tracer<false> : public detail::null_event_tracer\n-{\n-};\n+{};\n \n /// Class that writes trace events to a vector of strings for testing purposes.\n class test_event_tracer",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/support/type_traits.h",
+      "patch": "@@ -21,12 +21,12 @@ using std::begin;\n using std::end;\n \n template <typename T>\n-auto is_iterable_impl(int)\n-    -> decltype(begin(std::declval<T&>()) != end(std::declval<T&>()),   // begin/end and operator !=\n-                void(),                                                 // Handle evil operator ,\n-                ++std::declval<decltype(begin(std::declval<T&>()))&>(), // operator ++\n-                void(*begin(std::declval<T&>())),                       // operator*\n-                std::true_type{});\n+auto is_iterable_impl(int) -> decltype(begin(std::declval<T&>()) !=\n+                                           end(std::declval<T&>()), // begin/end and operator !=\n+                                       void(),                      // Handle evil operator ,\n+                                       ++std::declval<decltype(begin(std::declval<T&>()))&>(), // operator ++\n+                                       void(*begin(std::declval<T&>())),                       // operator*\n+                                       std::true_type{});\n \n template <typename T>\n std::false_type is_iterable_impl(...);",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp_controller/cu_cp_ue_admission_controller.h",
+      "patch": "@@ -25,4 +25,4 @@ class cu_cp_ue_admission_controller\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp_controller/node_connection_notifier.h",
+      "patch": "@@ -27,4 +27,4 @@ class du_connection_notifier\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp_factory.cpp",
+      "patch": "@@ -17,4 +17,4 @@ using namespace srsran;\n std::unique_ptr<srs_cu_cp::cu_cp> srsran::create_cu_cp(const srs_cu_cp::cu_cp_configuration& cfg_)\n {\n   return std::make_unique<srs_cu_cp::cu_cp_impl>(cfg_);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_up_processor/cu_up_processor_impl.cpp",
+      "patch": "@@ -79,4 +79,4 @@ void cu_up_processor_impl::send_cu_up_e1_setup_failure(e1ap_cause_t cause)\n void cu_up_processor_impl::update_ue_index(ue_index_t ue_index, ue_index_t old_ue_index)\n {\n   e1ap->update_ue_context(ue_index, old_ue_index);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/du_processor/du_configuration_handler.h",
+      "patch": "@@ -66,4 +66,4 @@ class du_configuration_handler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/du_processor/du_configuration_manager.h",
+      "patch": "@@ -51,4 +51,4 @@ class du_configuration_manager\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/o_cu_cp_impl.cpp",
+      "patch": "@@ -44,4 +44,4 @@ void o_cu_cp_with_e2_impl::stop()\n {\n   e2agent->stop();\n   o_cu_cp_impl::stop();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/o_cu_cp_impl.h",
+      "patch": "@@ -14,7 +14,6 @@\n #include \"srsran/cu_cp/cu_cp_operation_controller.h\"\n #include \"srsran/cu_cp/o_cu_cp.h\"\n #include \"srsran/e2/e2.h\"\n-\n #include <memory>\n \n namespace srsran {",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/cu_cp/routines/initial_context_setup_routine.cpp",
+      "patch": "@@ -181,4 +181,4 @@ void initial_context_setup_routine::send_ue_radio_capability_info_indication()\n   ue_radio_cap_info_indication.ue_cap_rat_container_list = rrc_ue.get_packed_ue_radio_access_cap_info();\n \n   ngap_ue_radio_cap_handler.handle_tx_ue_radio_capability_info_indication_required(ue_radio_cap_info_indication);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/mobility/mobility_helpers.cpp",
+      "patch": "@@ -102,4 +102,4 @@ bool srsran::srs_cu_cp::handle_bearer_context_modification_response(\n {\n   // TOOD: Add proper handling.\n   return bearer_context_modification_response.success;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/ue_amf_context_release_request_routine.h",
+      "patch": "@@ -41,4 +41,4 @@ class ue_amf_context_release_request_routine\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/ue_transaction_info_release_routine.cpp",
+      "patch": "@@ -71,4 +71,4 @@ void ue_transaction_info_release_routine::launch_ue_removal(ue_index_t ue_idx)\n         CORO_RETURN();\n       });\n   ue_mng.get_task_sched().handle_ue_async_task(ue_idx, std::move(ue_rem_task));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/ue_transaction_info_release_routine.h",
+      "patch": "@@ -38,4 +38,4 @@ class ue_transaction_info_release_routine\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/ue_manager/ue_metrics_handler.h",
+      "patch": "@@ -26,4 +26,4 @@ class ue_metrics_handler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/cu_up_factory.cpp",
+      "patch": "@@ -18,4 +18,4 @@ std::unique_ptr<cu_up_interface> srsran::srs_cu_up::create_cu_up(const cu_up_con\n                                                                  const cu_up_dependencies& dependencies)\n {\n   return std::make_unique<cu_up>(cfg, dependencies);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/o_cu_up_impl.cpp",
+      "patch": "@@ -33,4 +33,4 @@ void o_cu_up_with_e2_impl::stop()\n {\n   e2agent->stop();\n   o_cu_up_impl::stop();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/o_cu_up_impl.h",
+      "patch": "@@ -14,7 +14,6 @@\n #include \"srsran/cu_up/cu_up_operation_controller.h\"\n #include \"srsran/cu_up/o_cu_up.h\"\n #include \"srsran/e2/e2.h\"\n-\n #include <memory>\n \n namespace srsran {",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/cbs/cbs_encoder_impl.cpp",
+      "patch": "@@ -375,4 +375,4 @@ cbs_encoder_impl::encoding_type cbs_encoder_impl::select_cbs_encoding(uint8_t da\n         return cbs_encoder_impl::encoding_type::INVALID;\n     }\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/du_ue_reset_procedure.h",
+      "patch": "@@ -44,4 +44,4 @@ class du_ue_reset_procedure\n   manual_event_flag complete_flag;\n };\n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/du_ue_ric_configuration_procedure.cpp",
+      "patch": "@@ -48,18 +48,18 @@ manual_event<du_mac_sched_control_config_response>& du_ue_ric_configuration_proc\n   }\n \n   // Dispatch UE configuration to UE task loop inside the UE manager.\n-  ue_mng.schedule_async_task(\n-      ue->ue_index, launch_async([this](coro_context<async_task<void>>& ctx) {\n-        CORO_BEGIN(ctx);\n+  ue_mng.schedule_async_task(ue->ue_index, launch_async([this](coro_context<async_task<void>>& ctx) {\n+                               CORO_BEGIN(ctx);\n \n-        // Await for UE configuration completion.\n-        CORO_AWAIT_VALUE(const mac_ue_reconfiguration_response result, handle_mac_config());\n+                               // Await for UE configuration completion.\n+                               CORO_AWAIT_VALUE(const mac_ue_reconfiguration_response result, handle_mac_config());\n \n-        // Signal completion of UE configuration to external coroutine.\n-        ue_config_completed.set(du_mac_sched_control_config_response{result.result, result.result, result.result});\n+                               // Signal completion of UE configuration to external coroutine.\n+                               ue_config_completed.set(\n+                                   du_mac_sched_control_config_response{result.result, result.result, result.result});\n \n-        CORO_RETURN();\n-      }));\n+                               CORO_RETURN();\n+                             }));\n \n   return ue_config_completed;\n }",
+      "additions": 9,
+      "deletions": 9,
+      "changes": 18
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/ran_resource_management/du_bearer_resource_manager.h",
+      "patch": "@@ -52,4 +52,4 @@ class du_bearer_resource_manager\n };\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/common/e1ap_asn1_packer.cpp",
+      "patch": "@@ -46,4 +46,4 @@ void e1ap_asn1_packer::handle_message(const e1ap_message& msg)\n   }\n \n   gw.handle_pdu(tx_pdu);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_modification_procedure.cpp",
+      "patch": "@@ -76,4 +76,4 @@ bearer_context_modification_procedure::create_bearer_context_modification_result\n     }\n   }\n   return res;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_modification_procedure.h",
+      "patch": "@@ -51,4 +51,4 @@ class bearer_context_modification_procedure\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_release_procedure.cpp",
+      "patch": "@@ -69,4 +69,4 @@ void bearer_context_release_procedure::handle_bearer_context_release_complete()\n \n   // Remove UE context.\n   ue_ctxt_list.remove_ue(ue_index);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_release_procedure.h",
+      "patch": "@@ -50,4 +50,4 @@ class bearer_context_release_procedure\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_setup_procedure.cpp",
+      "patch": "@@ -98,4 +98,4 @@ e1ap_bearer_context_setup_response bearer_context_setup_procedure::handle_bearer\n   }\n \n   return res;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_setup_procedure.h",
+      "patch": "@@ -54,4 +54,4 @@ class bearer_context_setup_procedure\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/ue_context/e1ap_bearer_transaction_manager.h",
+      "patch": "@@ -47,4 +47,4 @@ class e1ap_bearer_transaction_manager\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_connection_handler.h",
+      "patch": "@@ -59,4 +59,4 @@ class e2_connection_handler\n   manual_event_flag rx_path_disconnected;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_du_metrics_connector.cpp",
+      "patch": "@@ -33,4 +33,4 @@ void e2_du_metrics_connector::report_metrics(const rlc_metrics& metrics)\n void e2_du_metrics_connector::connect_e2_du_meas_provider(std::unique_ptr<e2_du_metrics_notifier> meas_provider)\n {\n   e2_meas_provider = std::move(meas_provider);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_impl.h",
+      "patch": "@@ -41,8 +41,8 @@ class e2_impl final : public e2_interface\n           e2sm_manager&             e2sm_mngr_,\n           task_executor&            task_exec_);\n \n-  void start() override{};\n-  void stop() override{};\n+  void start() override {};\n+  void stop() override {};\n \n   /// E2 connection manager functions.\n   bool                                  handle_e2_tnl_connection_request() override;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_factory.cpp",
+      "patch": "@@ -19,4 +19,4 @@ std::unique_ptr<e2sm_handler> srsran::create_e2sm(std::string e2sm_version, e2sm\n     return std::make_unique<e2sm_kpm_asn1_packer>(meas_provider);\n   }\n   return nullptr;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_manager.cpp",
+      "patch": "@@ -48,4 +48,4 @@ void e2sm_manager::add_supported_ran_function(uint16_t ran_func_id, std::string\n   } else {\n     logger.error(\"OID/RAN function ID not supported\");\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/du_context.h",
+      "patch": "@@ -23,4 +23,4 @@ struct du_context {\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/procedures/f1ap_stop_procedure.h",
+      "patch": "@@ -34,4 +34,4 @@ class f1ap_stop_procedure\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/ue_context/f1ap_cu_ue_transaction_manager.h",
+      "patch": "@@ -63,4 +63,4 @@ class f1ap_ue_transaction_manager\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_removal_procedure.h",
+      "patch": "@@ -43,4 +43,4 @@ class f1ap_du_removal_procedure\n };\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_reset_procedure.h",
+      "patch": "@@ -51,4 +51,4 @@ class reset_procedure\n };\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue_config_update.h",
+      "patch": "@@ -28,4 +28,4 @@ f1ap_ue_creation_response create_f1ap_ue(const f1ap_ue_creation_request& req,\n f1ap_ue_configuration_response update_f1ap_ue_config(const f1ap_ue_configuration_request& req, f1ap_du_ue_manager& ues);\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_metric_handler.h",
+      "patch": "@@ -154,8 +154,8 @@ class mac_dl_metric_handler\n \n private:\n   using report_queue_type           = concurrent_queue<mac_dl_cell_metric_report,\n-                                             concurrent_queue_policy::lockfree_mpmc,\n-                                             concurrent_queue_wait_policy::non_blocking>;\n+                                                       concurrent_queue_policy::lockfree_mpmc,\n+                                                       concurrent_queue_wait_policy::non_blocking>;\n   using cell_activation_bitmap_type = unsigned;\n   static_assert(sizeof(cell_activation_bitmap_type) * 8U <= MAX_NOF_DU_CELLS, \"Invalid cell activation bitmap size\");\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ngap/ngap_connection_handler.h",
+      "patch": "@@ -64,4 +64,4 @@ class ngap_connection_handler\n };\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/compression/packing_utils_generic.h",
+      "patch": "@@ -24,4 +24,4 @@ void pack_bytes(bit_buffer& buffer, span<const int16_t> compressed_iq, unsigned\n int16_t unpack_bits(const bit_buffer_reader& buffer, unsigned offset, unsigned length);\n \n } // namespace ofh\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_tx.cpp",
+      "patch": "@@ -9,7 +9,6 @@\n  */\n \n #include \"pdcp_entity_tx.h\"\n-\n #include \"../security/security_engine_impl.h\"\n #include \"srsran/instrumentation/traces/up_traces.h\"\n #include \"srsran/support/bit_encoding.h\"",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/generic_functions/precoding/precoding_factories.cpp",
+      "patch": "@@ -65,4 +65,4 @@ class channel_precoder_factory_impl : public channel_precoder_factory\n std::shared_ptr<channel_precoder_factory> srsran::create_channel_precoder_factory(const std::string& precoder_type)\n {\n   return std::make_shared<channel_precoder_factory_impl>(precoder_type);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/ofdm_prach_demodulator_impl.h",
+      "patch": "@@ -54,4 +54,4 @@ class ofdm_prach_demodulator_impl : public ofdm_prach_demodulator\n   dft_processors_table dft_processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/adaptors/processor_handler_adaptor.h",
+      "patch": "@@ -82,4 +82,4 @@ class processor_handler_adaptor\n   request_handler_adaptor request_handler;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/adaptors/processor_notifier_adaptor.h",
+      "patch": "@@ -198,4 +198,4 @@ class processor_notifier_adaptor\n   puxch_adaptor puxch;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/downlink/downlink_processor_factories.cpp",
+      "patch": "@@ -62,4 +62,4 @@ srsran::create_downlink_processor_factory_sw(std::shared_ptr<pdxch_processor_fac\n {\n   return std::make_shared<lower_phy_downlink_processor_factory_sw>(std::move(pdxch_proc_factory),\n                                                                    std::move(amplitude_control_factory));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/downlink/pdxch/pdxch_processor_factories.cpp",
+      "patch": "@@ -56,4 +56,4 @@ srsran::create_pdxch_processor_factory_sw(unsigned\n                                           std::shared_ptr<ofdm_modulator_factory> ofdm_mod_factory)\n {\n   return std::make_shared<pdxch_processor_factory_sw>(request_queue_size, std::move(ofdm_mod_factory));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/uplink/uplink_processor_factories.cpp",
+      "patch": "@@ -64,4 +64,4 @@ srsran::create_uplink_processor_factory_sw(std::shared_ptr<prach_processor_facto\n {\n   return std::make_shared<lower_phy_uplink_processor_factory_sw>(std::move(prach_proc_factory),\n                                                                  std::move(puxch_proc_factory));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/metrics/phy_metrics_pseudo_random_generator_decorator.h",
+      "patch": "@@ -143,4 +143,4 @@ class phy_metrics_pseudo_random_generator_decorator : public pseudo_random_gener\n   pseudo_random_sequence_generator_metric_notifier& notifier;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/re_pattern.cpp",
+      "patch": "@@ -36,7 +36,7 @@ void re_pattern::get_inclusion_mask(bounded_bitset<MAX_RB * NRE>& mask, unsigned\n   }\n \n   // Generate a RE mask for the entire bandwidth.\n-  bounded_bitset<MAX_RB* NRE> pattern_re_mask = prb_mask.kronecker_product<NRE>(re_mask);\n+  bounded_bitset<MAX_RB * NRE> pattern_re_mask = prb_mask.kronecker_product<NRE>(re_mask);\n \n   // Append zeros or discard bits to match the input mask size.\n   pattern_re_mask.resize(mask.size());\n@@ -71,7 +71,7 @@ void re_pattern::get_exclusion_mask(bounded_bitset<MAX_RB * NRE>& mask, unsigned\n   }\n \n   // Generate a RE mask for the entire bandwidth.\n-  bounded_bitset<MAX_RB* NRE> pattern_re_mask = prb_mask.kronecker_product<NRE>(re_mask);\n+  bounded_bitset<MAX_RB * NRE> pattern_re_mask = prb_mask.kronecker_product<NRE>(re_mask);\n \n   // Append zeros or discard bits to match the input mask size.\n   pattern_re_mask.resize(mask.size());\n@@ -188,8 +188,8 @@ unsigned re_pattern_list::get_inclusion_count(unsigned                      star\n \n   unsigned count = 0;\n \n-  re_prb_mask                 base_re_mask   = ~re_prb_mask();\n-  bounded_bitset<MAX_RB* NRE> active_re_mask = rb_mask.kronecker_product<NRE>(base_re_mask);\n+  re_prb_mask                  base_re_mask   = ~re_prb_mask();\n+  bounded_bitset<MAX_RB * NRE> active_re_mask = rb_mask.kronecker_product<NRE>(base_re_mask);\n \n   for (unsigned symbol_idx = start_symbol; symbol_idx != start_symbol + nof_symbols; ++symbol_idx) {\n     bounded_bitset<MAX_RB * NRE> inclusion_mask(active_re_mask.size());",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_clmul_impl.h",
+      "patch": "@@ -47,4 +47,4 @@ class crc_calculator_clmul_impl : public crc_calculator\n   crc_calculator_lut_impl crc_calc_lut;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_neon_impl.h",
+      "patch": "@@ -47,4 +47,4 @@ class crc_calculator_neon_impl : public crc_calculator\n   crc_calculator_lut_impl crc_calc_lut;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/avx2_support.h",
+      "patch": "@@ -94,4 +94,4 @@ inline __m256i scale_epi8(__m256i a, float sf, uint8_t max)\n }\n \n } // namespace mm256\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_generic.h",
+      "patch": "@@ -51,4 +51,4 @@ class ldpc_decoder_generic : public ldpc_decoder_impl\n                                  unsigned                         var_node) override;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_impl.cpp",
+      "patch": "@@ -334,4 +334,4 @@ bool ldpc_decoder_impl::get_hard_bits(bit_buffer& out) const\n   }\n \n   return valid;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_neon.h",
+      "patch": "@@ -57,4 +57,4 @@ class ldpc_decoder_neon : public ldpc_decoder_impl\n   /// Number of NEON vectors needed to cover a lifted node.\n   unsigned node_size_neon = 0;\n };\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_neon_impl.cpp",
+      "patch": "@@ -402,4 +402,4 @@ void ldpc_rate_dematcher_neon_impl::deinterleave_qam256(span<log_likelihood_rati\n     out[K * 6U + i] = in[8U * i + 6];\n     out[K * 7U + i] = in[8U * i + 7];\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/simd_types.h",
+      "patch": "@@ -56,4 +56,4 @@ struct simd512_wrapper {\n   using simdType = simd512_type;\n };\n } // namespace detail\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/short/short_block_detector_impl.cpp",
+      "patch": "@@ -204,4 +204,4 @@ bool short_block_detector_impl::detect(span<uint8_t>                    output,\n   // TODO(david): Thresholds for the 1- and 2-bit cases are not meaningful.\n   constexpr std::array<double, MAX_MSG_LENGTH> THRESHOLDS = {0, 0, 12, 14, 16, 18, 20, 22, 24, 26, 29};\n   return (max_metric > THRESHOLDS[out_size - 1]);\n-};\n\\ No newline at end of file\n+};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qam16.h",
+      "patch": "@@ -22,4 +22,4 @@ namespace srsran {\n /// \\param[in]  noise_vars Noise variance for each symbol in the constellation.\n void demodulate_soft_QAM16(span<log_likelihood_ratio> llrs, span<const cf_t> symbols, span<const float> noise_vars);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qpsk.h",
+      "patch": "@@ -22,4 +22,4 @@ namespace srsran {\n /// \\param[in]  noise_vars Noise variance for each symbol in the constellation.\n void demodulate_soft_QPSK(span<log_likelihood_ratio> llrs, span<const cf_t> symbols, span<const float> noise_vars);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/neon_helpers.h",
+      "patch": "@@ -234,4 +234,4 @@ inline float32x4_t safe_div(float32x4_t dividend, float32x4_t divisor)\n \n } // namespace neon\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pbch_modulator_impl.cpp",
+      "patch": "@@ -52,14 +52,14 @@ void pbch_modulator_impl::map(span<const cf_t> d_pbch, resource_grid_writer& gri\n   re_mask.reset(v + 8);\n \n   // Full SS/PBCH block bandwidth resource blocks.\n-  bounded_bitset<MAX_RB>      rb_full_mask = ~bounded_bitset<MAX_RB>(SSB_BW_RB);\n-  bounded_bitset<NRE* MAX_RB> full_mask    = rb_full_mask.kronecker_product<NRE>(re_mask);\n+  bounded_bitset<MAX_RB>       rb_full_mask = ~bounded_bitset<MAX_RB>(SSB_BW_RB);\n+  bounded_bitset<NRE * MAX_RB> full_mask    = rb_full_mask.kronecker_product<NRE>(re_mask);\n \n   // Edges SS/PBCH block bandwidth resource blocks.\n   bounded_bitset<MAX_RB> rb_edge_mask = bounded_bitset<MAX_RB>(SSB_BW_RB);\n   rb_edge_mask.fill(0, 4);\n   rb_edge_mask.fill(16, 20);\n-  bounded_bitset<NRE* MAX_RB> edge_mask = rb_edge_mask.kronecker_product<NRE>(re_mask);\n+  bounded_bitset<NRE * MAX_RB> edge_mask = rb_edge_mask.kronecker_product<NRE>(re_mask);\n \n   // Map symbols for each of the ports.\n   for (unsigned port : config.ports) {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch/factories.cpp",
+      "patch": "@@ -191,4 +191,4 @@ std::unique_ptr<pdcch_processor> pdcch_processor_factory::create(srslog::basic_l\n                                                                  bool                  enable_logging_broadcast)\n {\n   return std::make_unique<logging_pdcch_processor_decorator>(logger, enable_logging_broadcast, create());\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch/logging_pdcch_processor_decorator.h",
+      "patch": "@@ -88,4 +88,4 @@ class logging_pdcch_processor_decorator : public pdcch_processor\n   std::unique_ptr<pdcch_processor> processor;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch/pdcch_processor_pool.h",
+      "patch": "@@ -42,4 +42,4 @@ class pdcch_processor_pool : public pdcch_processor\n   std::shared_ptr<pdcch_processor_pool_type> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch/pdcch_processor_validator_impl.cpp",
+      "patch": "@@ -70,4 +70,4 @@ error_type<std::string> pdcch_processor_validator_impl::is_valid(const pdcch_pro\n   }\n \n   return default_success_t();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch/pdcch_processor_validator_impl.h",
+      "patch": "@@ -23,4 +23,4 @@ class pdcch_processor_validator_impl : public pdcch_pdu_validator\n   error_type<std::string> is_valid(const pdcch_processor::pdu_t& pdu) const override;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch/pdsch_processor_impl.cpp",
+      "patch": "@@ -139,4 +139,4 @@ void pdsch_processor_impl::modulate(resource_grid_writer& grid, span<const bit_b\n   modulator_config.precoding                   = pdu.precoding;\n \n   modulator->modulate(grid, codewords, modulator_config);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/prach_detector_pool.h",
+      "patch": "@@ -36,4 +36,4 @@ class prach_detector_pool : public prach_detector\n   concurrent_thread_local_object_pool<prach_detector> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pucch/pucch_demodulator_format3.cpp",
+      "patch": "@@ -92,4 +92,4 @@ void pucch_demodulator_format3::demodulate(span<log_likelihood_ratio>\n   const unsigned c_init = (config.rnti * pow2(15)) + config.n_id;\n   descrambler->init(c_init);\n   descrambler->apply_xor(llr, llr);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pucch/pucch_processor_pool.h",
+      "patch": "@@ -63,4 +63,4 @@ class pucch_processor_pool : public pucch_processor\n   concurrent_thread_local_object_pool<pucch_processor> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/pusch_processor_phy_capabilities.cpp",
+      "patch": "@@ -20,4 +20,4 @@ using namespace srsran;\n pusch_processor_phy_capabilities srsran::get_pusch_processor_phy_capabilities()\n {\n   return {.max_nof_layers = PUSCH_PROCESSOR_MAX_NOF_LAYERS};\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch/ulsch_demultiplex_impl.cpp",
+      "patch": "@@ -575,4 +575,4 @@ void ulsch_demultiplex_impl::demux_current_ofdm_symbol()\n \n   // Empty buffer.\n   softbit_count = 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/ssb_processor_pool.h",
+      "patch": "@@ -41,4 +41,4 @@ class ssb_processor_pool : public ssb_processor\n   std::shared_ptr<ssb_processor_pool_type> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/log_likelihood_ratio.cpp",
+      "patch": "@@ -542,4 +542,4 @@ void log_likelihood_ratio::sum(span<log_likelihood_ratio>       out,\n         return left + right;\n       });\n #endif\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/pseudo_random_generator_fast_advance.h",
+      "patch": "@@ -74,4 +74,4 @@ class pseudo_random_generator_fast_advance<0>\n   }\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/pseudo_random_generator_initializers.h",
+      "patch": "@@ -159,4 +159,4 @@ class pseudo_random_initializer_x2\n   }\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/nzp_csi_rs_generator_pool.h",
+      "patch": "@@ -42,4 +42,4 @@ class nzp_csi_rs_generator_pool : public nzp_csi_rs_generator\n   std::shared_ptr<generator_pool_type> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/port_channel_estimator_average_impl.cpp",
+      "patch": "@@ -220,8 +220,8 @@ void port_channel_estimator_average_impl::compute_hop(srsran::channel_estimate&\n \n   // Combine CFO measurement with other hop CFO measurements.\n   if (cfo_hop.has_value()) {\n-    cfo_normalized = evaluate_or(\n-        cfo_normalized, cfo_hop.value(), [](float a, float b) { return (a + b) / 2.0F; }, cfo_hop.value());\n+    cfo_normalized =\n+        evaluate_or(cfo_normalized, cfo_hop.value(), [](float a, float b) { return (a + b) / 2.0F; }, cfo_hop.value());\n   }\n \n   // Average and apply DM-RS-to-data gain.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/port_channel_estimator_helpers.cpp",
+      "patch": "@@ -37,10 +37,10 @@ static const bounded_bitset<NRE> re_pattern_pusch_1 =\n /// Ts the symbol time (recall that the CP is ~1/14 Ts).\n static constexpr unsigned                             MAX_FILTER_LENGTH = 31;\n static constexpr std::array<float, MAX_FILTER_LENGTH> RC_FILTER         = {\n-            -0.0641253, -0.0660711, -0.0611526, -0.0485918, -0.0281126, 0.0000000,  0.0348830, 0.0751249,\n-            0.1188406,  0.1637874,  0.2075139,  0.2475302,  0.2814857,  0.3073415,  0.3235207, 0.3290274,\n-            0.3235207,  0.3073415,  0.2814857,  0.2475302,  0.2075139,  0.1637874,  0.1188406, 0.0751249,\n-            0.0348830,  0.0000000,  -0.0281126, -0.0485918, -0.0611526, -0.0660711, -0.0641253};\n+    -0.0641253, -0.0660711, -0.0611526, -0.0485918, -0.0281126, 0.0000000,  0.0348830, 0.0751249,\n+    0.1188406,  0.1637874,  0.2075139,  0.2475302,  0.2814857,  0.3073415,  0.3235207, 0.3290274,\n+    0.3235207,  0.3073415,  0.2814857,  0.2475302,  0.2075139,  0.1637874,  0.1188406, 0.0751249,\n+    0.0348830,  0.0000000,  -0.0281126, -0.0485918, -0.0611526, -0.0660711, -0.0641253};\n \n /// Create an array indexing the virtual pilots.\n template <size_t N>\n@@ -272,7 +272,7 @@ float srsran::estimate_time_alignment(const re_measurement<cf_t>&\n   }\n \n   // Prepare RE mask, common for all symbols carrying DM-RS.\n-  bounded_bitset<MAX_RB* NRE> re_mask = hop_rb_mask.kronecker_product<NRE>(pattern.re_pattern);\n+  bounded_bitset<MAX_RB * NRE> re_mask = hop_rb_mask.kronecker_product<NRE>(pattern.re_pattern);\n \n   srsran_assert(pilots_lse_buffer.get_slice(0).size() == re_mask.count(),\n                 \"Expected {} channel estimates, provided {}.\",\n@@ -487,8 +487,8 @@ static span<cf_t> extract_re_prb(span<cf_t> out, const bounded_bitset<NRE>& re_m\n #endif // __ARM_NEON\n \n   // Generic algorithm.\n-  bounded_bitset<MAX_NOF_PRBS>      prb  = ~bounded_bitset<MAX_NOF_PRBS>(nof_prb);\n-  bounded_bitset<NRE* MAX_NOF_PRBS> mask = prb.kronecker_product(re_mask);\n+  bounded_bitset<MAX_NOF_PRBS>       prb  = ~bounded_bitset<MAX_NOF_PRBS>(nof_prb);\n+  bounded_bitset<NRE * MAX_NOF_PRBS> mask = prb.kronecker_product(re_mask);\n   mask.for_each(0, mask.size(), [&out, &in](unsigned i_re) mutable {\n     out.front() = to_cf(in[i_re]);\n     out         = out.last(out.size() - 1);",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/prs/prs_generator_pool.h",
+      "patch": "@@ -41,4 +41,4 @@ class prs_generator_pool : public prs_generator\n   std::shared_ptr<generator_pool_type> processors;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/ptrs/ptrs_pdsch_generator_factory.cpp",
+      "patch": "@@ -50,4 +50,4 @@ std::shared_ptr<ptrs_pdsch_generator_factory> srsran::create_ptrs_pdsch_generato\n {\n   return std::make_shared<ptrs_pdsch_generator_generic_factory>(std::move(pseudo_random_gen_factory),\n                                                                 std::move(rg_mapper_factory));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/ptrs/ptrs_pdsch_generator_impl.h",
+      "patch": "@@ -43,4 +43,4 @@ class ptrs_pdsch_generator_generic_impl : public ptrs_pdsch_generator\n   static_re_buffer<ptrs_constants::max_nof_ports, MAX_NOF_PRBS> sequence;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/pucch/dmrs_pucch_estimator_format2.cpp",
+      "patch": "@@ -116,4 +116,4 @@ void dmrs_pucch_estimator_format2::estimate(channel_estimate&\n   for (unsigned i_port = 0; i_port != nof_rx_ports; ++i_port) {\n     ch_estimator->compute(estimate, grid, i_port, temp_symbols, est_cfg);\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_factories.cpp",
+      "patch": "@@ -17,7 +17,6 @@\n #include \"upper_phy_impl.h\"\n #include \"upper_phy_pdu_validators.h\"\n #include \"upper_phy_rx_symbol_handler_printer_decorator.h\"\n-\n #include \"srsran/fapi/messages/config_request_tlvs.h\"\n #include \"srsran/phy/metrics/phy_metrics_factories.h\"\n #include \"srsran/phy/support/support_factories.h\"",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/radio/uhd/radio_uhd_device_type.h",
+      "patch": "@@ -78,7 +78,7 @@ class radio_uhd_device_type\n   }\n   bool operator==(const radio_uhd_device_type& other) const { return type == other.type; }\n   bool operator==(const types& other) const { return type == other; }\n-       operator const types&() { return type; }\n+  operator const types&() { return type; }\n \n private:\n   types type = types::UNKNOWN;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/radio/uhd/radio_uhd_multi_usrp.h",
+      "patch": "@@ -17,4 +17,4 @@\n #pragma GCC diagnostic ignored \"-Wsuggest-override\"\n #endif // __clang__\n #include <uhd/usrp/multi_usrp.hpp>\n-#pragma GCC diagnostic pop\n\\ No newline at end of file\n+#pragma GCC diagnostic pop",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -58,7 +58,7 @@ struct nr_band_raster {\n // NOTE: FR2 bands have two different Freq raster, we only consider raster 120kHz.\n const uint32_t                                               nof_nr_DL_bands = 84;\n static constexpr std::array<nr_band_raster, nof_nr_DL_bands> nr_band_table   = {{\n-      // clang-format off\n+    // clang-format off\n     {nr_band::n1,    delta_freq_raster::kHz100, 384000, 20,  396000,  422000, 20,  434000},\n     {nr_band::n2,    delta_freq_raster::kHz100, 370000, 20,  382000,  386000, 20,  398000},\n     {nr_band::n3,    delta_freq_raster::kHz100, 342000, 20,  357000,  361000, 20,  376000},\n@@ -162,7 +162,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                 nof_nr_operating_band = 68;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band> nr_operating_bands    = {{\n-       // clang-format off\n+    // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ran/csi_rs/csi_rs_pattern.cpp",
+      "patch": "@@ -484,4 +484,4 @@ csi_rs_pattern srsran::get_csi_rs_pattern(const csi_rs_pattern_configuration& co\n \n   // Generate the RE patterns for each port.\n   return build_re_patterns(k_bar, l_bar, nof_ports, config);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pdcch/pdcch_type0_css_coreset_config.cpp",
+      "patch": "@@ -241,4 +241,4 @@ pdcch_type0_css_coreset_description srsran::pdcch_type0_css_coreset_get(nr_band\n   }\n \n   return PDCCH_TYPE0_CSS_CORESET_RESERVED;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pdsch/pdsch_mcs.cpp",
+      "patch": "@@ -67,4 +67,4 @@ sch_mcs_description srsran::pdsch_mcs_get_config(pdsch_mcs_table table_, sch_mcs\n     default:\n       return MCS_INDEX_TABLE_3[index.to_uint()];\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/prach/prach_cyclic_shifts.cpp",
+      "patch": "@@ -105,4 +105,4 @@ uint16_t srsran::prach_cyclic_shifts_get(prach_subcarrier_spacing prach_scs,\n   }\n \n   return table[zero_correlation_zone];\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/prach/prach_frequency_mapping.cpp",
+      "patch": "@@ -89,4 +89,4 @@ prach_frequency_mapping_information srsran::prach_frequency_mapping_get(prach_su\n   }\n \n   return result;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/precoding/precoding_codebooks.cpp",
+      "patch": "@@ -88,7 +88,7 @@ precoding_weight_matrix srsran::make_one_layer_two_ports(unsigned i_codebook)\n   static constexpr cf_t                               minus_sqrt_1_2   = {-M_SQRT1_2, 0};\n   static constexpr cf_t                               minus_j_sqrt_1_2 = {0, -M_SQRT1_2};\n   static constexpr std::array<std::array<cf_t, 2>, 4> codebooks        = {\n-             {{sqrt_1_2, sqrt_1_2}, {sqrt_1_2, j_sqrt_1_2}, {sqrt_1_2, minus_sqrt_1_2}, {sqrt_1_2, minus_j_sqrt_1_2}}};\n+      {{sqrt_1_2, sqrt_1_2}, {sqrt_1_2, j_sqrt_1_2}, {sqrt_1_2, minus_sqrt_1_2}, {sqrt_1_2, minus_j_sqrt_1_2}}};\n \n   srsran_assert(i_codebook_range.contains(i_codebook),\n                 \"The given codebook identifier (i.e., {}) is out of the range {}\",",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ptrs/ptrs_pattern.cpp",
+      "patch": "@@ -98,4 +98,4 @@ ptrs_pattern srsran::get_ptrs_pattern(const ptrs_pattern_configuration& pattern_\n                       .rb_stride   = K_ptrs,\n                       .re_offset   = {k_re_ref.begin(), k_re_ref.end()},\n                       .symbol_mask = symbol_mask};\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/pusch/pusch_mcs.cpp",
+      "patch": "@@ -81,4 +81,4 @@ sch_mcs_description srsran::pusch_mcs_get_config(pusch_mcs_table table,\n   }\n \n   return result;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb_freq_position_generator.cpp",
+      "patch": "@@ -315,4 +315,4 @@ ssb_freq_location ssb_freq_position_generator::get_next_ssb_location_special_ras\n   }\n \n   return ssb;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ru/ofh/ru_ofh_timing_notifier_impl.cpp",
+      "patch": "@@ -10,7 +10,6 @@\n \n #include \"ru_ofh_timing_notifier_impl.h\"\n #include \"srsran/ru/ru_timing_notifier.h\"\n-\n #include <chrono>\n \n using namespace srsran;",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/csi_rs_scheduler.h",
+      "patch": "@@ -28,4 +28,4 @@ class csi_rs_scheduler\n   std::vector<csi_rs_info> cached_csi_rs;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.h",
+      "patch": "@@ -91,8 +91,8 @@ class ra_scheduler\n                                                  concurrent_queue_policy::lockfree_mpmc,\n                                                  concurrent_queue_wait_policy::non_blocking>;\n   using crc_indication_queue  = concurrent_queue<ul_crc_indication,\n-                                                concurrent_queue_policy::lockfree_mpmc,\n-                                                concurrent_queue_wait_policy::non_blocking>;\n+                                                 concurrent_queue_policy::lockfree_mpmc,\n+                                                 concurrent_queue_wait_policy::non_blocking>;\n \n   const bwp_configuration&   get_dl_bwp_cfg() const { return cell_cfg.dl_cfg_common.init_dl_bwp.generic_params; }\n   const pdsch_config_common& get_pdsch_cfg() const { return cell_cfg.dl_cfg_common.init_dl_bwp.pdsch_common; }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -10,7 +10,6 @@\n \n #include \"scheduler_metrics_handler.h\"\n #include \"../config/cell_configuration.h\"\n-\n #include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/srslog/srslog.h\"",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/support/outer_loop_link_adaptation.h",
+      "patch": "@@ -73,4 +73,4 @@ class olla_algorithm\n   float current_offset = 0;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/pdsch/pdsch_dmrs_symbol_mask.cpp",
+      "patch": "@@ -66,4 +66,4 @@ dmrs_symbol_mask srsran::pdsch_dmrs_symbol_mask_mapping_type_A_single_get(\n   mask.set(11);\n \n   return mask;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/pusch/pusch_dmrs_symbol_mask.cpp",
+      "patch": "@@ -47,4 +47,4 @@ dmrs_symbol_mask srsran::pusch_dmrs_symbol_mask_mapping_type_A_single_get(\n   }\n \n   return mask;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.h",
+      "patch": "@@ -116,8 +116,8 @@ class ue_event_manager final : public sched_ue_configuration_handler,\n                                               concurrent_queue_policy::lockfree_mpmc,\n                                               concurrent_queue_wait_policy::non_blocking>;\n   using cell_event_queue   = concurrent_queue<cell_event_t,\n-                                            concurrent_queue_policy::lockfree_mpmc,\n-                                            concurrent_queue_wait_policy::non_blocking>;\n+                                              concurrent_queue_policy::lockfree_mpmc,\n+                                              concurrent_queue_wait_policy::non_blocking>;\n \n   void process_common(slot_point sl, du_cell_index_t cell_index);\n   void process_cell_specific(du_cell_index_t cell_index);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/security/s3g.cpp",
+      "patch": "@@ -233,7 +233,7 @@ uint32_t s3g_s1(uint32_t w)\n   uint8_t srw0 = S[(uint8_t)((w >> 24) & 0xff)];\n   uint8_t srw1 = S[(uint8_t)((w >> 16) & 0xff)];\n   uint8_t srw2 = S[(uint8_t)((w >> 8) & 0xff)];\n-  uint8_t srw3 = S[(uint8_t)((w)&0xff)];\n+  uint8_t srw3 = S[(uint8_t)((w) & 0xff)];\n \n   r0 = ((s3g_mul_x(srw0, 0x1b)) ^ (srw1) ^ (srw2) ^ ((s3g_mul_x(srw3, 0x1b)) ^ srw3));\n \n@@ -261,7 +261,7 @@ uint32_t s3g_s2(uint32_t w)\n   uint8_t sqw0 = SQ[(uint8_t)((w >> 24) & 0xff)];\n   uint8_t sqw1 = SQ[(uint8_t)((w >> 16) & 0xff)];\n   uint8_t sqw2 = SQ[(uint8_t)((w >> 8) & 0xff)];\n-  uint8_t sqw3 = SQ[(uint8_t)((w)&0xff)];\n+  uint8_t sqw3 = SQ[(uint8_t)((w) & 0xff)];\n \n   r0 = ((s3g_mul_x(sqw0, 0x69)) ^ (sqw1) ^ (sqw2) ^ ((s3g_mul_x(sqw3, 0x69)) ^ sqw3));\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/executors/execution_context_description_setup.h",
+      "patch": "@@ -17,4 +17,4 @@ namespace execution_context {\n void set_execution_context_description(unsigned nof_concurrent_workers, unsigned worker_index);\n \n } // namespace execution_context\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/adt/bounded_bitset_benchmark_helpers.h",
+      "patch": "@@ -32,4 +32,4 @@ std::array<bool, N> shuffle_array(const std::array<bool, N>& ar)\n   return ar;\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/adt/bounded_bitset_range_benchmark.cpp",
+      "patch": "@@ -179,4 +179,4 @@ int main(int argc, char** argv)\n   run_benchmark<N>(shuffle_array(create_contiguous_array<N>(N / 2)), \"random\");\n \n   bm->print_percentiles_time();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/channel_processors/pusch/pusch_processor_benchmark.cpp",
+      "patch": "@@ -796,7 +796,7 @@ int main(int argc, char** argv)\n   std::generate(random_re.begin(), random_re.end(), [&rgen, &c_normal_dist]() { return c_normal_dist(rgen); });\n \n   // Generate a RE mask and set all elements to true.\n-  bounded_bitset<NRE* MAX_RB> re_mask = ~bounded_bitset<NRE * MAX_RB>(grid_nof_subcs);\n+  bounded_bitset<NRE * MAX_RB> re_mask = ~bounded_bitset<NRE * MAX_RB>(grid_nof_subcs);\n \n   // Fill the grid with the random RE.\n   span<const cf_t> re_view(random_re);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/phy/upper/signal_processors/srs_estimator_benchmark.cpp",
+      "patch": "@@ -138,7 +138,7 @@ int main(int argc, char** argv)\n   std::generate(random_re.begin(), random_re.end(), [&rgen, &c_normal_dist]() { return c_normal_dist(rgen); });\n \n   // Generate a RE mask and set all elements to true.\n-  bounded_bitset<NRE* MAX_RB> re_mask = ~bounded_bitset<NRE * MAX_RB>(grid_nof_subcs);\n+  bounded_bitset<NRE * MAX_RB> re_mask = ~bounded_bitset<NRE * MAX_RB>(grid_nof_subcs);\n \n   // Fill the grid with the random RE.\n   span<const cf_t> re_view(random_re);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/ofh/ofh_integration_test.cpp",
+      "patch": "@@ -1007,7 +1007,7 @@ static void configure_ofh_sector(ofh::sector_configuration& sector_cfg)\n   sector_cfg.is_prach_control_plane_enabled  = test_params.is_prach_control_plane_enabled;\n   sector_cfg.ignore_ecpri_payload_size_field = test_params.ignore_ecpri_payload_size_field;\n   sector_cfg.tx_window_timing_params         = {\n-              T1a_max_cp_dl, T1a_min_cp_dl, T1a_max_cp_ul, T1a_min_cp_ul, T1a_max_up, T1a_min_up};\n+      T1a_max_cp_dl, T1a_min_cp_dl, T1a_max_cp_ul, T1a_min_cp_ul, T1a_max_up, T1a_min_up};\n   sector_cfg.rx_window_timing_params       = {Ta4_min, Ta4_max};\n   sector_cfg.is_downlink_broadcast_enabled = test_params.is_downlink_broadcast_enabled;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/phy/upper/channel_processors/pxsch_bler_test_channel_emulator.h",
+      "patch": "@@ -137,4 +137,4 @@ class channel_emulator\n   task_executor& executor;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/f1ap/f1ap_test_messages.cpp",
+      "patch": "@@ -670,4 +670,4 @@ f1ap_message srsran::test_helpers::generate_positioning_activation_failure(gnb_d\n   return {};\n }\n \n-#endif // SRSRAN_HAS_ENTERPRISE\n\\ No newline at end of file\n+#endif // SRSRAN_HAS_ENTERPRISE",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/rrc/rrc_packed_test_messages.h",
+      "patch": "@@ -25,4 +25,4 @@ byte_buffer create_ho_prep_info();\n /// \\brief Generates a dummy Measurement Timing Configuration.\n byte_buffer create_meas_timing_cfg(uint32_t carrier_freq, subcarrier_spacing scs);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/rrc/rrc_test_message_validators.h",
+      "patch": "@@ -52,4 +52,4 @@ bool is_valid_rrc_handover_preparation_info(const asn1::rrc_nr::ho_prep_info_s&\n bool is_valid_rrc_handover_preparation_info(const byte_buffer& ho_prep_info);\n \n } // namespace test_helpers\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/test_doubles/rrc/rrc_test_messages.h",
+      "patch": "@@ -40,4 +40,4 @@ byte_buffer pack_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg);\n /// \\brief Packs an RRC UL-DCCH message into a byte buffer.\n byte_buffer pack_ul_dcch_msg(const asn1::rrc_nr::ul_dcch_msg_s& msg);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/adt/bounded_bitset_test.cpp",
+      "patch": "@@ -946,8 +946,7 @@ TEST(BoundedBitset, for_each)\n   ASSERT_EQ(output, std::vector<int>({2, 4, 6, 8, 10}));\n \n   output.resize(0);\n-  mask.for_each(\n-      0, mask.size(), [&output, &values](int n) { output.emplace_back(values[n]); }, false);\n+  mask.for_each(0, mask.size(), [&output, &values](int n) { output.emplace_back(values[n]); }, false);\n   ASSERT_EQ(output, std::vector<int>({1, 3, 5, 7, 9}));\n \n   output.resize(0);",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/adt/circular_map_test.cpp",
+      "patch": "@@ -26,11 +26,9 @@ namespace {\n static_assert(std::is_trivially_copyable_v<static_circular_map<unsigned, int, 4>>);\n \n template <typename U>\n-struct is_static_circular_map : std::false_type {\n-};\n+struct is_static_circular_map : std::false_type {};\n template <typename K, typename V, std::size_t N>\n-struct is_static_circular_map<static_circular_map<K, V, N>> : std::true_type {\n-};\n+struct is_static_circular_map<static_circular_map<K, V, N>> : std::true_type {};\n \n template <typename T>\n class circular_map_tester_1 : public ::testing::Test",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/adt/ring_buffer_test.cpp",
+      "patch": "@@ -93,8 +93,7 @@ TYPED_TEST_SUITE(ring_buffer_test, test_value_types);\n \n template <typename CircBuffer>\n class copyable_ring_tester : public ring_buffer_test<CircBuffer>\n-{\n-};\n+{};\n using copyable_test_value_types =\n     ::testing::Types<static_ring_buffer<int, 10>, static_ring_buffer<int, 200>, ring_buffer<int>>;\n TYPED_TEST_SUITE(copyable_ring_tester, copyable_test_value_types);",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_e2ap_test.cpp",
+      "patch": "@@ -150,4 +150,4 @@ TEST_F(asn1_e2ap_test, ric_control_failure_message)\n   ASSERT_EQ(pdu.type(), asn1::e2ap::e2ap_pdu_c::types_opts::unsuccessful_outcome);\n \n   ASSERT_EQ(test_pack_unpack_consistency(pdu), SRSASN_SUCCESS);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -549,7 +549,7 @@ class EnumTest\n     value = v;\n     return *this;\n   }\n-              operator uint8_t() { return (uint8_t)value; }\n+  operator uint8_t() { return (uint8_t)value; }\n   std::string to_string() const\n   {\n     switch (value) {\n@@ -634,7 +634,7 @@ class EnumBoolTest\n     value = v;\n     return *this;\n   }\n-              operator uint8_t() { return (uint8_t)value; }\n+  operator uint8_t() { return (uint8_t)value; }\n   std::string to_string() const\n   {\n     switch (value) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_cp_config_test.cpp",
+      "patch": "@@ -19,4 +19,4 @@ TEST(cu_cp_config_test, default_config_is_valid)\n {\n   srsran::srs_cu_cp::cu_cp_configuration cfg = make_default_cu_cp_config();\n   ASSERT_TRUE(is_valid_configuration(cfg));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_cp_intra_du_handover_test.cpp",
+      "patch": "@@ -163,8 +163,7 @@ class cu_cp_intra_du_handover_test : public cu_cp_test_environment, public ::tes\n   [[nodiscard]] bool timeout_rrc_reconfiguration_and_await_f1ap_ue_context_release_command()\n   {\n     // Fail RRC Reconfiguration (UE doesn't respond) and wait for F1AP UE Context Release Command.\n-    if (tick_until(\n-            std::chrono::milliseconds(3000), [&]() { return false; }, false)) {\n+    if (tick_until(std::chrono::milliseconds(3000), [&]() { return false; }, false)) {\n       return false;\n     }\n     report_fatal_error_if_not(this->wait_for_f1ap_tx_pdu(du_idx, f1ap_pdu),\n@@ -192,8 +191,7 @@ class cu_cp_intra_du_handover_test : public cu_cp_test_environment, public ::tes\n   [[nodiscard]] bool timeout_handover_ue_release_timer_and_await_ngap_ue_context_release_request()\n   {\n     // Fail RRC Reconfiguration (UE doesn't respond) and wait for NGAP UE Context Release Request.\n-    if (tick_until(\n-            std::chrono::milliseconds(6400), [&]() { return false; }, false)) {\n+    if (tick_until(std::chrono::milliseconds(6400), [&]() { return false; }, false)) {\n       return false;\n     }\n     report_fatal_error_if_not(this->wait_for_ngap_tx_pdu(ngap_pdu),",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/cu_cp/mobility/handover_reconfiguration_routine_test.cpp",
+      "patch": "@@ -30,14 +30,14 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n   void set_transaction_id(unsigned transaction_id_) { test_transaction_id = transaction_id_; }\n \n   // RRC UE Controller\n-  void stop() override{};\n+  void stop() override {};\n \n   // RRC UL PDU handler\n-  void handle_ul_ccch_pdu(byte_buffer pdu) override{};\n-  void handle_ul_dcch_pdu(const srb_id_t srb_id, byte_buffer pdu) override{};\n+  void handle_ul_ccch_pdu(byte_buffer pdu) override {};\n+  void handle_ul_dcch_pdu(const srb_id_t srb_id, byte_buffer pdu) override {};\n \n   // RRC NGAP Message handler\n-  void        handle_dl_nas_transport_message(byte_buffer nas_pdu) override{};\n+  void        handle_dl_nas_transport_message(byte_buffer nas_pdu) override {};\n   byte_buffer get_packed_ue_radio_access_cap_info() const override { return byte_buffer{}; };\n   byte_buffer get_packed_handover_preparation_message() override { return byte_buffer{}; };\n \n@@ -165,11 +165,11 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n   }\n \n   // RRC UE Setup proc notifier\n-  void on_new_dl_ccch(const asn1::rrc_nr::dl_ccch_msg_s& dl_ccch_msg) override{};\n-  void on_ue_release_required(const ngap_cause_t& cause) override{};\n+  void on_new_dl_ccch(const asn1::rrc_nr::dl_ccch_msg_s& dl_ccch_msg) override {};\n+  void on_ue_release_required(const ngap_cause_t& cause) override {};\n \n   // RRC UE Security Mode Command proc notifier\n-  void on_new_dl_dcch(srb_id_t srb_id, const asn1::rrc_nr::dl_dcch_msg_s& dl_dcch_msg) override{};\n+  void on_new_dl_dcch(srb_id_t srb_id, const asn1::rrc_nr::dl_dcch_msg_s& dl_dcch_msg) override {};\n \n   // RRC UE Reconfiguration proc notifier\n \n@@ -181,7 +181,7 @@ struct dummy_rrc_ue : public rrc_ue_interface, public rrc_ue_controller {\n   }\n \n   // RRC UE Reestablishment proc notifier\n-  void on_new_as_security_context() override{};\n+  void on_new_as_security_context() override {};\n \n   // interface functions\n   rrc_ue_controller&              get_controller() override { return *this; };",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16
+    },
+    {
+      "filename": "tests/unittests/cu_cp/test_doubles/dummy_du.h",
+      "patch": "@@ -38,4 +38,4 @@ struct du_stub_params {\n std::unique_ptr<du_test_stub> create_du_stub(du_stub_params params);\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/test_doubles/mock_amf.h",
+      "patch": "@@ -37,4 +37,4 @@ class mock_amf : public n2_connection_client\n std::unique_ptr<mock_amf> create_mock_amf();\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/test_doubles/mock_cu_up.h",
+      "patch": "@@ -37,4 +37,4 @@ class mock_cu_up\n std::unique_ptr<mock_cu_up> create_mock_cu_up(cu_cp_e1_handler& cu_cp_e1_handler);\n \n } // namespace srs_cu_cp\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/test_helpers.cpp",
+      "patch": "@@ -45,7 +45,7 @@ byte_buffer srsran::srs_cu_cp::generate_rrc_reconfiguration_complete_pdu(unsigne\n \n   security::sec_mac mac_exp   = {};\n   auto              k_128_int = std::array<uint8_t, 16>{\n-                   0xf3, 0xd5, 0x99, 0x4a, 0x3b, 0x29, 0x06, 0xfb, 0x27, 0x00, 0x4a, 0x44, 0x90, 0x6c, 0x6b, 0xd1};\n+      0xf3, 0xd5, 0x99, 0x4a, 0x3b, 0x29, 0x06, 0xfb, 0x27, 0x00, 0x4a, 0x44, 0x90, 0x6c, 0x6b, 0xd1};\n   byte_buffer_view buf = pdu_with_count;\n \n   security::security_nia2(",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/up_resource_manager/up_resource_manager_test.cpp",
+      "patch": "@@ -253,4 +253,4 @@ TEST_F(up_resource_manager_test, when_pdu_session_gets_removed_all_resources_are\n \n   // Setting up initial PDU session is possible again.\n   setup_initial_pdu_session();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_up/cu_up_test.cpp",
+      "patch": "@@ -259,11 +259,11 @@ TEST_F(cu_up_test, dl_data_flow)\n   // UL message 1\n   nru_ul_message nru_msg1     = {};\n   const uint8_t  t_pdu_arr1[] = {\n-       0x80, 0x00, 0x00, 0x45, 0x00, 0x00, 0x54, 0xe8, 0x83, 0x40, 0x00, 0x40, 0x01, 0xfa, 0x00, 0xac, 0x10, 0x00,\n-       0x03, 0xac, 0x10, 0x00, 0x01, 0x08, 0x00, 0x2c, 0xbe, 0xb4, 0xa4, 0x00, 0x01, 0xd3, 0x45, 0x61, 0x63, 0x00,\n-       0x00, 0x00, 0x00, 0x1a, 0x20, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,\n-       0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,\n-       0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};\n+      0x80, 0x00, 0x00, 0x45, 0x00, 0x00, 0x54, 0xe8, 0x83, 0x40, 0x00, 0x40, 0x01, 0xfa, 0x00, 0xac, 0x10, 0x00,\n+      0x03, 0xac, 0x10, 0x00, 0x01, 0x08, 0x00, 0x2c, 0xbe, 0xb4, 0xa4, 0x00, 0x01, 0xd3, 0x45, 0x61, 0x63, 0x00,\n+      0x00, 0x00, 0x00, 0x1a, 0x20, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,\n+      0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,\n+      0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};\n   span<const uint8_t> t_pdu_span1  = {t_pdu_arr1};\n   byte_buffer         t_pdu_buf1   = byte_buffer::create(t_pdu_span1).value();\n   nru_msg1.t_pdu                   = byte_buffer_chain::create(std::move(t_pdu_buf1)).value();",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "tests/unittests/du_manager/cbs/cbs_encoder_test.cpp",
+      "patch": "@@ -257,8 +257,9 @@ TEST_F(CbsEncodingDeathTestFixture, CbsEncodingSelectionDeathTest)\n     if (is_coding_scheme_valid(i_data_coding_scheme)) {\n       ASSERT_NO_FATAL_FAILURE(encoder->encode_cb_data(\"Test message\", i_data_coding_scheme));\n     } else {\n-      ASSERT_DEATH({ encoder->encode_cb_data(\"Test message\", i_data_coding_scheme); },\n-                   \"Invalid or unsupported CBS encoding type.\");\n+      ASSERT_DEATH(\n+          { encoder->encode_cb_data(\"Test message\", i_data_coding_scheme); },\n+          \"Invalid or unsupported CBS encoding type.\");\n     }\n   }\n }\n@@ -337,4 +338,4 @@ INSTANTIATE_TEST_SUITE_P(CbsEncoderTest,\n                              // Test repetitions.\n                              ::testing::Range(0U, 100U)));\n \n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "tests/unittests/du_manager/du_srs_resource_manager_test.cpp",
+      "patch": "@@ -40,8 +40,7 @@ std::ostream& operator<<(std::ostream& out, const srs_params& params)\n } // namespace\n \n template <>\n-struct fmt::formatter<srs_params> : ostream_formatter {\n-};\n+struct fmt::formatter<srs_params> : ostream_formatter {};\n \n static bool is_ul_slot(unsigned offset, const tdd_ul_dl_config_common& tdd_cfg)\n {",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/e1ap/cu_cp/e1ap_cu_cp_test.cpp",
+      "patch": "@@ -98,4 +98,4 @@ TEST_F(e1ap_cu_cp_test, when_invalid_inactivity_message_received_then_message_is\n \n   // Check that PDU has not been forwarded to CU-CP\n   ASSERT_FALSE(cu_cp_notifier.last_msg.ue_inactive);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/e2/e2_ric_control_procedure_test.cpp",
+      "patch": "@@ -96,4 +96,4 @@ TEST_F(e2_test_setup, ric_control_procedure_ho)\n   e2_message& msg = e2_client->last_tx_e2_pdu;\n   ASSERT_EQ(msg.pdu.type().value, asn1::e2ap::e2ap_pdu_c::types_opts::successful_outcome);\n   e2->handle_e2_disconnection_request();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/e2/e2sm_kpm_test.cpp",
+      "patch": "@@ -679,11 +679,11 @@ TEST_P(e2sm_kpm_indication, e2sm_kpm_generates_ric_indication_style5)\n   };\n   std::vector<uint32_t>              cond_satisfied = {1, 1, 1, 1, 1};\n   std::vector<std::vector<uint32_t>> meas_values    = {\n-         {1, 2, 3, 0, 5},\n-         {11, 12, 13, 0, 15},\n-         {21, 22, 23, 0, 25},\n-         {31, 32, 33, 0, 35},\n-         {41, 42, 43, 0, 45},\n+      {1, 2, 3, 0, 5},\n+      {11, 12, 13, 0, 15},\n+      {21, 22, 23, 0, 25},\n+      {31, 32, 33, 0, 35},\n+      {41, 42, 43, 0, 45},\n   };\n   uint32_t nof_meas_data = presence.size();\n   uint32_t nof_ues       = ue_ids.size();",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "tests/unittests/f1ap/du/f1ap_du_dl_rrc_message_transfer_test.cpp",
+      "patch": "@@ -215,4 +215,4 @@ TEST_F(f1ap_du_test, when_dl_rrc_message_transfer_has_duplicate_cu_ue_id_and_old\n   ASSERT_EQ(f1c_gw.last_tx_pdu().pdu.init_msg().value.ul_rrc_msg_transfer()->gnb_cu_ue_f1ap_id,\n             msg.pdu.init_msg().value.dl_rrc_msg_transfer()->gnb_cu_ue_f1ap_id)\n       << \"Invalid gNB-CU UE F1AP ID\";\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/mac_to_fapi_translator_test.cpp",
+      "patch": "@@ -163,8 +163,9 @@ TEST_F(mac_to_fapi_translator_fixture, invalid_dl_sched_results_with_no_mac_slot\n   mac_dl_sched_result&                       result      = result_test.result;\n   result.ssb_pdus.front().pci                            = INVALID_PCI;\n \n-  ASSERT_DEATH({ translator.on_new_downlink_scheduler_results(result); },\n-               \"srsRAN ERROR: Dummy MAC cell slot handler cannot handle error indication\");\n+  ASSERT_DEATH(\n+      { translator.on_new_downlink_scheduler_results(result); },\n+      \"srsRAN ERROR: Dummy MAC cell slot handler cannot handle error indication\");\n }\n \n TEST_F(mac_to_fapi_translator_fixture, invalid_ssb_in_dl_sched_results_reports_error)",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/phy/messages/dl_prs_pdu_test.cpp",
+      "patch": "@@ -12,7 +12,6 @@\n #include \"srsran/fapi_adaptor/phy/messages/prs.h\"\n #include \"srsran/fapi_adaptor/precoding_matrix_table_generator.h\"\n #include \"srsran/phy/upper/signal_processors/prs/prs_generator_configuration.h\"\n-\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/mac/rnti_manager_test.cpp",
+      "patch": "@@ -39,4 +39,4 @@ TEST(rnti_manager_test, when_ue_added_then_allocate_rnti_does_not_repeat_rnti)\n   ASSERT_NE(rnti1, rnti2);\n \n   ASSERT_EQ(rnti_db.nof_ues(), 1);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ofh/transmitter/ofh_data_flow_cplane_scheduling_commands_test_doubles.h",
+      "patch": "@@ -68,4 +68,4 @@ class data_flow_cplane_scheduling_commands_spy : public data_flow_cplane_schedul\n \n } // namespace testing\n } // namespace ofh\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/pcap/mac_pcap_test.cpp",
+      "patch": "@@ -48,7 +48,7 @@ TEST_F(pcap_mac_test, write_pdu)\n {\n   auto                    mac_pcap_writer = create_mac_pcap(\"/tmp/mac_write_pdu.pcap\", mac_pcap_type::udp, pcap_exec);\n   std::array<uint8_t, 17> tv              = {\n-                   0x04, 0x0a, 0x0d, 0x72, 0x80, 0xd3, 0x96, 0x02, 0x7b, 0x01, 0xbd, 0x26, 0x3f, 0x00, 0x00, 0x00, 0x00};\n+      0x04, 0x0a, 0x0d, 0x72, 0x80, 0xd3, 0x96, 0x02, 0x7b, 0x01, 0xbd, 0x26, 0x3f, 0x00, 0x00, 0x00, 0x00};\n   int                         crnti   = 0x01011;\n   int                         ue_id   = 2;\n   int                         harqid  = 0;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/modulation/ofdm_prach_demodulator_test.cpp",
+      "patch": "@@ -59,8 +59,7 @@ std::ostream& operator<<(std::ostream& os, test_case_t test_case)\n } // namespace srsran\n \n template <>\n-struct fmt::formatter<srsran::ofdm_prach_demodulator::configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::ofdm_prach_demodulator::configuration> : ostream_formatter {};\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/phy/lower/modulation/ofdm_prach_demodulator_test_doubles.h",
+      "patch": "@@ -84,4 +84,4 @@ class ofdm_prach_demodulator_factory_spy : public ofdm_prach_demodulator_factory\n   std::vector<ofdm_prach_demodulator_spy*> entries;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/downlink/downlink_processor_notifier_test_doubles.h",
+      "patch": "@@ -32,4 +32,4 @@ class downlink_processor_notifier_spy : public downlink_processor_notifier\n   std::vector<lower_phy_timing_context> tti_boundaries;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/downlink/pdxch/pdxch_processor_notifier_test_doubles.h",
+      "patch": "@@ -45,4 +45,4 @@ class pdxch_processor_notifier_spy : public pdxch_processor_notifier\n   std::vector<resource_grid_context> request_overflow;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/downlink/pdxch/pdxch_processor_test_doubles.h",
+      "patch": "@@ -175,4 +175,4 @@ class pdxch_processor_factory_spy : public pdxch_processor_factory\n   std::vector<unsigned> frame_slots_to_process;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/uplink/prach/prach_processor_notifier_test_doubles.h",
+      "patch": "@@ -92,4 +92,4 @@ class prach_processor_notifier_spy : public prach_processor_notifier\n   const std::vector<rx_prach_window_entry>& get_rx_prach_window_entries() const { return rx_prach_window_entries; }\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/uplink/prach/prach_processor_test_doubles.h",
+      "patch": "@@ -105,4 +105,4 @@ class prach_processor_factory_spy : public prach_processor_factory\n   prach_processor_spy* instance = nullptr;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/uplink/puxch/puxch_processor_notifier_test_doubles.h",
+      "patch": "@@ -50,4 +50,4 @@ class puxch_processor_notifier_spy : public puxch_processor_notifier\n   std::vector<rx_symbol_entry>       rx_symbol;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/lower/processors/uplink/puxch/puxch_processor_test_doubles.h",
+      "patch": "@@ -116,4 +116,4 @@ class puxch_processor_factory_spy : public puxch_processor_factory\n   puxch_processor_spy* instance = nullptr;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/phy_test_utils.h",
+      "patch": "@@ -22,7 +22,10 @@\n       return spy;                                                                                                      \\\n     }                                                                                                                  \\\n                                                                                                                        \\\n-    std::vector<COMPONENT##_spy*>& get_entries() { return entries; }                                                   \\\n+    std::vector<COMPONENT##_spy*>& get_entries()                                                                       \\\n+    {                                                                                                                  \\\n+      return entries;                                                                                                  \\\n+    }                                                                                                                  \\\n                                                                                                                        \\\n   private:                                                                                                             \\\n     std::vector<COMPONENT##_spy*> entries;                                                                             \\",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_coding/crc_calculator_test.cpp",
+      "patch": "@@ -234,4 +234,4 @@ int main(int argc, char** argv)\n     test_crc_bit_buffer(*factory, N, crc_generator_poly::CRC11, 0xe21, 11);\n     test_crc_bit_buffer(*factory, N, crc_generator_poly::CRC6, 0x61, 6);\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_coding/polar/polar_interleaver_test.cpp",
+      "patch": "@@ -1076,4 +1076,4 @@ int main(int argc, char** argv)\n   }\n \n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_modulation/demodulation_mapper_test.cpp",
+      "patch": "@@ -417,4 +417,4 @@ TEST_P(DemodulatorFixture, DemodulatorInfinityOverInfinity)\n \n INSTANTIATE_TEST_SUITE_P(DemodulatorSuite, DemodulatorFixture, ::testing::ValuesIn(demodulation_mapper_test_data));\n \n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_modulation/modulation_mapper_test.cpp",
+      "patch": "@@ -102,4 +102,4 @@ TEST_P(ModulationMapperFixture, ModulationMapperTest)\n INSTANTIATE_TEST_SUITE_P(ModulationMapperTest,\n                          ModulationMapperFixture,\n                          ::testing::ValuesIn(modulation_mapper_test_data));\n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pbch_encoder_test.cpp",
+      "patch": "@@ -45,4 +45,4 @@ int main()\n     TESTASSERT_EQ(span<const uint8_t>(testvector_encoded), span<const uint8_t>(encoded_data));\n   }\n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pdcch/pdcch_encoder_test.cpp",
+      "patch": "@@ -50,4 +50,4 @@ int main()\n     }\n   }\n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/prach_generator_test_doubles.h",
+      "patch": "@@ -55,4 +55,4 @@ class prach_generator_spy : public prach_generator\n \n PHY_SPY_FACTORY_TEMPLATE(prach_generator);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pucch/pucch_processor_format4_vectortest.cpp",
+      "patch": "@@ -10,7 +10,6 @@\n \n #include \"pucch_processor_format4_test_data.h\"\n #include \"pucch_processor_test_fixture.h\"\n-\n #include \"srsran/phy/support/support_factories.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_formatters.h\"\n #include \"srsran/phy/upper/channel_processors/pucch/factories.h\"",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch/ulsch_demultiplex_test.cpp",
+      "patch": "@@ -58,8 +58,7 @@ std::ostream& operator<<(std::ostream& os, span<const uint16_t> data)\n using namespace srsran;\n \n template <>\n-struct fmt::formatter<srsran::ulsch_demultiplex::configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::ulsch_demultiplex::configuration> : ostream_formatter {};\n \n namespace {\n class UlschDemultiplexFixture : public ::testing::TestWithParam<test_case_t>",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch/ulsch_demultiplex_test_doubles.h",
+      "patch": "@@ -120,4 +120,4 @@ class ulsch_demultiplex_spy : public ulsch_demultiplex\n \n PHY_SPY_FACTORY_TEMPLATE(ulsch_demultiplex);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/uci/uci_decoder_test_doubles.h",
+      "patch": "@@ -65,4 +65,4 @@ class uci_decoder_spy : public uci_decoder\n \n PHY_SPY_FACTORY_TEMPLATE(uci_decoder);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/rx_buffer_test_doubles.h",
+      "patch": "@@ -88,4 +88,4 @@ class rx_buffer_spy : public unique_rx_buffer::callback\n   std::vector<uint8_t>                    crc;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/sequence_generators/pseudo_random_generator_test.cpp",
+      "patch": "@@ -257,4 +257,4 @@ INSTANTIATE_TEST_SUITE_P(PseudoRandomGeneratorTest,\n                          PseudoRandomGeneratorFixture,\n                          ::testing::Combine(::testing::Values(0, 2, 3, 5, 7), ::testing::Values(255, 512, 768)));\n \n-} // end namespace\n\\ No newline at end of file\n+} // end namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/dmrs_pucch_estimator_test.cpp",
+      "patch": "@@ -77,20 +77,15 @@ std::ostream& operator<<(std::ostream& os, const test_case_t& test_case)\n } // namespace srsran\n \n template <>\n-struct fmt::formatter<srsran::dmrs_pucch_estimator::common_configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pucch_estimator::common_configuration> : ostream_formatter {};\n template <>\n-struct fmt::formatter<srsran::dmrs_pucch_estimator::format1_configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pucch_estimator::format1_configuration> : ostream_formatter {};\n template <>\n-struct fmt::formatter<srsran::dmrs_pucch_estimator::format2_configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pucch_estimator::format2_configuration> : ostream_formatter {};\n template <>\n-struct fmt::formatter<srsran::dmrs_pucch_estimator::format3_configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pucch_estimator::format3_configuration> : ostream_formatter {};\n template <>\n-struct fmt::formatter<srsran::dmrs_pucch_estimator::format4_configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pucch_estimator::format4_configuration> : ostream_formatter {};\n \n namespace {\n ",
+      "additions": 5,
+      "deletions": 10,
+      "changes": 15
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/dmrs_pusch_estimator_test.cpp",
+      "patch": "@@ -48,8 +48,7 @@ std::ostream& operator<<(std::ostream& os, test_case_t test_case)\n } // namespace srsran\n \n template <>\n-struct fmt::formatter<srsran::dmrs_pusch_estimator::configuration> : ostream_formatter {\n-};\n+struct fmt::formatter<srsran::dmrs_pusch_estimator::configuration> : ostream_formatter {};\n \n namespace {\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/dmrs_pusch_estimator_test_doubles.h",
+      "patch": "@@ -43,4 +43,4 @@ class dmrs_pusch_estimator_spy : public dmrs_pusch_estimator\n \n PHY_SPY_FACTORY_TEMPLATE(dmrs_pusch_estimator);\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/prs/prs_generator_vectortest.cpp",
+      "patch": "@@ -90,4 +90,4 @@ TEST_P(prsGeneratorFixture, FromTestVector)\n }\n \n // Creates test suite that combines all possible parameters.\n-INSTANTIATE_TEST_SUITE_P(prsPdschGenerator, prsGeneratorFixture, ::testing::ValuesIn(prs_generator_test_data));\n\\ No newline at end of file\n+INSTANTIATE_TEST_SUITE_P(prsPdschGenerator, prsGeneratorFixture, ::testing::ValuesIn(prs_generator_test_data));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/pss_processor_test.cpp",
+      "patch": "@@ -100,4 +100,4 @@ int main()\n   }\n \n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/ptrs/ptrs_pdsch_generator_vectortest.cpp",
+      "patch": "@@ -106,4 +106,4 @@ TEST_P(PtrsPdschGeneratorFixture, FromTestVector)\n // Creates test suite that combines all possible parameters.\n INSTANTIATE_TEST_SUITE_P(PtrsPdschGenerator,\n                          PtrsPdschGeneratorFixture,\n-                         ::testing::ValuesIn(ptrs_pdsch_generator_test_data));\n\\ No newline at end of file\n+                         ::testing::ValuesIn(ptrs_pdsch_generator_test_data));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/signal_processors/sss_processor_test.cpp",
+      "patch": "@@ -111,4 +111,4 @@ int main()\n   }\n \n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/vrb_to_prb_mapper_test.cpp",
+      "patch": "@@ -56,4 +56,4 @@ int main()\n {\n   test_case1_non_interleaved_common_ss();\n   test_case2_non_interleaved_other();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/csi_report/csi_report_on_pucch_validator_test.cpp",
+      "patch": "@@ -175,4 +175,4 @@ TEST_P(CsiReportPucchValidatorFixture, csiReportPucchUnpackingDeathTest)\n INSTANTIATE_TEST_SUITE_P(CsiReportPucchValidatorTest,\n                          CsiReportPucchValidatorFixture,\n                          ::testing::ValuesIn(csi_pucch_validator_test_data));\n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/csi_report/csi_report_on_pusch_validator_test.cpp",
+      "patch": "@@ -213,4 +213,4 @@ TEST_P(CsiReportPuschValidatorFixture, csiReportPuschUnpackingDeathTest)\n INSTANTIATE_TEST_SUITE_P(CsiReportPuschValidatorTest,\n                          CsiReportPuschValidatorFixture,\n                          ::testing::ValuesIn(csi_pusch_validator_test_data));\n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/pdcch/pdcch_candidates_common_test.cpp",
+      "patch": "@@ -53,4 +53,4 @@ TEST_P(PdcchCandidatesFixture, Common)\n \n INSTANTIATE_TEST_SUITE_P(PdcchCandidatesCommon,\n                          PdcchCandidatesFixture,\n-                         ::testing::ValuesIn(pdcch_candidates_common_test_data));\n\\ No newline at end of file\n+                         ::testing::ValuesIn(pdcch_candidates_common_test_data));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/pdcch/pdcch_candidates_ue_test.cpp",
+      "patch": "@@ -54,4 +54,4 @@ TEST_P(PdcchCandidatesFixture, Ue)\n   ASSERT_EQ(span<const uint8_t>(test_case.candidates), span<const uint8_t>(candidates));\n }\n \n-INSTANTIATE_TEST_SUITE_P(PdcchCandidatesUe, PdcchCandidatesFixture, ::testing::ValuesIn(pdcch_candidates_ue_test_data));\n\\ No newline at end of file\n+INSTANTIATE_TEST_SUITE_P(PdcchCandidatesUe, PdcchCandidatesFixture, ::testing::ValuesIn(pdcch_candidates_ue_test_data));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/pdcch/pdcch_type0_css_coreset_config_test.cpp",
+      "patch": "@@ -568,4 +568,4 @@ int main()\n   test_table_13_8();\n   test_table_13_9();\n   test_table_13_10();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/prach/prach_configuration_test.cpp",
+      "patch": "@@ -128,16 +128,16 @@ TEST(PrachConfiguration, Fr1Paired)\n     // Assert subframe number.\n     static const std::set<unsigned> config_subframe_4_9 = {87, 89, 91, 92, 94, 100, 198, 200, 202, 204, 205, 214};\n     static const std::set<unsigned> config_subframe_4   = {\n-          88,\n-          90,\n-          93,\n-          96,\n-          98,\n-          199,\n-          201,\n-          203,\n-          207,\n-          210,\n+        88,\n+        90,\n+        93,\n+        96,\n+        98,\n+        199,\n+        201,\n+        203,\n+        207,\n+        210,\n     };\n     static const std::set<unsigned> config_subframe_1     = {95, 101, 206, 209};\n     static const std::set<unsigned> config_subframe_7     = {97, 102, 208, 211};\n@@ -638,4 +638,4 @@ TEST(PrachConfiguration, Fr2Unpaired)\n       ASSERT_EQ(PRACH_CONFIG_RESERVED.duration, config.duration);\n     }\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22
+    },
+    {
+      "filename": "tests/unittests/ran/pucch/pucch_info_test.cpp",
+      "patch": "@@ -46,8 +46,7 @@ std::ostream& operator<<(std::ostream& os, const f2_code_rate_param& value)\n } // namespace pucch_info_test\n \n template <>\n-struct fmt::formatter<pucch_info_test::f2_code_rate_param> : ostream_formatter {\n-};\n+struct fmt::formatter<pucch_info_test::f2_code_rate_param> : ostream_formatter {};\n \n using namespace pucch_info_test;\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/ran/resource_allocation/resource_allocation_frequency_test.cpp",
+      "patch": "@@ -83,4 +83,4 @@ int main()\n   test_ra_frequency_type1();\n   test_ra_frequency_type1_special();\n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/sch/tbs_calculator_test.cpp",
+      "patch": "@@ -52,4 +52,4 @@ int main()\n   }\n \n   return 0;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/ssb_coreset0_freq_pos_checker.cpp",
+      "patch": "@@ -87,4 +87,4 @@ void srsran::test_ssb_coreset0_allocation(unsigned\n   // Verify that the CORESET0 doesn't exceed the given bandwidth.\n   ASSERT_GE(n_rbs,\n             crb_ssb - static_cast<unsigned>(coreset0_cfg.offset) + static_cast<unsigned>(coreset0_cfg.nof_rb_coreset));\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/rlc/rlc_am_pdu_test.cpp",
+      "patch": "@@ -420,7 +420,7 @@ void test_control_pdu_nacks_and_so_12bit()\n   test_delimit_logger      delimiter(\"Control PDU with NACKs and SO (12 bit)\");\n   const int                len = 15;\n   std::array<uint8_t, len> tv  = {\n-       0x08, 0x11, 0x80, 0x11, 0x1c, 0x00, 0x02, 0x00, 0x05, 0x11, 0x34, 0x00, 0x05, 0xff, 0xff};\n+      0x08, 0x11, 0x80, 0x11, 0x1c, 0x00, 0x02, 0x00, 0x05, 0x11, 0x34, 0x00, 0x05, 0xff, 0xff};\n   std::array<uint8_t, len> res = {};\n   byte_buffer              pdu = make_pdu_and_log(tv);\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/pdcch/pdcch_type0_css_occassions_test.cpp",
+      "patch": "@@ -31,8 +31,9 @@ TEST_P(pdcch_type0_css_occasions_fixture, fr1)\n \n   if (ss0_index > 15) {\n #if ASSERTS_ENABLED\n-    ASSERT_DEATH({ pdcch_type0_css_occasions_get_pattern1(config); },\n-                 R\"(SearchSpaceZero \\([0-9]{1,}\\) must be \\[0\\.\\.15\\] for FR1.)\");\n+    ASSERT_DEATH(\n+        { pdcch_type0_css_occasions_get_pattern1(config); },\n+        R\"(SearchSpaceZero \\([0-9]{1,}\\) must be \\[0\\.\\.15\\] for FR1.)\");\n #endif // ASSERTS_ENABLED\n     return;\n   }\n@@ -86,8 +87,9 @@ TEST_P(pdcch_type0_css_occasions_fixture, fr2)\n \n   if (ss0_index > 13) {\n #if ASSERTS_ENABLED\n-    ASSERT_DEATH({ pdcch_type0_css_occasions_get_pattern1(config); },\n-                 R\"(SearchSpaceZero \\([0-9]{1,}\\) must be \\[0\\.\\.13\\] for FR2.)\");\n+    ASSERT_DEATH(\n+        { pdcch_type0_css_occasions_get_pattern1(config); },\n+        R\"(SearchSpaceZero \\([0-9]{1,}\\) must be \\[0\\.\\.13\\] for FR2.)\");\n #endif // ASSERTS_ENABLED\n     return;\n   }\n@@ -129,4 +131,4 @@ TEST_P(pdcch_type0_css_occasions_fixture, fr2)\n \n INSTANTIATE_TEST_SUITE_P(pdcch_type0_css_occasions,\n                          pdcch_type0_css_occasions_fixture,\n-                         ::testing::Combine(::testing::Range(0U, 17U), ::testing::Range(1U, 3U)));\n\\ No newline at end of file\n+                         ::testing::Combine(::testing::Range(0U, 17U), ::testing::Range(1U, 3U)));",
+      "additions": 7,
+      "deletions": 5,
+      "changes": 12
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/pucch/pucch_default_resource_test.cpp",
+      "patch": "@@ -115,4 +115,4 @@ TEST_P(PucchDefaultResourceFixture, Table_9_2_1_1)\n // Creates test suite that combines all possible parameters. Denote zero_correlation_zone exceeds the maximum by one.\n INSTANTIATE_TEST_SUITE_P(PucchDefaultResourceFixture,\n                          PucchDefaultResourceFixture,\n-                         ::testing::Combine(::testing::Range(0U, 16U), ::testing::Values(52, 106)));\n\\ No newline at end of file\n+                         ::testing::Combine(::testing::Range(0U, 16U), ::testing::Values(52, 106)));",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/ue_cell_test.cpp",
+      "patch": "@@ -94,7 +94,7 @@ class ue_cell_tester : public ::testing::Test\n                                    cell_cfg.ul_cfg_common.init_ul_bwp.rach_cfg_common->ra_con_res_timer,\n                                    std::nullopt,\n                                    ul_lc_ch_mng,\n-                                   {},\n+                                                          {},\n                                    logger};\n };\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/ue_harq_link_adaptation_test.cpp",
+      "patch": "@@ -84,8 +84,8 @@ class ue_harq_link_adaptation_test : public ::testing::Test\n                                   std::nullopt};\n     const dl_msg_alloc      ue_pdsch{\n         pdsch,\n-        {{dl_msg_tb_info{{dl_msg_lc_info{lcid_dl_sch_t{lcid_t::LCID_SRB1}, cw.tb_size_bytes - 4, {}}}}}},\n-        {ue_ptr->ue_index}};\n+             {{dl_msg_tb_info{{dl_msg_lc_info{lcid_dl_sch_t{lcid_t::LCID_SRB1}, cw.tb_size_bytes - 4, {}}}}}},\n+             {ue_ptr->ue_index}};\n \n     dl_harq_alloc_context ctxt{dci_dl_rnti_config_type::c_rnti_f1_1, pdsch.codewords[0].mcs_index, std::nullopt, 15};\n     h_dl.save_grant_params(ctxt, ue_pdsch);",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_add_test.cpp",
+      "patch": "@@ -128,4 +128,4 @@ int main()\n     test_i16_add(N);\n     test_i8_add(N);\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_bit_test.cpp",
+      "patch": "@@ -304,4 +304,4 @@ TEST_P(SrsvecBitFixture, SrsvecBitTestUnpackVectorOffset)\n \n INSTANTIATE_TEST_SUITE_P(SrsvecBitTest, SrsvecBitFixture, ::testing::Values(1, 5, 7, 19, 23, 32));\n \n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_convert_test.cpp",
+      "patch": "@@ -294,4 +294,4 @@ TEST_P(SrsvecConvertFixture, SrsvecConvertTestScaledInt16ComplexFloat16Random)\n \n INSTANTIATE_TEST_SUITE_P(SrsvecConvertTest, SrsvecConvertFixture, ::testing::Values(1, 5, 7, 19, 23, 257, 1234));\n \n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srsvec/srsvec_sc_prod_test.cpp",
+      "patch": "@@ -116,4 +116,4 @@ int main()\n     test_sc_prod_cfc(N);\n     test_sc_prod_fff(N);\n   }\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/async_queue_test.cpp",
+      "patch": "@@ -157,4 +157,4 @@ TEST(async_queue_test, async_queue_supports_reentrant_push)\n   ASSERT_TRUE(q.try_push(10));\n \n   ASSERT_EQ(t.get(), 15);\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/async_task_test.cpp",
+      "patch": "@@ -222,4 +222,4 @@ int main()\n   test_lazy_task_start();\n   task_chaining_test::run();\n   task_cleanup::run();\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/backtrace_test.cpp",
+      "patch": "@@ -37,4 +37,4 @@ int main(int argc, char** argv)\n   srsran::enable_backtrace();\n \n   return function1(\"segfault\");\n-}\n\\ No newline at end of file\n+}",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/complex_normal_random_test.cpp",
+      "patch": "@@ -131,4 +131,4 @@ TYPED_TEST(ComplexNormalFixture, CheckComparison)\n   ASSERT_TRUE(are_different) << \"Comparison with itself failed.\";\n }\n \n-} // namespace\n\\ No newline at end of file\n+} // namespace",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 300,
+  "commit_details_path": ".\\commit_metadata\\a4aa77d.json"
+}

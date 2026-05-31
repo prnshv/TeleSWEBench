@@ -1,0 +1,22 @@
+{
+  "commit_id": "d674757cfbff899d25408cb7701951d74b56a281",
+  "commit_sha_short": "d674757",
+  "commit_folder": "d674757",
+  "commit_message": "ran: fixup in DCI packing function",
+  "commit_message_first_line": "ran: fixup in DCI packing function",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/d674757cfbff899d25408cb7701951d74b56a281",
+  "commit_date": "2023-04-12T07:27:58Z",
+  "parent_sha": "c037a65c8d5e6352103f8afcf353da1d9cca9335",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/c037a65c8d5e6352103f8afcf353da1d9cca9335",
+  "code_changes": [
+    {
+      "filename": "lib/ran/pdcch/dci_packing.cpp",
+      "patch": "@@ -219,7 +219,6 @@ static units::bits dl_ports_size(optional<dmrs_config_type> dmrs_A_type,\n // Computes the SRS resource indicator field size for DCI format 0_1.\n static unsigned srs_resource_indicator_size(const dci_size_config& dci_config)\n {\n-  unsigned srs_res_size;\n   if (dci_config.tx_config_non_codebook) {\n     srsran_assert(dci_config.pusch_max_layers.has_value(),\n                   \"Maximum number of PUSCH layers is required for non-codebook transmission\");\n@@ -231,21 +230,18 @@ static unsigned srs_resource_indicator_size(const dci_size_config& dci_config)\n     // Derived from TS38.212 Table 7.3.1.1.2-28.\n     switch (dci_config.nof_srs_resources.value()) {\n       case 2:\n-        srs_res_size = 1;\n-        break;\n+        return 1;\n       case 3:\n       case 4:\n-        srs_res_size = 2;\n-        break;\n+        return 2;\n       default:\n         srsran_assertion_failure(\"Invalid number of SRS resources, i.e., {}\", dci_config.nof_srs_resources.value());\n     }\n-  } else {\n-    // For codebook based transmission, the number of SRS resources is up to 2, therefore, the SRS resource indicator\n-    // always occupies 1 bit.\n-    srs_res_size = 1;\n   }\n-  return srs_res_size;\n+\n+  // For codebook based transmission, the number of SRS resources is up to 2, therefore, the SRS resource indicator\n+  // always occupies 1 bit.\n+  return 1;\n }\n \n // Computes the number of information bits before padding for a DCI format 0_1 message.",
+      "additions": 6,
+      "deletions": 10,
+      "changes": 16
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\d674757.json"
+}

@@ -1,0 +1,953 @@
+{
+  "commit_id": "f58bf33e7cc878a9df1f6ca86473442a97cde789",
+  "commit_sha_short": "f58bf33",
+  "commit_folder": "f58bf33",
+  "commit_message": "Implement an error handler and break an srslog dependency",
+  "commit_message_first_line": "Implement an error handler and break an srslog dependency",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/f58bf33e7cc878a9df1f6ca86473442a97cde789",
+  "commit_date": "2024-06-13T11:24:42Z",
+  "parent_sha": "3e6e93e4621525c9a34ffd3bdc152c34e0c89fc7",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3e6e93e4621525c9a34ffd3bdc152c34e0c89fc7",
+  "code_changes": [
+    {
+      "filename": "apps/cu/cu.cpp",
+      "patch": "@@ -103,6 +103,12 @@ static void cleanup_signal_handler()\n   srslog::flush();\n }\n \n+/// Function to call when an error is reported by the application.\n+static void app_error_report_handler()\n+{\n+  srslog::flush();\n+}\n+\n static void initialize_log(const std::string& filename)\n {\n   srslog::sink* log_sink = (filename == \"stdout\") ? srslog::create_stdout_sink() : srslog::create_file_sink(filename);\n@@ -150,6 +156,9 @@ std::unique_ptr<srs_cu_up::cu_up_interface> app_build_cu_up(const cu_up_unit_con\n \n int main(int argc, char** argv)\n {\n+  // Set the application error handler.\n+  set_error_handler(app_error_report_handler);\n+\n   static constexpr std::string_view app_name = \"CU\";\n   app_services::application_message_banners::announce_app_and_version(app_name);\n ",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    },
+    {
+      "filename": "apps/du/du.cpp",
+      "patch": "@@ -90,6 +90,12 @@ static void cleanup_signal_handler()\n   srslog::flush();\n }\n \n+/// Function to call when an error is reported by the application.\n+static void app_error_report_handler()\n+{\n+  srslog::flush();\n+}\n+\n static void initialize_log(const std::string& filename)\n {\n   srslog::sink* log_sink = (filename == \"stdout\") ? srslog::create_stdout_sink() : srslog::create_file_sink(filename);\n@@ -127,6 +133,9 @@ static void register_app_logs(const srs_du::log_appconfig& log_cfg, const dynami\n \n int main(int argc, char** argv)\n {\n+  // Set the application error handler.\n+  set_error_handler(app_error_report_handler);\n+\n   static constexpr std::string_view app_name = \"DU\";\n   app_services::application_message_banners::announce_app_and_version(app_name);\n ",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    },
+    {
+      "filename": "apps/examples/radio/radio_notifier_sample.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/radio/radio_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/gnb/gnb.cpp",
+      "patch": "@@ -109,6 +109,12 @@ static void cleanup_signal_handler()\n   srslog::flush();\n }\n \n+/// Function to call when an error is reported by the application.\n+static void app_error_report_handler()\n+{\n+  srslog::flush();\n+}\n+\n static void initialize_log(const std::string& filename)\n {\n   srslog::sink* log_sink = (filename == \"stdout\") ? srslog::create_stdout_sink() : srslog::create_file_sink(filename);\n@@ -151,6 +157,9 @@ static void register_app_logs(const log_appconfig&            log_cfg,\n \n int main(int argc, char** argv)\n {\n+  // Set the application error handler.\n+  set_error_handler(app_error_report_handler);\n+\n   static constexpr std::string_view app_name = \"gNB\";\n   app_services::application_message_banners::announce_app_and_version(app_name);\n ",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    },
+    {
+      "filename": "apps/services/metrics_hub.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"metrics_hub.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/services/stdin_command_dispatcher.cpp",
+      "patch": "@@ -10,6 +10,8 @@\n \n #include \"stdin_command_dispatcher.h\"\n #include \"stdin_command_dispatcher_utils.h\"\n+#include \"srsran/srslog/srslog.h\"\n+#include <csignal>\n #include <fcntl.h>\n #include <unistd.h>\n ",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "apps/services/stdin_command_dispatcher.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"application_command.h\"\n #include \"srsran/adt/span.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/io/io_broker.h\"\n #include <string>\n #include <unordered_map>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config.h",
+      "patch": "@@ -30,6 +30,7 @@\n #include \"srsran/ran/sib/system_info_config.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <map>\n #include <string>\n #include <vector>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "apps/units/flexible_du/du_high/du_high_config_translators.cpp",
+      "patch": "@@ -9,9 +9,7 @@\n  */\n \n #include \"du_high_config_translators.h\"\n-\n #include \"du_high_config.h\"\n-\n #include \"srsran/du/du_cell_config_helpers.h\"\n #include \"srsran/du/du_cell_config_validation.h\"\n #include \"srsran/du/du_update_config_helpers.h\"\n@@ -22,6 +20,7 @@\n #include \"srsran/scheduler/config/cell_config_builder_params.h\"\n #include \"srsran/scheduler/config/csi_helper.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config_validator.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/adt/span.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/adt/static_vector.h\"\n+#include \"srsran/srslog/log_channel.h\"\n #include \"fmt/format.h\"\n #include <algorithm>\n #include <array>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/adt/unique_function.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/support/error_handling.h\"\n+#include <cstddef>\n #include <cstdint>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/fapi/message_validators.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/adt/expected.h\"\n #include \"srsran/fapi/validator_report.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n namespace fapi {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/fapi_adaptor/phy/phy_fapi_adaptor_factory.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/fapi_adaptor/precoding_matrix_repository.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_repository.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include <memory>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/fapi_adaptor/precoding_matrix_mapper.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/adt/optional.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <vector>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/ofh/compression/compression_factory.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/ofh/compression/iq_compressor.h\"\n #include \"srsran/ofh/compression/iq_decompressor.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/ofh/ethernet/ethernet_frame_pool.h",
+      "patch": "@@ -18,6 +18,7 @@\n #include \"srsran/ofh/timing/slot_symbol_point.h\"\n #include \"srsran/ran/frame_types.h\"\n #include \"srsran/ran/slot_point.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/units.h\"\n #include <mutex>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/ofh/ofh_sector_config.h",
+      "patch": "@@ -20,6 +20,7 @@\n #include \"srsran/ofh/transmitter/ofh_transmitter_configuration.h\"\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <string>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/ofh/serdes/ofh_serdes_factories.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ofh/serdes/ofh_cplane_message_builder.h\"\n #include \"srsran/ofh/serdes/ofh_uplane_message_builder.h\"\n #include \"srsran/ofh/serdes/ofh_uplane_message_decoder.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/phy/lower/lower_phy_configuration.h",
+      "patch": "@@ -23,6 +23,7 @@\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/n_ta_offset.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/phy/upper/signal_processors/signal_processor_factories.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/phy/upper/signal_processors/port_channel_estimator.h\"\n #include \"srsran/phy/upper/signal_processors/pss_processor.h\"\n #include \"srsran/phy/upper/signal_processors/sss_processor.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/phy/upper/signal_processors/srs/srs_estimator_factory.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"srsran/phy/upper/sequence_generators/sequence_generator_factories.h\"\n #include \"srsran/phy/upper/signal_processors/srs/srs_estimator.h\"\n #include \"srsran/phy/upper/signal_processors/srs/srs_estimator_configuration_validator.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/ru/ru_dummy_configuration.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/ru/ru_timing_notifier.h\"\n #include \"srsran/ru/ru_uplink_plane.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/scheduler/config/scheduler_expert_config.h",
+      "patch": "@@ -22,6 +22,7 @@\n #include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/sib/sib_configuration.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n+#include <chrono>\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/security/security.h",
+      "patch": "@@ -19,6 +19,7 @@\n #include \"srsran/adt/optional.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pci.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include \"fmt/format.h\"\n #include <array>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/async/protocol_transaction_manager.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"async_event_source.h\"\n #include \"manual_event.h\"\n #include \"srsran/adt/expected.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/compiler.h\"\n #include \"srsran/support/timers.h\"\n #include <array>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/cpu_architecture_info.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/adt/bounded_bitset.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/error_handling.h",
+      "patch": "@@ -10,48 +10,71 @@\n \n #pragma once\n \n-#include \"srsran/srslog/srslog.h\"\n-#include <csignal>\n+#include \"fmt/core.h\"\n+#include <atomic>\n+#include <cstdio>\n+#include <cstdlib>\n \n namespace srsran {\n \n-/// \\brief Command to terminate application with an error message, ensuring first that the log is flushed.\n+/// Callback type for the error handler.\n+using srsran_error_handler = void (*)();\n+/// Error handler instance.\n+inline std::atomic<srsran_error_handler> error_report_handler = nullptr;\n+\n+/// Sets a new error handler to be used whenever a serious (non-recoverable) error is encountered.\n+inline void set_error_handler(srsran_error_handler handler)\n+{\n+  error_report_handler = handler;\n+}\n+\n+/// \\brief Command to terminate application with an error message.\n+///\n /// Attribute noinline is used to signal to the compiler that this path should rarely occur and therefore doesn't need\n /// to get optimized.\n template <typename... Args>\n [[gnu::noinline, noreturn]] inline bool srsran_terminate(const char* fmt, Args&&... args) noexcept\n {\n-  srslog::flush();\n+  if (auto handler = error_report_handler.exchange(nullptr)) {\n+    handler();\n+  }\n   ::fflush(stdout);\n   fmt::print(stderr, fmt, std::forward<Args>(args)...);\n+\n   std::abort();\n }\n \n-/// \\brief Reports an error and closes the application gracefully. This function is intended to be used for error\n-/// conditions that may be triggered by the user or through invalid configurations.\n+/// \\brief Reports an error and closes the application gracefully.\n+///\n+/// This function is intended to be used for error conditions that may be triggered by the user or through invalid\n+/// configurations.\n template <typename... Args>\n [[gnu::noinline, noreturn]] inline void report_error(const char* reason_fmt, Args&&... args) noexcept\n {\n-  srslog::flush();\n+  if (auto handler = error_report_handler.exchange(nullptr)) {\n+    handler();\n+  }\n   ::fflush(stdout);\n   fmt::print(stderr, \"srsRAN ERROR: {}\\n\", fmt::format(reason_fmt, std::forward<Args>(args)...));\n \n   std::quick_exit(1);\n }\n \n-/// \\brief Reports a fatal error and handles the application shutdown. This function is intended to be used for\n-/// error conditions that aren't neither caught by the compiler nor possible to handle by the application at runtime.\n+/// \\brief Reports a fatal error and handles the application shutdown.\n+///\n+/// This function is intended to be used for error conditions that are neither caught by the compiler nor possible to\n+/// be handled by the application at runtime.\n template <typename... Args>\n [[gnu::noinline, noreturn]] inline void report_fatal_error(const char* reason_fmt, Args&&... args) noexcept\n {\n   srsran_terminate(\"srsRAN FATAL ERROR: {}\\n\", fmt::format(reason_fmt, std::forward<Args>(args)...));\n }\n \n-/// \\brief Verifies if condition is true. If not, report a fatal error and close application.\n+/// \\brief Verifies if condition is true. If not, report a fatal error and closes the application.\n #define report_fatal_error_if_not(condition, fmtstr, ...)                                                              \\\n   (void)((condition) || (report_fatal_error(fmtstr, ##__VA_ARGS__), 0))\n \n-/// \\brief Verifies if condition is true. If not, report an error and close application.\n+/// \\brief Verifies if condition is true. If not, report an error and close the application.\n #define report_error_if_not(condition, fmtstr, ...) (void)((condition) || (report_error(fmtstr, ##__VA_ARGS__), 0))\n \n } // namespace srsran",
+      "additions": 34,
+      "deletions": 11,
+      "changes": 45
+    },
+    {
+      "filename": "include/srsran/support/executors/strand_executor.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/adt/concurrent_queue.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/detail/priority_task_queue.h\"\n #include \"srsran/support/executors/detail/task_executor_utils.h\"\n #include \"srsran/support/executors/task_executor.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker_pool.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"unique_thread.h\"\n #include \"srsran/adt/mpmc_queue.h\"\n #include \"srsran/adt/mutexed_mpmc_queue.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/detail/priority_task_queue.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n@@ -283,4 +284,4 @@ inline std::unique_ptr<task_executor> make_priority_task_worker_pool_executor_pt\n   return std::make_unique<priority_task_worker_pool_executor>(prio, worker);\n }\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "include/srsran/support/io/sctp_socket.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/adt/expected.h\"\n #include \"srsran/adt/optional.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/io/unique_fd.h\"\n #include <chrono>\n #include <cstdint>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/support/srsran_assert.h",
+      "patch": "@@ -10,49 +10,53 @@\n \n #pragma once\n \n-#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/compiler.h\"\n-#include <cstdio>\n+#include \"srsran/support/error_handling.h\"\n+#include \"fmt/format.h\"\n \n namespace srsran {\n-\n namespace detail {\n \n-/// \\brief helper function to format and print assertion messages. Before printing, the srslog is flushed.\n+/// \\brief Helper function to format and print assertion messages.\n+///\n /// \\param filename file name where assertion failed.\n /// \\param line line in which assertion was placed.\n /// \\param funcname function name where assertion failed.\n /// \\param condstr assertion condition that failed.\n /// \\param msg additional assertion message.\n-[[gnu::noinline, noreturn]] inline void print_and_abort(const char*        filename,\n-                                                        int                line,\n-                                                        const char*        funcname,\n-                                                        const char*        condstr = nullptr,\n-                                                        const std::string& msg     = \"\") noexcept\n+[[gnu::noinline, noreturn]] inline void print_and_abort(const char*             filename,\n+                                                        int                     line,\n+                                                        const char*             funcname,\n+                                                        const char*             condstr = nullptr,\n+                                                        const std::string_view& msg     = \"\") noexcept\n {\n   fmt::memory_buffer fmtbuf;\n+\n   fmt::format_to(fmtbuf, \"{}:{}: {}: \\n\", filename, line, funcname);\n   if (condstr == nullptr) {\n     fmt::format_to(fmtbuf, \"Assertion failed\");\n   } else {\n     fmt::format_to(fmtbuf, \"Assertion `{}' failed\", condstr);\n   }\n-  if (not msg.empty()) {\n+  if (!msg.empty()) {\n     fmt::format_to(fmtbuf, \" - {}\", msg);\n   }\n   if (msg.back() != '.') {\n     fmt::format_to(fmtbuf, \".\");\n   }\n   fmt::format_to(fmtbuf, \"\\n\");\n-  fmtbuf.push_back('\\0'); // make it a c-string\n+  // Make it a C-string.\n+  fmtbuf.push_back('\\0');\n+\n+  if (auto handler = error_report_handler.exchange(nullptr)) {\n+    handler();\n+  }\n \n-  srslog::flush();\n   fmt::print(stderr, \"{}\", fmtbuf.data());\n   std::abort();\n }\n \n } // namespace detail\n-\n } // namespace srsran\n \n // NOLINTBEGIN",
+      "additions": 17,
+      "deletions": 13,
+      "changes": 30
+    },
+    {
+      "filename": "include/srsran/support/timers.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/adt/intrusive_list.h\"\n #include \"srsran/adt/unique_function.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <chrono>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/cu_cp/metrics_handler/metrics_handler_impl.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"metrics_handler_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/sync_task_executor.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <thread>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/cu_cp/up_resource_manager/up_resource_manager_impl.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"up_resource_manager_impl.h\"\n #include \"up_resource_manager_helpers.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace srs_cu_cp;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du/adapters/fapi_factory.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"fapi_factory.h\"\n #include \"srsran/fapi_adaptor/mac/mac_fapi_adaptor_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/error_handling.h\"\n #include <utility>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_high/adapters/mac_test_mode_adapter.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/du/du_test_config.h\"\n #include \"srsran/mac/mac.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <unordered_map>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_manager/du_cell_manager.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"du_cell_manager.h\"\n #include \"srsran/du/du_cell_config_validation.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_manager/du_ue/du_bearer.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/du_manager/du_manager_params.h\"\n #include \"srsran/f1u/du/f1u_bearer_factory.h\"\n #include \"srsran/gtpu/gtpu_teid_pool.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_manager/du_ue/du_ue_controller_impl.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"du_ue_manager_repository.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n namespace srs_du {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_manager/procedures/initial_du_setup_procedure.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/f1ap/du/f1ap_du_connection_manager.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n namespace srs_du {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/du_manager/ran_resource_management/du_ran_resource_manager_impl.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/mac/config/mac_config_helpers.h\"\n #include \"srsran/rlc/rlc_srb_config_factory.h\"\n #include \"srsran/scheduler/config/serving_cell_config_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_connection_handler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"f1ap_du_connection_handler.h\"\n #include \"srsran/f1ap/du/f1ap_du.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <thread>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_connection_handler.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/f1ap/du/f1ap_du_connection_manager.h\"\n #include \"srsran/f1ap/gateways/f1c_connection_client.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/async/manual_event.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n@@ -57,4 +58,4 @@ class f1ap_du_connection_handler\n };\n \n } // namespace srs_du\n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/fapi/message_buffering/buffered_slot_gateway_impl.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"buffered_slot_gateway_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace fapi;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi/message_buffering/buffered_slot_gateway_impl.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/fapi/messages.h\"\n #include \"srsran/fapi/slot_message_gateway.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <atomic>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi/message_buffering/buffered_slot_gateway_task_dispatcher.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"buffered_slot_gateway_task_dispatcher.h\"\n #include \"srsran/fapi/messages.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_data_msg_translator.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"fapi_to_mac_data_msg_translator.h\"\n #include \"srsran/fapi/messages.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_fapi_adaptor_impl.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"mac_fapi_adaptor_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/fapi_to_phy_translator.cpp",
+      "patch": "@@ -24,6 +24,7 @@\n #include \"srsran/phy/upper/downlink_processor.h\"\n #include \"srsran/phy/upper/uplink_request_processor.h\"\n #include \"srsran/phy/upper/uplink_slot_pdu_repository.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/fapi_to_phy_translator.h",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"srsran/fapi_adaptor/precoding_matrix_repository.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_repository.h\"\n #include \"srsran/phy/upper/channel_processors/pdsch_processor.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include <atomic>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_to_fapi_results_event_translator.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/fapi/slot_data_message_notifier.h\"\n #include \"srsran/phy/upper/upper_phy_rx_results_notifier.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <functional>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/fapi_adaptor/precoding_matrix_mapper.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"srsran/fapi_adaptor/precoding_matrix_mapper.h\"\n #include \"precoding_matrix_mapper_functions.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/srsran_assert.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/gateways/sctp_network_gateway_common_impl.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"sctp_network_gateway_common_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <netdb.h>\n #include <netinet/sctp.h>\n #include <sys/socket.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/gateways/sctp_network_server_impl.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"sctp_network_server_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/io/sockets.h\"\n #include <netinet/sctp.h>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/gtpu/gtpu_demux_impl.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/gtpu/gtpu_demux.h\"\n #include \"srsran/pcap/dlt_pcap.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include \"fmt/format.h\"\n #include <mutex>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/gtpu/ngu_gateway.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"srsran/gtpu/ngu_gateway.h\"\n #include \"srsran/gateways/udp_network_gateway_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/io/io_broker.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/hal/dpdk/bbdev/ldpc/bbdev_ldpc_decoder.h",
+      "patch": "@@ -16,6 +16,7 @@\n \n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/hal/phy/upper/channel_processors/pusch/hw_accelerator_pusch_dec.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <rte_bbdev_op.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/hal/dpdk/bbdev/ldpc/bbdev_ldpc_encoder.h",
+      "patch": "@@ -16,6 +16,7 @@\n \n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/hal/phy/upper/channel_processors/hw_accelerator_pdsch_enc.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <rte_bbdev_op.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_config.h",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"srsran/mac/mac.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n #include \"srsran/pcap/dlt_pcap.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/ue_reconfiguration_procedure.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"../mac_config_interfaces.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/async/async_task.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_dl/cell_dl_harq_buffer_pool.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/scheduler/harq_id.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_executor.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/mac/mac_sched/rlf_detector.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/mac/mac_config.h\"\n #include \"srsran/mac/mac_ue_configurator.h\"\n #include \"srsran/ran/du_types.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <array>\n #include <atomic>\n@@ -153,4 +154,4 @@ class rlf_detector\n   std::array<ue_context, MAX_NOF_DU_UES> ues;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_ul/ul_bsr.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"ul_bsr.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ngap/ngap_context.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/ngap/ngap_types.h\"\n #include \"srsran/ran/gnb_id.h\"\n+#include <chrono>\n #include <string>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_bfp_impl.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"quantizer.h\"\n #include \"srsran/ofh/compression/iq_compressor.h\"\n #include \"srsran/ofh/compression/iq_decompressor.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n namespace ofh {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_none_impl.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/ofh/compression/iq_compressor.h\"\n #include \"srsran/ofh/compression/iq_decompressor.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n namespace ofh {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/receiver/ofh_rx_window_checker.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"srsran/ofh/receiver/ofh_receiver_timing_parameters.h\"\n #include \"srsran/ofh/timing/ofh_ota_symbol_boundary_notifier.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <atomic>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/serdes/ofh_uplane_message_builder_impl.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/ofh/serdes/ofh_uplane_message_builder.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n namespace ofh {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/support/prach_context_repository.h",
+      "patch": "@@ -18,6 +18,7 @@\n #include \"srsran/ran/prach/prach_constants.h\"\n #include \"srsran/ran/prach/prach_frequency_mapping.h\"\n #include \"srsran/ran/prach/prach_preamble_information.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <mutex>\n #include <numeric>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/support/uplink_context_repository.h",
+      "patch": "@@ -20,6 +20,7 @@\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/resource_allocation/ofdm_symbol_range.h\"\n #include \"srsran/ran/resource_block.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <mutex>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/timing/realtime_timing_worker.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/ofh/timing/ofh_ota_symbol_boundary_notifier_manager.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/slot_point.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include <atomic>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/transmitter/ofh_data_flow_uplane_downlink_data_impl.h",
+      "patch": "@@ -18,6 +18,7 @@\n #include \"srsran/ofh/ethernet/vlan_ethernet_frame_builder.h\"\n #include \"srsran/ofh/serdes/ofh_uplane_message_builder.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n struct resource_grid_context;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/transmitter/ofh_tx_window_checker.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/ofh/timing/ofh_ota_symbol_boundary_notifier.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <atomic>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/ofh/transmitter/sequence_identifier_generator.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ofh/ofh_constants.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <array>\n+#include <atomic>\n \n namespace srsran {\n namespace ofh {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/lower/processors/uplink/prach/prach_processor_worker.h",
+      "patch": "@@ -20,6 +20,7 @@\n #include \"srsran/phy/support/prach_buffer_context.h\"\n #include \"srsran/ran/phy_time_unit.h\"\n #include \"srsran/ran/prach/prach_constants.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/srsvec/aligned_vec.h\"\n #include \"srsran/support/executors/task_executor.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/support/resource_grid_pool_asynchronous_impl.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/phy/support/resource_grid.h\"\n #include \"srsran/phy/support/resource_grid_context.h\"\n #include \"srsran/phy/support/resource_grid_pool.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/event_tracing.h\"\n #include <memory>\n #include <vector>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/upper/downlink_processor_single_executor_impl.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"srsran/instrumentation/traces/du_traces.h\"\n #include \"srsran/phy/support/resource_grid_context.h\"\n #include \"srsran/phy/upper/downlink_processor.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <mutex>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/upper/uplink_processor_impl.h",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"srsran/phy/upper/signal_processors/srs/srs_estimator.h\"\n #include \"srsran/phy/upper/uplink_processor.h\"\n #include \"srsran/phy/upper/upper_phy_rx_results_notifier.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <utility>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/radio/uhd/radio_uhd_device.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"radio_uhd_rx_stream.h\"\n #include \"radio_uhd_tx_stream.h\"\n #include \"srsran/radio/radio_session.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n /// \\brief Determines whether a frequency is valid within a range.\n ///",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/radio/zmq/radio_config_zmq_validator.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"radio_config_zmq_validator.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"fmt/format.h\"\n #include <regex>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/rlc/rlc_am_pdu.h",
+      "patch": "@@ -11,6 +11,7 @@\n \n #include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/rlc/rlc_config.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/format_utils.h\"\n #include \"fmt/format.h\"\n \n@@ -283,6 +284,7 @@ inline size_t rlc_am_write_data_pdu_header(span<uint8_t> buf, const rlc_am_pdu_h\n } // namespace srsran\n \n namespace fmt {\n+\n template <>\n struct formatter<srsran::rlc_am_pdu_header> {\n   template <typename ParseContext>\n@@ -351,4 +353,5 @@ struct formatter<srsran::rlc_am_status_pdu> {\n     return format_to(ctx.out(), \"{}\", srsran::to_c_str(buffer));\n   }\n };\n+\n } // namespace fmt",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/rrc/ue/meas_types_validators.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/rrc/meas_types_validators.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n using namespace srs_cu_cp;\n@@ -34,4 +35,4 @@ bool srsran::srs_cu_cp::validate_config(const rrc_cond_event_a3& event)\n   // TODO: add range checks for hysteresis and time to trigger\n \n   return true;\n-}\n\\ No newline at end of file\n+}",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/ru/generic/ru_radio_notifier_handler.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/radio/radio_notification_handler.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include \"fmt/format.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/paging_scheduler.cpp",
+      "patch": "@@ -17,6 +17,7 @@\n #include \"../support/sch_pdu_builder.h\"\n #include \"../support/ssb_helpers.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/paging_scheduler.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"../pdcch_scheduling/pdcch_resource_allocator.h\"\n #include \"../support/slot_event_list.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <unordered_map>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/prach_scheduler.cpp",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ran/prach/prach_cyclic_shifts.h\"\n #include \"srsran/ran/prach/prach_frequency_mapping.h\"\n #include \"srsran/ran/prach/prach_preamble_information.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/compiler.h\"\n #include \"srsran/support/error_handling.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/prach_scheduler.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"../cell/resource_grid.h\"\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/ran/slot_point.h\"\n+#include \"srsran/srslog/logger.h\"\n #include <bitset>\n \n namespace srsran {\n@@ -67,4 +68,4 @@ class prach_scheduler\n   static_vector<cached_prach_occasion, MAX_PRACH_OCCASIONS_PER_SLOT> cached_prachs;\n };\n \n-} // namespace srsran\n\\ No newline at end of file\n+} // namespace srsran",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.h",
+      "patch": "@@ -17,6 +17,7 @@\n #include \"../ue_scheduling/harq_process.h\"\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <deque>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/si_message_scheduler.cpp",
+      "patch": "@@ -16,6 +16,7 @@\n #include \"../support/pdsch/pdsch_resource_allocation.h\"\n #include \"../support/prbs_calculator.h\"\n #include \"../support/sch_pdu_builder.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/si_message_scheduler.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"../pdcch_scheduling/pdcch_resource_allocator.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/sib_scheduler.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ssb_scheduler.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"srsran/ran/frame_types.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ssb_scheduler.h",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/config/sched_config_manager.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"../logging/scheduler_metrics_ue_configurator.h\"\n #include \"srsran/scheduler/config/scheduler_cell_config_validator.h\"\n #include \"srsran/scheduler/config/scheduler_ue_config_validator.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/config/sched_config_manager.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"ue_configuration.h\"\n #include \"srsran/adt/detail/operations.h\"\n #include \"srsran/scheduler/config/scheduler_config.h\"\n+#include \"srsran/srslog/logger.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"scheduler_result_logger.h\"\n #include \"srsran/ran/csi_report/csi_report_formatters.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.h",
+      "patch": "@@ -11,6 +11,7 @@\n #pragma once\n \n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/format_utils.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/policy/scheduler_time_rr.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n #include \"scheduler_time_rr.h\"\n #include \"../support/pdsch/pdsch_resource_allocation.h\"\n #include \"../support/pusch/pusch_td_resource_indices.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_allocator_impl.cpp",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"srsran/ran/csi_report/csi_report_config_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n #include \"srsran/ran/pucch/pucch_info.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n //////////////     Helper functions       //////////////\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_guardbands_scheduler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"pucch_guardbands_scheduler.h\"\n #include \"../cell/resource_grid.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/uci_scheduling/uci_allocator_impl.cpp",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pusch_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_pusch_size.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/uci_scheduling/uci_scheduler_impl.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"../cell/resource_grid.h\"\n #include \"../support/sched_result_helpers.h\"\n #include \"uci_allocator_impl.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/harq_process.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"harq_process.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/error_handling.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/harq_process.h",
+      "patch": "@@ -21,6 +21,7 @@\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/scheduler/scheduler_dci.h\"\n+#include \"srsran/srslog/logger.h\"\n #include \"srsran/support/format_utils.h\"\n #include <numeric>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"ue.h\"\n #include \"../support/dmrs_helpers.h\"\n #include \"../support/prbs_calculator.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell.cpp",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"../support/prbs_calculator.h\"\n #include \"srsran/ran/sch/tbs_calculator.h\"\n #include \"srsran/scheduler/scheduler_feedback_handler.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_fallback_scheduler.cpp",
+      "patch": "@@ -17,6 +17,7 @@\n #include \"../support/pusch/pusch_td_resource_indices.h\"\n #include \"srsran/mac/mac_pdu_format.h\"\n #include \"srsran/ran/sch/tbs_calculator.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_repository.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"ue_repository.h\"\n #include \"../cell/resource_grid_util.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/adt/detail/byte_buffer_segment_pool.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/memory_pool/linear_memory_allocator.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/byte_buffer_chain.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"srsran/adt/byte_buffer_chain.h\"\n #include \"srsran/adt/detail/byte_buffer_segment_pool.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/memory_pool/memory_pool_utils.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/cpu_architecture_info.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"srsran/support/cpu_architecture_info.h\"\n #include \"srsran/adt/interval.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/format_utils.h\"\n #include \"srsran/support/sysinfo.h\"\n #include <dirent.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/executors/priority_task_worker.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/support/executors/priority_task_worker.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/network/io_broker_epoll.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"io_broker_epoll.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <sys/epoll.h>\n #include <sys/eventfd.h>\n #include <unistd.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/network/io_timer_source.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/support/io/io_timer_source.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/io/io_broker.h\"\n #include \"srsran/support/timers.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/network/sctp_socket.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/support/io/sctp_socket.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/io/sockets.h\"\n #include <fcntl.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/support/signal_handling.cpp",
+      "patch": "@@ -28,9 +28,9 @@ static constexpr unsigned TERMINATION_TIMEOUT_S =\n #endif\n \n /// Handler called after the user interrupts the program.\n-static std::atomic<srsran_signal_handler> interrupt_handler;\n+static std::atomic<srsran_signal_handler> interrupt_handler = nullptr;\n /// Handler called just before forcing application exit.\n-static std::atomic<srsran_signal_handler> cleanup_handler;\n+static std::atomic<srsran_signal_handler> cleanup_handler = nullptr;\n \n static void signal_handler(int signal)\n {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/timers.cpp",
+      "patch": "@@ -9,10 +9,11 @@\n  */\n \n #include \"srsran/support/timers.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;\n \n-/* ****  Timer Wheel configuration parameters.  **** */\n+/// Timer Wheel configuration parameters.\n static constexpr size_t WHEEL_SHIFT = 16U;\n static constexpr size_t WHEEL_SIZE  = 1U << WHEEL_SHIFT;\n static constexpr size_t WHEEL_MASK  = WHEEL_SIZE - 1U;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/benchmarks/ofh/ofh_compression_benchmark.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/slot_point.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/benchmark_utils.h\"\n #include <getopt.h>\n #include <random>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/du_manager/du_manager_test_helpers.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"lib/du_manager/ran_resource_management/du_ran_resource_manager.h\"\n #include \"srsran/du_manager/du_manager_params.h\"\n #include \"srsran/gtpu/gtpu_teid_pool.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include <map>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/mac_to_fapi_translator_test.cpp",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"srsran/fapi/slot_message_gateway.h\"\n #include \"srsran/fapi_adaptor/precoding_matrix_table_generator.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_generator.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_network_link_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"srsran/adt/mutexed_mpmc_queue.h\"\n #include \"srsran/gateways/sctp_network_client_factory.h\"\n #include \"srsran/gateways/sctp_network_server_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/io/io_broker_factory.h\"\n #include <condition_variable>\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_test_helpers.h",
+      "patch": "@@ -10,6 +10,7 @@\n \n #pragma once\n \n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/io/io_broker.h\"\n #include \"srsran/support/io/sctp_socket.h\"\n #include <arpa/inet.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/gtpu/gtpu_demux_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"gtpu_test_shared.h\"\n #include \"srsran/gtpu/gtpu_demux.h\"\n #include \"srsran/gtpu/gtpu_demux_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include <gtest/gtest.h>\n #include <sys/socket.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/nru/nru_packing_test.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/nru/nru_packing.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/compression/ofh_compression_test.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"../../../../lib/ofh/compression/quantizer.h\"\n #include \"ofh_compression_test_data.h\"\n #include \"srsran/ofh/compression/compression_factory.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/receiver/ofh_rx_window_checker_test.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"../../../../lib/ofh/receiver/ofh_rx_window_checker.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/serdes/ofh_uplane_packet_builder_dynamic_impl_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"../../../../lib/ofh/compression/iq_compression_none_impl.h\"\n #include \"../../../../lib/ofh/serdes/ofh_uplane_message_builder_dynamic_compression_impl.h\"\n #include \"srsran/adt/static_vector.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/srsvec/zero.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/serdes/ofh_uplane_packet_builder_static_impl_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"../../../../lib/ofh/compression/iq_compression_none_impl.h\"\n #include \"../../../../lib/ofh/serdes/ofh_uplane_message_builder_static_compression_impl.h\"\n #include \"srsran/adt/static_vector.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/srsvec/zero.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/serdes/ofh_uplane_packet_decoder_dynamic_impl_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"../../../../lib/ofh/serdes/ofh_uplane_message_decoder_dynamic_compression_impl.h\"\n #include \"srsran/ofh/compression/iq_decompressor.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/ofh/serdes/ofh_uplane_packet_decoder_static_impl_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"../../../../lib/ofh/serdes/ofh_uplane_message_decoder_static_compression_impl.h\"\n #include \"srsran/ofh/compression/iq_decompressor.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/phy/support/resource_grid_test_doubles.h",
+      "patch": "@@ -17,6 +17,7 @@\n #include \"srsran/phy/support/resource_grid_reader.h\"\n #include \"srsran/phy/support/resource_grid_writer.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/srsvec/copy.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/file_vector.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/psup/psup_packing_test.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/psup/psup_packing.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/support/executors/task_execution_manager_test.cpp",
+      "patch": "@@ -8,6 +8,7 @@\n  *\n  */\n \n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/executors/task_execution_manager.h\"\n #include <future>\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/support/network/io_broker_epoll_test.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/adt/optional.h\"\n+#include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/io/io_broker_factory.h\"\n #include \"srsran/support/io/unique_fd.h\"\n #include <condition_variable>",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 134,
+  "commit_details_path": ".\\commit_metadata\\f58bf33.json"
+}

@@ -1,0 +1,22 @@
+{
+  "commit_id": "3696e25266d4ab9cc1ba4de07a3370918057287d",
+  "commit_sha_short": "3696e25",
+  "commit_folder": "3696e25",
+  "commit_message": "support: fix control_block_allocator for byte_buffer head segment",
+  "commit_message_first_line": "support: fix control_block_allocator for byte_buffer head segment",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/3696e25266d4ab9cc1ba4de07a3370918057287d",
+  "commit_date": "2024-02-18T17:34:55Z",
+  "parent_sha": "b87ff64a0f7e2de1bbb2a6314d750a4eb36d8124",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b87ff64a0f7e2de1bbb2a6314d750a4eb36d8124",
+  "code_changes": [
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -78,12 +78,15 @@ struct control_block_allocator {\n     typedef control_block_allocator<U> other;\n   };\n \n-  control_block_allocator(memory_arena_linear_allocator& arena_) noexcept : arena(&arena_) {}\n+  control_block_allocator(memory_arena_linear_allocator& arena_) noexcept : arena(&arena_), mem_block(arena->mem_block)\n+  {\n+  }\n \n   control_block_allocator(const control_block_allocator<T>& other) noexcept = default;\n \n   template <typename U, std::enable_if_t<not std::is_same<U, T>::value, int> = 0>\n-  control_block_allocator(const control_block_allocator<U>& other) noexcept : arena(other.arena)\n+  control_block_allocator(const control_block_allocator<U>& other) noexcept :\n+    arena(other.arena), mem_block(other.mem_block)\n   {\n   }\n \n@@ -92,31 +95,35 @@ struct control_block_allocator {\n   value_type* allocate(size_t n) noexcept\n   {\n     srsran_sanity_check(n == 1, \"control_block_allocator can only allocate one control block at a time.\");\n-    srsran_sanity_check(not arena->empty(), \"Memory arena is empty\");\n+    srsran_sanity_check(arena != nullptr and not arena->empty(), \"Memory arena is empty\");\n     srsran_assert(arena->space_left() >= sizeof(value_type), \"control_block_allocator memory block size is too small.\");\n+    memory_arena_linear_allocator* arena_ptr = arena;\n+    // This allocator is only used for one single allocation (the shared_ptr control block). The arena may become\n+    // dangling after we exit the head_segment alloc function as well. So, it is safer to just set this pointer to null.\n+    arena = nullptr;\n \n-    return static_cast<value_type*>(arena->allocate(sizeof(value_type), alignof(std::max_align_t)));\n+    return static_cast<value_type*>(arena_ptr->allocate(sizeof(value_type), alignof(std::max_align_t)));\n   }\n \n   void deallocate(value_type* p, size_t n) noexcept\n   {\n     // Note: at this stage the arena ptr is probably dangling. Do not touch it.\n+    srsran_sanity_check(n == 1, \"control_block_allocator can only deallocate one control block at a time.\");\n \n-    static auto& pool = detail::get_default_byte_buffer_segment_pool();\n-\n-    srsran_assert(n == 1, \"control_block_allocator can only deallocate one control block at a time.\");\n-\n-    pool.deallocate_node(static_cast<void*>(p));\n+    // Note: The pointer p, while within the memory block, might be misaligned. For this reason, we stored the\n+    // original memory block pointer, which we now use for the deallocation.\n+    detail::get_default_byte_buffer_segment_pool().deallocate_node(mem_block);\n   }\n \n-  bool operator==(const control_block_allocator& other) const { return arena == other.arena; }\n+  bool operator==(const control_block_allocator& other) const { return mem_block == other.mem_block; }\n   bool operator!=(const control_block_allocator& other) const { return !(*this == other); }\n \n private:\n   template <typename U>\n   friend struct control_block_allocator;\n \n-  memory_arena_linear_allocator* arena;\n+  memory_arena_linear_allocator* arena     = nullptr;\n+  void*                          mem_block = nullptr;\n };\n \n } // namespace",
+      "additions": 18,
+      "deletions": 11,
+      "changes": 29
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\3696e25.json"
+}

@@ -1,0 +1,36 @@
+{
+  "commit_id": "06eb385119128fdec780e5e589e445345e43ac72",
+  "commit_sha_short": "06eb385",
+  "commit_folder": "06eb385",
+  "commit_message": "mac: fix test mode out of fallback transition",
+  "commit_message_first_line": "mac: fix test mode out of fallback transition",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/06eb385119128fdec780e5e589e445345e43ac72",
+  "commit_date": "2025-02-17T16:37:15Z",
+  "parent_sha": "377df77b5f232d6417c0b587f4f76fbc05773b0f",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/377df77b5f232d6417c0b587f4f76fbc05773b0f",
+  "code_changes": [
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -396,6 +396,10 @@ void mac_test_mode_cell_adapter::on_new_uplink_scheduler_results(const mac_ul_sc\n \n         // Mark Msg4 received for the UE.\n         ue_info_mgr.msg4_rxed(pucch.crnti, true);\n+\n+        // Push an UL PDU that will serve as rrcSetupComplete and get the UE out of fallback mode.\n+        auto rx_pdu = create_test_pdu_with_rrc_setup_complete(cell_index, ul_res.slot, pucch.crnti, to_harq_id(0));\n+        pdu_handler.handle_rx_data_indication(std::move(rx_pdu.value()));\n       }\n     }\n   }\n@@ -535,7 +539,7 @@ async_task<mac_ue_create_response> mac_test_mode_adapter::handle_ue_create_reque\n   if (ue_info_mgr.is_test_ue(cfg.crnti)) {\n     // It is the test UE.\n     mac_ue_create_request cfg_copy = cfg;\n-    cfg_copy.initial_fallback      = false;\n+    cfg_copy.initial_fallback      = true;\n \n     // Save UE index and configuration of test mode UE.\n     ue_info_mgr.add_ue(cfg.crnti, cfg_copy.ue_index, cfg_copy.sched_cfg);",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_helpers.cpp",
+      "patch": "@@ -36,6 +36,21 @@ srs_du::create_test_pdu_with_bsr(du_cell_index_t cell_index, slot_point sl_rx, r\n       sl_rx, cell_index, mac_rx_pdu_list{mac_rx_pdu{test_rnti, 0, harq_id, std::move(buf.value())}}};\n }\n \n+expected<mac_rx_data_indication> srs_du::create_test_pdu_with_rrc_setup_complete(du_cell_index_t cell_index,\n+                                                                                 slot_point      sl_rx,\n+                                                                                 rnti_t          test_rnti,\n+                                                                                 harq_id_t       harq_id)\n+{\n+  auto buf = byte_buffer::create({0x01, 0x23, 0xc0, 0x00, 0x00, 0x00, 0x10, 0x00, 0x05, 0xdf, 0x80, 0x10, 0x5e, 0x40,\n+                                  0x03, 0x40, 0x40, 0x3c, 0x44, 0x3c, 0x3f, 0xc0, 0x00, 0x04, 0x0c, 0x95, 0x1d, 0xa6,\n+                                  0x0b, 0x80, 0xb8, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x39, 0x37, 0x35});\n+  if (not buf.has_value()) {\n+    return make_unexpected(default_error_t{});\n+  }\n+  return mac_rx_data_indication{\n+      sl_rx, cell_index, mac_rx_pdu_list{mac_rx_pdu{test_rnti, 0, harq_id, std::move(buf.value())}}};\n+}\n+\n static void fill_csi_bits(bounded_bitset<uci_constants::MAX_NOF_CSI_PART1_OR_PART2_BITS>& payload,\n                           rnti_t                                                          rnti,\n                           unsigned                                                        nof_ports,",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_helpers.h",
+      "patch": "@@ -27,6 +27,12 @@ namespace srs_du {\n expected<mac_rx_data_indication>\n create_test_pdu_with_bsr(du_cell_index_t cell_index, slot_point sl_rx, rnti_t test_rnti, harq_id_t harq_id);\n \n+/// Create dummy PDU with rrcSetupComplete.\n+expected<mac_rx_data_indication> create_test_pdu_with_rrc_setup_complete(du_cell_index_t cell_index,\n+                                                                         slot_point      sl_rx,\n+                                                                         rnti_t          test_rnti,\n+                                                                         harq_id_t       harq_id);\n+\n /// Setters for UCI PDUs based on config values.\n mac_uci_pdu create_uci_pdu(const pucch_info& pucch, const du_test_mode_config::test_mode_ue_config& test_ue_cfg);\n mac_uci_pdu create_uci_pdu(const ul_sched_info& pusch, const du_test_mode_config::test_mode_ue_config& test_ue_cfg);",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\06eb385.json"
+}

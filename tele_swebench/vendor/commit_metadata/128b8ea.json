@@ -1,0 +1,29 @@
+{
+  "commit_id": "128b8ea271b05825cf165f4156f6c3d14e6bb7bb",
+  "commit_sha_short": "128b8ea",
+  "commit_folder": "128b8ea",
+  "commit_message": "asn1,utils: add convert_enum_str function to be used in from_string in asn enums",
+  "commit_message_first_line": "asn1,utils: add convert_enum_str function to be used in from_string in asn enums",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/128b8ea271b05825cf165f4156f6c3d14e6bb7bb",
+  "commit_date": "2025-07-25T16:11:28Z",
+  "parent_sha": "9030136ad85794f41c76af65d349f540995b9054",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9030136ad85794f41c76af65d349f540995b9054",
+  "code_changes": [
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -122,6 +122,11 @@ void log_error_code(SRSASN_CODE code, const char* filename, int line);\n   } while (0)\n \n const char* convert_enum_idx(const char* array[], uint32_t nof_types, uint32_t enum_val, const char* enum_type);\n+bool        convert_enum_str(const char* array[],\n+                             uint32_t    nof_types,\n+                             const char* str,\n+                             uint32_t&   enum_val,\n+                             const char* enum_type);\n template <class ItemType>\n ItemType map_enum_number(ItemType* array, uint32_t nof_types, uint32_t enum_val, const char* enum_type);\n ",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -71,6 +71,22 @@ const char* convert_enum_idx(const char* array[], uint32_t nof_types, uint32_t e\n   return array[enum_val];\n }\n \n+bool convert_enum_str(const char* array[],\n+                      uint32_t    nof_types,\n+                      const char* str,\n+                      uint32_t&   enum_val,\n+                      const char* enum_type)\n+{\n+  for (uint32_t i = 0; i < nof_types; ++i) {\n+    if (strcmp(str, array[i]) == 0) {\n+      enum_val = i;\n+      return true;\n+    }\n+  }\n+  log_error(\"The string '{}' is not a valid value for enum type {}.\", str, enum_type);\n+  return false;\n+}\n+\n template <class ItemType>\n ItemType map_enum_number(ItemType* array, uint32_t nof_types, uint32_t enum_val, const char* enum_type)\n {",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\128b8ea.json"
+}

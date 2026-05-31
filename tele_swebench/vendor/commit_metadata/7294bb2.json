@@ -1,0 +1,22 @@
+{
+  "commit_id": "7294bb20f4fa65437e751e55def0397b93f20318",
+  "commit_sha_short": "7294bb2",
+  "commit_folder": "7294bb2",
+  "commit_message": "app: disable check for arfcn being a multiple of the raster band step",
+  "commit_message_first_line": "app: disable check for arfcn being a multiple of the raster band step",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/7294bb20f4fa65437e751e55def0397b93f20318",
+  "commit_date": "2023-02-15T20:11:53Z",
+  "parent_sha": "494792fd02e51dc8076c8bfcb5ea76cf168f8501",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/494792fd02e51dc8076c8bfcb5ea76cf168f8501",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -296,8 +296,7 @@ bool srsgnb::band_helper::is_dl_arfcn_valid_given_band(nr_band band, uint32_t ar\n {\n   for (const nr_band_raster& raster_band : nr_band_table_fr1) {\n     if (raster_band.band == band) {\n-      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n-             (arfcn % raster_band.dl_nref_step == 0);\n+      return arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last;\n     }\n   }\n   return false;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\7294bb2.json"
+}

@@ -1,0 +1,771 @@
+{
+  "commit_id": "b9b2c781accbcdb45df6c763d213329cd6959224",
+  "commit_sha_short": "b9b2c78",
+  "commit_folder": "b9b2c78",
+  "commit_message": "Misc style cleanups\n\nPass slot_point always by value\n\nAdd std and global namespace prefixes",
+  "commit_message_first_line": "Misc style cleanups",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b9b2c781accbcdb45df6c763d213329cd6959224",
+  "commit_date": "2025-08-12T12:45:48Z",
+  "parent_sha": "c21491ddfd630b28a03e1dd15b1b4588e32e9e68",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/c21491ddfd630b28a03e1dd15b1b4588e32e9e68",
+  "code_changes": [
+    {
+      "filename": "apps/helpers/e2/e2_metric_connector_manager.h",
+      "patch": "@@ -10,6 +10,7 @@\n \n #pragma once\n \n+#include \"srsran/support/srsran_assert.h\"\n #include <cassert>\n #include <memory>\n #include <vector>\n@@ -37,12 +38,12 @@ class e2_metric_connector_manager\n \n   NotifierType& get_e2_metric_notifier(unsigned index)\n   {\n-    assert(index < e2_metric_connectors.size() && \"Invalid index\");\n+    srsran_assert(index < e2_metric_connectors.size(), \"Invalid index\");\n     return *(e2_metric_connectors[index]);\n   }\n   InterfaceType& get_e2_metrics_interface(unsigned index)\n   {\n-    assert(index < e2_metric_connectors.size() && \"Invalid index\");\n+    srsran_assert(index < e2_metric_connectors.size(), \"Invalid index\");\n     return *(e2_metric_connectors[index]);\n   }\n ",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "apps/helpers/metrics/json_generators/du_high/scheduler.cpp",
+      "patch": "@@ -46,7 +46,7 @@ void to_json(nlohmann::json& json, const scheduler_ue_metrics& metrics)\n   json[\"pci\"]  = metrics.pci;\n   json[\"rnti\"] = metrics.rnti;\n   if (metrics.cqi_stats.get_nof_observations() > 0) {\n-    json[\"cqi\"] = static_cast<uint8_t>(std::roundf(metrics.cqi_stats.get_mean()));\n+    json[\"cqi\"] = static_cast<uint8_t>(std::round(metrics.cqi_stats.get_mean()));\n   }\n \n   json[\"dl_ri\"] = metrics.dl_ri_stats.get_nof_observations() > 0 ? metrics.dl_ri_stats.get_mean() : 1;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/helpers/network/udp_config_yaml_writer.cpp",
+      "patch": "@@ -10,15 +10,12 @@\n \n #include \"udp_config_yaml_writer.h\"\n #include \"udp_appconfig.h\"\n-#include <yaml-cpp/yaml.h>\n \n-namespace srsran {\n+using namespace srsran;\n \n /// Fills the UDP configuration in the given YAML node.\n-void fill_udp_config_in_yaml_schema(YAML::Node node, const udp_appconfig& config)\n+void srsran::fill_udp_config_in_yaml_schema(YAML::Node node, const udp_appconfig& config)\n {\n   node[\"max_rx_msgs\"]    = config.rx_max_msgs;\n   node[\"pool_threshold\"] = config.pool_threshold;\n }\n-\n-} // namespace srsran",
+      "additions": 2,
+      "deletions": 5,
+      "changes": 7
+    },
+    {
+      "filename": "apps/services/worker_manager/worker_manager.cpp",
+      "patch": "@@ -373,7 +373,7 @@ static unsigned get_nof_prealloc_producers(const worker_manager_config& worker_c\n     // Include RU timing thread.\n     nof_producers += 1;\n     // Include threads for each RU cell (sum of DL antennas + one Rx + TxRx).\n-    for (unsigned int nof_downlink_antenna : worker_cfg.ru_ofh_cfg->nof_downlink_antennas) {\n+    for (unsigned nof_downlink_antenna : worker_cfg.ru_ofh_cfg->nof_downlink_antennas) {\n       nof_producers += 2 + nof_downlink_antenna;\n     }\n   }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/du_high_config_cli11_schema.cpp",
+      "patch": "@@ -1867,7 +1867,7 @@ void srsran::configure_cli11_with_du_high_config_schema(CLI::App& app, du_high_p\n       ->check(CLI::Range(22, 32));\n   add_option(app, \"--gnb_du_id\", parsed_cfg.config.gnb_du_id, \"gNB-DU Id\")\n       ->capture_default_str()\n-      ->check(CLI::Range(static_cast<uint64_t>(0U), static_cast<uint64_t>(pow(2, 36) - 1)));\n+      ->check(CLI::Range(static_cast<uint64_t>(0U), static_cast<uint64_t>((uint64_t(1) << 36) - 1)));\n \n   // Loggers section.\n   CLI::App* log_subcmd = add_subcommand(app, \"log\", \"Logging configuration\")->configurable();",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/du_high_config_validator.cpp",
+      "patch": "@@ -1151,8 +1151,8 @@ static bool validate_cells_unit_config(span<const du_high_unit_cell_config> conf\n     const auto band          = cell.cell.band.value_or(band_helper::get_band_from_dl_arfcn(cell.cell.dl_f_ref_arfcn));\n     bool       is_unlicensed = band_helper::is_unlicensed_band(band);\n     // Check if the RA Response Window (in ms) is within the limits for licensed and unlicensed bands.\n-    unsigned int max_ra_resp_window = is_unlicensed ? 40 : 10;\n-    unsigned int ra_resp_window_ms =\n+    unsigned max_ra_resp_window = is_unlicensed ? 40 : 10;\n+    unsigned ra_resp_window_ms =\n         cell.cell.prach_cfg.ra_resp_window.value() >> to_numerology_value(cell.cell.common_scs);\n     if (ra_resp_window_ms > max_ra_resp_window) {\n       fmt::print(\"RA Response Window ({}sl -> {}ms) must be smaller than {}ms in {} bands.\\n\",",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/consumers/scheduler_metrics_consumers.cpp",
+      "patch": "@@ -63,7 +63,7 @@ void scheduler_cell_metrics_consumer_stdout::handle_metric(const std::optional<s\n       fmt::print(\"{:>5x}\", to_value(ue.rnti));\n \n       if (ue.cqi_stats.get_nof_observations() > 0) {\n-        fmt::print(\" | {:>3}\", static_cast<unsigned>(std::roundf(ue.cqi_stats.get_mean())));\n+        fmt::print(\" | {:>3}\", static_cast<unsigned>(std::round(ue.cqi_stats.get_mean())));\n       } else {\n         fmt::print(\" | {:>3.3}\", \"n/a\");\n       }\n@@ -262,7 +262,7 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const std::optional<sche\n       fmt::format_to(std::back_inserter(buffer), \"Scheduler UE pci={} rnti={} metrics:\", ue.pci, ue.rnti);\n       if (ue.cqi_stats.get_nof_observations() > 0) {\n         fmt::format_to(\n-            std::back_inserter(buffer), \" cqi={}\", static_cast<unsigned>(std::roundf(ue.cqi_stats.get_mean())));\n+            std::back_inserter(buffer), \" cqi={}\", static_cast<unsigned>(std::round(ue.cqi_stats.get_mean())));\n       } else {\n         fmt::format_to(std::back_inserter(buffer), \" cqi=n/a\");\n       }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "apps/units/flexible_o_du/split_helpers/metrics/consumers/ru_metrics_consumers.cpp",
+      "patch": "@@ -165,7 +165,7 @@ static void log_ru_ofh_metrics(srslog::log_channel&     log_chan,\n     fmt::format_to(\n         std::back_inserter(buffer),\n         \"sector#{} pci={} received messages stats: rx_total={} rx_early={} \"\n-        \"rx_on_time={} rx_late={} earliest_msg_us={} latest_msg_us={}, nof_missed_uplink_symbols={} \"\n+        \"rx_on_time={} rx_late={} earliest_msg_us={:.2f} latest_msg_us={:.2f}, nof_missed_uplink_symbols={} \"\n         \"nof_missed_prach_occasions={}; \",\n         cell_metrics.sector_id,\n         static_cast<unsigned>(pci_sector_map[cell_metrics.sector_id]),",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/units/o_cu_up/cu_up/cu_up_unit_config_cli11_schema.cpp",
+      "patch": "@@ -214,7 +214,7 @@ void srsran::configure_cli11_with_cu_up_unit_config_schema(CLI::App& app, cu_up_\n       ->check(CLI::Range(22, 32));\n   add_option(app, \"--gnb_cu_up_id\", unit_cfg.gnb_cu_up_id, \"gNB-CU-UP Id\")\n       ->capture_default_str()\n-      ->check(CLI::Range(static_cast<uint64_t>(0U), static_cast<uint64_t>(pow(2, 36) - 1)));\n+      ->check(CLI::Range(static_cast<uint64_t>(0U), static_cast<uint64_t>((uint64_t(1) << 36) - 1)));\n \n   // CU-UP section.\n   CLI::App* cu_up_subcmd = add_subcommand(app, \"cu_up\", \"CU-UP parameters\")->configurable();",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "external/fmt/include/fmt/compile.h",
+      "patch": "@@ -180,7 +180,7 @@ template <typename Char> struct runtime_named_field {\n   basic_string_view<Char> name;\n \n   template <typename OutputIt, typename T>\n-  constexpr static bool try_format_argument(\n+  static constexpr bool try_format_argument(\n       OutputIt& out,\n       // [[maybe_unused]] due to unused-but-set-parameter warning in GCC 7,8,9\n       [[maybe_unused]] basic_string_view<Char> arg_name, const T& arg) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/bf16.h",
+      "patch": "@@ -28,7 +28,7 @@ inline bf16_t to_bf16(float value)\n {\n   // Reinterpret the value as a 32-bit unsigned integer.\n   uint32_t temp_u32;\n-  ::memcpy(&temp_u32, reinterpret_cast<void*>(&value), 4);\n+  std::memcpy(&temp_u32, reinterpret_cast<void*>(&value), 4);\n \n   // The 16 least significant bits of the fractional part are removed. The remaining 7 (most significant) bits are\n   // rounded according to the \"half to nearest even\" method: when the removed part is exactly 0.5 (i.e., a single one\n@@ -64,7 +64,7 @@ inline float to_float(bf16_t value)\n \n   // Reinterpret the value as a single-precision 32-bit float.\n   float ret;\n-  ::memcpy(&ret, &temp_u32, 4);\n+  std::memcpy(&ret, &temp_u32, 4);\n \n   return ret;\n }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/adt/mpmc_queue.h",
+      "patch": "@@ -23,8 +23,8 @@ class concurrent_queue<T, concurrent_queue_policy::lockfree_mpmc, concurrent_que\n {\n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_mpmc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_mpmc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   explicit concurrent_queue(size_t qsize) : queue(qsize) {}\n@@ -72,8 +72,8 @@ class concurrent_queue<T, concurrent_queue_policy::lockfree_mpmc, concurrent_que\n \n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_mpmc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::sleep;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_mpmc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::sleep;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   explicit concurrent_queue(size_t qsize, std::chrono::microseconds sleep_time_ = std::chrono::microseconds{0}) :",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/adt/mutexed_mpmc_queue.h",
+      "patch": "@@ -22,8 +22,8 @@ class concurrent_queue<T, concurrent_queue_policy::locking_mpmc, concurrent_queu\n {\n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::locking_mpmc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::locking_mpmc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   explicit concurrent_queue(size_t qsize) : queue(qsize) {}\n@@ -67,8 +67,8 @@ class concurrent_queue<T, concurrent_queue_policy::locking_mpmc, concurrent_queu\n \n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::locking_mpmc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::condition_variable;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::locking_mpmc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::condition_variable;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   // Inherited methods.",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/adt/ring_buffer.h",
+      "patch": "@@ -147,7 +147,7 @@ class ring_buffer_storage<std::vector<T>, true> : private ring_buffer_storage<st\n {\n   using super_type = ring_buffer_storage<std::vector<T>, false>;\n \n-  static unsigned to_next_pow2(unsigned sz) { return pow(2, ceil(log(sz) / log(2))); }\n+  static unsigned to_next_pow2(unsigned sz) { return std::pow(2, std::ceil(std::log(sz) / std::log(2))); }\n \n public:\n   using super_type::count;\n@@ -160,7 +160,7 @@ class ring_buffer_storage<std::vector<T>, true> : private ring_buffer_storage<st\n \n   void set_size(unsigned sz)\n   {\n-    // Round up to closest power of 2.\n+    // Round up to the closest power of 2.\n     super_type::set_size(to_next_pow2(sz));\n   }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/adt/spsc_queue.h",
+      "patch": "@@ -23,8 +23,8 @@ class concurrent_queue<T, concurrent_queue_policy::lockfree_spsc, concurrent_que\n {\n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_spsc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_spsc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::non_blocking;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   explicit concurrent_queue(size_t qsize) : queue(qsize) {}\n@@ -84,8 +84,8 @@ class concurrent_queue<T, concurrent_queue_policy::lockfree_spsc, concurrent_que\n \n public:\n   using value_type                                           = T;\n-  constexpr static concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_spsc;\n-  constexpr static concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::sleep;\n+  static constexpr concurrent_queue_policy      queue_policy = concurrent_queue_policy::lockfree_spsc;\n+  static constexpr concurrent_queue_wait_policy wait_policy  = concurrent_queue_wait_policy::sleep;\n   using consumer_type                                        = detail::basic_queue_consumer<concurrent_queue, T>;\n \n   template <typename... Args>",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -963,7 +963,7 @@ class bitstring\n   explicit bitstring(const std::string& s)\n   {\n     resize(s.size());\n-    memset(&octets_[0], 0, nof_octets());\n+    std::memset(&octets_[0], 0, nof_octets());\n     for (uint32_t i = 0; i < s.size(); ++i)\n       set(s.size() - i - 1, s[i] == '1');\n   }\n@@ -979,7 +979,7 @@ class bitstring\n   {\n     nof_bits = new_size;\n     octets_.resize(nof_octets());\n-    memset(data(), 0, nof_octets()); // resize always resets content\n+    std::memset(data(), 0, nof_octets()); // resize always resets content\n   }\n \n   // comparison\n@@ -1011,7 +1011,7 @@ class bitstring\n   uint64_t   to_number() const { return bitstring_utils::to_number(data(), length()); }\n   this_type& from_number(uint64_t val)\n   {\n-    auto nof_bits_ = std::max((uint32_t)ceilf(log2(std::max(val, (uint64_t)1u))), LB);\n+    auto nof_bits_ = std::max((uint32_t)std::ceil(std::log2(std::max(val, (uint64_t)1u))), LB);\n     if (nof_bits_ > UB) {\n       log_error(\"The provided bitstring value {} does not fit the bounds [{}, {}]\", val, uint32_t(lb), uint32_t(ub));\n       return *this;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/cu_cp/mobility_manager_config.h",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #pragma once\n+\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/support/async/async_task.h\"\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/e2/e2_agent_dependencies.h",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #pragma once\n+\n #include \"e2ap_configuration.h\"\n #include \"e2sm/e2sm.h\"\n #include \"srsran/support/timers.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/fapi_adaptor/fapi_config_messages_adaptor.h",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #pragma once\n+\n #include \"srsran/srslog/logger.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/pdsch/pdsch_block_processor.h",
+      "patch": "@@ -7,6 +7,7 @@\n  * the distribution.\n  *\n  */\n+\n #pragma once\n \n #include \"srsran/phy/support/resource_grid_mapper.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/phy/upper/pucch_helper.h",
+      "patch": "@@ -66,7 +66,7 @@ class pucch_helper\n   /// \\param m0[in]      Initial cyclic shift\n   /// \\param m_cs[in]    Cyclic shift\n   /// \\return NR alpha index\n-  unsigned get_alpha_index(const slot_point&    slot,\n+  unsigned get_alpha_index(slot_point           slot,\n                            const cyclic_prefix& cp,\n                            unsigned             n_id,\n                            unsigned             symbol,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/rx_buffer_pool.h",
+      "patch": "@@ -67,11 +67,11 @@ class rx_buffer_pool\n   /// \\param[in] new_data       Set to true if the transmission is for new data.\n   /// \\return A valid unique buffer if the reservation was successful. Otherwise, an invalid unique buffer.\n   virtual unique_rx_buffer\n-  reserve(const slot_point& slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) = 0;\n+  reserve(slot_point slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) = 0;\n \n   /// \\brief Runs pool housekeeping tasks.\n   /// \\param[in] slot Indicates the current slot.\n-  virtual void run_slot(const slot_point& slot) = 0;\n+  virtual void run_slot(slot_point slot) = 0;\n };\n \n /// buffer pool configuration.",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsran/phy/upper/sequence_generators/sss_sequence_generator.h",
+      "patch": "@@ -12,10 +12,10 @@\n \n #include \"srsran/adt/complex.h\"\n #include \"srsran/adt/span.h\"\n+#include \"srsran/phy/constants.h\"\n #include \"srsran/ran/pci.h\"\n #include \"srsran/srsvec/prod.h\"\n #include \"srsran/srsvec/sc_prod.h\"\n-#include <srsran/phy/constants.h>\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/bcd_helper.h",
+      "patch": "@@ -278,7 +278,7 @@ bool mnc_to_bytes(uint16_t mnc, Vec& vec)\n   uint8_t v[3];\n   bool    ret = mnc_to_bytes(mnc, &v[0], &len);\n   vec.resize(len);\n-  memcpy(&vec[0], &v[0], len);\n+  std::memcpy(&vec[0], &v[0], len);\n   return ret;\n }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/slot_point.h",
+      "patch": "@@ -137,18 +137,18 @@ class slot_point\n \n   /// Equality comparison of two slot_point objects. Two slot points are equal if their numerology, SFN and slot index\n   /// have the same value.\n-  constexpr bool operator==(const slot_point& other) const\n+  constexpr bool operator==(slot_point other) const\n   {\n     return other.count_val == count_val and other.numerology_val == numerology_val;\n   }\n \n   /// Inequality comparison of two slot_point objects.\n-  constexpr bool operator!=(const slot_point& other) const { return not(*this == other); }\n+  constexpr bool operator!=(slot_point other) const { return not(*this == other); }\n \n   /// Checks if \"lhs\" slot point is lower than \"rhs\". It assumes that both \"lhs\" and \"rhs\" use the same numerology\n   /// This comparison accounts for the wrap-around of both slot index and SFNs. The ambiguity range of the comparison\n   /// is equal to half of the total number of slots in a hyperframe.\n-  constexpr bool operator<(const slot_point& other) const\n+  constexpr bool operator<(slot_point other) const\n   {\n     srsran_assert(numerology() == other.numerology(), \"Comparing slots of different numerologies\");\n     int v = static_cast<int>(other.count_val) - static_cast<int>(count_val);\n@@ -159,13 +159,13 @@ class slot_point\n   }\n \n   /// Other lower/higher comparisons that build on top of operator== and operator<.\n-  constexpr bool operator<=(const slot_point& other) const { return (*this == other) or (*this < other); }\n-  constexpr bool operator>=(const slot_point& other) const { return not(*this < other); }\n-  constexpr bool operator>(const slot_point& other) const { return (*this != other) and *this >= other; }\n+  constexpr bool operator<=(slot_point other) const { return (*this == other) or (*this < other); }\n+  constexpr bool operator>=(slot_point other) const { return not(*this < other); }\n+  constexpr bool operator>(slot_point other) const { return (*this != other) and *this >= other; }\n \n   /// Implements the subtraction of two slot points.\n   /// @return a signed integer that is positive if \"lhs\" is higher than \"rhs\", zero if equal, and negative otherwise.\n-  constexpr slot_difference operator-(const slot_point& other) const\n+  constexpr slot_difference operator-(slot_point other) const\n   {\n     int a = static_cast<int>(count_val) - static_cast<int>(other.count_val);\n     if (a >= (int)nof_slots_per_hyper_system_frame() / 2) {",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "include/srsran/rrc/rrc_metrics.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"srsran/ran/cause/common.h\"\n #include \"srsran/support/srsran_assert.h\"\n #include <array>\n+\n namespace srsran {\n \n struct rrc_connection_establishment_counter_with_cause {",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "include/srsran/scheduler/config/slice_rrm_policy_config.h",
+      "patch": "@@ -19,7 +19,7 @@ namespace srsran {\n /// Cell-specific Default RAN slice configuration.\n struct slice_rrm_policy_config {\n   /// Maximum RAN scheduling policy.\n-  constexpr static unsigned max_priority = 255;\n+  static constexpr unsigned max_priority = 255;\n \n   /// RRM Policy identifier.\n   rrm_policy_member rrc_member;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/integrity.h",
+      "patch": "@@ -179,7 +179,7 @@ inline void security_nia2_non_cmac(sec_mac&           mac,\n     }\n \n     // MAC generation\n-    n = (uint32_t)(ceilf((float)(msg_len_block_8 + 8) / (float)(16)));\n+    n = (uint32_t)(std::ceil((float)(msg_len_block_8 + 8) / (float)(16)));\n     for (i = 0; i < 16; i++) {\n       T[i] = 0;\n     }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/strand_executor.h",
+      "patch": "@@ -331,8 +331,8 @@ template <typename OutExec, concurrent_queue_policy QueuePolicy, typename Strand\n class task_strand final : public task_executor\n {\n public:\n-  constexpr static bool     is_basic_lock             = std::is_same_v<StrandLockPolicy, basic_strand_lock>;\n-  constexpr static unsigned default_strand_batch_size = is_basic_lock ? 256 : std::numeric_limits<unsigned>::max();\n+  static constexpr bool     is_basic_lock             = std::is_same_v<StrandLockPolicy, basic_strand_lock>;\n+  static constexpr unsigned default_strand_batch_size = is_basic_lock ? 256 : std::numeric_limits<unsigned>::max();\n   using executor_type                                 = task_strand_executor<OutExec, QueuePolicy, StrandLockPolicy>;\n \n   template <typename ExecType>\n@@ -394,8 +394,8 @@ template <typename OutExec, typename StrandLockPolicy = basic_strand_lock>\n class priority_task_strand\n {\n public:\n-  constexpr static bool     is_basic_lock             = std::is_same_v<StrandLockPolicy, basic_strand_lock>;\n-  constexpr static unsigned default_strand_batch_size = is_basic_lock ? 256 : std::numeric_limits<unsigned>::max();\n+  static constexpr bool     is_basic_lock             = std::is_same_v<StrandLockPolicy, basic_strand_lock>;\n+  static constexpr unsigned default_strand_batch_size = is_basic_lock ? 256 : std::numeric_limits<unsigned>::max();\n   using strand_type                                   = priority_task_strand<OutExec, StrandLockPolicy>;\n   using executor_type                                 = priority_task_strand_executor<strand_type&>;\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsran/support/file_tensor.h",
+      "patch": "@@ -55,7 +55,7 @@ class file_tensor\n     report_fatal_error_if_not(op != openmode::write_only, \"The file_vector was created with write-only permissions.\");\n     std::ifstream binary_file(file_name, std::ios::in | std::ios::binary);\n \n-    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, strerror(errno));\n+    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, ::strerror(errno));\n \n     dynamic_tensor<NDIMS, T, Index_type> read_data(dimension_sizes);\n     span<T>                              flat_tensor_view(read_data.get_data());",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/file_vector.h",
+      "patch": "@@ -57,7 +57,7 @@ class file_vector\n     report_fatal_error_if_not(op != openmode::write_only, \"The file_vector was created with write-only permissions.\");\n     std::ifstream binary_file(file_name, std::ios::in | std::ios::binary);\n \n-    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, strerror(errno));\n+    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, ::strerror(errno));\n     std::vector<T> read_data;\n \n     T read_value;\n@@ -80,7 +80,7 @@ class file_vector\n     report_fatal_error_if_not(op != openmode::read_only, \"The file_vector was created with read-only permissions.\");\n     std::ofstream binary_file(file_name, std::ios::out | std::ios::binary);\n \n-    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, strerror(errno));\n+    report_fatal_error_if_not(binary_file.is_open(), \"Error opening file '{}'. {}.\", file_name, ::strerror(errno));\n \n     binary_file.write(reinterpret_cast<const char*>(write_data.begin()), write_data.size() * sizeof(T));\n   }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -377,10 +377,10 @@ SRSASN_CODE pack_enum(bit_ref& bref, uint32_t e, uint32_t nof_types, uint32_t no\n   }\n   SRSASN_CODE ret;\n   if (has_ext) {\n-    uint32_t nof_bits = (uint32_t)ceilf(log2f(nof_types - nof_exts));\n+    uint32_t nof_bits = (uint32_t)std::ceil(std::log2(nof_types - nof_exts));\n     ret               = pack_enum(bref, e, nof_bits, nof_types - nof_exts);\n   } else {\n-    uint32_t nof_bits = (uint32_t)ceilf(log2f(nof_types));\n+    uint32_t nof_bits = (uint32_t)std::ceil(std::log2(nof_types));\n     ret               = pack_enum(bref, e, nof_bits);\n   }\n   return ret;\n@@ -390,7 +390,7 @@ ValOrError unpack_enum(uint32_t nof_types, uint32_t nof_exts, bool has_ext, cbit\n {\n   ValOrError ret;\n   if (has_ext) {\n-    uint32_t nof_bits = (uint32_t)ceilf(log2f(nof_types - nof_exts));\n+    uint32_t nof_bits = (uint32_t)std::ceil(std::log2(nof_types - nof_exts));\n     bool     ext;\n     ret.code = bref.unpack(ext, 1);\n     if (ret.code != SRSASN_SUCCESS) {\n@@ -403,7 +403,7 @@ ValOrError unpack_enum(uint32_t nof_types, uint32_t nof_exts, bool has_ext, cbit\n       ret.val += nof_types - nof_exts;\n     }\n   } else {\n-    uint32_t nof_bits = (uint32_t)ceilf(log2f(nof_types));\n+    uint32_t nof_bits = (uint32_t)std::ceil(std::log2(nof_types));\n     ret.code          = bref.unpack(ret.val, nof_bits);\n   }\n   if (ret.val >= nof_types) {\n@@ -440,7 +440,7 @@ SRSASN_CODE pack_constrained_whole_number(bit_ref& bref, IntType n, IntType lb,\n   if (ra == 1) {\n     return SRSASN_SUCCESS;\n   }\n-  uint32_t n_bits   = (uint32_t)ceilf(log2f((float)ra)); // bit-field size\n+  uint32_t n_bits   = (uint32_t)std::ceil(std::log2((float)ra)); // bit-field size\n   IntType  toencode = n - lb;\n   if (not aligned) {\n     // UNALIGNED variant\n@@ -458,8 +458,8 @@ SRSASN_CODE pack_constrained_whole_number(bit_ref& bref, IntType n, IntType lb,\n       HANDLE_CODE(bref.pack(toencode, n_bits));\n       ret = bref.align_bytes_zero();\n     } else {\n-      uint32_t n_bits_len = (uint32_t)ceilf(log2f(ceil_frac(n_bits, 8u)));\n-      n_bits              = (uint32_t)floorf(log2f(std::max(toencode, (IntType)1)) + 1);\n+      uint32_t n_bits_len = (uint32_t)std::ceil(std::log2(ceil_frac(n_bits, 8u)));\n+      n_bits              = (uint32_t)std::floor(std::log2(std::max(toencode, (IntType)1)) + 1);\n       uint32_t n_octets   = ceil_frac(n_bits, 8u);\n       HANDLE_CODE(bref.pack(n_octets - 1, n_bits_len));\n       HANDLE_CODE(bref.align_bytes_zero());\n@@ -507,7 +507,7 @@ SRSASN_CODE unpack_constrained_whole_number(IntType& n, cbit_ref& bref, IntType\n     n = lb;\n     return SRSASN_SUCCESS;\n   }\n-  uint32_t n_bits = (uint32_t)ceilf(log2f((float)ra));\n+  uint32_t n_bits = (uint32_t)std::ceil(std::log2((float)ra));\n   if (not aligned) {\n     // UNALIGNED variant\n     HANDLE_CODE(bref.unpack(n, n_bits));\n@@ -522,7 +522,7 @@ SRSASN_CODE unpack_constrained_whole_number(IntType& n, cbit_ref& bref, IntType\n       HANDLE_CODE(bref.unpack(n, n_octets * 8));\n       HANDLE_CODE(bref.align_bytes());\n     } else {\n-      uint32_t n_bits_len = (uint32_t)ceilf(log2f(ceil_frac(n_bits, 8u)));\n+      uint32_t n_bits_len = (uint32_t)std::ceil(std::log2(ceil_frac(n_bits, 8u)));\n       uint32_t n_octets;\n       HANDLE_CODE(bref.unpack(n_octets, n_bits_len));\n       n_octets += 1;\n@@ -602,7 +602,7 @@ template SRSASN_CODE unpack_norm_small_non_neg_whole_number<uint64_t>(uint64_t&\n template <typename IntType>\n IntType unconstrained_whole_number_length(IntType n)\n {\n-  return (IntType)ceilf((log2f(n) + 1) / 8.0f);\n+  return (IntType)std::ceil((std::log2(n) + 1) / 8.0f);\n }\n \n /**\n@@ -1030,7 +1030,7 @@ unsigned octet_string_helper::hex_string_to_octets(srsran::span<uint8_t> buf, co\n   }\n   char cstr[] = \"\\0\\0\\0\";\n   for (unsigned i = 0; i < str.size(); i += 2) {\n-    memcpy(&cstr[0], &str[i], 2);\n+    std::memcpy(&cstr[0], &str[i], 2);\n     buf[i / 2] = strtoul(cstr, nullptr, 16);\n   }\n   return (str.size() + 1) / 2;\n@@ -1043,7 +1043,7 @@ void octet_string_helper::append_hex_string(byte_buffer& buf, const std::string&\n   }\n   char cstr[] = \"\\0\\0\\0\";\n   for (unsigned i = 0; i < str.size(); i += 2) {\n-    memcpy(&cstr[0], &str[i], 2);\n+    std::memcpy(&cstr[0], &str[i], 2);\n     if (not buf.append(strtoul(cstr, nullptr, 16))) {\n       log_error(\"Failed to append octet string byte to buffer\");\n     }\n@@ -1192,7 +1192,7 @@ SRSASN_CODE pack_length_prefix(bit_ref& bref,\n   }\n \n   // pack as bounded bitstring\n-  uint32_t len_bits = (uint32_t)ceilf(log2(ub - lb));\n+  uint32_t len_bits = (uint32_t)std::ceil(std::log2(ub - lb));\n   HANDLE_CODE(bref.pack(len - lb, len_bits));\n   if (is_aligned) {\n     HANDLE_CODE(bref.align_bytes_zero());\n@@ -1348,9 +1348,9 @@ namespace asn_string_utils {\n size_t get_nof_bits_per_char(size_t lb, size_t ub, bool aligned)\n {\n   size_t N = ub - lb + 1;\n-  auto   b = (size_t)ceilf(log2(N)); // B\n+  auto   b = (size_t)std::ceil(std::log2(N)); // B\n   if (aligned) {\n-    b = (size_t)pow(2, ceilf(log2(b))); // B2\n+    b = (size_t)std::pow(2, std::ceil(std::log2(b))); // B2\n   }\n   return b;\n }",
+      "additions": 15,
+      "deletions": 15,
+      "changes": 30
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/cbs/cbs_encoder_impl.cpp",
+      "patch": "@@ -224,7 +224,7 @@ std::vector<uint8_t> cbs_encoder_impl::fill_cb_data_ucs2(const std::string& mess\n                                             encoded_message.size() - static_cast<size_t>(i_message_offset));\n \n     // Copy the encoded message bytes into the information page.\n-    memcpy(&cb_data[i_page_offset], &encoded_message[i_message_offset], i_message_nof_bytes);\n+    std::memcpy(&cb_data[i_page_offset], &encoded_message[i_message_offset], i_message_nof_bytes);\n \n     // Add padding to unused information page bytes (See TS23.041 Section 9.3.19).\n     if (i_message_nof_bytes < info_page_nof_bytes) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_high/du_manager/procedures/du_ue_reset_procedure.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n+#include \"srsran/ran/du_types.h\"\n #include \"srsran/support/async/async_task.h\"\n #include \"srsran/support/async/manual_event.h\"\n-#include <srsran/ran/du_types.h>\n #include <vector>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_du_meas_provider_impl.cpp",
+      "patch": "@@ -306,7 +306,7 @@ bool e2sm_kpm_du_meas_provider_impl::get_cqi(const asn1::e2sm::label_info_list_l\n \n   meas_record_item_c meas_record_item;\n   meas_record_item.set_integer() = ue_metrics.cqi_stats.get_nof_observations() > 0\n-                                       ? static_cast<uint64_t>(std::roundf(ue_metrics.cqi_stats.get_mean()))\n+                                       ? static_cast<uint64_t>(std::round(ue_metrics.cqi_stats.get_mean()))\n                                        : 0;\n   items.push_back(meas_record_item);\n   meas_collected = true;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_utils.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n \n #include \"e2sm_kpm_utils.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n-std::string e2sm_kpm_label_2_str(e2sm_kpm_label_enum label)\n+std::string srsran::e2sm_kpm_label_2_str(e2sm_kpm_label_enum label)\n {\n   switch (label) {\n     case NO_LABEL:\n@@ -74,7 +74,7 @@ std::string e2sm_kpm_label_2_str(e2sm_kpm_label_enum label)\n   }\n }\n \n-std::string e2sm_kpm_scope_2_str(e2sm_kpm_metric_level_enum level)\n+std::string srsran::e2sm_kpm_scope_2_str(e2sm_kpm_metric_level_enum level)\n {\n   switch (level) {\n     case E2_NODE_LEVEL:\n@@ -90,7 +90,7 @@ std::string e2sm_kpm_scope_2_str(e2sm_kpm_metric_level_enum level)\n   }\n }\n \n-e2sm_kpm_label_enum asn1_label_2_enum(const asn1::e2sm::meas_label_s& meas_label)\n+e2sm_kpm_label_enum srsran::asn1_label_2_enum(const asn1::e2sm::meas_label_s& meas_label)\n {\n   if (meas_label.no_label_present) {\n     return NO_LABEL;\n@@ -167,7 +167,7 @@ e2sm_kpm_label_enum asn1_label_2_enum(const asn1::e2sm::meas_label_s& meas_label\n   return UNKNOWN_LABEL;\n }\n \n-bool operator==(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs)\n+bool srsran::operator==(const asn1::e2sm::ue_id_c& lhs, asn1::e2sm::ue_id_c const& rhs)\n {\n   if (lhs.type() != rhs.type()) {\n     return false;\n@@ -184,12 +184,12 @@ bool operator==(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs)\n   }\n }\n \n-bool operator!=(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs)\n+bool srsran::operator!=(const asn1::e2sm::ue_id_c& lhs, asn1::e2sm::ue_id_c const& rhs)\n {\n   return !(lhs == rhs);\n }\n \n-bool operator<(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs)\n+bool srsran::operator<(const asn1::e2sm::ue_id_c& lhs, asn1::e2sm::ue_id_c const& rhs)\n {\n   srsran_assert(lhs.type() != rhs.type(), \"Cannot compare UEIDs of different types.\");\n   switch (lhs.type()) {\n@@ -202,14 +202,12 @@ bool operator<(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs)\n   }\n }\n \n-bool operator==(asn1::e2sm::ue_id_gnb_du_s const& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs)\n+bool srsran::operator==(const asn1::e2sm::ue_id_gnb_du_s& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs)\n {\n   return lhs.gnb_cu_ue_f1ap_id == rhs.gnb_cu_ue_f1ap_id;\n }\n \n-bool operator<(asn1::e2sm::ue_id_gnb_du_s const& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs)\n+bool srsran::operator<(const asn1::e2sm::ue_id_gnb_du_s& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs)\n {\n   return lhs.gnb_cu_ue_f1ap_id < rhs.gnb_cu_ue_f1ap_id;\n }\n-\n-} // namespace srsran",
+      "additions": 9,
+      "deletions": 11,
+      "changes": 20
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_utils.h",
+      "patch": "@@ -21,10 +21,10 @@ std::string         e2sm_kpm_scope_2_str(e2sm_kpm_metric_level_enum level);\n e2sm_kpm_label_enum asn1_label_2_enum(const asn1::e2sm::meas_label_s& meas_label);\n \n // comparison operators\n-bool operator==(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs);\n-bool operator!=(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs);\n-bool operator<(asn1::e2sm::ue_id_c const& lhs, asn1::e2sm::ue_id_c const& rhs);\n-bool operator==(asn1::e2sm::ue_id_gnb_du_s const& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs);\n-bool operator<(asn1::e2sm::ue_id_gnb_du_s const& lhs, asn1::e2sm::ue_id_gnb_du_s const& rhs);\n+bool operator==(const asn1::e2sm::ue_id_c& lhs, const asn1::e2sm::ue_id_c& rhs);\n+bool operator!=(const asn1::e2sm::ue_id_c& lhs, const asn1::e2sm::ue_id_c& rhs);\n+bool operator<(const asn1::e2sm::ue_id_c& lhs, const asn1::e2sm::ue_id_c& rhs);\n+bool operator==(const asn1::e2sm::ue_id_gnb_du_s& lhs, const asn1::e2sm::ue_id_gnb_du_s& rhs);\n+bool operator<(const asn1::e2sm::ue_id_gnb_du_s& lhs, const asn1::e2sm::ue_id_gnb_du_s& rhs);\n \n } // namespace srsran",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/f1ap/f1ap_asn1_packer.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"f1ap_asn1_packer.h\"\n #include \"srsran/f1ap/f1ap_message.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n f1ap_asn1_packer::f1ap_asn1_packer(sctp_network_gateway_data_handler& gw_, f1ap_message_handler& f1ap_handler) :\n   logger(srslog::fetch_basic_logger(\"F1AP-ASN1-PCK\")), gw(gw_), f1ap(f1ap_handler)\n@@ -47,5 +47,3 @@ void f1ap_asn1_packer::handle_message(const f1ap_message& msg)\n \n   gw.handle_pdu(tx_pdu);\n }\n-\n-} // namespace srsran",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/gateways/sctp_network_client_impl.cpp",
+      "patch": "@@ -49,21 +49,21 @@ class sctp_network_client_impl::sctp_send_notifier final : public sctp_associati\n     span<const uint8_t> pdu_span = to_span(sdu, send_buffer);\n \n     auto dest_addr  = server_addr.native();\n-    int  bytes_sent = sctp_sendmsg(fd,\n-                                  pdu_span.data(),\n-                                  pdu_span.size(),\n-                                  const_cast<struct sockaddr*>(dest_addr.addr),\n-                                  dest_addr.addrlen,\n-                                  htonl(ppid),\n-                                  0,\n-                                  stream_no,\n-                                  0,\n-                                  0);\n+    int  bytes_sent = ::sctp_sendmsg(fd,\n+                                    pdu_span.data(),\n+                                    pdu_span.size(),\n+                                    const_cast<struct sockaddr*>(dest_addr.addr),\n+                                    dest_addr.addrlen,\n+                                    htonl(ppid),\n+                                    0,\n+                                    stream_no,\n+                                    0,\n+                                    0);\n     if (bytes_sent == -1) {\n       logger.error(\"{}: Closing SCTP association. Cause: Couldn't send {} B of data. errno={}\",\n                    client_name,\n                    pdu_span.size_bytes(),\n-                   strerror(errno));\n+                   ::strerror(errno));\n       close();\n       return false;\n     }\n@@ -81,22 +81,22 @@ class sctp_network_client_impl::sctp_send_notifier final : public sctp_associati\n \n     // Send EOF to SCTP server.\n     auto dest_addr  = server_addr.native();\n-    int  bytes_sent = sctp_sendmsg(fd,\n-                                  nullptr,\n-                                  0,\n-                                  const_cast<struct sockaddr*>(dest_addr.addr),\n-                                  dest_addr.addrlen,\n-                                  htonl(ppid),\n-                                  SCTP_EOF,\n-                                  stream_no,\n-                                  0,\n-                                  0);\n+    int  bytes_sent = ::sctp_sendmsg(fd,\n+                                    nullptr,\n+                                    0,\n+                                    const_cast<struct sockaddr*>(dest_addr.addr),\n+                                    dest_addr.addrlen,\n+                                    htonl(ppid),\n+                                    SCTP_EOF,\n+                                    stream_no,\n+                                    0,\n+                                    0);\n \n     if (bytes_sent == -1) {\n       // Failed to send EOF.\n       // Note: It may happen when the sender notifier is removed just before the SCTP shutdown event is handled in\n       // the server recv thread.\n-      logger.info(\"{}: Couldn't send EOF during shut down (errno=\\\"{}\\\")\", client_name, strerror(errno));\n+      logger.info(\"{}: Couldn't send EOF during shut down (errno=\\\"{}\\\")\", client_name, ::strerror(errno));\n     } else {\n       logger.debug(\"{}: Sent EOF to SCTP client and closed SCTP association\", client_name);\n     }\n@@ -142,16 +142,16 @@ sctp_network_client_impl::~sctp_network_client_impl()\n \n   // Signal that the upper layer sender should stop sending new SCTP data (including the EOF).\n   if (eof_needed) {\n-    sctp_sendmsg(socket.fd().value(),\n-                 nullptr,\n-                 0,\n-                 const_cast<struct sockaddr*>(server_addr_cpy.native().addr),\n-                 server_addr_cpy.native().addrlen,\n-                 htonl(node_cfg.ppid),\n-                 SCTP_EOF,\n-                 stream_no,\n-                 0,\n-                 0);\n+    ::sctp_sendmsg(socket.fd().value(),\n+                   nullptr,\n+                   0,\n+                   const_cast<struct sockaddr*>(server_addr_cpy.native().addr),\n+                   server_addr_cpy.native().addrlen,\n+                   htonl(node_cfg.ppid),\n+                   SCTP_EOF,\n+                   stream_no,\n+                   0,\n+                   0);\n   }\n \n   // No subscription is on-going. It is now safe to close the socket.\n@@ -219,7 +219,7 @@ sctp_network_client_impl::connect_to(const std::string&\n   if (result == nullptr) {\n     auto        end    = std::chrono::steady_clock::now();\n     auto        now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);\n-    std::string cause  = strerror(errno);\n+    std::string cause  = ::strerror(errno);\n     if (errno == 0) {\n       cause = \"IO broker could not register socket\";\n     }\n@@ -300,7 +300,7 @@ void sctp_network_client_impl::receive()\n   // Handle error.\n   if (rx_bytes == -1) {\n     if (errno != EAGAIN) {\n-      std::string cause = fmt::format(\"Error reading from SCTP socket: {}\", strerror(errno));\n+      std::string cause = fmt::format(\"Error reading from SCTP socket: {}\", ::strerror(errno));\n       handle_connection_terminated(cause.c_str());\n     } else {\n       if (!node_cfg.non_blocking_mode) {",
+      "additions": 34,
+      "deletions": 34,
+      "changes": 68
+    },
+    {
+      "filename": "lib/gateways/sctp_network_gateway_common_impl.cpp",
+      "patch": "@@ -29,9 +29,9 @@ sockaddr_searcher::sockaddr_searcher(const std::string& address, int port, srslo\n   hints.ai_next      = nullptr;\n \n   std::string port_str = std::to_string(port);\n-  int         ret      = getaddrinfo(address.c_str(), port_str.c_str(), &hints, &results);\n+  int         ret      = ::getaddrinfo(address.c_str(), port_str.c_str(), &hints, &results);\n   if (ret != 0) {\n-    logger.error(\"Error in \\\"getaddrinfo\\\" for \\\"{}\\\":{}. Cause: {}\", address, port, gai_strerror(ret));\n+    logger.error(\"Error in \\\"getaddrinfo\\\" for \\\"{}\\\":{}. Cause: {}\", address, port, ::gai_strerror(ret));\n     results = nullptr;\n     return;\n   }\n@@ -40,7 +40,7 @@ sockaddr_searcher::sockaddr_searcher(const std::string& address, int port, srslo\n \n sockaddr_searcher::~sockaddr_searcher()\n {\n-  freeaddrinfo(results);\n+  ::freeaddrinfo(results);\n }\n \n /// Get next candidate or nullptr of search has ended.\n@@ -120,8 +120,10 @@ bool sctp_network_gateway_common_impl::create_and_bind_common()\n   }\n \n   if (not socket.is_open()) {\n-    fmt::print(\n-        \"Failed to bind SCTP socket to {}:{}. Cause: {}\\n\", node_cfg.bind_address, node_cfg.bind_port, strerror(errno));\n+    fmt::print(\"Failed to bind SCTP socket to {}:{}. Cause: {}\\n\",\n+               node_cfg.bind_address,\n+               node_cfg.bind_port,\n+               ::strerror(errno));\n     return false;\n   }\n ",
+      "additions": 7,
+      "deletions": 5,
+      "changes": 12
+    },
+    {
+      "filename": "lib/gateways/sctp_network_gateway_impl.cpp",
+      "patch": "@@ -89,12 +89,12 @@ bool sctp_network_gateway_impl::create_and_connect()\n     fmt::print(\"Failed to connect SCTP socket to {}:{}. error=\\\"{}\\\" timeout={}ms\\n\",\n                config.connect_address,\n                config.connect_port,\n-               strerror(errno),\n+               ::strerror(errno),\n                now_ms.count());\n     logger.error(\"Failed to connect SCTP socket to {}:{}. error=\\\"{}\\\" timeout={}ms\",\n                  config.connect_address,\n                  config.connect_port,\n-                 strerror(errno),\n+                 ::strerror(errno),\n                  now_ms.count());\n     return false;\n   }\n@@ -127,7 +127,7 @@ void sctp_network_gateway_impl::receive()\n                                 &msg_flags);\n \n   if (rx_bytes == -1 && errno != EAGAIN) {\n-    logger.error(\"Error reading from SCTP socket: {}\", strerror(errno));\n+    logger.error(\"Error reading from SCTP socket: {}\", ::strerror(errno));\n   } else if (rx_bytes == -1 && errno == EAGAIN) {\n     if (!config.non_blocking_mode) {\n       logger.debug(\"Socket timeout reached\");\n@@ -258,18 +258,18 @@ void sctp_network_gateway_impl::handle_pdu(const byte_buffer& pdu)\n     msg_dst_addrlen = msg_src_addrlen;\n   }\n \n-  int bytes_sent = sctp_sendmsg(socket.fd().value(),\n-                                pdu_span.data(),\n-                                pdu_span.size_bytes(),\n-                                (struct sockaddr*)&msg_dst_addr,\n-                                msg_dst_addrlen,\n-                                htonl(config.ppid),\n-                                0,\n-                                stream_no,\n-                                0,\n-                                0);\n+  int bytes_sent = ::sctp_sendmsg(socket.fd().value(),\n+                                  pdu_span.data(),\n+                                  pdu_span.size_bytes(),\n+                                  (struct sockaddr*)&msg_dst_addr,\n+                                  msg_dst_addrlen,\n+                                  htonl(config.ppid),\n+                                  0,\n+                                  stream_no,\n+                                  0,\n+                                  0);\n   if (bytes_sent == -1) {\n-    logger.error(\"Couldn't send {} B of data on SCTP socket: {}\", pdu_span.size_bytes(), strerror(errno));\n+    logger.error(\"Couldn't send {} B of data on SCTP socket: {}\", pdu_span.size_bytes(), ::strerror(errno));\n     return;\n   }\n }",
+      "additions": 14,
+      "deletions": 14,
+      "changes": 28
+    },
+    {
+      "filename": "lib/gateways/sctp_network_server_impl.cpp",
+      "patch": "@@ -54,22 +54,22 @@ class sctp_network_server_impl::sctp_send_notifier : public sctp_association_sdu\n     span<const uint8_t> pdu_span = to_span(sdu, send_buffer);\n \n     transport_layer_address::native_type dest_addr  = client_addr.native();\n-    int                                  bytes_sent = sctp_sendmsg(fd,\n-                                  pdu_span.data(),\n-                                  pdu_span.size(),\n-                                  const_cast<struct sockaddr*>(dest_addr.addr),\n-                                  dest_addr.addrlen,\n-                                  htonl(ppid),\n-                                  0,\n-                                  stream_no,\n-                                  0,\n-                                  0);\n+    int                                  bytes_sent = ::sctp_sendmsg(fd,\n+                                    pdu_span.data(),\n+                                    pdu_span.size(),\n+                                    const_cast<struct sockaddr*>(dest_addr.addr),\n+                                    dest_addr.addrlen,\n+                                    htonl(ppid),\n+                                    0,\n+                                    stream_no,\n+                                    0,\n+                                    0);\n     if (bytes_sent == -1) {\n       logger.error(\"{} assoc={}: Closing SCTP association. Cause: Couldn't send {} B of data. errno={}\",\n                    if_name,\n                    assoc_id,\n                    pdu_span.size_bytes(),\n-                   strerror(errno));\n+                   ::strerror(errno));\n       close();\n       return false;\n     }\n@@ -86,22 +86,23 @@ class sctp_network_server_impl::sctp_send_notifier : public sctp_association_sdu\n \n     // Send EOF to SCTP client.\n     transport_layer_address::native_type dest_addr  = client_addr.native();\n-    int                                  bytes_sent = sctp_sendmsg(fd,\n-                                  nullptr,\n-                                  0,\n-                                  const_cast<struct sockaddr*>(dest_addr.addr),\n-                                  dest_addr.addrlen,\n-                                  htonl(ppid),\n-                                  SCTP_EOF,\n-                                  stream_no,\n-                                  0,\n-                                  0);\n+    int                                  bytes_sent = ::sctp_sendmsg(fd,\n+                                    nullptr,\n+                                    0,\n+                                    const_cast<struct sockaddr*>(dest_addr.addr),\n+                                    dest_addr.addrlen,\n+                                    htonl(ppid),\n+                                    SCTP_EOF,\n+                                    stream_no,\n+                                    0,\n+                                    0);\n \n     if (bytes_sent == -1) {\n       // Failed to send EOF.\n       // Note: It may happen when the sender notifier is removed just before the SCTP shutdown event is handled in\n       // the server recv thread.\n-      logger.info(\"{} assoc={}: Couldn't send EOF during shut down (errno=\\\"{}\\\")\", if_name, assoc_id, strerror(errno));\n+      logger.info(\n+          \"{} assoc={}: Couldn't send EOF during shut down (errno=\\\"{}\\\")\", if_name, assoc_id, ::strerror(errno));\n     } else {\n       logger.debug(\"{} assoc={}: Sent EOF to SCTP client and closed SCTP association\", if_name, assoc_id);\n     }\n@@ -173,7 +174,7 @@ void sctp_network_server_impl::receive()\n   // Handle error.\n   if (rx_bytes == -1) {\n     if (errno != EAGAIN) {\n-      logger.error(\"Error reading from SCTP socket: {}\", strerror(errno));\n+      logger.error(\"Error reading from SCTP socket: {}\", ::strerror(errno));\n       handle_socket_shutdown(nullptr);\n     } else {\n       if (!node_cfg.non_blocking_mode) {",
+      "additions": 24,
+      "deletions": 23,
+      "changes": 47
+    },
+    {
+      "filename": "lib/gateways/udp_network_gateway_impl.cpp",
+      "patch": "@@ -118,9 +118,9 @@ void udp_network_gateway_impl::handle_pdu_impl(span<udp_tx_pdu_t> pdus)\n     }\n   }\n \n-  int ret = sendmmsg(sock_fd.value(), tx_ctx.mmsg.data(), msg_index, 0);\n+  int ret = ::sendmmsg(sock_fd.value(), tx_ctx.mmsg.data(), msg_index, 0);\n   if (ret < 0) {\n-    logger.error(\"Could not send {} packets to socket. ret={} error={}\", msg_index, ret, strerror(errno));\n+    logger.error(\"Could not send {} packets to socket. ret={} error={}\", msg_index, ret, ::strerror(errno));\n   }\n }\n \n@@ -144,9 +144,9 @@ bool udp_network_gateway_impl::create_and_bind()\n   std::string      bind_port = std::to_string(config.bind_port);\n   struct addrinfo* results;\n \n-  int ret = getaddrinfo(config.bind_address.c_str(), bind_port.c_str(), &hints, &results);\n+  int ret = ::getaddrinfo(config.bind_address.c_str(), bind_port.c_str(), &hints, &results);\n   if (ret != 0) {\n-    logger.error(\"Getaddrinfo error: {} - {}\", config.bind_address, gai_strerror(ret));\n+    logger.error(\"Getaddrinfo error: {} - {}\", config.bind_address, ::gai_strerror(ret));\n     return false;\n   }\n \n@@ -161,14 +161,14 @@ bool udp_network_gateway_impl::create_and_bind()\n \n     char ip_addr[NI_MAXHOST];\n     char port_nr[NI_MAXSERV];\n-    getnameinfo(\n+    ::getnameinfo(\n         result->ai_addr, result->ai_addrlen, ip_addr, NI_MAXHOST, port_nr, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);\n     logger.debug(\"Binding to {} port {}\", ip_addr, port_nr);\n \n     if (::bind(sock_fd.value(), result->ai_addr, result->ai_addrlen) == -1) {\n       // binding failed, try next address\n       ret = errno;\n-      logger.debug(\"Failed to bind to {}:{} - {}\", ip_addr, port_nr, strerror(ret));\n+      logger.debug(\"Failed to bind to {}:{} - {}\", ip_addr, port_nr, ::strerror(ret));\n       close_socket();\n       continue;\n     }\n@@ -180,7 +180,7 @@ bool udp_network_gateway_impl::create_and_bind()\n     }\n \n     // store client address\n-    memcpy(&local_addr, result->ai_addr, result->ai_addrlen);\n+    std::memcpy(&local_addr, result->ai_addr, result->ai_addrlen);\n     local_addrlen     = result->ai_addrlen;\n     local_ai_family   = result->ai_family;\n     local_ai_socktype = result->ai_socktype;\n@@ -200,19 +200,19 @@ bool udp_network_gateway_impl::create_and_bind()\n     break;\n   }\n \n-  freeaddrinfo(results);\n+  ::freeaddrinfo(results);\n \n   if (not sock_fd.is_open()) {\n     fmt::print(\"Failed to bind {} socket to {}:{}. {}\\n\",\n                ipproto_to_string(hints.ai_protocol),\n                config.bind_address,\n                config.bind_port,\n-               strerror(ret));\n+               ::strerror(ret));\n     logger.error(\"Failed to bind {} socket to {}:{}. {}\",\n                  ipproto_to_string(hints.ai_protocol),\n                  config.bind_address,\n                  config.bind_port,\n-                 strerror(ret));\n+                 ::strerror(ret));\n     return false;\n   }\n \n@@ -276,7 +276,7 @@ void udp_network_gateway_impl::receive()\n   int rx_msgs = recvmmsg(sock_fd.value(), rx_context.rx_msghdr.data(), config.rx_max_mmsg, MSG_WAITFORONE, nullptr);\n   srslog::fetch_basic_logger(\"IO-EPOLL\").info(\"UDP rx {} packets, max is {}\", rx_msgs, config.rx_max_mmsg);\n   if (rx_msgs == -1 && errno != EAGAIN) {\n-    logger.error(\"Error reading from UDP socket: {}\", strerror(errno));\n+    logger.error(\"Error reading from UDP socket: {}\", ::strerror(errno));\n     return;\n   }\n   if (rx_msgs == -1 && errno == EAGAIN) {\n@@ -328,9 +328,9 @@ std::optional<uint16_t> udp_network_gateway_impl::get_bind_port() const\n   sockaddr*        gw_addr     = (sockaddr*)&gw_addr_storage;\n   socklen_t        gw_addr_len = sizeof(gw_addr_storage);\n \n-  int ret = getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n+  int ret = ::getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n   if (ret != 0) {\n-    logger.error(\"Failed `getsockname` in UDP network gateway with sock_fd={}: {}\", sock_fd.value(), strerror(errno));\n+    logger.error(\"Failed `getsockname` in UDP network gateway with sock_fd={}: {}\", sock_fd.value(), ::strerror(errno));\n     return {};\n   }\n \n@@ -368,21 +368,22 @@ bool udp_network_gateway_impl::get_bind_address(std::string& ip_address) const\n   sockaddr*        gw_addr         = (sockaddr*)&gw_addr_storage;\n   socklen_t        gw_addr_len     = sizeof(gw_addr_storage);\n \n-  int ret = getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n+  int ret = ::getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n   if (ret != 0) {\n-    logger.error(\"Failed `getsockname` in UDP network gateway with sock_fd={}: {}\", sock_fd.value(), strerror(errno));\n+    logger.error(\"Failed `getsockname` in UDP network gateway with sock_fd={}: {}\", sock_fd.value(), ::strerror(errno));\n     return false;\n   }\n \n   char addr_str[INET6_ADDRSTRLEN] = {};\n   if (gw_addr->sa_family == AF_INET) {\n     if (inet_ntop(AF_INET, &((sockaddr_in*)gw_addr)->sin_addr, addr_str, INET6_ADDRSTRLEN) == nullptr) {\n-      logger.error(\"Could not convert sockaddr_in to string. sock_fd={}, errno={}\", sock_fd.value(), strerror(errno));\n+      logger.error(\"Could not convert sockaddr_in to string. sock_fd={}, errno={}\", sock_fd.value(), ::strerror(errno));\n       return false;\n     }\n   } else if (gw_addr->sa_family == AF_INET6) {\n     if (inet_ntop(AF_INET6, &((sockaddr_in6*)gw_addr)->sin6_addr, addr_str, INET6_ADDRSTRLEN) == nullptr) {\n-      logger.error(\"Could not convert sockaddr_in6 to string. sock_fd={}, errno={}\", sock_fd.value(), strerror(errno));\n+      logger.error(\n+          \"Could not convert sockaddr_in6 to string. sock_fd={}, errno={}\", sock_fd.value(), ::strerror(errno));\n       return false;\n     }\n   } else {\n@@ -424,15 +425,15 @@ bool udp_network_gateway_impl::set_sockopts()\n \n bool udp_network_gateway_impl::set_non_blocking()\n {\n-  int flags = fcntl(sock_fd.value(), F_GETFL, 0);\n+  int flags = ::fcntl(sock_fd.value(), F_GETFL, 0);\n   if (flags == -1) {\n-    logger.error(\"Error getting socket flags: {}\", strerror(errno));\n+    logger.error(\"Error getting socket flags: {}\", ::strerror(errno));\n     return false;\n   }\n \n-  int s = fcntl(sock_fd.value(), F_SETFL, flags | O_NONBLOCK);\n+  int s = ::fcntl(sock_fd.value(), F_SETFL, flags | O_NONBLOCK);\n   if (s == -1) {\n-    logger.error(\"Error setting socket to non-blocking mode: {}\", strerror(errno));\n+    logger.error(\"Error setting socket to non-blocking mode: {}\", ::strerror(errno));\n     return false;\n   }\n \n@@ -445,8 +446,8 @@ bool udp_network_gateway_impl::set_receive_timeout(unsigned rx_timeout_sec)\n   tv.tv_sec  = rx_timeout_sec;\n   tv.tv_usec = 0;\n \n-  if (setsockopt(sock_fd.value(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv)) {\n-    logger.error(\"Couldn't set receive timeout for socket: {}\", strerror(errno));\n+  if (::setsockopt(sock_fd.value(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv)) {\n+    logger.error(\"Couldn't set receive timeout for socket: {}\", ::strerror(errno));\n     return false;\n   }\n \n@@ -456,8 +457,8 @@ bool udp_network_gateway_impl::set_receive_timeout(unsigned rx_timeout_sec)\n bool udp_network_gateway_impl::set_reuse_addr()\n {\n   int one = 1;\n-  if (setsockopt(sock_fd.value(), SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one))) {\n-    logger.error(\"Couldn't set reuseaddr for socket: {}\", strerror(errno));\n+  if (::setsockopt(sock_fd.value(), SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one))) {\n+    logger.error(\"Couldn't set reuseaddr for socket: {}\", ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -471,15 +472,15 @@ bool udp_network_gateway_impl::set_dscp()\n   uint8_t option = config.dscp.value() << 2; // DSCP is the only the 6 most significant bits.\n   if (local_addr.ss_family == AF_INET) {\n     if (::setsockopt(sock_fd.value(), IPPROTO_IP, IP_TOS, &option, sizeof(option))) {\n-      logger.error(\"Couldn't set DSCP for socket: {}\", strerror(errno));\n+      logger.error(\"Couldn't set DSCP for socket: {}\", ::strerror(errno));\n       return false;\n     }\n     logger.debug(\"Set DSCP for socket. dscp={}\", config.dscp.value());\n     return true;\n   }\n   if (local_addr.ss_family == AF_INET6) {\n-    if (setsockopt(sock_fd.value(), IPPROTO_IPV6, IPV6_TCLASS, &option, sizeof(option))) {\n-      logger.error(\"Couldn't set DSCP for socket: {}\", strerror(errno));\n+    if (::setsockopt(sock_fd.value(), IPPROTO_IPV6, IPV6_TCLASS, &option, sizeof(option))) {\n+      logger.error(\"Couldn't set DSCP for socket: {}\", ::strerror(errno));\n       return false;\n     }\n     logger.debug(\"Set DSCP for socket. dscp={}\", config.dscp.value());\n@@ -492,7 +493,7 @@ bool udp_network_gateway_impl::set_dscp()\n bool udp_network_gateway_impl::close_socket()\n {\n   if (not sock_fd.close()) {\n-    logger.error(\"Error closing socket: {}\", strerror(errno));\n+    logger.error(\"Error closing socket: {}\", ::strerror(errno));\n     return false;\n   }\n   return true;",
+      "additions": 30,
+      "deletions": 29,
+      "changes": 59
+    },
+    {
+      "filename": "lib/gtpu/gtpu_pdu.cpp",
+      "patch": "@@ -12,27 +12,27 @@\n #include \"gtpu_tunnel_logger.h\"\n #include \"srsran/support/bit_encoding.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n-bool gtpu_read_ext_header(bit_decoder&                decoder,\n-                          gtpu_extension_header&      ext,\n-                          gtpu_extension_header_type& next_extension_header_type,\n-                          gtpu_tunnel_logger&         logger);\n+static bool gtpu_read_ext_header(bit_decoder&                decoder,\n+                                 gtpu_extension_header&      ext,\n+                                 gtpu_extension_header_type& next_extension_header_type,\n+                                 gtpu_tunnel_logger&         logger);\n \n-bool gtpu_write_ext_header(bit_encoder&                 encoder,\n-                           const gtpu_extension_header& ext,\n-                           gtpu_extension_header_type   next_extension_header_type,\n-                           gtpu_tunnel_logger&          logger);\n+static bool gtpu_write_ext_header(bit_encoder&                 encoder,\n+                                  const gtpu_extension_header& ext,\n+                                  gtpu_extension_header_type   next_extension_header_type,\n+                                  gtpu_tunnel_logger&          logger);\n \n-void gtpu_unpack_ext_header_type(bit_decoder& decoder, gtpu_extension_header_type& type);\n+static void gtpu_unpack_ext_header_type(bit_decoder& decoder, gtpu_extension_header_type& type);\n \n-uint16_t gtpu_get_length(const gtpu_header& header, const byte_buffer& sdu);\n+static uint16_t gtpu_get_length(const gtpu_header& header, const byte_buffer& sdu);\n \n /****************************************************************************\n  * Header pack/unpack helper functions\n  * Ref: 3GPP TS 29.281 v10.1.0 Section 5\n  ***************************************************************************/\n-bool gtpu_write_header(byte_buffer& pdu, const gtpu_header& header, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_write_header(byte_buffer& pdu, const gtpu_header& header, gtpu_tunnel_logger& logger)\n {\n   // flags\n   if (!gtpu_supported_flags_check(header, logger)) {\n@@ -115,7 +115,7 @@ bool gtpu_write_header(byte_buffer& pdu, const gtpu_header& header, gtpu_tunnel_\n   return true;\n }\n \n-bool gtpu_write_ie_recovery(byte_buffer& pdu, gtpu_ie_recovery& ie_recovery, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_write_ie_recovery(byte_buffer& pdu, gtpu_ie_recovery& ie_recovery, gtpu_tunnel_logger& logger)\n {\n   logger.log_debug(\"Writing IE recovery. restart_counter={}\", ie_recovery.restart_counter);\n   bit_encoder enc{pdu};\n@@ -125,9 +125,9 @@ bool gtpu_write_ie_recovery(byte_buffer& pdu, gtpu_ie_recovery& ie_recovery, gtp\n   return pack_ok;\n }\n \n-bool gtpu_write_ie_private_extension(byte_buffer&               pdu,\n-                                     gtpu_ie_private_extension& ie_priv_ext,\n-                                     gtpu_tunnel_logger&        logger)\n+bool srsran::gtpu_write_ie_private_extension(byte_buffer&               pdu,\n+                                             gtpu_ie_private_extension& ie_priv_ext,\n+                                             gtpu_tunnel_logger&        logger)\n {\n   logger.log_debug(\"Writing IE private extension.\");\n   bit_encoder enc{pdu};\n@@ -141,21 +141,22 @@ bool gtpu_write_ie_private_extension(byte_buffer&               pdu,\n   return pack_ok;\n }\n \n-bool gtpu_read_ie_type(gtpu_information_element_type& ie_type, bit_decoder& dec, srslog::basic_logger& logger)\n+static bool gtpu_read_ie_type(gtpu_information_element_type& ie_type, bit_decoder& dec, srslog::basic_logger& logger)\n {\n   bool read_ok = true;\n   read_ok &= dec.unpack(reinterpret_cast<std::underlying_type_t<gtpu_information_element_type>&>(ie_type), 8);\n   return read_ok;\n }\n \n-bool gtpu_read_ie_teid_i(gtpu_ie_teid_i& ie, bit_decoder& dec, srslog::basic_logger& logger)\n+static bool gtpu_read_ie_teid_i(gtpu_ie_teid_i& ie, bit_decoder& dec, srslog::basic_logger& logger)\n {\n   bool read_ok = true;\n   read_ok &= dec.unpack(ie.teid_i, 32);\n   return read_ok;\n }\n \n-bool gtpu_read_ie_gtpu_peer_address(gtpu_ie_gtpu_peer_address& ie, bit_decoder& dec, srslog::basic_logger& logger)\n+static bool\n+gtpu_read_ie_gtpu_peer_address(gtpu_ie_gtpu_peer_address& ie, bit_decoder& dec, srslog::basic_logger& logger)\n {\n   bool     read_ok = true;\n   uint16_t length  = 0;\n@@ -181,7 +182,7 @@ bool gtpu_read_ie_gtpu_peer_address(gtpu_ie_gtpu_peer_address& ie, bit_decoder&\n   return read_ok;\n }\n \n-bool gtpu_read_teid(uint32_t& teid, const byte_buffer& pdu, srslog::basic_logger& logger)\n+bool srsran::gtpu_read_teid(uint32_t& teid, const byte_buffer& pdu, srslog::basic_logger& logger)\n {\n   if (pdu.length() < GTPU_BASE_HEADER_LEN) {\n     logger.error(pdu.begin(), pdu.end(), \"GTP-U PDU is too small. pdu_len={}\", pdu.length());\n@@ -197,7 +198,7 @@ bool gtpu_read_teid(uint32_t& teid, const byte_buffer& pdu, srslog::basic_logger\n   return true;\n }\n \n-bool gtpu_dissect_pdu(gtpu_dissected_pdu& dissected_pdu, byte_buffer raw_pdu, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_dissect_pdu(gtpu_dissected_pdu& dissected_pdu, byte_buffer raw_pdu, gtpu_tunnel_logger& logger)\n {\n   if (raw_pdu.length() < GTPU_BASE_HEADER_LEN) {\n     logger.log_error(raw_pdu.begin(), raw_pdu.end(), \"GTP-U PDU is too small. pdu_len={}\", raw_pdu.length());\n@@ -301,10 +302,10 @@ bool gtpu_dissect_pdu(gtpu_dissected_pdu& dissected_pdu, byte_buffer raw_pdu, gt\n   return true;\n }\n \n-bool gtpu_read_ext_header(bit_decoder&                decoder,\n-                          gtpu_extension_header&      ext,\n-                          gtpu_extension_header_type& next_extension_header_type,\n-                          gtpu_tunnel_logger&         logger)\n+static bool gtpu_read_ext_header(bit_decoder&                decoder,\n+                                 gtpu_extension_header&      ext,\n+                                 gtpu_extension_header_type& next_extension_header_type,\n+                                 gtpu_tunnel_logger&         logger)\n {\n   // TODO check valid read extension types\n \n@@ -329,10 +330,10 @@ bool gtpu_read_ext_header(bit_decoder&                decoder,\n   return true;\n }\n \n-bool gtpu_write_ext_header(bit_encoder&                 encoder,\n-                           const gtpu_extension_header& ext,\n-                           gtpu_extension_header_type   next_extension_header_type,\n-                           gtpu_tunnel_logger&          logger)\n+static bool gtpu_write_ext_header(bit_encoder&                 encoder,\n+                                  const gtpu_extension_header& ext,\n+                                  gtpu_extension_header_type   next_extension_header_type,\n+                                  gtpu_tunnel_logger&          logger)\n {\n   // TODO check valid write extension types\n \n@@ -352,15 +353,15 @@ bool gtpu_write_ext_header(bit_encoder&                 encoder,\n   return pack_ok;\n }\n \n-void gtpu_unpack_ext_header_type(bit_decoder& decoder, gtpu_extension_header_type& type)\n+static void gtpu_unpack_ext_header_type(bit_decoder& decoder, gtpu_extension_header_type& type)\n {\n   uint8_t tmp = 0;\n   decoder.unpack(tmp, 8);\n   type = static_cast<gtpu_extension_header_type>(tmp);\n }\n \n /// Supported feature helpers\n-bool gtpu_supported_flags_check(const gtpu_header& header, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_supported_flags_check(const gtpu_header& header, gtpu_tunnel_logger& logger)\n {\n   // flags\n   if (header.flags.version != GTPU_FLAGS_VERSION_V1) {\n@@ -378,7 +379,7 @@ bool gtpu_supported_flags_check(const gtpu_header& header, gtpu_tunnel_logger& l\n   return true;\n }\n \n-bool gtpu_supported_msg_type_check(const gtpu_header& header, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_supported_msg_type_check(const gtpu_header& header, gtpu_tunnel_logger& logger)\n {\n   // msg_tpye\n   if (header.message_type != GTPU_MSG_DATA_PDU && header.message_type != GTPU_MSG_ECHO_REQUEST &&\n@@ -390,7 +391,8 @@ bool gtpu_supported_msg_type_check(const gtpu_header& header, gtpu_tunnel_logger\n   return true;\n }\n \n-bool gtpu_extension_header_comprehension_check(const gtpu_extension_header_type& type, gtpu_tunnel_logger& logger)\n+bool srsran::gtpu_extension_header_comprehension_check(const gtpu_extension_header_type& type,\n+                                                       gtpu_tunnel_logger&               logger)\n {\n   switch (type) {\n     case gtpu_extension_header_type::no_more_extension_headers:\n@@ -429,15 +431,15 @@ bool gtpu_extension_header_comprehension_check(const gtpu_extension_header_type&\n   return comp_not_needed;\n }\n \n-byte_buffer gtpu_extract_msg(gtpu_dissected_pdu&& dissected_pdu)\n+byte_buffer srsran::gtpu_extract_msg(gtpu_dissected_pdu&& dissected_pdu)\n {\n   dissected_pdu.buf.trim_head(dissected_pdu.hdr_len);\n   return std::move(dissected_pdu.buf);\n }\n \n-bool gtpu_read_msg_error_indication(gtpu_msg_error_indication& error_indication,\n-                                    const byte_buffer&         pdu,\n-                                    srslog::basic_logger&      logger)\n+bool srsran::gtpu_read_msg_error_indication(gtpu_msg_error_indication& error_indication,\n+                                            const byte_buffer&         pdu,\n+                                            srslog::basic_logger&      logger)\n {\n   bool                          read_ok = true;\n   bit_decoder                   decoder = bit_decoder{pdu};\n@@ -464,7 +466,7 @@ bool gtpu_read_msg_error_indication(gtpu_msg_error_indication& error_indication,\n   return read_ok;\n }\n \n-uint16_t gtpu_get_length(const gtpu_header& header, const byte_buffer& sdu)\n+static uint16_t gtpu_get_length(const gtpu_header& header, const byte_buffer& sdu)\n {\n   uint16_t len = sdu.length();\n \n@@ -480,5 +482,3 @@ uint16_t gtpu_get_length(const gtpu_header& header, const byte_buffer& sdu)\n \n   return len;\n }\n-\n-} // namespace srsran",
+      "additions": 40,
+      "deletions": 40,
+      "changes": 80
+    },
+    {
+      "filename": "lib/gtpu/gtpu_tunnel_base_tx.h",
+      "patch": "@@ -40,7 +40,7 @@ class gtpu_tunnel_base_tx\n       ((::sockaddr_in6*)&out_sockaddr)->sin6_family = AF_INET6;\n       ((::sockaddr_in6*)&out_sockaddr)->sin6_port   = htons(port);\n     } else {\n-      logger.log_error(\"Invalid address or port. addr={} port={} errno={}\", addr, port, strerror(errno));\n+      logger.log_error(\"Invalid address or port. addr={} port={} errno={}\", addr, port, ::strerror(errno));\n       return false;\n     }\n     return true;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/du_time_controller.cpp",
+      "patch": "@@ -128,7 +128,7 @@ void du_time_controller::handle_cell_deactivation(du_cell_index_t cell_index)\n \n slot_point_extended du_time_controller::handle_slot_ind(du_cell_index_t cell_index, slot_point sl_tx)\n {\n-  constexpr static int MAX_SKIPPED = 128;\n+  static constexpr int MAX_SKIPPED = 128;\n \n   // Set logger context.\n   logger.set_context(sl_tx.sfn(), sl_tx.slot_index());",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_metrics_aggregator.h",
+      "patch": "@@ -33,7 +33,7 @@ class mac_metrics_aggregator\n public:\n   /// \\brief Maximum delay between the first and last report in the aggregation period.\n   /// \\remark The value is an heuristic to compensate for cells that get too delayed.\n-  constexpr static std::chrono::milliseconds aggregation_timeout{8};\n+  static constexpr std::chrono::milliseconds aggregation_timeout{8};\n \n   mac_metrics_aggregator(const mac_control_config::metrics_config& cfg,\n                          task_executor&                            ctrl_exec_,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -512,7 +512,7 @@ void mac_cell_processor::update_logical_channel_dl_buffer_states(const dl_sched_\n   }\n }\n \n-void mac_cell_processor::write_tx_pdu_pcap(const slot_point&         sl_tx,\n+void mac_cell_processor::write_tx_pdu_pcap(slot_point                sl_tx,\n                                            const sched_result&       sl_res,\n                                            const mac_dl_data_result& dl_res)\n {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.h",
+      "patch": "@@ -87,7 +87,7 @@ class mac_cell_processor final : public mac_cell_slot_handler, public mac_cell_c\n   /// Update DL buffer states of the allocated DL bearers.\n   void update_logical_channel_dl_buffer_states(const dl_sched_result& dl_res);\n \n-  void write_tx_pdu_pcap(const slot_point& sl_tx, const sched_result& sl_res, const mac_dl_data_result& dl_res);\n+  void write_tx_pdu_pcap(slot_point sl_tx, const sched_result& sl_res, const mac_dl_data_result& dl_res);\n \n   srslog::basic_logger&           logger;\n   const mac_cell_creation_request cell_cfg;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_impl.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"mac_impl.h\"\n #include \"mac_sched/srsran_scheduler_adapter.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n mac_impl::mac_impl(const mac_config& params) :\n   rnti_table(params.mac_cfg.initial_crnti),\n@@ -46,5 +46,3 @@ mac_impl::mac_impl(const mac_config& params) :\n             *mac_sched)\n {\n }\n-\n-} // namespace srsran",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/mac/mac_ul/pdu_rx_handler.cpp",
+      "patch": "@@ -390,7 +390,7 @@ bool pdu_rx_handler::handle_crnti_ce(const decoded_mac_rx_pdu& ctx, const mac_ul\n   return true;\n }\n \n-void pdu_rx_handler::write_pcap_rx_pdu(const slot_point& sl_rx, const mac_rx_pdu& pdu)\n+void pdu_rx_handler::write_pcap_rx_pdu(slot_point sl_rx, const mac_rx_pdu& pdu)\n {\n   if (not pcap.is_write_enabled()) {\n     return;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/pdu_rx_handler.h",
+      "patch": "@@ -117,7 +117,7 @@ class pdu_rx_handler\n   bool handle_crnti_ce(const decoded_mac_rx_pdu& pdu, const mac_ul_sch_subpdu& subpdu);\n \n   /// Handle PDU to PCAP file\n-  void write_pcap_rx_pdu(const slot_point& sl_rx, const mac_rx_pdu& pdu);\n+  void write_pcap_rx_pdu(slot_point sl_rx, const mac_rx_pdu& pdu);\n \n   mac_ul_ccch_notifier&               ccch_notifier;\n   srs_du::du_high_ue_executor_mapper& ue_exec_mapper;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/nru/nru_packing.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"srsran/nru/nru_packing.h\"\n #include \"srsran/support/bit_encoding.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n /// Macro used to check a read/unpack operation and log an error message if the validation fails.\n #define VERIFY_READ(cond)                                                                                              \\\n@@ -429,5 +429,3 @@ bool nru_packing::pack(byte_buffer& out_buf, const nru_dl_data_delivery_status&\n \n   return true;\n }\n-\n-} // namespace srsran",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ofh/compression/iq_compression_bfp_avx512.cpp",
+      "patch": "@@ -140,7 +140,7 @@ void iq_compression_bfp_avx512::compress(span<uint8_t>                buffer,\n     span<uint8_t> output_span(&buffer[rb * prb_size], prb_size);\n \n     // Save exponent.\n-    memcpy(output_span.data(), &exp_byte_ptr[0], sizeof(uint8_t));\n+    std::memcpy(output_span.data(), &exp_byte_ptr[0], sizeof(uint8_t));\n \n     // Shift and pack a PRB using utility function.\n     __m512i rb_shifted_epi16 = _mm512_srai_epi16(rb_epi16, exp_byte_ptr[0]);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/ethernet/ethernet_receiver_impl.cpp",
+      "patch": "@@ -49,7 +49,7 @@ receiver_impl::receiver_impl(const receiver_config& config, task_executor& execu\n {\n   socket_fd = ::socket(AF_PACKET, SOCK_RAW, htons(ECPRI_ETH_TYPE));\n   if (socket_fd < 0) {\n-    report_error(\"Unable to open raw socket for Ethernet receiver: {}\", strerror(errno));\n+    report_error(\"Unable to open raw socket for Ethernet receiver: {}\", ::strerror(errno));\n   }\n \n   if (config.interface.size() > (IFNAMSIZ - 1)) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ofh/ethernet/ethernet_transmitter_impl.cpp",
+      "patch": "@@ -26,7 +26,7 @@ transmitter_impl::transmitter_impl(const transmitter_config& config, srslog::bas\n {\n   socket_fd = ::socket(AF_PACKET, SOCK_RAW | SOCK_NONBLOCK, IPPROTO_RAW);\n   if (socket_fd < 0) {\n-    report_error(\"Unable to open raw socket for Ethernet transmitter: {}\", strerror(errno));\n+    report_error(\"Unable to open raw socket for Ethernet transmitter: {}\", ::strerror(errno));\n   }\n \n   if (config.interface.size() > (IFNAMSIZ - 1)) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/pcap_file_writer.cpp",
+      "patch": "@@ -42,14 +42,14 @@ bool pcap_file_writer::open(uint32_t dlt_, const std::string& filename_)\n \n   pcap_fstream.open(filename.c_str(), std::ios::out | std::ios::binary);\n   if (pcap_fstream.fail()) {\n-    logger.error(\"Failed to open file {} for writing: {}\", filename, strerror(errno));\n+    logger.error(\"Failed to open file {} for writing: {}\", filename, ::strerror(errno));\n     return false;\n   }\n   logger.debug(\"Opened file {} for writing. DLT={}\", filename, dlt);\n \n   pcap_fstream.write((char*)&file_header, sizeof(file_header));\n   if (pcap_fstream.fail()) {\n-    logger.error(\"Failed to write to PCAP: {}\", strerror(errno));\n+    logger.error(\"Failed to write to PCAP: {}\", ::strerror(errno));\n     return false;\n   }\n \n@@ -91,7 +91,7 @@ void pcap_file_writer::write_pdu_header(uint32_t length)\n \n   pcap_fstream.write((char*)&packet_header, sizeof(packet_header));\n   if (pcap_fstream.fail()) {\n-    logger.error(\"Failed to write to PCAP: {}\", strerror(errno));\n+    logger.error(\"Failed to write to PCAP: {}\", ::strerror(errno));\n     return;\n   }\n }\n@@ -104,7 +104,7 @@ void pcap_file_writer::write_pdu(srsran::const_span<uint8_t> pdu)\n \n   pcap_fstream.write((char*)pdu.data(), pdu.size());\n   if (pcap_fstream.fail()) {\n-    logger.error(\"Failed to write to PCAP: {}\", strerror(errno));\n+    logger.error(\"Failed to write to PCAP: {}\", ::strerror(errno));\n     return;\n   }\n }\n@@ -118,7 +118,7 @@ void pcap_file_writer::write_pdu(const byte_buffer& pdu)\n   for (span<const uint8_t> seg : pdu.segments()) {\n     pcap_fstream.write((char*)seg.data(), seg.size());\n     if (pcap_fstream.fail()) {\n-      logger.error(\"Failed to write to PCAP: {}\", strerror(errno));\n+      logger.error(\"Failed to write to PCAP: {}\", ::strerror(errno));\n       return;\n     }\n   }",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/pcap/rlc_pcap_impl.cpp",
+      "patch": "@@ -149,7 +149,7 @@ int nr_pcap_pack_rlc_context_to_buffer(const pcap_rlc_pdu_context& context, uint\n   /* UEID */\n   buffer[offset++] = PCAP_RLC_NR_UEID_TAG;\n   tmp16            = htons(context.ueid);\n-  memcpy(buffer + offset, &tmp16, 2);\n+  std::memcpy(buffer + offset, &tmp16, 2);\n   offset += 2;\n \n   /* Bearer type */",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/generic_functions/dft_processor_fftw_impl.cpp",
+      "patch": "@@ -87,7 +87,7 @@ dft_processor_fftw_impl::fftw_wisdom_filename::fftw_wisdom_filename()\n     // Get user entry in users database.\n     const passwd* pwuid = getpwuid(getuid());\n     if (pwuid == nullptr) {\n-      printf(\"Failed to load home directory: %s. Skipping wisdom load/save.\\n\", strerror(errno));\n+      printf(\"Failed to load home directory: %s. Skipping wisdom load/save.\\n\", ::strerror(errno));\n       return;\n     }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/metrics/phy_metrics_channel_equalizer_decorator.h",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #pragma once\n+\n #include \"srsran/phy/metrics/phy_metrics_notifiers.h\"\n #include \"srsran/phy/metrics/phy_metrics_reports.h\"\n #include \"srsran/phy/upper/equalization/channel_equalizer.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/metrics/phy_metrics_channel_precoder_decorator.h",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #pragma once\n+\n #include \"srsran/phy/generic_functions/precoding/channel_precoder.h\"\n #include \"srsran/phy/metrics/phy_metrics_notifiers.h\"\n #include \"srsran/phy/metrics/phy_metrics_reports.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/metrics/phy_metrics_ulsch_demultiplex_decorator.h",
+      "patch": "@@ -29,9 +29,8 @@ class phy_metrics_ulsch_demultiplex_decorator : public ulsch_demultiplex, privat\n   }\n \n   // See ulsch_demultiplex interface for documentation.\n-  void set_csi_part2(pusch_decoder_buffer& csi_part2,\n-                     unsigned int          nof_csi_part2_bits,\n-                     unsigned int          nof_csi_part2_enc_bits) override\n+  void\n+  set_csi_part2(pusch_decoder_buffer& csi_part2, unsigned nof_csi_part2_bits, unsigned nof_csi_part2_enc_bits) override\n   {\n     base->set_csi_part2(csi_part2, nof_csi_part2_bits, nof_csi_part2_enc_bits);\n   }",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_impl.cpp",
+      "patch": "@@ -90,7 +90,7 @@ void ldpc_rate_dematcher_impl::rate_dematch(span<log_likelihood_ratio>       out\n   nof_filler_bits = cfg.cb_specific.nof_filler_bits;\n \n   double tmp = (shift_factor[rv] * buffer_length) / block_length;\n-  shift_k0   = static_cast<uint16_t>(floor(tmp)) * lifting_size;\n+  shift_k0   = static_cast<uint16_t>(std::floor(tmp)) * lifting_size;\n \n   if (modulation_order == 1) {\n     allot_llrs(output, input);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_matcher_impl.cpp",
+      "patch": "@@ -75,7 +75,7 @@ void ldpc_rate_matcher_impl::init(const codeblock_metadata& cfg, unsigned block_\n   srsran_assert(get_lifting_index(static_cast<lifting_size_t>(lifting_size)) != VOID_LIFTSIZE,\n                 \"LDPC rate matching: invalid input length.\");\n   double tmp = (shift_factor[rv] * buffer_length) / block_length;\n-  shift_k0   = static_cast<uint16_t>(floor(tmp)) * lifting_size;\n+  shift_k0   = static_cast<uint16_t>(std::floor(tmp)) * lifting_size;\n }\n \n void ldpc_rate_matcher_impl::rate_match(bit_buffer&                output,",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch/pdsch_block_processor_hw_impl.h",
+      "patch": "@@ -7,6 +7,7 @@\n  * the distribution.\n  *\n  */\n+\n #pragma once\n \n #include \"srsran/hal/phy/upper/channel_processors/hw_accelerator_pdsch_enc.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch/pdsch_block_processor_impl.h",
+      "patch": "@@ -7,6 +7,7 @@\n  * the distribution.\n  *\n  */\n+\n #pragma once\n \n #include \"srsran/phy/support/resource_grid_mapper.h\"",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/phy/upper/rx_buffer_pool_impl.cpp",
+      "patch": "@@ -22,7 +22,7 @@\n using namespace srsran;\n \n unique_rx_buffer\n-rx_buffer_pool_impl::reserve(const slot_point& slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data)\n+rx_buffer_pool_impl::reserve(slot_point slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data)\n {\n   // No more reservations are allowed if the pool is stopped.\n   if (stopped.load(std::memory_order_acquire)) {\n@@ -89,7 +89,7 @@ rx_buffer_pool_impl::reserve(const slot_point& slot, trx_buffer_identifier id, u\n   return unique_rx_buffer(buffer);\n }\n \n-void rx_buffer_pool_impl::run_slot(const slot_point& slot)\n+void rx_buffer_pool_impl::run_slot(slot_point slot)\n {\n   // Predicate for finding available buffers.\n   auto pred = [](trx_buffer_identifier id) { return id != trx_buffer_identifier::invalid(); };",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/phy/upper/rx_buffer_pool_impl.h",
+      "patch": "@@ -50,11 +50,10 @@ class rx_buffer_pool_impl : public rx_buffer_pool_controller, private rx_buffer_\n   srslog::basic_logger& logger;\n \n   // See interface for documentation.\n-  unique_rx_buffer\n-  reserve(const slot_point& slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) override;\n+  unique_rx_buffer reserve(slot_point slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) override;\n \n   // See interface for documentation.\n-  void run_slot(const slot_point& slot) override;\n+  void run_slot(slot_point slot) override;\n \n public:\n   /// \\brief Creates a generic receiver buffer pool.",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "lib/phy/upper/sequence_generators/pseudo_random_generator_impl.cpp",
+      "patch": "@@ -89,7 +89,7 @@ void pseudo_random_generator_impl::generate(bit_buffer& data)\n     uint64_t c                 = sequence.step64();\n     c                          = __builtin_bswap64(c);\n     span<uint8_t> output_chunk = data.get_buffer().subspan(i_byte, max_nof_bytes_step);\n-    memcpy(output_chunk.data(), &c, max_nof_bytes_step);\n+    std::memcpy(output_chunk.data(), &c, max_nof_bytes_step);\n   }\n \n   // Process spare bits in a batch of the remainder bits.\n@@ -134,9 +134,9 @@ void pseudo_random_generator_impl::generate(bit_buffer& data)\n #define FLOAT_U32_XOR(DST, SRC, U32_MASK)                                                                              \\\n   do {                                                                                                                 \\\n     uint32_t temp_u32;                                                                                                 \\\n-    memcpy(&temp_u32, &(SRC), 4);                                                                                      \\\n+    std::memcpy(&temp_u32, &(SRC), 4);                                                                                 \\\n     temp_u32 ^= (U32_MASK);                                                                                            \\\n-    memcpy(&(DST), &temp_u32, 4);                                                                                      \\\n+    std::memcpy(&(DST), &temp_u32, 4);                                                                                 \\\n   } while (false)\n \n void pseudo_random_generator_impl::generate(span<float> out, float value)\n@@ -258,9 +258,9 @@ void pseudo_random_generator_impl::apply_xor(bit_buffer& out, const bit_buffer&\n     uint64_t c = sequence.step64();\n     c          = __builtin_bswap64(c);\n     uint64_t temp;\n-    memcpy(&temp, &in.get_buffer()[i_byte], 8);\n+    std::memcpy(&temp, &in.get_buffer()[i_byte], 8);\n     temp ^= c;\n-    memcpy(&out.get_buffer()[i_byte], &temp, 8);\n+    std::memcpy(&out.get_buffer()[i_byte], &temp, 8);\n   }\n \n   // Process spare bits in a batch of the remainder bits.",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/psup/psup_packing.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"srsran/psup/psup_packing.h\"\n #include \"srsran/support/bit_encoding.h\"\n \n-namespace srsran {\n+using namespace srsran;\n \n bool psup_packing::unpack(psup_dl_pdu_session_information& dl_pdu_session_information, byte_buffer_view container) const\n {\n@@ -137,5 +137,3 @@ bool psup_packing::pack(byte_buffer& out_buf, const psup_dl_pdu_session_informat\n   }\n   return true;\n }\n-\n-} // namespace srsran",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ran/pdcch/pdcch_type0_css_occasions.cpp",
+      "patch": "@@ -86,10 +86,11 @@ unsigned srsran::type0_pdcch_css_n0_is_even_frame(double   table_13_11_and_13_12\n   slot_point sl_point{numerology_mu, 0};\n \n   // Compute floor( ( O * 2^mu + floor(i*M) ) / nof_slots_per_frame  ) mod 2, as per TS 38.213, Section 13.\n-  unsigned is_even = static_cast<unsigned>(floor(static_cast<double>(table_13_11_and_13_12_O * (1U << numerology_mu)) +\n-                                                 floor(static_cast<double>(ssb_index) * table_13_11_and_13_12_M)) /\n-                                           sl_point.nof_slots_per_frame()) %\n-                     2;\n+  unsigned is_even =\n+      static_cast<unsigned>(std::floor(static_cast<double>(table_13_11_and_13_12_O * (1U << numerology_mu)) +\n+                                       std::floor(static_cast<double>(ssb_index) * table_13_11_and_13_12_M)) /\n+                            sl_point.nof_slots_per_frame()) %\n+      2;\n   return is_even;\n }\n \n@@ -104,7 +105,7 @@ slot_point srsran::get_type0_pdcch_css_n0(double             table_13_11_and_13_\n \n   // Compute n0 = ( O * 2^mu + floor(i*M)  )  % nof_slots_per_frame, as per TS 38.213, Section 13.\n   type0_pdcch_css_n0 += static_cast<unsigned>(static_cast<double>(table_13_11_and_13_12_O * (1U << numerology_mu)) +\n-                                              floor(static_cast<double>(ssb_index) * table_13_11_and_13_12_M)) %\n+                                              std::floor(static_cast<double>(ssb_index) * table_13_11_and_13_12_M)) %\n                         type0_pdcch_css_n0.nof_slots_per_frame();\n \n   // We want to express n0 as a value from 0 to max_nof_slots. Since the mod operation above cap n0 to",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11
+    },
+    {
+      "filename": "lib/ran/prach/prach_preamble_information.cpp",
+      "patch": "@@ -175,16 +175,16 @@ prach_symbols_slots_duration srsran::get_prach_duration_info(const prach_configu\n     const prach_preamble_information info = get_prach_preamble_long_info(prach_cfg.format);\n \n     const double length_msecs = (info.cp_length.to_seconds() + info.symbol_length().to_seconds()) * 1000;\n-    output.nof_symbols        = ceil(length_msecs / symbol_duration_msec);\n+    output.nof_symbols        = std::ceil(length_msecs / symbol_duration_msec);\n     // Map the starting symbol with from the SCS 15kHz FR1 reference for PRACH into PUSCH SCS.\n     const unsigned start_symbol_pusch_scs_in_subframe =\n         prach_cfg.starting_symbol * (1U << to_numerology_value(pusch_scs));\n     // Start slot within the subframe. For FR1, the start_symbol_pusch_scs_in_subframe refers to the SCS 15kHz.\n     output.start_slot_pusch_scs   = start_symbol_pusch_scs_in_subframe / nof_symbols_per_slot;\n     output.start_symbol_pusch_scs = start_symbol_pusch_scs_in_subframe % nof_symbols_per_slot;\n     output.prach_length_slots =\n-        static_cast<unsigned>(ceil(static_cast<double>(output.start_symbol_pusch_scs + output.nof_symbols) /\n-                                   (static_cast<double>(nof_symbols_per_slot))));\n+        static_cast<unsigned>(std::ceil(static_cast<double>(output.start_symbol_pusch_scs + output.nof_symbols) /\n+                                        (static_cast<double>(nof_symbols_per_slot))));\n   } else {\n     const prach_subcarrier_spacing prach_scs = to_ra_subcarrier_spacing(pusch_scs);\n     output.nof_symbols = static_cast<unsigned>(prach_cfg.nof_occasions_within_slot * prach_cfg.duration);",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/ran/ssb/ssb_freq_position_generator.cpp",
+      "patch": "@@ -186,11 +186,11 @@ unsigned ssb_freq_position_generator::find_M_raster()\n     // constraints.\n     if (is_ssb_inside_band) {\n       const bool is_scs_30khz_spacing = scs_common == subcarrier_spacing::kHz30 && scs_ssb == subcarrier_spacing::kHz30;\n-      const bool is_multiple_of_scs   = is_scs_30khz_spacing\n-                                            ? fmod(static_cast<unsigned>(f_ssb_0_hz - point_A_hz),\n-                                                 scs_to_khz(subcarrier_spacing::kHz30) * band_helper::KHZ_TO_HZ) == 0.0\n-                                            : fmod(static_cast<unsigned>(f_ssb_0_hz - point_A_hz),\n-                                                 scs_to_khz(subcarrier_spacing::kHz15) * band_helper::KHZ_TO_HZ) == 0.0;\n+      const bool is_multiple_of_scs =\n+          is_scs_30khz_spacing ? std::fmod(static_cast<unsigned>(f_ssb_0_hz - point_A_hz),\n+                                           scs_to_khz(subcarrier_spacing::kHz30) * band_helper::KHZ_TO_HZ) == 0.0\n+                               : std::fmod(static_cast<unsigned>(f_ssb_0_hz - point_A_hz),\n+                                           scs_to_khz(subcarrier_spacing::kHz15) * band_helper::KHZ_TO_HZ) == 0.0;\n \n       if (is_multiple_of_scs) {\n         M_raster = M;\n@@ -264,7 +264,7 @@ ssb_freq_location ssb_freq_position_generator::get_next_ssb_location()\n     if (is_ssb_inside_band) {\n       const subcarrier_spacing ref_scs = (scs_common == scs_ssb) ? scs_ssb : band_helper::get_ssb_ref_scs(scs_ssb);\n       const bool               is_multiple_of_scs =\n-          fmod(f_ssb_0_hz - point_A_hz, static_cast<double>(scs_to_khz(ref_scs) * band_helper::KHZ_TO_HZ)) == 0.0;\n+          std::fmod(f_ssb_0_hz - point_A_hz, static_cast<double>(scs_to_khz(ref_scs) * band_helper::KHZ_TO_HZ)) == 0.0;\n \n       if (is_multiple_of_scs) {\n         ssb.offset_to_point_A = compute_offset_to_pointA(f_ssb_0_hz, point_A_hz, scs_common);\n@@ -317,9 +317,10 @@ ssb_freq_location ssb_freq_position_generator::get_next_ssb_location_special_ras\n       const bool is_scs_30khz_spacing = scs_common == subcarrier_spacing::kHz30 && scs_ssb == subcarrier_spacing::kHz30;\n       const bool is_multiple_of_scs =\n           is_scs_30khz_spacing\n-              ? fmod(f_ssb_0_hz - point_A_hz,\n-                     static_cast<double>(scs_to_khz(subcarrier_spacing::kHz30) * band_helper::KHZ_TO_HZ)) == 0.0\n-              : fmod(f_ssb_0_hz - point_A_hz, scs_to_khz(subcarrier_spacing::kHz15) * band_helper::KHZ_TO_HZ) == 0.0;\n+              ? std::fmod(f_ssb_0_hz - point_A_hz,\n+                          static_cast<double>(scs_to_khz(subcarrier_spacing::kHz30) * band_helper::KHZ_TO_HZ)) == 0.0\n+              : std::fmod(f_ssb_0_hz - point_A_hz, scs_to_khz(subcarrier_spacing::kHz15) * band_helper::KHZ_TO_HZ) ==\n+                    0.0;\n \n       if (is_multiple_of_scs) {\n         ssb.offset_to_point_A = compute_offset_to_pointA(f_ssb_0_hz, point_A_hz, scs_common);",
+      "additions": 10,
+      "deletions": 9,
+      "changes": 19
+    },
+    {
+      "filename": "lib/rrc/ue/procedures/rrc_reestablishment_procedure.cpp",
+      "patch": "@@ -215,7 +215,7 @@ bool rrc_reestablishment_procedure::verify_security_context()\n   // Get RX short MAC.\n   security::sec_short_mac_i short_mac = {};\n   uint16_t short_mac_int              = htons(reestablishment_request.rrc_reest_request.ue_id.short_mac_i.to_number());\n-  memcpy(short_mac.data(), &short_mac_int, 2);\n+  std::memcpy(short_mac.data(), &short_mac_int, 2);\n \n   // Get packed varShortMAC-Input.\n   asn1::rrc_nr::var_short_mac_input_s var_short_mac_input = {};",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/cell/scheduler_prb.cpp",
+      "patch": "@@ -17,7 +17,7 @@ bwp_rb_bitmap::bwp_rb_bitmap(uint32_t bwp_nof_prbs, uint32_t bwp_prb_start_, boo\n   prbs_(bwp_nof_prbs),\n   rbgs_(get_nof_rbgs(crb_interval(bwp_prb_start_, bwp_prb_start_ + bwp_nof_prbs), config1_or_2)),\n   P_(get_nominal_rbg_size(bwp_nof_prbs, config1_or_2)),\n-  Pnofbits(log2(to_nominal_rbg_size_value(P_))),\n+  Pnofbits(std::log2(to_nominal_rbg_size_value(P_))),\n   first_rbg_size(get_rbg_size(crb_interval(bwp_prb_start_, bwp_prb_start_ + bwp_nof_prbs), P_, 0))\n {\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ssb_scheduler.cpp",
+      "patch": "@@ -22,7 +22,7 @@ ssb_scheduler::ssb_scheduler(const cell_configuration& cfg_) :\n   ssb_period = ssb_periodicity_to_value(cell_cfg.ssb_cfg.ssb_period);\n }\n \n-void ssb_scheduler::run_slot(cell_resource_allocator& res_alloc, const slot_point& sl_point)\n+void ssb_scheduler::run_slot(cell_resource_allocator& res_alloc, slot_point sl_point)\n {\n   if (first_run_slot) {\n     const unsigned ssb_period_slots = ssb_period * sl_point.nof_slots_per_subframe();\n@@ -39,7 +39,7 @@ void ssb_scheduler::run_slot(cell_resource_allocator& res_alloc, const slot_poin\n \n void ssb_scheduler::schedule_ssb(cell_slot_resource_allocator& res_grid)\n {\n-  const slot_point&     sl_point = res_grid.slot;\n+  slot_point            sl_point = res_grid.slot;\n   ssb_information_list& ssb_list = res_grid.result.dl.bc.ssb_info;\n \n   if (ssb_list.full()) {\n@@ -78,7 +78,7 @@ void ssb_scheduler::schedule_ssb(cell_slot_resource_allocator& res_grid)\n \n void ssb_scheduler::ssb_alloc_case_A_C(ssb_information_list& ssb_list,\n                                        uint32_t              freq_arfcn_cut_off,\n-                                       const slot_point&     sl_point_mod)\n+                                       slot_point            sl_point_mod)\n {\n   uint32_t slot_idx = sl_point_mod.to_uint();\n \n@@ -119,7 +119,7 @@ void ssb_scheduler::ssb_alloc_case_A_C(ssb_information_list& ssb_list,\n   }\n }\n \n-void ssb_scheduler::ssb_alloc_case_B(ssb_information_list& ssb_list, const slot_point& sl_point_mod)\n+void ssb_scheduler::ssb_alloc_case_B(ssb_information_list& ssb_list, slot_point sl_point_mod)\n {\n   uint32_t slot_idx = sl_point_mod.to_uint();\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ssb_scheduler.h",
+      "patch": "@@ -37,7 +37,7 @@ class ssb_scheduler\n   /// \\param[in]  sl_point       Slot point carrying information about current slot.\n   ///\n   /// \\remark This function only works for FR1, or L_max = 4 or 8.\n-  void run_slot(cell_resource_allocator& res_allocator, const slot_point& sl_point);\n+  void run_slot(cell_resource_allocator& res_allocator, slot_point sl_point);\n \n   /// \\brief Schedule grant for SSB.\n   ///\n@@ -51,10 +51,10 @@ class ssb_scheduler\n \n private:\n   /// \\brief Perform allocation for case A and C (both paired and unpaired spectrum) - TS 38.213, Section 4.1.\n-  void ssb_alloc_case_A_C(ssb_information_list& ssb_list, uint32_t freq_arfcn_cut_off, const slot_point& sl_point_mod);\n+  void ssb_alloc_case_A_C(ssb_information_list& ssb_list, uint32_t freq_arfcn_cut_off, slot_point sl_point_mod);\n \n   /// \\brief Perform SSB allocation for case B (both paired and unpaired spectrum) - TS 38.213, Section 4.1.\n-  void ssb_alloc_case_B(ssb_information_list& ssb_list, const slot_point& sl_point_mod);\n+  void ssb_alloc_case_B(ssb_information_list& ssb_list, slot_point sl_point_mod);\n \n   static void fill_ssb_parameters(ssb_information_list& ssb_list,\n                                   ssb_offset_to_pointA  offset_to_point_A,",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -526,9 +526,9 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.rnti                = rnti;\n   ret.cqi_stats           = data.cqi;\n   ret.dl_ri_stats         = data.dl_ri;\n-  uint8_t mcs             = data.nof_dl_cws > 0 ? std::roundf(static_cast<float>(data.dl_mcs) / data.nof_dl_cws) : 0;\n+  uint8_t mcs             = data.nof_dl_cws > 0 ? std::round(static_cast<float>(data.dl_mcs) / data.nof_dl_cws) : 0;\n   ret.dl_mcs              = sch_mcs_index{mcs};\n-  mcs                     = data.nof_puschs > 0 ? std::roundf(static_cast<float>(data.ul_mcs) / data.nof_puschs) : 0;\n+  mcs                     = data.nof_puschs > 0 ? std::round(static_cast<float>(data.ul_mcs) / data.nof_puschs) : 0;\n   ret.ul_mcs              = sch_mcs_index{mcs};\n   ret.tot_pdsch_prbs_used = data.tot_dl_prbs_used;\n   ret.tot_pusch_prbs_used = data.tot_ul_prbs_used;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/policy/scheduler_time_qos.cpp",
+      "patch": "@@ -103,7 +103,7 @@ double compute_pf_metric(double estim_rate, double avg_rate, double fairness_coe\n         // rate, as its impact is minimal.\n         pf_weight = 1 / avg_rate;\n       } else {\n-        pf_weight = estim_rate / pow(avg_rate, fairness_coeff);\n+        pf_weight = estim_rate / std::pow(avg_rate, fairness_coeff);\n       }\n     } else {\n       // In case the avg rate is zero, the division would be inf. Instead, we give the highest priority to the UE.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/grant_params_selector.cpp",
+      "patch": "@@ -199,7 +199,7 @@ static std::optional<dl_sched_context> get_dl_sched_context(const slice_ue&\n   unsigned                     slot_nof_symbols = cell_cfg.get_nof_dl_symbol_per_slot(pdsch_slot);\n \n   // TODO: Support more search spaces.\n-  constexpr static search_space_id ue_ded_ss_id = to_search_space_id(2);\n+  static constexpr search_space_id ue_ded_ss_id = to_search_space_id(2);\n   const search_space_info&         ss           = ue_cc.cfg().search_space(ue_ded_ss_id);\n \n   if (h_dl != nullptr) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/intra_slice_scheduler.cpp",
+      "patch": "@@ -515,7 +515,7 @@ unsigned intra_slice_scheduler::schedule_dl_newtx_candidates(dl_ran_slice_candid\n     }\n \n     // Compute the corresponding CRBs.\n-    constexpr static search_space_id      ue_ded_ss_id = to_search_space_id(2);\n+    static constexpr search_space_id      ue_ded_ss_id = to_search_space_id(2);\n     const auto&                           ss_info      = grant_builder.ue().get_cc().cfg().search_space(ue_ded_ss_id);\n     std::pair<crb_interval, crb_interval> alloc_crbs;\n     if (enable_pdsch_interleaving) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -399,7 +399,7 @@ ue_cell_grid_allocator::allocate_dl_grant(const ue_retx_dl_grant_request& reques\n   }\n \n   // Compute the corresponding CRBs.\n-  constexpr static search_space_id      ue_ded_ss_id = to_search_space_id(2);\n+  static constexpr search_space_id      ue_ded_ss_id = to_search_space_id(2);\n   const auto&                           ss_info      = request.user.get_cc().cfg().search_space(ue_ded_ss_id);\n   std::pair<crb_interval, crb_interval> crbs;\n   if (request.interleaving_enabled) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/security/integrity_engine_nia2_non_cmac.cpp",
+      "patch": "@@ -76,7 +76,7 @@ expected<security::sec_mac, security_error> integrity_engine_nia2_non_cmac::comp\n   std::fill(msg.begin() + len + 8, msg.end(), 0);\n \n   // MAC generation\n-  const uint32_t n = ceilf((float)(len + 8) / (float)(16));\n+  const uint32_t n = std::ceil((float)(len + 8) / (float)(16));\n   std::fill(tmp_mac.begin(), tmp_mac.end(), 0);\n   for (uint32_t i = 0; i < (n - 1); i++) {\n     for (uint32_t j = 0; j < 16; j++) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/security/security.cpp",
+      "patch": "@@ -188,11 +188,11 @@ void srsran::security::generate_k_ng_ran_star(sec_key&       k_star,\n \n   // ARFCN, can be two or three bytes\n   std::vector<uint8_t> target_ssb_arfcn;\n-  if (target_ssb_arfcn_ < pow(2, 16)) {\n+  if (target_ssb_arfcn_ < (1U << 16)) {\n     target_ssb_arfcn.resize(2);\n     target_ssb_arfcn[0] = (target_ssb_arfcn_ >> 8U) & 0xffU;\n     target_ssb_arfcn[1] = target_ssb_arfcn_ & 0xffU;\n-  } else if (target_ssb_arfcn_ < pow(2, 24)) {\n+  } else if (target_ssb_arfcn_ < (1U << 24)) {\n     target_ssb_arfcn.resize(3);\n     target_ssb_arfcn[0] = (target_ssb_arfcn_ >> 16U) & 0xffU;\n     target_ssb_arfcn[1] = (target_ssb_arfcn_ >> 8U) & 0xffU;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/executors/unique_thread.cpp",
+      "patch": "@@ -52,7 +52,7 @@ static bool thread_set_affinity(pthread_t t, const os_sched_affinity_bitmask& bi\n   }\n   int ret;\n   if ((ret = pthread_setaffinity_np(t, cpuset_size, cpusetp)) != 0) {\n-    fmt::print(\"Couldn't set affinity for {} thread. Cause: '{}'\\n\", name, strerror(ret));\n+    fmt::print(\"Couldn't set affinity for {} thread. Cause: '{}'\\n\", name, ::strerror(ret));\n     CPU_FREE(cpusetp);\n     return false;\n   }\n@@ -88,7 +88,7 @@ static void print_thread_priority(pthread_t t, const char* tname, std::thread::i\n \n   s = pthread_getaffinity_np(t, sizeof(::cpu_set_t), &cpuset);\n   if (s != 0) {\n-    printf(\"error pthread_getaffinity_np: %s\\n\", strerror(s));\n+    printf(\"error pthread_getaffinity_np: %s\\n\", ::strerror(s));\n   }\n \n   printf(\"Set returned by pthread_getaffinity_np() contained:\\n\");\n@@ -100,7 +100,7 @@ static void print_thread_priority(pthread_t t, const char* tname, std::thread::i\n \n   s = pthread_getschedparam(t, &policy, &param);\n   if (s != 0) {\n-    printf(\"error pthread_getaffinity_np: %s\\n\", strerror(s));\n+    printf(\"error pthread_getaffinity_np: %s\\n\", ::strerror(s));\n   }\n \n   switch (policy) {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/network/io_broker_epoll.cpp",
+      "patch": "@@ -33,13 +33,13 @@ io_broker_epoll::io_broker_epoll(const io_broker_config& config) :\n   // Init epoll socket\n   epoll_fd = unique_fd{::epoll_create1(0)};\n   if (not epoll_fd.is_open()) {\n-    report_fatal_error(\"IO broker: failed to create epoll file descriptor. error={}\", strerror(errno));\n+    report_fatal_error(\"IO broker: failed to create epoll file descriptor. error={}\", ::strerror(errno));\n   }\n \n   // Register fd and event_handler to handle stops, fd registrations and fd deregistrations.\n   auto ctrl_event_fd = unique_fd{::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)};\n   if (not ctrl_event_fd.is_open()) {\n-    report_fatal_error(\"IO broker: failed to create control event file descriptor. error={}\", strerror(errno));\n+    report_fatal_error(\"IO broker: failed to create control event file descriptor. error={}\", ::strerror(errno));\n   }\n   auto data_handler  = [this]() { handle_enqueued_events(); };\n   auto error_handler = [this](error_code code) {\n@@ -76,7 +76,7 @@ io_broker_epoll::~io_broker_epoll()\n \n   // Close epoll socket.\n   if (not epoll_fd.close()) {\n-    logger.error(\"Failed to close io epoll broker file descriptor: {}\", strerror(errno));\n+    logger.error(\"Failed to close io epoll broker file descriptor: {}\", ::strerror(errno));\n   }\n \n   logger.info(\"Closed io_broker\");\n@@ -121,7 +121,7 @@ void io_broker_epoll::thread_loop()\n     if (nof_events == -1) {\n       // Note: \"Interrupted system call\" can happen while debugging.\n       if (errno != EINTR) {\n-        logger.error(\"epoll_wait(): {}\", strerror(errno));\n+        logger.error(\"epoll_wait(): {}\", ::strerror(errno));\n       }\n       continue;\n     }\n@@ -279,7 +279,7 @@ bool io_broker_epoll::handle_fd_registration(unique_fd               fd,\n   epoll_ev.events             = EPOLLIN | EPOLLONESHOT;\n   if (::epoll_ctl(epoll_fd.value(), EPOLL_CTL_ADD, raw_fd, &epoll_ev) == -1) {\n     logger.error(\n-        \"fd={}: Failed to register file descriptor. Cause: epoll_ctl failed with \\\"{}\\\"\", raw_fd, strerror(errno));\n+        \"fd={}: Failed to register file descriptor. Cause: epoll_ctl failed with \\\"{}\\\"\", raw_fd, ::strerror(errno));\n     if (complete_notifier != nullptr) {\n       complete_notifier->set_value(false);\n     }\n@@ -328,7 +328,7 @@ bool io_broker_epoll::handle_fd_epoll_removal(int                       fd,\n   epoll_ev.events             = EPOLLIN;\n   if (::epoll_ctl(epoll_fd.value(), EPOLL_CTL_DEL, fd, &epoll_ev) == -1) {\n     logger.error(\n-        \"fd={}: Failed to deregister file descriptor. Cause: epoll_ctl failed with \\\"{}\\\"\", fd, strerror(errno));\n+        \"fd={}: Failed to deregister file descriptor. Cause: epoll_ctl failed with \\\"{}\\\"\", fd, ::strerror(errno));\n     event_handler.erase(ev_it);\n     if (complete_notifier != nullptr) {\n       complete_notifier->set_value(false);\n@@ -458,7 +458,7 @@ void io_broker_epoll::stop_impl()\n     if (::epoll_ctl(epoll_fd.value(), EPOLL_CTL_DEL, it->first, &epoll_ev) == -1) {\n       logger.error(\"fd={}: Failed to deregister file descriptor. Cause: epoll_ctl failed with \\\"{}\\\"\",\n                    it->first,\n-                   strerror(errno));\n+                   ::strerror(errno));\n     }\n     it = event_handler.erase(it);\n   }",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "lib/support/network/sctp_socket.cpp",
+      "patch": "@@ -55,7 +55,7 @@ bool sctp_set_rto_opts(const unique_fd&                         fd,\n   socklen_t    rto_sz    = sizeof(sctp_rtoinfo);\n   rto_opts.srto_assoc_id = SCTP_FUTURE_ASSOC;\n   if (getsockopt(fd.value(), SOL_SCTP, SCTP_RTOINFO, &rto_opts, &rto_sz) < 0) {\n-    logger.error(\"{}: Error getting RTO_INFO sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error getting RTO_INFO sockopts. errno={}\", if_name, ::strerror(errno));\n     return false; // Responsibility of closing the socket is on the caller\n   }\n \n@@ -78,7 +78,7 @@ bool sctp_set_rto_opts(const unique_fd&                         fd,\n       rto_opts.srto_max);\n \n   if (::setsockopt(fd.value(), SOL_SCTP, SCTP_RTOINFO, &rto_opts, rto_sz) < 0) {\n-    logger.error(\"{}: Error setting RTO_INFO sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error setting RTO_INFO sockopts. errno={}\", if_name, ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -104,7 +104,7 @@ bool sctp_set_init_msg_opts(const unique_fd&                         fd,\n   sctp_initmsg init_opts = {};\n   socklen_t    init_sz   = sizeof(sctp_initmsg);\n   if (getsockopt(fd.value(), SOL_SCTP, SCTP_INITMSG, &init_opts, &init_sz) < 0) {\n-    logger.error(\"{}: Error getting sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error getting sockopts. errno={}\", if_name, ::strerror(errno));\n     return false; // Responsibility of closing the socket is on the caller\n   }\n \n@@ -120,7 +120,7 @@ bool sctp_set_init_msg_opts(const unique_fd&                         fd,\n                init_opts.sinit_max_attempts,\n                init_opts.sinit_max_init_timeo);\n   if (::setsockopt(fd.value(), SOL_SCTP, SCTP_INITMSG, &init_opts, init_sz) < 0) {\n-    logger.error(\"{}: Error setting SCTP_INITMSG sockopts. errno={}\\n\", if_name, strerror(errno));\n+    logger.error(\"{}: Error setting SCTP_INITMSG sockopts. errno={}\\n\", if_name, ::strerror(errno));\n     return false; // Responsibility of closing the socket is on the caller\n   }\n   return true;\n@@ -145,7 +145,7 @@ bool sctp_set_paddr_opts(const unique_fd&                         fd,\n   socklen_t        paddr_sz   = sizeof(sctp_paddrparams);\n   paddr_opts.spp_assoc_id     = SCTP_FUTURE_ASSOC;\n   if (getsockopt(fd.value(), SOL_SCTP, SCTP_PEER_ADDR_PARAMS, &paddr_opts, &paddr_sz) < 0) {\n-    logger.error(\"{}: Error getting SCTP_PEER_ADDR_PARAMS sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error getting SCTP_PEER_ADDR_PARAMS sockopts. errno={}\", if_name, ::strerror(errno));\n     return false; // Responsibility of closing the socket is on the caller\n   }\n \n@@ -158,7 +158,7 @@ bool sctp_set_paddr_opts(const unique_fd&                         fd,\n                (unsigned)paddr_opts.spp_hbinterval);\n \n   if (::setsockopt(fd.value(), SOL_SCTP, SCTP_PEER_ADDR_PARAMS, &paddr_opts, paddr_sz) < 0) {\n-    logger.error(\"{}: Error setting SCTP_PEER_ADDR_PARAMS sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error setting SCTP_PEER_ADDR_PARAMS sockopts. errno={}\", if_name, ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -183,7 +183,7 @@ bool sctp_set_assoc_opts(const unique_fd&      fd,\n   socklen_t        assoc_sz   = sizeof(sctp_assocparams);\n   assoc_opts.sasoc_assoc_id   = SCTP_FUTURE_ASSOC;\n   if (getsockopt(fd.value(), SOL_SCTP, SCTP_ASSOCINFO, &assoc_opts, &assoc_sz) < 0) {\n-    logger.error(\"{}: Error getting SCTP_ASSOCINFO sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error getting SCTP_ASSOCINFO sockopts. errno={}\", if_name, ::strerror(errno));\n     return false; // Responsibility of closing the socket is on the caller\n   }\n \n@@ -196,7 +196,7 @@ bool sctp_set_assoc_opts(const unique_fd&      fd,\n                assoc_opts.sasoc_asocmaxrxt);\n \n   if (::setsockopt(fd.value(), SOL_SCTP, SCTP_ASSOCINFO, &assoc_opts, assoc_sz) < 0) {\n-    logger.error(\"{}: Error setting SCTP_ASSOCINFO sockopts. errno={}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error setting SCTP_ASSOCINFO sockopts. errno={}\", if_name, ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -241,11 +241,11 @@ expected<sctp_socket> sctp_socket::create(const sctp_socket_params& params)\n       socket.logger.error(\n           \"{}: Failed to create SCTP socket: {}. Hint: Please ensure 'sctp' kernel module is available on the system.\",\n           socket.if_name,\n-          strerror(ret));\n+          ::strerror(ret));\n       report_error(\"{}: Failed to create SCTP socket: {}. Hint: Please ensure 'sctp' kernel module is available on the \"\n                    \"system.\\n\",\n                    socket.if_name,\n-                   strerror(ret));\n+                   ::strerror(ret));\n     }\n     return make_unexpected(default_error_t{});\n   }\n@@ -275,7 +275,7 @@ bool sctp_socket::close()\n     return true;\n   }\n   if (not sock_fd.close()) {\n-    logger.error(\"{}: Error closing SCTP socket: {}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error closing SCTP socket: {}\", if_name, ::strerror(errno));\n     return false;\n   }\n   logger.info(\"{}: SCTP socket closed\", if_name);\n@@ -297,7 +297,7 @@ bool sctp_socket::bind(struct sockaddr& ai_addr, const socklen_t& ai_addrlen, co\n   logger.debug(\"{}: Binding to {}...\", if_name, get_nameinfo(ai_addr, ai_addrlen));\n \n   if (::bind(fd().value(), &ai_addr, ai_addrlen) == -1) {\n-    logger.error(\"{}: Failed to bind to {}. Cause: {}\", if_name, get_nameinfo(ai_addr, ai_addrlen), strerror(errno));\n+    logger.error(\"{}: Failed to bind to {}. Cause: {}\", if_name, get_nameinfo(ai_addr, ai_addrlen), ::strerror(errno));\n     return false;\n   }\n \n@@ -322,7 +322,7 @@ bool sctp_socket::connect(struct sockaddr& ai_addr, const socklen_t& ai_addrlen)\n   }\n \n   if (::connect(sock_fd.value(), &ai_addr, ai_addrlen) == -1) {\n-    logger.debug(\"{}: Failed to connect to {} - {}\", if_name, get_nameinfo(ai_addr, ai_addrlen), strerror(errno));\n+    logger.debug(\"{}: Failed to connect to {} - {}\", if_name, get_nameinfo(ai_addr, ai_addrlen), ::strerror(errno));\n     return false;\n   }\n \n@@ -345,7 +345,7 @@ bool sctp_socket::listen()\n   // Listen for connections\n   int ret = ::listen(sock_fd.value(), SOMAXCONN);\n   if (ret != 0) {\n-    logger.error(\"{}: Error in SCTP socket listen: {}\", if_name, strerror(errno));\n+    logger.error(\"{}: Error in SCTP socket listen: {}\", if_name, ::strerror(errno));\n     return false;\n   }\n   if (logger.info.enabled()) {\n@@ -366,7 +366,7 @@ bool sctp_socket::set_sockopts(const sctp_socket_params& params)\n   logger.debug(\"Setting socket options. params=[{}]\", params);\n   if (not sctp_subscribe_to_events(sock_fd)) {\n     logger.error(\n-        \"{}: SCTP failed to be created. Cause: Subscribing to SCTP events failed: {}\", if_name, strerror(errno));\n+        \"{}: SCTP failed to be created. Cause: Subscribing to SCTP events failed: {}\", if_name, ::strerror(errno));\n     return false;\n   }\n \n@@ -398,8 +398,10 @@ bool sctp_socket::set_sockopts(const sctp_socket_params& params)\n \n   // Set SCTP NODELAY option\n   if (not sctp_set_nodelay(sock_fd, params.nodelay)) {\n-    logger.error(\n-        \"{}: Could not set SCTP_NODELAY. optval={} error={}\", if_name, params.nodelay.value() ? 1 : 0, strerror(errno));\n+    logger.error(\"{}: Could not set SCTP_NODELAY. optval={} error={}\",\n+                 if_name,\n+                 params.nodelay.value() ? 1 : 0,\n+                 ::strerror(errno));\n     return false;\n   }\n \n@@ -423,12 +425,12 @@ std::optional<uint16_t> sctp_socket::get_listen_port() const\n   sockaddr*        gw_addr     = (sockaddr*)&gw_addr_storage;\n   socklen_t        gw_addr_len = sizeof(gw_addr_storage);\n \n-  int ret = getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n+  int ret = ::getsockname(sock_fd.value(), gw_addr, &gw_addr_len);\n   if (ret != 0) {\n     logger.error(\"{}: Failed `getsockname` in SCTP network gateway with sock_fd={}: {}\",\n                  if_name,\n                  sock_fd.value(),\n-                 strerror(errno));\n+                 ::strerror(errno));\n     return {};\n   }\n ",
+      "additions": 21,
+      "deletions": 19,
+      "changes": 40
+    },
+    {
+      "filename": "lib/support/network/sockets.cpp",
+      "patch": "@@ -48,7 +48,7 @@ bool srsran::set_reuse_addr(const unique_fd& fd, srslog::basic_logger& logger)\n   srsran_assert(fd.is_open(), \"fd is not open\");\n   int one = 1;\n   if (::setsockopt(fd.value(), SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) != 0) {\n-    logger.error(\"fd={}: Couldn't set reuseaddr for socket: {}\", fd.value(), strerror(errno));\n+    logger.error(\"fd={}: Couldn't set reuseaddr for socket: {}\", fd.value(), ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -65,11 +65,11 @@ bool srsran::bind_to_interface(const unique_fd& fd, const std::string& interface\n   std::strncpy(ifr.ifr_ifrn.ifrn_name, interface.c_str(), IFNAMSIZ - 1);\n   ifr.ifr_ifrn.ifrn_name[IFNAMSIZ - 1] = 0; // ensure null termination in case input exceeds maximum length\n \n-  if (setsockopt(fd.value(), SOL_SOCKET, SO_BINDTODEVICE, &ifr, sizeof(ifr)) < 0) {\n+  if (::setsockopt(fd.value(), SOL_SOCKET, SO_BINDTODEVICE, &ifr, sizeof(ifr)) < 0) {\n     logger.error(\"fd={}: Could not bind socket to interface \\\"{}\\\". errno=\\\"{}\\\"\",\n                  fd.value(),\n                  ifr.ifr_ifrn.ifrn_name,\n-                 strerror(errno));\n+                 ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -80,12 +80,12 @@ bool srsran::sockaddr_to_ip_str(const sockaddr* addr, std::string& ip_address, s\n   char addr_str[INET6_ADDRSTRLEN] = {};\n   if (addr->sa_family == AF_INET) {\n     if (inet_ntop(AF_INET, &((sockaddr_in*)addr)->sin_addr, addr_str, INET6_ADDRSTRLEN) == nullptr) {\n-      logger.error(\"Could not convert sockaddr_in to string. errno=\\\"{}\\\"\", strerror(errno));\n+      logger.error(\"Could not convert sockaddr_in to string. errno=\\\"{}\\\"\", ::strerror(errno));\n       return false;\n     }\n   } else if (addr->sa_family == AF_INET6) {\n     if (inet_ntop(AF_INET6, &((sockaddr_in6*)addr)->sin6_addr, addr_str, INET6_ADDRSTRLEN) == nullptr) {\n-      logger.error(\"Could not convert sockaddr_in6 to string. errno=\\\"{}\\\"\", strerror(errno));\n+      logger.error(\"Could not convert sockaddr_in6 to string. errno=\\\"{}\\\"\", ::strerror(errno));\n       return false;\n     }\n   } else {\n@@ -117,7 +117,7 @@ bool srsran::set_receive_timeout(const unique_fd& fd, std::chrono::seconds rx_ti\n   tv.tv_usec = 0;\n \n   if (::setsockopt(fd.value(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv)) != 0) {\n-    logger.error(\"SCTP failed to be created. Cause: Couldn't set receive timeout for socket: {}\", strerror(errno));\n+    logger.error(\"SCTP failed to be created. Cause: Couldn't set receive timeout for socket: {}\", ::strerror(errno));\n     return false;\n   }\n   return true;\n@@ -129,15 +129,15 @@ bool srsran::set_non_blocking(const unique_fd& fd, srslog::basic_logger& logger)\n     logger.error(\"Failed to set socket as non-blocking. Cause: Socket is closed\");\n     return false;\n   }\n-  int flags = fcntl(fd.value(), F_GETFL, 0);\n+  int flags = ::fcntl(fd.value(), F_GETFL, 0);\n   if (flags == -1) {\n-    logger.error(\"Failed to set socket as non-blocking. Cause: Error getting socket flags: {}\", strerror(errno));\n+    logger.error(\"Failed to set socket as non-blocking. Cause: Error getting socket flags: {}\", ::strerror(errno));\n     return false;\n   }\n \n-  int s = fcntl(fd.value(), F_SETFL, flags | O_NONBLOCK);\n+  int s = ::fcntl(fd.value(), F_SETFL, flags | O_NONBLOCK);\n   if (s == -1) {\n-    logger.error(\"Failed to set socket as non-blocking. Cause: Error {}\", strerror(errno));\n+    logger.error(\"Failed to set socket as non-blocking. Cause: Error {}\", ::strerror(errno));\n     return false;\n   }\n ",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "lib/support/network/transport_layer_address.cpp",
+      "patch": "@@ -16,7 +16,7 @@ using namespace srsran;\n \n transport_layer_address::transport_layer_address(const struct sockaddr& addr_, socklen_t socklen) : addrlen(socklen)\n {\n-  memcpy((struct sockaddr*)&addr_storage, &addr_, addrlen);\n+  std::memcpy((struct sockaddr*)&addr_storage, &addr_, addrlen);\n }\n \n transport_layer_address transport_layer_address::create_from_sockaddr(const struct sockaddr& sockaddr,\n@@ -120,13 +120,13 @@ bool transport_layer_address::operator==(const transport_layer_address& other) c\n   if (addrlen != other.addrlen) {\n     return false;\n   }\n-  return memcmp(&addr_storage, &other.addr_storage, addrlen) == 0;\n+  return std::memcmp(&addr_storage, &other.addr_storage, addrlen) == 0;\n }\n \n bool transport_layer_address::operator<(const transport_layer_address& other) const\n {\n   if (addrlen != other.addrlen) {\n     return addrlen < other.addrlen;\n   }\n-  return memcmp(&addr_storage, &other.addrlen, addrlen) < 0;\n+  return std::memcmp(&addr_storage, &other.addrlen, addrlen) < 0;\n }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/benchmarks/du_high/du_high_benchmark.cpp",
+      "patch": "@@ -1320,7 +1320,7 @@ static void configure_main_thread(span<const unsigned> du_cell_cores)\n     }\n     int ret;\n     if ((ret = pthread_setaffinity_np(self, sizeof(cpuset), &cpuset)) != 0) {\n-      fmt::print(\"Warning: Unable to set affinity for test thread. Cause: '{}'\\n\", strerror(ret));\n+      fmt::print(\"Warning: Unable to set affinity for test thread. Cause: '{}'\\n\", ::strerror(ret));\n       return;\n     }\n   }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_high/du_high_many_cells_test.cpp",
+      "patch": "@@ -297,7 +297,7 @@ INSTANTIATE_TEST_SUITE_P(du_high_many_cells_test_suite,\n class du_high_many_cells_deferred_activation_test : public du_high_env_simulator, public testing::Test\n {\n protected:\n-  constexpr static unsigned nof_cells = 4;\n+  static constexpr unsigned nof_cells = 4;\n \n   du_high_many_cells_deferred_activation_test() :\n     du_high_env_simulator(\n@@ -380,8 +380,8 @@ TEST_F(du_high_many_cells_deferred_activation_test, when_cell_starts_deactivated\n class du_high_many_cells_metrics_test : public du_high_env_simulator, public testing::Test\n {\n protected:\n-  constexpr static std::chrono::milliseconds METRICS_PERIOD{100};\n-  constexpr static unsigned                  nof_cells = 4;\n+  static constexpr std::chrono::milliseconds METRICS_PERIOD{100};\n+  static constexpr unsigned                  nof_cells = 4;\n \n   du_high_many_cells_metrics_test() :\n     du_high_env_simulator([]() {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/integrationtests/ofh/ofh_integration_test.cpp",
+      "patch": "@@ -368,7 +368,7 @@ class lo_eth_receiver : public test_ether_receiver\n   {\n     socket_fd = ::socket(AF_PACKET, SOCK_RAW | SOCK_NONBLOCK, IPPROTO_RAW);\n     if (socket_fd < 0) {\n-      report_error(\"Unable to open raw socket for Ethernet gateway: {}\", strerror(errno));\n+      report_error(\"Unable to open raw socket for Ethernet gateway: {}\", ::strerror(errno));\n     }\n \n     // Get the index of loopback interface.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_ngap_test.cpp",
+      "patch": "@@ -275,7 +275,7 @@ TEST_F(asn1_ngap_test, amf_config_update)\n   ASSERT_TRUE(amf_upd->amf_name_present);\n   ASSERT_EQ(\"srsran\", amf_name.to_string());\n \n-  ASSERT_EQ(sizeof(ngap_msg), ceil(bref.distance_bytes()));\n+  ASSERT_EQ(sizeof(ngap_msg), std::ceil(bref.distance_bytes()));\n   ASSERT_EQ(SRSASN_SUCCESS, test_pack_unpack_consistency(pdu));\n \n   json_writer js;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -424,7 +424,7 @@ TEST(asn1_seq_of_test, pack_unpack_and_operators)\n   }\n \n   int      lb = 0, ub = 40;\n-  uint32_t n_bits = ceil(log2(ub - lb + 1));\n+  uint32_t n_bits = std::ceil(std::log2(ub - lb + 1));\n \n   srsran::byte_buffer buffer;\n   bit_ref             b{buffer};\n@@ -441,7 +441,7 @@ TEST(asn1_seq_of_test, pack_unpack_and_operators)\n   TESTASSERT(bseq.size() == 0);\n   bseq.resize(fixed_list_size);\n   TESTASSERT(bseq.size() == fixed_list_size);\n-  memcpy(&bseq[0], &fixed_list[0], fixed_list_size * sizeof(uint32_t));\n+  std::memcpy(&bseq[0], &fixed_list[0], fixed_list_size * sizeof(uint32_t));\n   b = {buffer};\n   pack_dyn_seq_of(b, bseq, 0, 33, integer_packer<uint32_t>(lb, ub, false));\n   TESTASSERT(b.distance() == (int)((fixed_list_size + 1) * n_bits)); // unaligned\n@@ -503,13 +503,13 @@ TEST(asn1_copy_ptr_test, memory_safety)\n   copy_ptr<TestType> cptr(s);\n   copy_ptr<TestType> cptr2;\n \n-  memcpy(&(*cptr)[0], buffer, N);\n+  std::memcpy(&(*cptr)[0], buffer, N);\n \n   TESTASSERT(cptr2.get() == NULL);\n-  TESTASSERT(memcmp(&(*s)[0], buffer, s->size()) == 0);\n+  TESTASSERT(std::memcmp(&(*s)[0], buffer, s->size()) == 0);\n   TESTASSERT(*cptr == *s);\n   TESTASSERT(cptr.get() == s);\n-  TESTASSERT(memcmp(&(*cptr)[0], buffer, cptr->size()) == 0);\n+  TESTASSERT(std::memcmp(&(*cptr)[0], buffer, cptr->size()) == 0);\n   TESTASSERT(cptr2.get() == NULL);\n   TESTASSERT(cptr.get() != NULL);\n \n@@ -518,7 +518,7 @@ TEST(asn1_copy_ptr_test, memory_safety)\n     TESTASSERT(cptr3 == cptr);\n     TESTASSERT(*cptr3 == *s);\n     TESTASSERT(cptr3.get() != cptr.get()); // different addresses\n-    TESTASSERT(memcmp(&(*cptr3)[0], buffer, cptr3->size()) == 0);\n+    TESTASSERT(std::memcmp(&(*cptr3)[0], buffer, cptr3->size()) == 0);\n     // call dtor\n   }\n   TESTASSERT(*cptr == *s);\n@@ -596,7 +596,7 @@ TEST(asn1_enumerated, pack_unpack)\n   srsran::byte_buffer buffer;\n   bit_ref             bref(buffer);\n   TESTASSERT(pack_enum(bref, e) == SRSASN_SUCCESS);\n-  TESTASSERT(bref.distance() == (int)(floor(log2(e.nof_types)) + 1));\n+  TESTASSERT(bref.distance() == (int)(std::floor(std::log2(e.nof_types)) + 1));\n \n   cbit_ref bref2(buffer);\n   TESTASSERT(unpack_enum(e2, bref2) == SRSASN_SUCCESS);\n@@ -758,7 +758,7 @@ TEST(asn1_real_test, real_positive_number_pack_unpack)\n     for (size_t j = 3; j < out_bytes.size(); ++j) {\n       N = (N << 8) | out_bytes[j];\n     }\n-    float val = static_cast<float>(1.0 * S * N * pow(2, E));\n+    float val = static_cast<float>(1.0 * S * N * std::pow(2, E));\n     TESTASSERT(real_number.value == val);\n \n     real_s   real_number2;\n@@ -796,7 +796,7 @@ TEST(asn1_real_test, real_negative_number_pack_unpack)\n     for (size_t j = 3; j < out_bytes.size(); ++j) {\n       N = (N << 8) | out_bytes[j];\n     }\n-    float val = static_cast<float>(1.0 * S * N * pow(2, E));\n+    float val = static_cast<float>(1.0 * S * N * std::pow(2, E));\n     TESTASSERT(real_number.value == val);\n \n     real_s   real_number2;",
+      "additions": 9,
+      "deletions": 9,
+      "changes": 18
+    },
+    {
+      "filename": "tests/unittests/cu_up/cu_up_test.cpp",
+      "patch": "@@ -198,7 +198,7 @@ class cu_up_test : public ::testing::Test\n \n   upf_info_t init_upf()\n   {\n-    int sock_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n+    int sock_fd = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);\n     if (sock_fd < 0) {\n       return {sock_fd, {}};\n     }\n@@ -211,21 +211,21 @@ class cu_up_test : public ::testing::Test\n \n     int ret = 0;\n \n-    ret = bind(sock_fd, (sockaddr*)&upf_addr, sizeof(upf_addr));\n+    ret = ::bind(sock_fd, (sockaddr*)&upf_addr, sizeof(upf_addr));\n     if (ret < 0) {\n-      fmt::print(stderr, \"Failed to bind socket to `{}:{}` - {}\\n\", upf_addr_str, upf_port, strerror(errno));\n+      fmt::print(stderr, \"Failed to bind socket to `{}:{}` - {}\\n\", upf_addr_str, upf_port, ::strerror(errno));\n       return {ret, {}};\n     }\n \n     // Find out the port that was assigned\n     socklen_t upf_addr_len = sizeof(upf_addr);\n-    ret                    = getsockname(sock_fd, (struct sockaddr*)&upf_addr, &upf_addr_len);\n+    ret                    = ::getsockname(sock_fd, (struct sockaddr*)&upf_addr, &upf_addr_len);\n     if (ret < 0) {\n-      fmt::print(stderr, \"Failed to read port of socket bound to `{}:0` - {}\", upf_addr_str, strerror(errno));\n+      fmt::print(stderr, \"Failed to read port of socket bound to `{}:0` - {}\", upf_addr_str, ::strerror(errno));\n       return {ret, {}};\n     }\n     if (upf_addr_len != sizeof(upf_addr)) {\n-      fmt::print(stderr, \"Mismatching upf_addr_len after getsockname()\");\n+      fmt::print(stderr, \"Mismatching upf_addr_len after ::getsockname()\");\n       return {-1, {}};\n     }\n     return {sock_fd, upf_addr};\n@@ -293,7 +293,7 @@ TEST_F(cu_up_test, dl_data_flow)\n   // receive message 1\n   std::array<uint8_t, 128> rx_buf;\n   int                      ret;\n-  ret = recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n+  ret = ::recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n \n   test_logger.info(\"Processed UL PDU. DDDS is updated\");\n \n@@ -316,14 +316,14 @@ TEST_F(cu_up_test, dl_data_flow)\n   ret = sendto(upf_info.sock_fd, gtpu_ping_vec, sizeof(gtpu_ping_vec), 0, (sockaddr*)&cu_up_addr, sizeof(cu_up_addr));\n   ASSERT_GE(ret, 0) << \"Failed to send message via sock_fd=\" << upf_info.sock_fd << \" to `\"\n                     << cu_up_udp_cfg.bind_address << \":\" << cu_up->get_n3_bind_port().value() << \"` - \"\n-                    << strerror(errno);\n+                    << ::strerror(errno);\n \n   // send message 2\n   ret = sendto(upf_info.sock_fd, gtpu_ping_vec, sizeof(gtpu_ping_vec), 0, (sockaddr*)&cu_up_addr, sizeof(cu_up_addr));\n   ASSERT_GE(ret, 0) << \"Failed to send message via sock_fd=\" << upf_info.sock_fd << \" to `\"\n                     << cu_up_udp_cfg.bind_address << \":\" << cu_up->get_n3_bind_port().value() << \"` - \"\n-                    << strerror(errno);\n-  close(upf_info.sock_fd);\n+                    << ::strerror(errno);\n+  ::close(upf_info.sock_fd);\n \n   // check reception of message 1\n   nru_dl_message          sdu1 = f1u_bearer.wait_tx_sdu();\n@@ -393,16 +393,16 @@ TEST_F(cu_up_test, ul_data_flow)\n   uint16_t gtpu_hdr_len = 16;\n \n   // receive message 1\n-  int ret = recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n+  int ret = ::recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n   ASSERT_EQ(ret, exp_len);\n   EXPECT_TRUE(std::equal(t_pdu_span1.begin() + f1u_hdr_len, t_pdu_span1.end(), rx_buf.begin() + gtpu_hdr_len));\n \n   // receive message 2\n-  ret = recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n+  ret = ::recv(upf_info.sock_fd, rx_buf.data(), rx_buf.size(), 0);\n   ASSERT_EQ(ret, exp_len);\n   EXPECT_TRUE(std::equal(t_pdu_span2.begin() + f1u_hdr_len, t_pdu_span2.end(), rx_buf.begin() + gtpu_hdr_len));\n \n-  close(upf_info.sock_fd);\n+  ::close(upf_info.sock_fd);\n }\n \n TEST_F(cu_up_test, echo_data_flow)\n@@ -431,7 +431,7 @@ TEST_F(cu_up_test, echo_data_flow)\n       upf_info.sock_fd, gtpu_echo_req_vec, sizeof(gtpu_echo_req_vec), 0, (sockaddr*)&cu_up_addr, sizeof(cu_up_addr));\n   ASSERT_GE(ret, 0) << \"Failed to send message via sock_fd=\" << upf_info.sock_fd << \" to `\"\n                     << cu_up_udp_cfg.bind_address << \":\" << cu_up->get_n3_bind_port().value() << \"` - \"\n-                    << strerror(errno);\n+                    << ::strerror(errno);\n \n   // Receive GTP-U echo response message and check result.\n   constexpr uint16_t           exp_len            = 14;\n@@ -443,7 +443,7 @@ TEST_F(cu_up_test, echo_data_flow)\n   ASSERT_EQ(ret, exp_len);\n   EXPECT_TRUE(std::equal(gtpu_echo_resp_vec.begin(), gtpu_echo_resp_vec.end(), rx_buf.begin()));\n \n-  close(upf_info.sock_fd);\n+  ::close(upf_info.sock_fd);\n }\n \n int main(int argc, char** argv)",
+      "additions": 15,
+      "deletions": 15,
+      "changes": 30
+    },
+    {
+      "filename": "tests/unittests/du_manager/procedures/du_ue_ric_configuration_procedure_test.cpp",
+      "patch": "@@ -54,11 +54,11 @@ TEST_F(du_ue_ric_config_tester,\n   pol.ded_prb_policy_ratio = 100;\n   config_req.rrm_policy_ratio_list.push_back(pol);\n \n-  unsigned int nof_prbs         = get_max_Nprb(params.ran.cells[0].dl_carrier.carrier_bw_mhz,\n-                                       params.ran.cells[0].scs_common,\n-                                       band_helper::get_freq_range(params.ran.cells[0].dl_carrier.band));\n-  int          expected_min_prb = static_cast<int>((1.0 * pol.min_prb_policy_ratio.value() / 100) * nof_prbs);\n-  int          expected_max_prb = static_cast<int>((1.0 * pol.max_prb_policy_ratio.value() / 100) * nof_prbs);\n+  unsigned nof_prbs         = get_max_Nprb(params.ran.cells[0].dl_carrier.carrier_bw_mhz,\n+                                   params.ran.cells[0].scs_common,\n+                                   band_helper::get_freq_range(params.ran.cells[0].dl_carrier.band));\n+  int      expected_min_prb = static_cast<int>((1.0 * pol.min_prb_policy_ratio.value() / 100) * nof_prbs);\n+  int      expected_max_prb = static_cast<int>((1.0 * pol.max_prb_policy_ratio.value() / 100) * nof_prbs);\n \n   start_procedure(config_req);\n ",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/fapi_to_mac_data_msg_translator_test.cpp",
+      "patch": "@@ -99,7 +99,7 @@ class mac_rach_indication_fixture : public testing::TestWithParam<float>\n     const mac_rach_indication::rach_preamble& pream = occ.preambles.front();\n     EXPECT_FLOAT_EQ(snr, pream.snr_dB.value());\n     EXPECT_FLOAT_EQ(power, pream.pwr_dBFS.value());\n-    EXPECT_EQ(time_advance_ns, std::roundf(pream.time_advance.to_seconds() * 1e9));\n+    EXPECT_EQ(time_advance_ns, std::round(pream.time_advance.to_seconds() * 1e9));\n   }\n };\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/phy/messages/dl_pdcch_pdu_test.cpp",
+      "patch": "@@ -141,8 +141,8 @@ TEST(fapi_to_phy_pdcch_conversion_test, valid_pdu_conversion_success)\n                   ASSERT_EQ(nid_dmrs, proc_pdu.dci.n_id_pdcch_dmrs);\n \n                   // Test powers.\n-                  ASSERT_TRUE(std::fabs((power_nr - proc_pdu.dci.dmrs_power_offset_dB)) < 0.001F);\n-                  ASSERT_TRUE(std::fabs((power_nr - proc_pdu.dci.data_power_offset_dB)) < 0.001F);\n+                  ASSERT_TRUE(std::abs(power_nr - proc_pdu.dci.dmrs_power_offset_dB) < 0.001F);\n+                  ASSERT_TRUE(std::abs(power_nr - proc_pdu.dci.data_power_offset_dB) < 0.001F);\n \n                   // Test vectors.\n                   for (unsigned i = 0, e = payload.size(); i != e; ++i) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_network_gateway_test.cpp",
+      "patch": "@@ -365,7 +365,7 @@ TEST_F(sctp_network_gateway_tester, when_rto_is_set_then_rto_changes)\n   sctp_rtoinfo rto_opts  = {};\n   socklen_t    rto_sz    = sizeof(sctp_rtoinfo);\n   rto_opts.srto_assoc_id = 0;\n-  ASSERT_EQ(getsockopt(fd, SOL_SCTP, SCTP_RTOINFO, &rto_opts, &rto_sz), 0) << strerror(errno);\n+  ASSERT_EQ(getsockopt(fd, SOL_SCTP, SCTP_RTOINFO, &rto_opts, &rto_sz), 0) << ::strerror(errno);\n   ASSERT_EQ(rto_opts.srto_initial, rto_init.count());\n   ASSERT_EQ(rto_opts.srto_min, rto_min.count());\n   ASSERT_EQ(rto_opts.srto_max, rto_max.count());",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_test_helpers.h",
+      "patch": "@@ -115,7 +115,7 @@ class dummy_sctp_node\n                                   &data.msg_flags);\n     if (rx_bytes < 0) {\n       if (errno != EAGAIN) {\n-        logger.error(\"Recv error: {}\", strerror(errno));\n+        logger.error(\"Recv error: {}\", ::strerror(errno));\n       }\n       return std::nullopt;\n     }\n@@ -151,16 +151,16 @@ class dummy_sctp_node\n   bool send_eof(int ppid, const sockaddr& dest_addr, socklen_t dest_addrlen)\n   {\n     // Send EOF to SCTP server.\n-    int bytes_sent = sctp_sendmsg(socket.fd().value(),\n-                                  nullptr,\n-                                  0,\n-                                  const_cast<struct sockaddr*>(&dest_addr),\n-                                  dest_addrlen,\n-                                  htonl(ppid),\n-                                  SCTP_EOF,\n-                                  0,\n-                                  0,\n-                                  0);\n+    int bytes_sent = ::sctp_sendmsg(socket.fd().value(),\n+                                    nullptr,\n+                                    0,\n+                                    const_cast<struct sockaddr*>(&dest_addr),\n+                                    dest_addrlen,\n+                                    htonl(ppid),\n+                                    SCTP_EOF,\n+                                    0,\n+                                    0,\n+                                    0);\n     return bytes_sent != -1;\n   }\n ",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22
+    },
+    {
+      "filename": "tests/unittests/phy/upper/rx_buffer_pool_test.cpp",
+      "patch": "@@ -37,7 +37,7 @@ bool operator==(span<const bool> left, span<const bool> right)\n /// \\return A valid receive buffer if the reservation is successful before exhausting the number trials. Otherwise, an\n /// invalid buffer.\n inline unique_rx_buffer reserve_buffer_trial(rx_buffer_pool&       pool,\n-                                             const slot_point&     slot,\n+                                             slot_point            slot,\n                                              trx_buffer_identifier id,\n                                              unsigned              nof_codeblocks,\n                                              bool                  new_data)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/rx_buffer_pool_test_doubles.h",
+      "patch": "@@ -20,15 +20,14 @@ namespace srsran {\n class rx_buffer_pool_spy : public rx_buffer_pool, private unique_rx_buffer::callback\n {\n public:\n-  unique_rx_buffer\n-  reserve(const slot_point& slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) override\n+  unique_rx_buffer reserve(slot_point slot, trx_buffer_identifier id, unsigned nof_codeblocks, bool new_data) override\n   {\n     if (is_locked()) {\n       return unique_rx_buffer();\n     }\n     return unique_rx_buffer(*this);\n   }\n-  void run_slot(const slot_point& slot) override { current_slot = slot; }\n+  void run_slot(slot_point slot) override { current_slot = slot; }\n \n   slot_point get_current_slot() const { return current_slot; }\n ",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/ssb_scheduler_test.cpp",
+      "patch": "@@ -186,7 +186,7 @@ void test_ssb_information(uint8_t                expected_sym,\n }\n \n /// This function tests SSB case A and C (both paired and unpaired spectrum).\n-void test_ssb_case_A_C(const slot_point&             slot_tx,\n+void test_ssb_case_A_C(slot_point                    slot_tx,\n                        uint32_t                      freq_cutoff,\n                        const cell_configuration&     cell_cfg,\n                        cell_slot_resource_allocator& slot_alloc)\n@@ -270,9 +270,7 @@ void test_ssb_case_A_C(const slot_point&             slot_tx,\n }\n \n /// This function tests SSB case B.\n-void test_ssb_case_B(const slot_point&             slot_tx,\n-                     const cell_configuration&     cell_cfg,\n-                     cell_slot_resource_allocator& slot_alloc)\n+void test_ssb_case_B(slot_point slot_tx, const cell_configuration& cell_cfg, cell_slot_resource_allocator& slot_alloc)\n {\n   const ssb_configuration& ssb_cfg = cell_cfg.ssb_cfg;\n ",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/scheduler/multi_slice_scheduler_test.cpp",
+      "patch": "@@ -48,7 +48,7 @@ class base_multi_slice_scheduler_tester : public scheduler_test_simulator\n     auto                only_lcid = views::transform(lcid_to_cfg, get_lcid);\n     std::vector<lcid_t> lcid_list(only_lcid.begin(), only_lcid.end());\n     auto ue_cfg = sched_config_helper::create_default_sched_ue_creation_request(builder_params, lcid_list);\n-    for (unsigned int i = 0; i < lcid_list.size(); i++) {\n+    for (unsigned i = 0; i < lcid_list.size(); i++) {\n       auto it                = std::find_if(ue_cfg.cfg.lc_config_list->begin(),\n                              ue_cfg.cfg.lc_config_list->end(),\n                              [lcid = lcid_to_cfg[i].first](const auto& l) { return l.lcid == lcid; });",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/multiple_ue_sched_test.cpp",
+      "patch": "@@ -434,7 +434,7 @@ class scheduler_impl_tester\n     return {};\n   }\n \n-  uci_indication build_harq_ack_pucch_f0_f1_uci_ind(const du_ue_index_t ue_idx, const slot_point& sl_tx)\n+  uci_indication build_harq_ack_pucch_f0_f1_uci_ind(const du_ue_index_t ue_idx, slot_point sl_tx)\n   {\n     const sched_test_ue& u = get_ue(ue_idx);\n \n@@ -455,7 +455,7 @@ class scheduler_impl_tester\n     return uci_ind;\n   }\n \n-  uci_indication build_harq_nack_pucch_f0_f1_uci_ind(const du_ue_index_t ue_idx, const slot_point& sl_tx)\n+  uci_indication build_harq_nack_pucch_f0_f1_uci_ind(const du_ue_index_t ue_idx, slot_point sl_tx)\n   {\n     const sched_test_ue& u = get_ue(ue_idx);\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/support/network/io_broker_epoll_test.cpp",
+      "patch": "@@ -117,14 +117,14 @@ class io_broker_epoll : public ::testing::Test\n   void create_af_init_sockets(int type)\n   {\n     // Create server socket.\n-    socket_fd   = unique_fd{socket(AF_INET, type, 0)};\n+    socket_fd   = unique_fd{::socket(AF_INET, type, 0)};\n     socket_type = type;\n     ASSERT_TRUE(socket_fd.is_open());\n     raw_socket_fd = socket_fd.value();\n \n     // Configure socket as reusable to allow multiple runs.\n     int enable = 1;\n-    ASSERT_NE(setsockopt(raw_socket_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), -1);\n+    ASSERT_NE(::setsockopt(raw_socket_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), -1);\n \n     // prepare server address\n     std::memset(&server_addr_in, 0, sizeof(::sockaddr_in));",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/support/tracing/resource_usage_test.cpp",
+      "patch": "@@ -38,7 +38,7 @@ TEST(resource_usage_test, snapshot_diff_is_correct)\n TEST(resource_usage_test, format_resource_usage_diff)\n {\n   resource_usage::snapshot point1 = resource_usage::now().value();\n-  usleep(10);\n+  ::usleep(10);\n   resource_usage::snapshot point2 = resource_usage::now().value();\n   resource_usage::diff     d      = point2 - point1;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/support/unique_thread_test.cpp",
+      "patch": "@@ -54,7 +54,7 @@ void test_init_unique_thread()\n   TESTASSERT_NEQ(std::string(t.get_name()), this_thread_name());\n \n   while (running) {\n-    usleep(100);\n+    ::usleep(100);\n   }\n   fmt::print(\"Main Thread [{}:{}] completed.\\n\", this_thread_name(), std::this_thread::get_id());\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 108,
+  "commit_details_path": ".\\commit_metadata\\b9b2c78.json"
+}

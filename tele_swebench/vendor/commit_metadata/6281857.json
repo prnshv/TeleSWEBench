@@ -1,0 +1,2115 @@
+{
+  "commit_id": "6281857af5271ea965e5356f3a2202693fde3a0e",
+  "commit_sha_short": "6281857",
+  "commit_folder": "6281857",
+  "commit_message": "all: set copyright years to 2021-2023\n\nA number of files had a wrong copyright disclaimer. Now they all say\n\"Copyright 2021-2023 Software Radio Systems Limited\"",
+  "commit_message_first_line": "all: set copyright years to 2021-2023",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/6281857af5271ea965e5356f3a2202693fde3a0e",
+  "commit_date": "2023-03-14T16:28:30Z",
+  "parent_sha": "f21384ef5883565c5b085292507a96f07597e013",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/f21384ef5883565c5b085292507a96f07597e013",
+  "code_changes": [
+    {
+      "filename": ".gdbinit",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/du/du_example.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/du/fapi_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/du/phy_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/du/radio_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/phy/lower_phy_example_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/phy/radio_ssb.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/phy/upper_phy_ssb_example.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/radio/radio_util_sample.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/adapters/f1u_connector/f1u_local_connector.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n /*\n  *\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/fapi_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/gnb.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/gnb_appconfig_cli11_schema.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/helpers/gnb_console_helper.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/helpers/metrics_plotter_stdout.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/phy_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindFFTW3F.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindMbedTLS.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2021 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindSCTP.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindSSE.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindUHD.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "cmake/modules/FindYAMLCPP.cmake",
+      "patch": "@@ -1,5 +1,5 @@\n #\n-# Copyright 2013-2022 Software Radio Systems Limited\n+# Copyright 2021-2023 Software Radio Systems Limited\n #\n # By using this file, you agree to the terms and conditions set\n # forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/blocking_queue.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/bounded_bitset.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/e1ap/common/e1ap_common.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/e1ap/cu_cp/e1ap_cu_cp_factory.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ngap/ngap_factory.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_modulation/evm_calculator.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/channel_processor_formatters.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/unique_rx_softbuffer.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdcch/pdcch_context.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdcch/pdcch_context_formatter.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/dlsch_info.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/pdsch_constants.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/pdsch_context.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pdsch/pdsch_context_formatter.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pucch/pucch_constants.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pucch/pucch_context.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pucch/pucch_context_formatter.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pucch/pucch_info.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/pusch_context.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/pusch_context_formatter.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/config/scheduler_config.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/ciphering.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/integrity.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/s3g.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/security.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/async/async_event_source.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/backtrace.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/build_info/build_info.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/cli11_utils.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/config/validator_helpers.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/sync_task_executor.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker_pool.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/memory_pool/unsync_fixed_size_memory_block_pool.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/signal_handler.h",
+      "patch": "@@ -2,7 +2,7 @@\n  *\n  * \\section COPYRIGHT\n  *\n- * Copyright 2013-2021 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/timers2.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/e1ap/e1ap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/e2ap/e2ap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/f1ap/f1ap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/ngap/ngap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/rrc_nr/common.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/rrc_nr/rrc_nr.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/rrc_nr/serving_cell.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/rrc_nr/tdd_cfg_helper.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/asn1/rrc_nr/ue_cap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_up_processor_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_up_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/du_processor_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/du_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routine_managers/cu_cp_routine_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routine_managers/cu_up_processor_routine_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routine_managers/du_processor_routine_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/initial_cu_cp_setup_routine.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/initial_cu_up_processor_setup_routine.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/pdu_session_resource_setup_routine.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/routines/ue_context_release_routine.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/task_schedulers/cu_up_task_scheduler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/task_schedulers/du_task_scheduler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/task_schedulers/ue_task_scheduler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/ue_manager_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/cu_up_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/cu_up_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/pdu_session_manager_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/ue_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_cell_config_validation.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_high/du_high.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/asn1_cell_group_config_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/asn1_csi_meas_config_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/f1ap_configuration_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/mac_config_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/rlc_config_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/scheduler_configuration_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/converters/scheduler_configuration_helpers.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_cell_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_manager_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_manager_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_ue/du_bearer.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_ue/du_ue_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/procedures/initial_du_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/procedures/ue_configuration_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/procedures/ue_creation_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/ran_resource_management/du_pucch_resource_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/ran_resource_management/du_ran_resource_manager_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/common/e1ap_asn1_packer.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/e1ap_cu_cp_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/e1ap_cu_cp_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_modification_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_release_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/bearer_context_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/procedures/cu_cp_e1_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_up/e1ap_cu_up_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_up/e1ap_cu_up_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/common/e2ap_asn1_packer.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e2/procedures/e2_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/common/asn1_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/common/f1ap_asn1_packer.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/f1ap_cu_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/f1ap_cu_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/procedures/ue_context_modification_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/procedures/ue_context_release_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/procedures/ue_context_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_ue_context_modification_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_ue_context_release_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/f1ap_du_ue_context_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/procedures/gnb_cu_configuration_update_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue_config_update.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1c_du_bearer_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/ue_bearer_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1u/cu_up/f1u_bearer_factory.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n /*\n  *\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1u/cu_up/f1u_bearer_impl.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n /*\n  *\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1u/du/f1u_bearer_factory.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n /*\n  *\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1u/du/f1u_bearer_impl.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n /*\n  *\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/logging_decorator_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/logging_slot_data_notifier_decorator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/logging_slot_gateway_decorator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/logging_slot_time_notifier_decorator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/message_loggers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/message_validators.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/dl_csi_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/dl_pdcch_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/dl_pdsch_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/dl_ssb_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/uci_pdus.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/ul_prach_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/ul_pucch_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/pdu_validators/ul_pusch_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_data_msg_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_time_msg_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_fapi_adaptor_factory_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_fapi_adaptor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_to_fapi_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pdcch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pdsch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/prach.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pucch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/pusch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/messages/ssb.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/fapi_to_phy_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/csi_rs.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/pdcch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/pdsch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/prach.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/pucch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/pusch.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/ssb.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_fapi_adaptor_factory_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_fapi_adaptor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_to_fapi_results_event_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/phy_to_fapi_time_event_translator.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gateways/sctp_network_gateway_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gateways/sctp_network_gateway_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gateways/udp_network_gateway_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gateways/udp_network_gateway_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_demux_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_demux_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gtpu/gtpu_tunnel_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_config/mac_cell_group_config_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_configuration_helpers.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_controller.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/dl_sch_pdu_assembler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_processor.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_ue_manager.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/paging_pdu_assembler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/rar_pdu_assembler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/ssb_assembler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/mac_ul_sch_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/pdu_rx_handler.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/ul_bsr.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/ngap_asn1_packer.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/ngap_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/ngap_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/procedures/ng_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/procedures/ngap_initial_context_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ngap/procedures/ngap_pdu_session_resource_setup_procedure.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/e1ap_pcap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/e2ap_pcap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/f1ap_pcap.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/mac_pcap_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/ngap_pcap_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pcap/pcap_file_base.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_rx.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_entity_tx.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/pdcp/pdcp_pdu.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/generic_functions/dft_processor_fftw_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/generic_functions/generic_functions_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/amplitude_controller/amplitude_controller_clipping_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/amplitude_controller/amplitude_controller_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/lower_phy_factory.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/lower_phy_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/modulation_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/ofdm_demodulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/ofdm_modulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/modulation/ofdm_prach_demodulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/adaptors/processor_notifier_adapter.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/prach/prach_processor_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/lower/processors/prach/prach_processor_worker.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/interpolator/interpolator_linear_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/prach_buffer_pool_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/resource_grid_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/resource_grid_pool_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/support/support_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/channel_coding_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_clmul_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/crc_calculator_lut_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_avx2.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_avx512.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_decoder_neon.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_encoder_avx2.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_encoder_neon.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_graph_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_luts_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_avx2_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_avx512_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_dematcher_neon_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_rate_matcher_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/ldpc/ldpc_segmenter_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_allocator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_code_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_deallocator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_decoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_interleaver_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_rate_dematcher_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/polar/polar_rate_matcher_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/short/short_block_detector_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_coding/short/short_block_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/channel_modulation_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qam16.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qam256.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qam64.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/demodulation_mapper_qpsk.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/evm_calculator_generic_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/evm_calculator_generic_impl.h",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2023 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_modulation/modulation_mapper_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/channel_processor_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pbch_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pbch_modulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch_modulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdcch_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch_encoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch_modulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pdsch_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/prach_detector_simple_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/prach_generator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pucch_demodulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pucch_detector_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pucch_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch_decoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch_demodulator_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/ssb_processor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/uci_decoder_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/ulsch_demultiplex_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/downlink_processor_pool_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/downlink_processor_single_executor_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/equalization/channel_equalizer_zf_impl.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/equalization/equalization_factories.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/equalization/equalize_zf_2x2.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/log_likelihood_ratio.cpp",
+      "patch": "@@ -1,6 +1,6 @@\n /*\n  *\n- * Copyright 2013-2022 Software Radio Systems Limited\n+ * Copyright 2021-2023 Software Radio Systems Limited\n  *\n  * By using this file, you agree to the terms and conditions set\n  * forth in the LICENSE file which can be found at the top level of",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 300,
+  "commit_details_path": ".\\commit_metadata\\6281857.json"
+}

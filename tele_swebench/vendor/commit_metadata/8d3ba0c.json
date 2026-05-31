@@ -1,0 +1,64 @@
+{
+  "commit_id": "8d3ba0cb69fadb54a73892ca348a7171ee2ca2aa",
+  "commit_sha_short": "8d3ba0c",
+  "commit_folder": "8d3ba0c",
+  "commit_message": "gnb: add UL RI metric",
+  "commit_message_first_line": "gnb: add UL RI metric",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8d3ba0cb69fadb54a73892ca348a7171ee2ca2aa",
+  "commit_date": "2025-02-18T12:24:53Z",
+  "parent_sha": "d3b0aef46baa76144e4611feb6f4a8473bdefada",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/d3b0aef46baa76144e4611feb6f4a8473bdefada",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -24,7 +24,8 @@ namespace {\n DECLARE_METRIC(\"pci\", metric_pci, pci_t, \"\");\n DECLARE_METRIC(\"rnti\", metric_rnti, uint16_t, \"\");\n DECLARE_METRIC(\"cqi\", metric_cqi, uint8_t, \"\");\n-DECLARE_METRIC(\"ri\", metric_ri, float, \"\");\n+DECLARE_METRIC(\"dl_ri\", metric_dl_ri, float, \"\");\n+DECLARE_METRIC(\"ul_ri\", metric_ul_ri, float, \"\");\n DECLARE_METRIC(\"dl_mcs\", metric_dl_mcs, uint8_t, \"\");\n DECLARE_METRIC(\"dl_brate\", metric_dl_brate, double, \"\");\n DECLARE_METRIC(\"dl_nof_ok\", metric_dl_nof_ok, unsigned, \"\");\n@@ -59,7 +60,8 @@ DECLARE_METRIC_SET(\"ue_container\",\n                    metric_pci,\n                    metric_rnti,\n                    metric_cqi,\n-                   metric_ri,\n+                   metric_dl_ri,\n+                   metric_ul_ri,\n                    metric_dl_mcs,\n                    metric_dl_brate,\n                    metric_dl_nof_ok,\n@@ -121,9 +123,9 @@ static void print_header()\n   fmt::print(\"\\n\");\n   fmt::print(\n       \"          \"\n-      \"|--------------------DL---------------------|-------------------------UL------------------------------\\n\");\n-  fmt::print(\" pci rnti | cqi  ri  mcs  brate   ok  nok  (%)  dl_bs | pusch  rsrp  mcs  brate   ok  nok  (%)    bsr    \"\n-             \" ta  phr\\n\");\n+      \"|--------------------DL---------------------|-------------------------UL----------------------------------\\n\");\n+  fmt::print(\" pci rnti | cqi  ri  mcs  brate   ok  nok  (%)  dl_bs | pusch  rsrp  ri  mcs  brate   ok  nok  (%)    \"\n+             \"bsr     ta  phr\\n\");\n }\n \n static const char* event_to_string(scheduler_cell_event::event_type ev)\n@@ -166,10 +168,10 @@ void scheduler_cell_metrics_consumer_stdout::handle_metric(const app_services::m\n       fmt::print(\" | {:>3.3}\", \"n/a\");\n     }\n \n-    if (ue.ri_stats.get_nof_observations() > 0) {\n-      fmt::print(\" {:>3.1f}\", ue.ri_stats.get_mean());\n+    if (ue.dl_ri_stats.get_nof_observations() > 0) {\n+      fmt::print(\" {:>3.1f}\", ue.dl_ri_stats.get_mean());\n     } else {\n-      fmt::print(\" {:>3.3}\", \"n/a\");\n+      fmt::print(\" {:>3}\", \"n/a\");\n     }\n \n     fmt::print(\"   {:>2}\", int(ue.dl_mcs.to_uint()));\n@@ -206,6 +208,12 @@ void scheduler_cell_metrics_consumer_stdout::handle_metric(const app_services::m\n       fmt::print(\" {:>5.5}\", \"n/a\");\n     }\n \n+    if (ue.ul_ri_stats.get_nof_observations() > 0) {\n+      fmt::print(\" {:>3.1f}\", ue.ul_ri_stats.get_mean());\n+    } else {\n+      fmt::print(\" {:>3}\", \"n/a\");\n+    }\n+\n     fmt::print(\"   {:>2}\", ue.ul_mcs.to_uint());\n     if (ue.ul_brate_kbps > 0) {\n       fmt::print(\" {:>6.6}\", float_to_eng_string(ue.ul_brate_kbps * 1e3, 1, true));\n@@ -263,8 +271,11 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const app_services::met\n     if (ue.cqi_stats.get_nof_observations() > 0) {\n       output.write<metric_cqi>(static_cast<uint8_t>(std::roundf(ue.cqi_stats.get_mean())));\n     }\n-    if (ue.ri_stats.get_nof_observations() > 0) {\n-      output.write<metric_ri>(ue.ri_stats.get_mean());\n+    if (ue.dl_ri_stats.get_nof_observations() > 0) {\n+      output.write<metric_dl_ri>(ue.dl_ri_stats.get_mean());\n+    }\n+    if (ue.ul_ri_stats.get_nof_observations() > 0) {\n+      output.write<metric_ul_ri>(ue.ul_ri_stats.get_mean());\n     }\n     output.write<metric_dl_mcs>(ue.dl_mcs.to_uint());\n     output.write<metric_dl_brate>(ue.dl_brate_kbps * 1e3);\n@@ -282,7 +293,7 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const app_services::met\n     if (!std::isnan(ue.pucch_snr_db) && !iszero(ue.pucch_snr_db)) {\n       output.write<metric_pucch_snr_db>(std::clamp(ue.pucch_snr_db, -99.9f, 99.9f));\n     }\n-    output.write<metric_ta_ns>((ue.ri_stats.get_nof_observations() > 0) ? std::to_string(ue.ta_stats.get_mean() * 1e9)\n+    output.write<metric_ta_ns>((ue.ta_stats.get_nof_observations() > 0) ? std::to_string(ue.ta_stats.get_mean() * 1e9)\n                                                                         : \"n/a\");\n     output.write<metric_pusch_ta_ns>(\n         (ue.pusch_ta_stats.get_nof_observations() > 0) ? std::to_string(ue.pusch_ta_stats.get_mean() * 1e9) : \"n/a\");\n@@ -389,10 +400,10 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n       fmt::format_to(std::back_inserter(buffer), \" cqi=n/a\");\n     }\n \n-    if (ue.ri_stats.get_nof_observations() > 0) {\n-      fmt::format_to(std::back_inserter(buffer), \" ri={:.1f}\", ue.ri_stats.get_mean());\n+    if (ue.dl_ri_stats.get_nof_observations() > 0) {\n+      fmt::format_to(std::back_inserter(buffer), \" dl_ri={:.1f}\", ue.dl_ri_stats.get_mean());\n     } else {\n-      fmt::format_to(std::back_inserter(buffer), \" ri=n/a\");\n+      fmt::format_to(std::back_inserter(buffer), \" dl_ri=n/a\");\n     }\n \n     fmt::format_to(std::back_inserter(buffer), \" dl_mcs={}\", int(ue.dl_mcs.to_uint()));\n@@ -430,6 +441,12 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n       fmt::format_to(std::back_inserter(buffer), \" pusch_rsrp_db=n/a\");\n     }\n \n+    if (ue.ul_ri_stats.get_nof_observations() > 0) {\n+      fmt::format_to(std::back_inserter(buffer), \" ul_ri={:.1f}\", ue.ul_ri_stats.get_mean());\n+    } else {\n+      fmt::format_to(std::back_inserter(buffer), \" ul_ri=n/a\");\n+    }\n+\n     fmt::format_to(std::back_inserter(buffer), \" ul_mcs={}\", ue.ul_mcs.to_uint());\n     if (ue.ul_brate_kbps > 0) {\n       fmt::format_to(",
+      "additions": 31,
+      "deletions": 14,
+      "changes": 45
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -67,8 +67,10 @@ struct scheduler_ue_metrics {\n   sample_statistics<float> srs_ta_stats;\n   /// CQI statistics over the metrics report interval.\n   sample_statistics<unsigned> cqi_stats;\n-  /// RI statistics over the metrics report interval.\n-  sample_statistics<unsigned> ri_stats;\n+  /// DL RI statistics over the metrics report interval.\n+  sample_statistics<unsigned> dl_ri_stats;\n+  /// UL RI statistics over the metrics report interval.\n+  sample_statistics<unsigned> ul_ri_stats;\n };\n \n /// \\brief Event that occurred in the cell of the scheduler.",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -89,13 +89,14 @@ void cell_metrics_handler::handle_crc_indication(slot_point                   sl\n   }\n }\n \n-void cell_metrics_handler::handle_srs_indication(const srs_indication::srs_indication_pdu& srs_pdu)\n+void cell_metrics_handler::handle_srs_indication(const srs_indication::srs_indication_pdu& srs_pdu, unsigned ri)\n {\n   if (ues.contains(srs_pdu.ue_index)) {\n     auto& u = ues[srs_pdu.ue_index];\n     if (srs_pdu.time_advance_offset.has_value()) {\n       u.data.ta.update(srs_pdu.time_advance_offset.value().to_seconds());\n       u.data.srs_ta.update(srs_pdu.time_advance_offset.value().to_seconds());\n+      u.data.ul_ri.update(ri);\n     }\n   }\n }\n@@ -113,7 +114,7 @@ void cell_metrics_handler::handle_csi_report(ue_metric_context& u, const csi_rep\n     u.data.cqi.update(csi.first_tb_wideband_cqi->to_uint());\n   }\n   if (csi.ri.has_value()) {\n-    u.data.ri.update(csi.ri->to_uint());\n+    u.data.dl_ri.update(csi.ri->to_uint());\n   }\n }\n \n@@ -389,7 +390,7 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.pci              = pci;\n   ret.rnti             = rnti;\n   ret.cqi_stats        = data.cqi;\n-  ret.ri_stats         = data.ri;\n+  ret.dl_ri_stats      = data.dl_ri;\n   uint8_t mcs          = data.nof_dl_cws > 0 ? std::roundf(static_cast<float>(data.dl_mcs) / data.nof_dl_cws) : 0;\n   ret.dl_mcs           = sch_mcs_index{mcs};\n   mcs                  = data.nof_puschs > 0 ? std::roundf(static_cast<float>(data.ul_mcs) / data.nof_puschs) : 0;\n@@ -405,6 +406,7 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.pusch_snr_db     = data.nof_pusch_snr_reports > 0 ? data.sum_pusch_snrs / data.nof_pusch_snr_reports : 0;\n   ret.pusch_rsrp_db    = data.nof_pusch_rsrp_reports > 0 ? data.sum_pusch_rsrp / data.nof_pusch_rsrp_reports\n                                                          : -std::numeric_limits<float>::infinity();\n+  ret.ul_ri_stats      = data.ul_ri;\n   ret.pucch_snr_db     = data.nof_pucch_snr_reports > 0 ? data.sum_pucch_snrs / data.nof_pucch_snr_reports : 0;\n   ret.last_dl_olla     = last_dl_olla;\n   ret.last_ul_olla     = last_ul_olla;",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -79,8 +79,10 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n       sample_statistics<float> srs_ta;\n       /// CQI statistics over the metrics report interval.\n       sample_statistics<unsigned> cqi;\n-      /// RI statistics over the metrics report interval.\n-      sample_statistics<unsigned> ri;\n+      /// DL RI statistics over the metrics report interval.\n+      sample_statistics<unsigned> dl_ri;\n+      /// UL RI statistics over the metrics report interval.\n+      sample_statistics<unsigned> ul_ri;\n     };\n \n     // This user provided constructor is added here to fix a Clang compilation error related to the use of nested types\n@@ -155,7 +157,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   void handle_crc_indication(slot_point sl_rx, const ul_crc_pdu_indication& crc_pdu, units::bytes tbs);\n \n   /// \\brief Handle SRS indication.\n-  void handle_srs_indication(const srs_indication::srs_indication_pdu& srs_pdu);\n+  void handle_srs_indication(const srs_indication::srs_indication_pdu& srs_pdu, unsigned ri);\n \n   /// \\brief Handle UCI that contains HARQ-ACK information.\n   void handle_uci_with_harq_ack(du_ue_index_t ue_index, slot_point slot_rx, bool pucch);",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -700,7 +700,8 @@ void ue_event_manager::handle_srs_indication(const srs_indication& ind)\n                     ue_cc.cell_index, sinr_dB, srs_ptr->time_advance_offset.value());\n \n                 // Report the SRS PDU to the metrics handler.\n-                du_cells[ue_cc.cell_index].metrics->handle_srs_indication(*srs_ptr);\n+                du_cells[ue_cc.cell_index].metrics->handle_srs_indication(\n+                    *srs_ptr, ue_cc.channel_state_manager().get_nof_ul_layers());\n               }\n             },\n             \"SRS\",",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/apps/units/flexible_du/du_high/metrics/du_high_scheduler_cell_metrics_consumer_stdout_test.cpp",
+      "patch": "@@ -26,7 +26,8 @@ void fill_metrics_single_ue()\n   ue.pci  = 500;\n   ue.rnti = to_rnti(0x4601);\n   ue.cqi_stats.update(4);\n-  ue.ri_stats.update(1);\n+  ue.dl_ri_stats.update(1);\n+  ue.ul_ri_stats.update(1);\n   ue.dl_mcs        = 28;\n   ue.dl_brate_kbps = 1 * 1024; // 1Mbit\n   ue.dl_nof_ok     = 900;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_metrics_handler_test.cpp",
+      "patch": "@@ -101,7 +101,8 @@ TEST_F(scheduler_metrics_handler_tester, when_no_events_took_place_then_metrics_\n \n   // Check that the CQI and RI statistics have no observations.\n   ASSERT_EQ(ue_metrics.cqi_stats.get_nof_observations(), 0);\n-  ASSERT_EQ(ue_metrics.ri_stats.get_nof_observations(), 0);\n+  ASSERT_EQ(ue_metrics.dl_ri_stats.get_nof_observations(), 0);\n+  ASSERT_EQ(ue_metrics.ul_ri_stats.get_nof_observations(), 0);\n }\n \n TEST_F(scheduler_metrics_handler_tester, compute_nof_dl_oks_and_noks)",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 7,
+  "commit_details_path": ".\\commit_metadata\\8d3ba0c.json"
+}

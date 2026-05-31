@@ -1,0 +1,29 @@
+{
+  "commit_id": "9fcd03f86299bbc604dc2a1756c9df4120e5b448",
+  "commit_sha_short": "9fcd03f",
+  "commit_folder": "9fcd03f",
+  "commit_message": "sched: replace slotted_array for slotted_vector in sched metrics handler",
+  "commit_message_first_line": "sched: replace slotted_array for slotted_vector in sched metrics handler",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9fcd03f86299bbc604dc2a1756c9df4120e5b448",
+  "commit_date": "2025-04-09T09:13:01Z",
+  "parent_sha": "9be7b7aedbadfed5290c6e79fe800b9ece43a4f1",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9be7b7aedbadfed5290c6e79fe800b9ece43a4f1",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -23,6 +23,7 @@ cell_metrics_handler::cell_metrics_handler(msecs                       metrics_r\n {\n   next_report.ue_metrics.reserve(MAX_NOF_DU_UES);\n   next_report.events.reserve(MAX_NOF_DU_UES);\n+  ues.reserve(MAX_NOF_DU_UES);\n   rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n }\n ",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -12,6 +12,7 @@\n \n #include \"scheduler_metrics_ue_configurator.h\"\n #include \"srsran/adt/slotted_array.h\"\n+#include \"srsran/adt/slotted_vector.h\"\n #include \"srsran/scheduler/scheduler_dl_buffer_state_indication_handler.h\"\n #include \"srsran/scheduler/scheduler_feedback_handler.h\"\n #include \"srsran/scheduler/scheduler_metrics.h\"\n@@ -142,8 +143,8 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   slot_point last_slot_tx;\n   slot_point next_report_slot;\n \n-  slotted_id_table<du_ue_index_t, ue_metric_context, MAX_NOF_DU_UES> ues;\n-  std::unordered_map<rnti_t, du_ue_index_t>                          rnti_to_ue_index_lookup;\n+  slotted_id_vector<du_ue_index_t, ue_metric_context> ues;\n+  std::unordered_map<rnti_t, du_ue_index_t>           rnti_to_ue_index_lookup;\n \n   /// Metrics tracked that are reset on every report.\n   non_persistent_data data;",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\9fcd03f.json"
+}

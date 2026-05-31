@@ -1,0 +1,43 @@
+{
+  "commit_id": "839fd7b930a0193e05b1e7b133694de779ac0a7e",
+  "commit_sha_short": "839fd7b",
+  "commit_folder": "839fd7b",
+  "commit_message": "sched: allow metric periods to be above 10.24 seconds",
+  "commit_message_first_line": "sched: allow metric periods to be above 10.24 seconds",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/839fd7b930a0193e05b1e7b133694de779ac0a7e",
+  "commit_date": "2025-05-22T15:31:17Z",
+  "parent_sha": "e8749609e4aee8bb1e924ae894f29edf094e9044",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/e8749609e4aee8bb1e924ae894f29edf094e9044",
+  "code_changes": [
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_metric_handler.cpp",
+      "patch": "@@ -72,17 +72,21 @@ void mac_dl_cell_metric_handler::on_cell_deactivation()\n \n void mac_dl_cell_metric_handler::handle_slot_completion(const slot_measurement& meas)\n {\n+  last_hfn_tx += last_sl_tx.valid() and meas.sl_tx.to_uint() < last_sl_tx.to_uint() ? 1 : 0;\n   last_sl_tx = meas.sl_tx;\n+\n   if (not enabled() or not cell_activated) {\n     return;\n   }\n \n-  if (not next_report_slot.valid() and cell_activated) {\n+  if (SRSRAN_UNLIKELY(not next_report_slot.valid() and cell_activated)) {\n     // First slot after cell activation.\n     // We will make the \\c next_report_slot aligned with the period.\n-    unsigned mod_val = meas.sl_tx.to_uint() % period_slots;\n-    next_report_slot = mod_val > 0 ? meas.sl_tx + period_slots - mod_val : meas.sl_tx;\n-    slot_duration    = std::chrono::nanoseconds(unsigned(1e6 / meas.sl_tx.nof_slots_per_subframe()));\n+    const unsigned mod_val            = meas.sl_tx.to_uint() % period_slots;\n+    const unsigned slots_until_report = mod_val > 0 ? period_slots - mod_val : 0;\n+    next_report_slot                  = meas.sl_tx + slots_until_report;\n+    next_report_hfn                   = (period_slots / (NOF_SFNS * NOF_SUBFRAMES_PER_FRAME));\n+    slot_duration                     = std::chrono::nanoseconds(unsigned(1e6 / meas.sl_tx.nof_slots_per_subframe()));\n     // Notify cell creation and next slot on which the report will be generated.\n     notifier->on_cell_activation(next_report_slot);\n   }\n@@ -140,7 +144,7 @@ void mac_dl_cell_metric_handler::handle_slot_completion(const slot_measurement&\n     slot_duration    = std::chrono::nanoseconds(unsigned(1e6 / meas.sl_tx.nof_slots_per_subframe()));\n   }\n \n-  if (meas.sl_tx >= next_report_slot) {\n+  if (meas.sl_tx >= next_report_slot and last_hfn_tx >= next_report_hfn) {\n     send_new_report(meas.sl_tx);\n   }\n }\n@@ -168,6 +172,8 @@ void mac_dl_cell_metric_handler::send_new_report(slot_point sl_tx)\n \n   // Set next report slot.\n   next_report_slot += period_slots;\n+  const bool sfn_wrap = next_report_slot.to_uint() < sl_tx.to_uint();\n+  next_report_hfn += (period_slots / (NOF_SFNS * NOF_SUBFRAMES_PER_FRAME)) + (sfn_wrap ? 1 : 0);\n \n   // Reset counters.\n   data = {};",
+      "additions": 11,
+      "deletions": 5,
+      "changes": 16
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_dl_metric_handler.h",
+      "patch": "@@ -152,10 +152,12 @@ class mac_dl_cell_metric_handler\n   const unsigned            period_slots;\n   mac_cell_metric_notifier* notifier;\n \n+  unsigned   last_hfn_tx{0};\n   slot_point last_sl_tx;\n   bool       cell_activated = false;\n \n   // Slot at which the next report is generated.\n+  unsigned                 next_report_hfn{0};\n   slot_point               next_report_slot;\n   std::chrono::nanoseconds slot_duration{0};\n ",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -485,22 +485,30 @@ void cell_metrics_handler::push_result(slot_point                sl_tx,\n   if (report_period_slots == 0) {\n     return;\n   }\n-  if (SRSRAN_UNLIKELY(not next_report_slot.valid())) {\n+\n+  if (SRSRAN_UNLIKELY(not last_slot_tx.valid())) {\n     // We enter here in the first call to this function.\n     // We will make the \\c next_report_slot aligned with the period.\n-    unsigned mod_val = sl_tx.to_uint() % report_period_slots;\n-    next_report_slot = mod_val > 0 ? sl_tx + report_period_slots - mod_val : sl_tx;\n+    const unsigned mod_val            = sl_tx.to_uint() % report_period_slots;\n+    const unsigned slots_until_report = mod_val > 0 ? report_period_slots - mod_val : 0;\n+    next_report_slot                  = sl_tx + slots_until_report;\n+    next_report_hfn                   = (report_period_slots / (NOF_SFNS * NOF_SUBFRAMES_PER_FRAME));\n+  } else if (sl_tx.to_uint() < last_slot_tx.to_uint()) {\n+    // SFN wrap-around detected.\n+    last_hfn++;\n   }\n   last_slot_tx = sl_tx;\n \n   handle_slot_result(slot_result, slot_decision_latency);\n \n-  if (sl_tx >= next_report_slot) {\n+  if (sl_tx >= next_report_slot and last_hfn >= next_report_hfn) {\n     // Prepare report and forward it to the notifier.\n     report_metrics();\n \n     // Set next report slot.\n     next_report_slot += report_period_slots;\n+    const bool sfn_wrap = next_report_slot.to_uint() < sl_tx.to_uint();\n+    next_report_hfn += (report_period_slots / (NOF_SFNS * NOF_SUBFRAMES_PER_FRAME)) + (sfn_wrap ? 1 : 0);\n   }\n }\n ",
+      "additions": 12,
+      "deletions": 4,
+      "changes": 16
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -151,7 +151,9 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n   const unsigned nof_slots_per_sf;\n   const unsigned report_period_slots;\n \n+  unsigned   last_hfn = 0;\n   slot_point last_slot_tx;\n+  unsigned   next_report_hfn = 0;\n   slot_point next_report_slot;\n \n   slotted_id_vector<du_ue_index_t, ue_metric_context> ues;",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\839fd7b.json"
+}

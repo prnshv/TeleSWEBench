@@ -1,0 +1,22 @@
+{
+  "commit_id": "7624c32f430ec5a050f08005ff963ce177100a31",
+  "commit_sha_short": "7624c32",
+  "commit_folder": "7624c32",
+  "commit_message": "asn1: Fix overflow in asn1 unpacking",
+  "commit_message_first_line": "asn1: Fix overflow in asn1 unpacking",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/7624c32f430ec5a050f08005ff963ce177100a31",
+  "commit_date": "2023-03-13T15:43:19Z",
+  "parent_sha": "edc597a8cca082a037a344cdea0ac9ac5dd3081b",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/edc597a8cca082a037a344cdea0ac9ac5dd3081b",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -207,7 +207,7 @@ SRSASN_CODE cbit_ref::unpack(T& val, uint32_t n_bits)\n       n_bits = 0;\n     } else {\n       auto mask = static_cast<uint8_t>((1u << (8u - offset)) - 1u);\n-      val += ((uint32_t)((*it) & mask)) << (n_bits - 8 + offset);\n+      val += ((uint64_t)((*it) & mask)) << (n_bits - 8 + offset);\n       n_bits -= 8 - offset;\n       offset = 0;\n       if (it == buffer.end()) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\7624c32.json"
+}

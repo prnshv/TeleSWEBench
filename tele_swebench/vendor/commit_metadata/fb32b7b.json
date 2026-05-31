@@ -1,0 +1,22 @@
+{
+  "commit_id": "fb32b7be2311ad5e845f1ddc1e91ee7390010f4d",
+  "commit_sha_short": "fb32b7b",
+  "commit_folder": "fb32b7b",
+  "commit_message": "code format",
+  "commit_message_first_line": "code format",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/fb32b7be2311ad5e845f1ddc1e91ee7390010f4d",
+  "commit_date": "2025-02-26T10:50:13Z",
+  "parent_sha": "f21e467c6d1aad8718e9495f981e5c1c1ff85acb",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/f21e467c6d1aad8718e9495f981e5c1c1ff85acb",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -388,32 +388,32 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n                                                         unsigned                  slots_per_sf)\n {\n   scheduler_ue_metrics ret{};\n-  ret.pci              = pci;\n-  ret.rnti             = rnti;\n-  ret.cqi_stats        = data.cqi;\n-  ret.dl_ri_stats      = data.dl_ri;\n-  uint8_t mcs          = data.nof_dl_cws > 0 ? std::roundf(static_cast<float>(data.dl_mcs) / data.nof_dl_cws) : 0;\n-  ret.dl_mcs           = sch_mcs_index{mcs};\n-  mcs                  = data.nof_puschs > 0 ? std::roundf(static_cast<float>(data.ul_mcs) / data.nof_puschs) : 0;\n-  ret.ul_mcs           = sch_mcs_index{mcs};\n+  ret.pci                 = pci;\n+  ret.rnti                = rnti;\n+  ret.cqi_stats           = data.cqi;\n+  ret.dl_ri_stats         = data.dl_ri;\n+  uint8_t mcs             = data.nof_dl_cws > 0 ? std::roundf(static_cast<float>(data.dl_mcs) / data.nof_dl_cws) : 0;\n+  ret.dl_mcs              = sch_mcs_index{mcs};\n+  mcs                     = data.nof_puschs > 0 ? std::roundf(static_cast<float>(data.ul_mcs) / data.nof_puschs) : 0;\n+  ret.ul_mcs              = sch_mcs_index{mcs};\n   ret.tot_pdsch_prbs_used = data.tot_dl_prbs_used;\n   ret.tot_pusch_prbs_used = data.tot_ul_prbs_used;\n-  ret.dl_brate_kbps    = static_cast<double>(data.sum_dl_tb_bytes * 8U) / metric_report_period.count();\n-  ret.ul_brate_kbps    = static_cast<double>(data.sum_ul_tb_bytes * 8U) / metric_report_period.count();\n-  ret.dl_nof_ok        = data.count_uci_harq_acks;\n-  ret.dl_nof_nok       = data.count_uci_harqs - data.count_uci_harq_acks;\n-  ret.ul_nof_ok        = data.count_crc_acks;\n-  ret.ul_nof_nok       = data.count_crc_pdus - data.count_crc_acks;\n-  ret.pusch_snr_db     = data.nof_pusch_snr_reports > 0 ? data.sum_pusch_snrs / data.nof_pusch_snr_reports : 0;\n-  ret.pusch_rsrp_db    = data.nof_pusch_rsrp_reports > 0 ? data.sum_pusch_rsrp / data.nof_pusch_rsrp_reports\n-                                                         : -std::numeric_limits<float>::infinity();\n-  ret.ul_ri_stats      = data.ul_ri;\n-  ret.pucch_snr_db     = data.nof_pucch_snr_reports > 0 ? data.sum_pucch_snrs / data.nof_pucch_snr_reports : 0;\n-  ret.last_dl_olla     = last_dl_olla;\n-  ret.last_ul_olla     = last_ul_olla;\n-  ret.bsr              = last_bsr;\n-  ret.sr_count         = data.count_sr;\n-  ret.dl_bs            = 0;\n+  ret.dl_brate_kbps       = static_cast<double>(data.sum_dl_tb_bytes * 8U) / metric_report_period.count();\n+  ret.ul_brate_kbps       = static_cast<double>(data.sum_ul_tb_bytes * 8U) / metric_report_period.count();\n+  ret.dl_nof_ok           = data.count_uci_harq_acks;\n+  ret.dl_nof_nok          = data.count_uci_harqs - data.count_uci_harq_acks;\n+  ret.ul_nof_ok           = data.count_crc_acks;\n+  ret.ul_nof_nok          = data.count_crc_pdus - data.count_crc_acks;\n+  ret.pusch_snr_db        = data.nof_pusch_snr_reports > 0 ? data.sum_pusch_snrs / data.nof_pusch_snr_reports : 0;\n+  ret.pusch_rsrp_db       = data.nof_pusch_rsrp_reports > 0 ? data.sum_pusch_rsrp / data.nof_pusch_rsrp_reports\n+                                                            : -std::numeric_limits<float>::infinity();\n+  ret.ul_ri_stats         = data.ul_ri;\n+  ret.pucch_snr_db        = data.nof_pucch_snr_reports > 0 ? data.sum_pucch_snrs / data.nof_pucch_snr_reports : 0;\n+  ret.last_dl_olla        = last_dl_olla;\n+  ret.last_ul_olla        = last_ul_olla;\n+  ret.bsr                 = last_bsr;\n+  ret.sr_count            = data.count_sr;\n+  ret.dl_bs               = 0;\n   for (const unsigned value : last_dl_bs) {\n     ret.dl_bs += value;\n   }",
+      "additions": 24,
+      "deletions": 24,
+      "changes": 48
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\fb32b7b.json"
+}

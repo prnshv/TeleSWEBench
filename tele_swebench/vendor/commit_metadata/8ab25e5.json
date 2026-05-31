@@ -1,0 +1,43 @@
+{
+  "commit_id": "8ab25e5f04d4e52de0b31d27d92f7db814b63345",
+  "commit_sha_short": "8ab25e5",
+  "commit_folder": "8ab25e5",
+  "commit_message": "sched: simplify pusch and pucch metrics",
+  "commit_message_first_line": "sched: simplify pusch and pucch metrics",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/8ab25e5f04d4e52de0b31d27d92f7db814b63345",
+  "commit_date": "2025-02-11T12:55:03Z",
+  "parent_sha": "916861002fcc98b3bdc0cff9b4af6f58a464484c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/916861002fcc98b3bdc0cff9b4af6f58a464484c",
+  "code_changes": [
+    {
+      "filename": "include/srsran/scheduler/scheduler_feedback_handler.h",
+      "patch": "@@ -176,7 +176,6 @@ struct uci_indication {\n     struct uci_pusch_pdu {\n       /// HARQ bits.\n       harq_ack_report_list harqs;\n-      bool                 invalid_harq_report = false;\n       /// CSI report.\n       std::optional<csi_report_data> csi;\n       bool                           invalid_csi_report = false;\n@@ -191,7 +190,6 @@ struct uci_indication {\n       bounded_bitset<MAX_SR_PAYLOAD_SIZE_BITS> sr_info;\n       /// HARQ bits.\n       harq_ack_report_list harqs;\n-      bool                 invalid_harq_report = false;\n       /// CSI report.\n       std::optional<csi_report_data> csi;\n       bool                           invalid_csi_report = false;",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/uci_cell_decoder.cpp",
+      "patch": "@@ -148,7 +148,6 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n       if (pusch->harq_info.has_value()) {\n         pdu.harqs =\n             convert_mac_harq_bits_to_sched_harq_values(pusch->harq_info.value().is_valid, pusch->harq_info->payload);\n-        pdu.invalid_harq_report = !pusch->harq_info->is_valid;\n \n         // Report ACK for RLF detection purposes.\n         for (mac_harq_ack_report_status harq : pdu.harqs) {\n@@ -193,9 +192,8 @@ uci_indication uci_cell_decoder::decode_uci(const mac_uci_indication_message& ms\n         pdu.sr_info = pucch_f2f3f4->sr_info.value();\n       }\n       if (pucch_f2f3f4->harq_info.has_value()) {\n-        pdu.harqs               = convert_mac_harq_bits_to_sched_harq_values(pucch_f2f3f4->harq_info.value().is_valid,\n+        pdu.harqs = convert_mac_harq_bits_to_sched_harq_values(pucch_f2f3f4->harq_info.value().is_valid,\n                                                                pucch_f2f3f4->harq_info->payload);\n-        pdu.invalid_harq_report = !pucch_f2f3f4->harq_info->is_valid;\n \n         // Report ACK for RLF detection purposes.\n         for (mac_harq_ack_report_status harq_st : pdu.harqs) {",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"scheduler_metrics_handler.h\"\n #include \"../config/cell_configuration.h\"\n+\n #include \"srsran/scheduler/result/sched_result.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/srslog/srslog.h\"\n@@ -104,26 +105,6 @@ void cell_metrics_handler::handle_pucch_sinr(ue_metric_context& u, float sinr)\n   u.data.sum_pucch_snrs += sinr;\n }\n \n-void cell_metrics_handler::handle_pucch_f2f3f4_invalid_harq(ue_metric_context& u)\n-{\n-  u.data.nof_pucch_f2f3f4_invalid_harqs++;\n-}\n-\n-void cell_metrics_handler::handle_pucch_f2f3f4_invalid_csi(ue_metric_context& u)\n-{\n-  u.data.nof_pucch_f2f3f4_invalid_csis++;\n-}\n-\n-void cell_metrics_handler::handle_pusch_invalid_harq(ue_metric_context& u)\n-{\n-  u.data.nof_pusch_invalid_harqs++;\n-}\n-\n-void cell_metrics_handler::handle_pusch_invalid_csi(ue_metric_context& u)\n-{\n-  u.data.nof_pusch_invalid_csis++;\n-}\n-\n void cell_metrics_handler::handle_csi_report(ue_metric_context& u, const csi_report_data& csi)\n {\n   // Add new CQI and RI observations if they are available in the CSI report.\n@@ -187,11 +168,11 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n         u.data.pucch_ta.update(f2f3f4->time_advance_offset->to_seconds());\n       }\n \n-      if (f2f3f4->invalid_harq_report) {\n-        handle_pucch_f2f3f4_invalid_harq(u);\n+      if (not f2f3f4->harqs.empty() and f2f3f4->harqs[0] != mac_harq_ack_report_status::dtx) {\n+        u.data.nof_pucch_f2f3f4_invalid_harqs++;\n       }\n       if (f2f3f4->invalid_csi_report) {\n-        handle_pucch_f2f3f4_invalid_csi(u);\n+        u.data.nof_pucch_f2f3f4_invalid_csis++;\n       }\n     } else {\n       // PUSCH case.\n@@ -200,11 +181,11 @@ void cell_metrics_handler::handle_uci_pdu_indication(const uci_indication::uci_p\n       if (pusch.csi.has_value()) {\n         handle_csi_report(u, pusch.csi.value());\n       }\n-      if (pusch.invalid_harq_report) {\n-        handle_pusch_invalid_harq(u);\n+      if (not pusch.harqs.empty() and pusch.harqs[0] != mac_harq_ack_report_status::dtx) {\n+        u.data.nof_pusch_invalid_harqs++;\n       }\n       if (pusch.invalid_csi_report) {\n-        handle_pusch_invalid_csi(u);\n+        u.data.nof_pusch_invalid_csis++;\n       }\n     }\n   }",
+      "additions": 7,
+      "deletions": 26,
+      "changes": 33
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -180,10 +180,6 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n \n private:\n   void handle_pucch_sinr(ue_metric_context& u, float sinr);\n-  void handle_pucch_f2f3f4_invalid_harq(ue_metric_context& u);\n-  void handle_pucch_f2f3f4_invalid_csi(ue_metric_context& u);\n-  void handle_pusch_invalid_harq(ue_metric_context& u);\n-  void handle_pusch_invalid_csi(ue_metric_context& u);\n   void handle_csi_report(ue_metric_context& u, const csi_report_data& csi);\n   void report_metrics();\n   void handle_slot_result(const sched_result& slot_result, std::chrono::microseconds slot_decision_latency);",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\8ab25e5.json"
+}

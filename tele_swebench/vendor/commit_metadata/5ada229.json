@@ -1,0 +1,218 @@
+{
+  "commit_id": "5ada229acc72f9d46abfba2f44c7f9b86043413c",
+  "commit_sha_short": "5ada229",
+  "commit_folder": "5ada229",
+  "commit_message": "remove shadowed variables from srslog and scheduler files",
+  "commit_message_first_line": "remove shadowed variables from srslog and scheduler files",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5ada229acc72f9d46abfba2f44c7f9b86043413c",
+  "commit_date": "2022-11-24T15:08:28Z",
+  "parent_sha": "b8a224549a6e3a833d5b61d20ab13a131ec5ae40",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b8a224549a6e3a833d5b61d20ab13a131ec5ae40",
+  "code_changes": [
+    {
+      "filename": "apps/cu-up/adapters.h",
+      "patch": "@@ -30,7 +30,7 @@ class sdap_packet_handler : public srsgnb::pdcp_rx_upper_data_notifier\n   srsgnb::srs_cu_up::sdap_pdu_handler& sdap;\n \n public:\n-  explicit sdap_packet_handler(srsgnb::srs_cu_up::sdap_pdu_handler& sdap) : sdap(sdap) {}\n+  explicit sdap_packet_handler(srsgnb::srs_cu_up::sdap_pdu_handler& sdap_) : sdap(sdap_) {}\n \n   void on_new_sdu(srsgnb::byte_buffer sdu) override\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/cu-up/main.cpp",
+      "patch": "@@ -23,7 +23,7 @@ class fake_receiver\n   srsgnb::pdcp_rx_lower_interface& pdcp_if;\n \n public:\n-  explicit fake_receiver(srsgnb::pdcp_rx_lower_interface& pdcp_if) : pdcp_if(pdcp_if) {}\n+  explicit fake_receiver(srsgnb::pdcp_rx_lower_interface& pdcp_if_) : pdcp_if(pdcp_if_) {}\n \n   void receive()\n   {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "external/fmt/include/fmt/format.h",
+      "patch": "@@ -1598,9 +1598,9 @@ template <typename OutputIt, typename Char, typename UInt> struct int_writer {\n                               make_checked(p, s.size()));\n     }\n     if (prefix_size != 0) p[-1] = static_cast<Char>('-');\n-    using iterator = remove_reference_t<decltype(reserve(out, 0))>;\n+    using iterator_t = remove_reference_t<decltype(reserve(out, 0))>;\n     auto data = buffer.data();\n-    out = write_padded<align::right>(out, specs, size, size, [=](iterator it) {\n+    out = write_padded<align::right>(out, specs, size, size, [=](iterator_t it) {\n       return copy_str<Char>(data, data + size, it);\n     });\n   }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsgnb/adt/optional.h",
+      "patch": "@@ -68,20 +68,20 @@ struct base_optional_storage {\n     payload(tag, std::forward<Args>(args)...), has_val(true)\n   {\n   }\n-  explicit base_optional_storage(bool has_val_, const storage_type<storageT>& payload) noexcept(\n+  explicit base_optional_storage(bool has_val_, const storage_type<storageT>& payload_) noexcept(\n       std::is_nothrow_copy_constructible<T>::value) :\n     has_val(has_val_)\n   {\n     if (has_val_) {\n-      construct_(payload.val);\n+      construct_(payload_.val);\n     }\n   }\n-  explicit base_optional_storage(bool has_val_, storage_type<storageT>&& payload) noexcept(\n+  explicit base_optional_storage(bool has_val_, storage_type<storageT>&& payload_) noexcept(\n       std::is_nothrow_move_constructible<T>::value) :\n     has_val(has_val_)\n   {\n     if (has_val_) {\n-      construct_(std::move(payload.val));\n+      construct_(std::move(payload_.val));\n     }\n   }\n   base_optional_storage(const base_optional_storage<T>&)                = default;",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "include/srsgnb/asn1/asn1_utils.h",
+      "patch": "@@ -932,13 +932,13 @@ class bitstring\n     return *this;\n   }\n \n-  this_type& from_number(uint64_t val, uint32_t nof_bits)\n+  this_type& from_number(uint64_t val, uint32_t nof_bits_)\n   {\n-    if (nof_bits > UB) {\n+    if (nof_bits_ > UB) {\n       log_error(\"The provided bitstring value {} does not fit the bounds [{}, {}]\", val, uint32_t(lb), uint32_t(ub));\n       return *this;\n     }\n-    resize(nof_bits);\n+    resize(nof_bits_);\n     bitstring_utils::from_number(data(), val, length());\n     return *this;\n   }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsgnb/fapi_adaptor/mac/mac_fapi_adaptor_factory.h",
+      "patch": "@@ -20,8 +20,8 @@ namespace fapi_adaptor {\n \n /// Configuration parameters for the MAC&ndash;FAPI adaptor factory.\n struct mac_fapi_adaptor_factory_config {\n-  mac_fapi_adaptor_factory_config(unsigned sector_id, subcarrier_spacing scs, fapi::slot_message_gateway& gateway) :\n-    sector_id(sector_id), gateway(gateway), scs(scs)\n+  mac_fapi_adaptor_factory_config(unsigned sector_id_, subcarrier_spacing scs_, fapi::slot_message_gateway& gateway_) :\n+    sector_id(sector_id_), gateway(gateway_), scs(scs_)\n   {\n   }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsgnb/mac/mac_configuration_helpers.h",
+      "patch": "@@ -7,10 +7,6 @@\n \n namespace srsgnb {\n \n-/// Convert a cell configuration request to the MAC into a cell configuration request of the scheduler.\n-sched_cell_configuration_request_message\n-make_scheduler_cell_configuration_request(const mac_cell_creation_request& request);\n-\n /// Convert a UE creation request for the MAC into a UE creation request of the scheduler.\n sched_ue_creation_request_message make_scheduler_ue_creation_request(const mac_ue_create_request_message& request);\n ",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsgnb/scheduler/prb_grant.h",
+      "patch": "@@ -141,10 +141,10 @@ struct prb_grant {\n   } alloc;\n };\n \n-inline prb_bitmap& operator|=(prb_bitmap& prb_bitmap, const prb_interval& grant)\n+inline prb_bitmap& operator|=(prb_bitmap& prb_bits, const prb_interval& grant)\n {\n-  prb_bitmap.fill(grant.start(), grant.stop());\n-  return prb_bitmap;\n+  prb_bits.fill(grant.start(), grant.stop());\n+  return prb_bits;\n }\n \n /// Converts RBG bitmap to PRB bitmap given a BWP PRB dimensions and the nominal RBG-size.",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsgnb/srslog/detail/support/error_string.h",
+      "patch": "@@ -25,8 +25,8 @@ class error_string\n public:\n   error_string() = default;\n \n-  /*implicit*/ error_string(std::string error) : error(std::move(error)) {}\n-  /*implicit*/ error_string(const char* error) : error(error) {}\n+  /*implicit*/ error_string(std::string error_) : error(std::move(error_)) {}\n+  /*implicit*/ error_string(const char* error_) : error(error_) {}\n \n   /// Returns the error string.\n   const std::string& get_error() const { return error; }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsgnb/srslog/detail/support/memory_buffer.h",
+      "patch": "@@ -24,7 +24,7 @@ class memory_buffer\n   const size_t      length;\n \n public:\n-  memory_buffer(const char* buffer, size_t length) : buffer(buffer), length(length) {}\n+  memory_buffer(const char* buffer_, size_t length_) : buffer(buffer_), length(length_) {}\n \n   explicit memory_buffer(const std::string& s) : buffer(s.data()), length(s.size()) {}\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsgnb/srslog/detail/support/thread_utils.h",
+      "patch": "@@ -58,7 +58,7 @@ class scoped_lock\n   mutex& m;\n \n public:\n-  explicit scoped_lock(mutex& m) : m(m) { m.lock(); }\n+  explicit scoped_lock(mutex& m_) : m(m_) { m.lock(); }\n \n   scoped_lock(const scoped_lock&)            = delete;\n   scoped_lock& operator=(const scoped_lock&) = delete;\n@@ -74,7 +74,7 @@ class shared_variable\n   mutable mutex m;\n \n public:\n-  shared_variable(const T& value) : value(value) {}\n+  shared_variable(const T& value_) : value(value_) {}\n \n   shared_variable(const shared_variable&)            = delete;\n   shared_variable& operator=(const shared_variable&) = delete;\n@@ -153,7 +153,7 @@ class cond_var_scoped_lock\n   condition_variable& cond_var;\n \n public:\n-  explicit cond_var_scoped_lock(condition_variable& cond_var) : cond_var(cond_var) { cond_var.lock(); }\n+  explicit cond_var_scoped_lock(condition_variable& cond_var_) : cond_var(cond_var_) { cond_var.lock(); }\n \n   cond_var_scoped_lock(const cond_var_scoped_lock&)            = delete;\n   cond_var_scoped_lock& operator=(const cond_var_scoped_lock&) = delete;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsgnb/srslog/event_trace.h",
+      "patch": "@@ -76,8 +76,8 @@ class scoped_complete_event\n public:\n   scoped_complete_event(const char*               cat,\n                         const char*               n,\n-                        std::chrono::microseconds threshold = std::chrono::microseconds::zero()) :\n-    category(cat), name(n), start(std::chrono::steady_clock::now()), threshold(threshold)\n+                        std::chrono::microseconds threshold_ = std::chrono::microseconds::zero()) :\n+    category(cat), name(n), start(std::chrono::steady_clock::now()), threshold(threshold_)\n   {\n   }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "include/srsgnb/srslog/log_channel.h",
+      "patch": "@@ -20,8 +20,8 @@ namespace srslog {\n /// Log channel configuration settings.\n struct log_channel_config {\n   log_channel_config() = default;\n-  log_channel_config(std::string n, char tag, bool should_print_context) :\n-    name(std::move(n)), tag(tag), should_print_context(should_print_context)\n+  log_channel_config(std::string n, char tag_, bool should_print_context_) :\n+    name(std::move(n)), tag(tag_), should_print_context(should_print_context_)\n   {\n   }\n \n@@ -46,12 +46,12 @@ struct log_channel_config {\n class log_channel\n {\n public:\n-  log_channel(std::string id, sink& s, detail::log_backend& backend) : log_channel(std::move(id), s, backend, {}) {}\n+  log_channel(std::string id, sink& s, detail::log_backend& backend_) : log_channel(std::move(id), s, backend_, {}) {}\n \n-  log_channel(std::string id, sink& s, detail::log_backend& backend, log_channel_config config) :\n+  log_channel(std::string id, sink& s, detail::log_backend& backend_, log_channel_config config) :\n     log_id(std::move(id)),\n     log_sink(s),\n-    backend(backend),\n+    backend(backend_),\n     log_name(std::move(config.name)),\n     log_tag(config.tag),\n     should_print_context(config.should_print_context),\n@@ -136,8 +136,8 @@ class log_channel\n     // Send the log entry to the backend.\n     log_formatter&    formatter = log_sink.get_formatter();\n     detail::log_entry entry     = {&log_sink,\n-                                   [&formatter](detail::log_entry_metadata&& metadata, fmt::memory_buffer& buffer) {\n-                                 formatter.format(std::move(metadata), buffer);\n+                                   [&formatter](detail::log_entry_metadata&& metadata, fmt::memory_buffer& buffer_) {\n+                                 formatter.format(std::move(metadata), buffer_);\n                                },\n                                    {std::chrono::high_resolution_clock::now(),\n                                     {ctx_value, should_print_context},",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14
+    },
+    {
+      "filename": "include/srsgnb/support/memory_pool/fixed_size_memory_block_pool.h",
+      "patch": "@@ -110,17 +110,17 @@ class fixed_size_memory_block_pool\n   void* allocate_node(size_t sz) noexcept\n   {\n     srsgnb_assert(sz <= mblock_size, \"Allocated node size={} exceeds max object size={}\", sz, mblock_size);\n-    worker_ctxt* worker_ctxt = get_worker_cache();\n+    worker_ctxt* w_ctx = get_worker_cache();\n \n-    void* node = worker_ctxt->local_cache.try_pop();\n+    void* node = w_ctx->local_cache.try_pop();\n     if (node == nullptr) {\n       // fill the thread local cache enough for this and next allocations\n       std::array<void*, batch_steal_size> popped_blocks;\n       size_t                              n = central_mem_cache.try_pop(popped_blocks);\n       for (size_t i = 0; i < n; ++i) {\n-        worker_ctxt->local_cache.push(static_cast<void*>(popped_blocks[i]));\n+        w_ctx->local_cache.push(static_cast<void*>(popped_blocks[i]));\n       }\n-      node = worker_ctxt->local_cache.try_pop();\n+      node = w_ctx->local_cache.try_pop();\n     }\n \n     return node;\n@@ -131,7 +131,7 @@ class fixed_size_memory_block_pool\n   {\n     srsgnb_assert(p != nullptr, \"Deallocated nodes must have valid address\");\n \n-    worker_ctxt* worker_ctxt = get_worker_cache();\n+    worker_ctxt* w_ctx = get_worker_cache();\n \n     if (DebugSanitizeAddress) {\n       // For debug purposes.\n@@ -148,11 +148,11 @@ class fixed_size_memory_block_pool\n     }\n \n     // push to local memory block cache.\n-    worker_ctxt->local_cache.push(p);\n+    w_ctx->local_cache.push(p);\n \n-    if (worker_ctxt->local_cache.size() >= local_growth_thres) {\n+    if (w_ctx->local_cache.size() >= local_growth_thres) {\n       // if local cache reached max capacity, send half of the blocks to central cache\n-      central_mem_cache.steal_blocks(worker_ctxt->local_cache, worker_ctxt->local_cache.size() / 2);\n+      central_mem_cache.steal_blocks(w_ctx->local_cache, w_ctx->local_cache.size() / 2);\n     }\n   }\n ",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16
+    },
+    {
+      "filename": "include/srsgnb/support/timers.h",
+      "patch": "@@ -82,7 +82,7 @@ class timer_manager\n     unique_function<void(timer_id_t)> callback;\n \n   public:\n-    explicit timer_handle(timer_manager& parent, timer_id_t id) : parent(parent), id(id) {}\n+    explicit timer_handle(timer_manager& parent_, timer_id_t id_) : parent(parent_), id(id_) {}\n     timer_handle(const timer_handle&)            = delete;\n     timer_handle(timer_handle&&)                 = delete;\n     timer_handle& operator=(const timer_handle&) = delete;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/CMakeLists.txt",
+      "patch": "@@ -8,8 +8,7 @@\n \n set(SOURCES mac_ctrl/mac_configuration_helpers.cpp mac_config/mac_cell_group_config_factory.cpp)\n add_library(mac_configuration_helpers STATIC ${SOURCES})\n-target_link_libraries(mac_configuration_helpers srsgnb_support srsgnb_ran rrc_nr_asn1)\n-\n+target_link_libraries(mac_configuration_helpers srsgnb_support srsgnb_ran)\n set(SOURCES mac_factory.cpp\n             mac_impl.cpp\n             mac_ctrl/mac_controller.cpp",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/CMakeLists.txt",
+      "patch": "@@ -33,4 +33,4 @@ set(SOURCES\n         cell/scheduler_prb.cpp)\n \n add_library(srsgnb_sched STATIC ${SOURCES} $<TARGET_OBJECTS:common_sched> $<TARGET_OBJECTS:ue_sched>)\n-target_link_libraries(srsgnb_sched srsgnb_ran rrc_nr_asn1_helpers)\n+target_link_libraries(srsgnb_sched srsgnb_ran)",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.cpp",
+      "patch": "@@ -547,7 +547,7 @@ void ra_scheduler::fill_rar_grant(cell_resource_allocator&         res_alloc,\n   }\n }\n \n-void ra_scheduler::schedule_msg3_retx(cell_resource_allocator& res_alloc, pending_msg3& msg3_ctx)\n+void ra_scheduler::schedule_msg3_retx(cell_resource_allocator& res_alloc, pending_msg3_t& msg3_ctx)\n {\n   unsigned                      pusch_td_res_index = 0; // TODO: Derive PUSCH TD res index.\n   const unsigned                k2                 = get_pusch_cfg().pusch_td_alloc_list[pusch_td_res_index].k2;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.h",
+      "patch": "@@ -61,7 +61,7 @@ class ra_scheduler\n     slot_interval                                           rar_window;\n     static_vector<rnti_t, MAX_PREAMBLES_PER_PRACH_OCCASION> tc_rntis;\n   };\n-  struct pending_msg3 {\n+  struct pending_msg3_t {\n     /// Detected PRACH Preamble associated to this Msg3.\n     rach_indication_message::preamble preamble{};\n     /// UL Harq used to schedule Msg3.\n@@ -109,7 +109,7 @@ class ra_scheduler\n                       span<const msg3_alloc_candidate> msg3_candidates);\n \n   /// Schedule retransmission of Msg3.\n-  void schedule_msg3_retx(cell_resource_allocator& res_alloc, pending_msg3& msg3_ctx);\n+  void schedule_msg3_retx(cell_resource_allocator& res_alloc, pending_msg3_t& msg3_ctx);\n \n   // args\n   const scheduler_ra_expert_config& sched_cfg;\n@@ -142,7 +142,7 @@ class ra_scheduler\n   slot_event_list<rach_indication_message> pending_rachs;\n   slot_event_list<ul_crc_indication>       pending_crcs;\n   std::deque<pending_rar_t>                pending_rars;\n-  std::vector<pending_msg3>                pending_msg3s;\n+  std::vector<pending_msg3_t>              pending_msg3s;\n };\n \n } // namespace srsgnb",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/support/pdsch/pdsch_default_time_allocation.cpp",
+      "patch": "@@ -112,10 +112,10 @@ srsgnb::pdsch_default_time_allocations_default_A_table(cyclic_prefix cp, dmrs_ty\n   static constexpr size_t PDSCH_TD_RES_ALLOC_TABLE_SIZE = 16;\n \n   // Build PDSCH-TimeDomain tables statically.\n-  auto table_builder = [](cyclic_prefix cp, dmrs_typeA_position dmrs_pos) {\n+  auto table_builder = [](cyclic_prefix cp_, dmrs_typeA_position dmrs_pos_) {\n     std::array<pdsch_time_domain_resource_allocation, PDSCH_TD_RES_ALLOC_TABLE_SIZE> table;\n     for (unsigned i = 0; i < PDSCH_TD_RES_ALLOC_TABLE_SIZE; ++i) {\n-      pdsch_default_time_allocation_config cfg = pdsch_default_time_allocation_default_A_get(cp, i, dmrs_pos);\n+      pdsch_default_time_allocation_config cfg = pdsch_default_time_allocation_default_A_get(cp_, i, dmrs_pos_);\n       table[i].k0                              = cfg.pdcch_to_pdsch_delay;\n       table[i].map_type                        = cfg.mapping_type;\n       table[i].symbols                         = {cfg.start_symbol, cfg.duration};",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/support/pusch/pusch_default_time_allocation.cpp",
+      "patch": "@@ -112,10 +112,10 @@ srsgnb::pusch_default_time_allocations_default_A_table(cyclic_prefix cp, subcarr\n   static constexpr size_t PUSCH_TD_RES_ALLOC_TABLE_SIZE = 16;\n \n   // Build PUSCH-TimeDomain tables statically.\n-  auto table_builder = [](cyclic_prefix cp, subcarrier_spacing scs) {\n+  auto table_builder = [](cyclic_prefix cp_, subcarrier_spacing scs_) {\n     std::array<pusch_time_domain_resource_allocation, PUSCH_TD_RES_ALLOC_TABLE_SIZE> table;\n     for (unsigned i = 0; i < PUSCH_TD_RES_ALLOC_TABLE_SIZE; ++i) {\n-      pusch_default_time_allocation_config cfg = pusch_default_time_allocation_default_A_get(cp, i, scs);\n+      pusch_default_time_allocation_config cfg = pusch_default_time_allocation_default_A_get(cp_, i, scs_);\n       table[i].k2                              = cfg.k2;\n       table[i].map_type                        = cfg.mapping_type;\n       table[i].symbols                         = {cfg.start_symbol, cfg.duration};",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue.h",
+      "patch": "@@ -25,12 +25,12 @@ namespace srsgnb {\n class ue_cell\n {\n public:\n-  ue_cell(du_ue_index_t                                ue_index,\n+  ue_cell(du_ue_index_t                                ue_index_,\n           rnti_t                                       crnti_val,\n           const scheduler_ue_expert_config&            expert_cfg_,\n           const cell_configuration&                    cell_cfg_common_,\n           const serving_cell_ue_configuration_request& ue_serv_cell) :\n-    ue_index(ue_index),\n+    ue_index(ue_index_),\n     cell_index(ue_serv_cell.cell_index),\n     harqs(crnti_val, 8),\n     crnti_(crnti_val),",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -57,9 +57,9 @@ class srsgnb::event_logger\n ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n \n ue_event_manager::ue_event_manager(const scheduler_ue_expert_config& expert_cfg_,\n-                                   ue_list&                          ue_db,\n-                                   sched_configuration_notifier&     mac_notifier) :\n-  expert_cfg(expert_cfg_), ue_db(ue_db), mac_notifier(mac_notifier), logger(srslog::fetch_basic_logger(\"MAC\"))\n+                                   ue_list&                          ue_db_,\n+                                   sched_configuration_notifier&     mac_notifier_) :\n+  expert_cfg(expert_cfg_), ue_db(ue_db_), mac_notifier(mac_notifier_), logger(srslog::fetch_basic_logger(\"MAC\"))\n {\n }\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/srslog/backend_worker.h",
+      "patch": "@@ -24,8 +24,8 @@ namespace srslog {\n class backend_worker\n {\n public:\n-  backend_worker(detail::work_queue<detail::log_entry>& queue, detail::dyn_arg_store_pool& arg_pool) :\n-    queue(queue), arg_pool(arg_pool), running_flag(false)\n+  backend_worker(detail::work_queue<detail::log_entry>& queue_, detail::dyn_arg_store_pool& arg_pool_) :\n+    queue(queue_), arg_pool(arg_pool_), running_flag(false)\n   {\n   }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/srslog/formatters/json_formatter.h",
+      "patch": "@@ -108,7 +108,7 @@ class json_formatter : public log_formatter\n private:\n   /// Keeps track of some information about a JSON scope.\n   struct scope {\n-    scope(unsigned size, bool inside_list) : size(size), inside_list(inside_list) {}\n+    scope(unsigned size_, bool inside_list_) : size(size_), inside_list(inside_list_) {}\n     /// Number of elements this scope holds.\n     unsigned size;\n     /// If true, indicates this scope belongs to a list.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/srslog/formatters/text_formatter.h",
+      "patch": "@@ -81,7 +81,7 @@ class text_formatter : public log_formatter\n private:\n   /// Keeps track of some state required for formatting.\n   struct scope {\n-    scope(unsigned size, std::string set_name) : size(size), set_name(std::move(set_name)) {}\n+    scope(unsigned size_, std::string set_name_) : size(size_), set_name(std::move(set_name_)) {}\n     /// Number of elements this scope holds.\n     unsigned size;\n     /// Set name in this scope.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/srslog/sinks/buffered_file_sink.h",
+      "patch": "@@ -20,8 +20,8 @@ namespace srslog {\n class buffered_file_sink : public sink\n {\n public:\n-  buffered_file_sink(std::string filename, std::size_t capacity, std::unique_ptr<log_formatter> f) :\n-    sink(std::move(f)), filename(std::move(filename))\n+  buffered_file_sink(std::string filename_, std::size_t capacity, std::unique_ptr<log_formatter> f) :\n+    sink(std::move(f)), filename(std::move(filename_))\n   {\n     buffer.reserve(capacity);\n   }",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/srslog/sinks/file_sink.h",
+      "patch": "@@ -21,10 +21,10 @@ namespace srslog {\n class file_sink : public sink\n {\n public:\n-  file_sink(std::string name, size_t max_size, bool force_flush, std::unique_ptr<log_formatter> f) :\n+  file_sink(std::string name, size_t max_size_, bool force_flush_, std::unique_ptr<log_formatter> f) :\n     sink(std::move(f)),\n-    max_size((max_size == 0) ? 0 : std::max<size_t>(max_size, 4 * 1024)),\n-    force_flush(force_flush),\n+    max_size((max_size_ == 0) ? 0 : std::max<size_t>(max_size_, 4 * 1024)),\n+    force_flush(force_flush_),\n     base_filename(std::move(name))\n   {\n   }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "unittests/scheduler/scheduler_test_suite.cpp",
+      "patch": "@@ -76,7 +76,7 @@ void srsgnb::assert_pdcch_pdsch_common_consistency(const cell_configuration&\n         const auto&     sibs = cell_res_grid[0].result.dl.bc.sibs;\n         sib_information sib;\n         auto            it = std::find_if(\n-            sibs.begin(), sibs.end(), [&pdcch](const auto& sib) { return sib.pdsch_cfg.rnti == pdcch.ctx.rnti; });\n+            sibs.begin(), sibs.end(), [&pdcch](const auto& sib_) { return sib_.pdsch_cfg.rnti == pdcch.ctx.rnti; });\n         TESTASSERT(it != sibs.end());\n         assert_pdcch_pdsch_common_consistency(cell_cfg, pdcch, it->pdsch_cfg);\n       } break;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 29,
+  "commit_details_path": ".\\commit_metadata\\5ada229.json"
+}

@@ -1,0 +1,43 @@
+{
+  "commit_id": "008e13a3713ff19ef29723835772847baa65a128",
+  "commit_sha_short": "008e13a",
+  "commit_folder": "008e13a",
+  "commit_message": "gnb: add check on min bandwidth for given band\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "gnb: add check on min bandwidth for given band",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/008e13a3713ff19ef29723835772847baa65a128",
+  "commit_date": "2023-05-16T18:15:15Z",
+  "parent_sha": "db659d026dab39f1048b0cb8c9e6dfc12f408459",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/db659d026dab39f1048b0cb8c9e6dfc12f408459",
+  "code_changes": [
+    {
+      "filename": "apps/gnb/gnb_appconfig_validators.cpp",
+      "patch": "@@ -212,6 +212,24 @@ static bool validate_dl_arfcn_and_band(const base_cell_appconfig& config)\n {\n   nr_band band = config.band.has_value() ? config.band.value() : band_helper::get_band_from_dl_arfcn(config.dl_arfcn);\n \n+  // Check if the band is supported with given SCS or band.\n+  // NOTE: Band n46 would be compatible with the 10MHz BW, but there is no sync raster that falls within the band\n+  // limits. Also, the Coreset#0 width in RBs given in Table 13-4A, TS 38.213, is larger than the band itself, which is\n+  // odd. Therefore, we limit the band to minimum 20MHz BW.\n+  if (band == srsran::nr_band::n46 and config.channel_bw_mhz < bs_channel_bandwidth_fr1::MHz20) {\n+    fmt::print(\"Minimum supported bandwidth for n46 is 20MHz.\\n\");\n+    return false;\n+  }\n+\n+  if (bs_channel_bandwidth_to_MHz(config.channel_bw_mhz) <\n+      min_channel_bandwidth_to_MHz(band_helper::get_min_channel_bw(band, config.common_scs))) {\n+    fmt::print(\"Minimum supported bandwidth for n{} with SCS {} is {}MHz.\\n\",\n+               config.band,\n+               to_string(config.common_scs),\n+               min_channel_bandwidth_to_MHz(band_helper::get_min_channel_bw(band, config.common_scs)));\n+    return false;\n+  }\n+\n   // Check whether the DL-ARFCN is within the band and follows the Raster step.\n   if (config.band.has_value()) {\n     error_type<std::string> ret = band_helper::is_dl_arfcn_valid_given_band(",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18
+    },
+    {
+      "filename": "include/srsran/ran/pdcch/pdcch_type0_css_coreset_config.h",
+      "patch": "@@ -42,7 +42,7 @@ static constexpr pdcch_type0_css_coreset_description PDCCH_TYPE0_CSS_CORESET_RES\n /// The CORESET configuration is retrieved as per TS38.213 Tables 13-1, 13-2, 13-3, 13-4, 13-5, 13-6, 13-7, 13-8, 13-9\n /// and 13-10 depending on the subcarrier combination of the SS/PBCH block and PDCCH, and the minimum channel bandwidth.\n ///\n-/// \\param[in] band   Band minimum bandwidth in MHz as per TS38.104 Table 5.3.5-1 for FR 1\n+/// \\param[in] band                    Band minimum bandwidth in MHz as per TS38.104 Table 5.3.5-1 for FR 1\n ///                                    and Table 5.3.5-2 for FR2. This is ignored in case the band is restricted to\n ///                                    operation with shared spectrum channel access.\n /// \\param[in] ssb_scs                 SS/PBCH block subcarrier spacing.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -1111,7 +1111,7 @@ static unsigned get_max_coreset0_index(nr_band band, subcarrier_spacing scs_comm\n   const min_channel_bandwidth min_channel_bw         = band_helper::get_min_channel_bw(band, scs_common);\n   const bool                  is_for_shared_spectrum = band_helper::is_band_for_shared_spectrum(band);\n \n-  // As per TS 38.101, Table 5.2-1, band n79 and n104 use Table 13-5 and  Table 13-6, regardless of the minimum\n+  // As per TS 38.101, Table 5.2-1, band n79 and n104 use Table 13-5 and Table 13-6, regardless of the minimum\n   // channel BW.\n   const bool is_40mhz_min_ch_bw_equivalent = band_helper::is_band_40mhz_min_ch_bw_equivalent(band);\n \n@@ -1125,7 +1125,7 @@ static unsigned get_max_coreset0_index(nr_band band, subcarrier_spacing scs_comm\n     return 0;\n   }\n \n-  // Next, continue with the bands with is_40mhz_min_ch_bw_equivalent == true, as these use Table 13-5 and  Table 13-6,\n+  // Next, continue with the bands with is_40mhz_min_ch_bw_equivalent == true, as these use Table 13-5 and Table 13-6,\n   // regardless of the minimum channel BW.\n   if (min_channel_bw == min_channel_bandwidth::MHz40 or is_40mhz_min_ch_bw_equivalent) {\n     if (scs_ssb == subcarrier_spacing::kHz30 and scs_common == subcarrier_spacing::kHz15) {",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ran/pdcch/pdcch_type0_css_coreset_config.cpp",
+      "patch": "@@ -184,7 +184,7 @@ pdcch_type0_css_coreset_description srsran::pdcch_type0_css_coreset_get(nr_band\n   const min_channel_bandwidth minimum_bandwidth_MHz  = band_helper::get_min_channel_bw(band, pdcch_scs);\n   const bool                  is_for_shared_spectrum = band_helper::is_band_for_shared_spectrum(band);\n \n-  // As per TS 38.101, Table 5.2-1, band n79 and n104 use Table 13-5 and  Table 13-6, regardless of the minimum\n+  // As per TS 38.101, Table 5.2-1, band n79 and n104 use Table 13-5 and Table 13-6, regardless of the minimum\n   // channel BW.\n   const bool is_40mhz_min_ch_bw_equivalent = band_helper::is_band_40mhz_min_ch_bw_equivalent(band);\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\008e13a.json"
+}

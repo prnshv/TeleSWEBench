@@ -1,0 +1,22 @@
+{
+  "commit_id": "9be7b7aedbadfed5290c6e79fe800b9ece43a4f1",
+  "commit_sha_short": "9be7b7a",
+  "commit_folder": "9be7b7a",
+  "commit_message": "sched: remove malloc from scheduler metrics handler ue creation",
+  "commit_message_first_line": "sched: remove malloc from scheduler metrics handler ue creation",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9be7b7aedbadfed5290c6e79fe800b9ece43a4f1",
+  "commit_date": "2025-04-09T09:13:01Z",
+  "parent_sha": "2ee7276efa9fce83899421e9bd303fc01b0c065e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/2ee7276efa9fce83899421e9bd303fc01b0c065e",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -23,6 +23,7 @@ cell_metrics_handler::cell_metrics_handler(msecs                       metrics_r\n {\n   next_report.ue_metrics.reserve(MAX_NOF_DU_UES);\n   next_report.events.reserve(MAX_NOF_DU_UES);\n+  rnti_to_ue_index_lookup.reserve(MAX_NOF_DU_UES);\n }\n \n void cell_metrics_handler::handle_ue_creation(du_ue_index_t ue_index, rnti_t rnti, pci_t pcell_pci)",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\9be7b7a.json"
+}

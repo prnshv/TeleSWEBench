@@ -1,0 +1,43 @@
+{
+  "commit_id": "869f43c45b83a630aff6f7267ebc670f105aac9c",
+  "commit_sha_short": "869f43c",
+  "commit_folder": "869f43c",
+  "commit_message": "sched: fix TODO in SIB1 scheduler\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "sched: fix TODO in SIB1 scheduler",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/869f43c45b83a630aff6f7267ebc670f105aac9c",
+  "commit_date": "2022-12-06T12:36:00Z",
+  "parent_sha": "5b04a62820e01f8bfbebc5b8bfb8b2d34116c1e7",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/5b04a62820e01f8bfbebc5b8bfb8b2d34116c1e7",
+  "code_changes": [
+    {
+      "filename": "include/srsgnb/ran/band_helper.h",
+      "patch": "@@ -120,9 +120,15 @@ subcarrier_spacing get_lowest_ssb_scs(nr_band band);\n /// \\brief     Returns boolean indicating whether the band is in paired spectrum.\n /// \\remark    Paired spectrum is FDD, unpaired spectrum is TDD, SUL, SDL.\n /// \\param[in] band Given band.\n-/// \\return    true for paired specrum, false otherwise.\n+/// \\return    true for paired spectrum, false otherwise.\n bool is_paired_spectrum(nr_band band);\n \n+/// \\brief     Returns boolean indicating whether the band belongs to FR1 or FR2.\n+/// \\param[in] band Given band.\n+/// \\remark    The input band must be a valid NR band; the function does not return an error in case of invalid band.\n+/// \\return    the FR indicator, i.e., FR1 or FR2.\n+frequency_range get_freq_range(nr_band band);\n+\n /// @brief Compute the absolute pointA for a NR carrier from its bandwidth and the center frequency.\n ///\n /// \\remark The concept of <em>Center frequency<\\em> is defined for LTE, while there is explicit mention to it for NR",
+      "additions": 7,
+      "deletions": 1,
+      "changes": 8
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -95,7 +95,7 @@ struct nr_operating_band {\n };\n static const uint32_t                                                     nof_nr_operating_band_fr1 = 32;\n static constexpr std::array<nr_operating_band, nof_nr_operating_band_fr1> nr_operating_bands_fr1    = {{\n-       // clang-format off\n+    // clang-format off\n     {nr_band::n1,  duplex_mode::FDD},\n     {nr_band::n2,  duplex_mode::FDD},\n     {nr_band::n3,  duplex_mode::FDD},\n@@ -391,6 +391,12 @@ bool srsgnb::band_helper::is_paired_spectrum(nr_band band)\n   return mode == duplex_mode::FDD;\n }\n \n+frequency_range srsgnb::band_helper::get_freq_range(nr_band band)\n+{\n+  srsgnb_assert(band != nr_band::invalid, \"Band must be a valid NR band.\");\n+  return band <= nr_band::n86 ? frequency_range::FR1 : frequency_range::FR2;\n+}\n+\n double srsgnb::band_helper::get_abs_freq_point_a_from_center_freq(uint32_t nof_prb, double center_freq)\n {\n   constexpr static unsigned NRE = 12;",
+      "additions": 7,
+      "deletions": 1,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/cell/resource_grid.cpp",
+      "patch": "@@ -14,7 +14,7 @@ using namespace srsgnb;\n \n static subcarrier_spacing get_max_scs(const dl_config_common& dl_cfg)\n {\n-  // Note: assumes sorted list. TODO: Verify.\n+  // Note: assumes sorted list, even though the corresponding TS struct \\c scs-SpecificCarrierList might not be.\n   return dl_cfg.freq_info_dl.scs_carrier_list.back().scs;\n }\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/sib_scheduler.cpp",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"../support/pdcch/pdcch_type0_css_occasions.h\"\n #include \"../support/prbs_calculator.h\"\n #include \"srsgnb/ran/band_helper.h\"\n+#include \"srsgnb/ran/bs_channel_bandwidth.h\"\n #include \"srsgnb/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include \"srsgnb/ran/resource_allocation/resource_allocation_frequency.h\"\n #include \"srsgnb/ran/sib_configuration.h\"\n@@ -125,22 +126,19 @@ void sib1_scheduler::schedule_sib1(cell_slot_resource_allocator& res_grid, slot_\n \n void sib1_scheduler::precompute_sib1_n0(subcarrier_spacing scs_common)\n {\n-  // TODO: get minimum channel BW from current BW configuration.\n-  srsgnb_assert(cell_cfg.dl_carrier.carrier_bw_mhz < 40,\n-                \"Minimum channel BW '{}'MHz not supported for SIB1 scheduling; scheduler only supports 5MHz or \"\n-                \"10MHz min. channel BW.\",\n-                cell_cfg.dl_carrier.carrier_bw_mhz);\n+  min_channel_bandwidth min_channel_bw = band_helper::get_min_channel_bw(cell_cfg.dl_carrier.band, scs_common);\n+  srsgnb_assert(min_channel_bw < min_channel_bandwidth::MHz40,\n+                \"Bands with minimum channel BW 40MHz not supported for SIB1 scheduling\");\n   // Get Coreset0 num of symbols from Coreset0 config.\n-  min_channel_bandwidth min_channel_bw    = band_helper::get_min_channel_bw(cell_cfg.dl_carrier.band, scs_common);\n-  unsigned              nof_symb_coreset0 = pdcch_type0_css_coreset_get(min_channel_bw,\n+  unsigned nof_symb_coreset0 = pdcch_type0_css_coreset_get(min_channel_bw,\n                                                            cell_cfg.ssb_cfg.scs,\n                                                            scs_common,\n                                                            coreset0,\n                                                            static_cast<uint8_t>(cell_cfg.ssb_cfg.k_ssb.to_uint()))\n                                    .nof_rb_coreset;\n \n-  // TODO: Extend function to all multiplexing patterns.\n-  // TODO: Embed is_fr2 in the scheduler configuration.\n+  srsgnb_assert(band_helper::get_freq_range(cell_cfg.dl_carrier.band) == frequency_range::FR1,\n+                \"SIB1 scheduler only supports FR1.\");\n   pdcch_type0_css_occasion_pattern1_description ss0_config_occasion_param =\n       pdcch_type0_css_occasions_get_pattern1(pdcch_type0_css_occasion_pattern1_configuration{\n           .is_fr2 = false, .ss_zero_index = searchspace0, .nof_symb_coreset = nof_symb_coreset0});",
+      "additions": 7,
+      "deletions": 9,
+      "changes": 16
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\869f43c.json"
+}

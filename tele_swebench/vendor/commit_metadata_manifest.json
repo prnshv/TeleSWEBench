@@ -1,0 +1,8 @@
+{
+  "source": "/home/prgajjar/srsRANCoPilot/Benchmark Generation/final_codebase/commit_metadata",
+  "destination": "/home/prgajjar/srsRANCoPilot/TeleSWEBench/tele_swebench/vendor/commit_metadata",
+  "required_unique_commits": 313,
+  "files_copied": 313,
+  "removed_stale_files": 15733,
+  "missing_required_files": []
+}

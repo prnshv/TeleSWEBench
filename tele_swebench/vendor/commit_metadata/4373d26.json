@@ -1,0 +1,43 @@
+{
+  "commit_id": "4373d26f432fbf8a1a5c2dc499b1adf4fe273600",
+  "commit_sha_short": "4373d26",
+  "commit_folder": "4373d26",
+  "commit_message": "sched: log number of PDSCH and PUSCH grants per slot in metrics",
+  "commit_message_first_line": "sched: log number of PDSCH and PUSCH grants per slot in metrics",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/4373d26f432fbf8a1a5c2dc499b1adf4fe273600",
+  "commit_date": "2025-02-28T12:32:51Z",
+  "parent_sha": "3d63fe83aefa0a512e39b4c0a3bf593c962d1a18",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3d63fe83aefa0a512e39b4c0a3bf593c962d1a18",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -386,8 +386,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n   fmt::format_to(\n       std::back_inserter(buffer),\n       \" total_dl_brate={}bps total_ul_brate={}bps nof_prbs={} nof_dl_slots={} nof_ul_slots={} error_indications={} \"\n-      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} nof_ues={} mean_latency={}usec max_latency={}usec \"\n-      \"max_latency_slot={} latency_hist=[{}]\",\n+      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} nof_ues={} \"\n+      \"mean_latency={}usec max_latency={}usec max_latency_slot={} latency_hist=[{}]\",\n       float_to_eng_string(sum_dl_bitrate_kbps * 1e3, 1, false),\n       float_to_eng_string(sum_ul_bitrate_kbps * 1e3, 1, false),\n       metrics.nof_prbs,\n@@ -396,6 +396,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n       metrics.nof_error_indications,\n       sum_pdsch_rbs / metrics.nof_dl_slots,\n       sum_pusch_rbs / metrics.nof_ul_slots,\n+      metrics.dl_grants_count / (float)metrics.nof_dl_slots,\n+      metrics.ul_grants_count / (float)metrics.nof_ul_slots,\n       metrics.ue_metrics.size(),\n       metrics.average_decision_latency.count(),\n       metrics.max_decision_latency.count(),",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -12,7 +12,6 @@\n \n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/phy_time_unit.h\"\n #include \"srsran/ran/rnti.h\"\n #include \"srsran/ran/sch/sch_mcs.h\"\n #include \"srsran/ran/slot_point.h\"\n@@ -122,6 +121,10 @@ struct scheduler_cell_metrics {\n   unsigned nof_ul_slots = 0;\n   /// Number of PRACH preambles detected.\n   unsigned nof_prach_preambles = 0;\n+  /// Counter of UE PDSCH grants (RARs, SIBs and Paging are not considered).\n+  unsigned dl_grants_count = 0;\n+  /// Counter of UE PUSCH grants.\n+  unsigned ul_grants_count = 0;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -289,6 +289,8 @@ void cell_metrics_handler::report_metrics()\n   next_report.nof_dl_slots              = data.nof_dl_slots;\n   next_report.nof_ul_slots              = data.nof_ul_slots;\n   next_report.nof_prach_preambles       = data.nof_prach_preambles;\n+  next_report.dl_grants_count           = data.nof_ue_pdsch_grants;\n+  next_report.ul_grants_count           = data.nof_ue_pusch_grants;\n \n   // Reset cell-wide metric counters.\n   data = {};\n@@ -304,6 +306,7 @@ void cell_metrics_handler::report_metrics()\n void cell_metrics_handler::handle_slot_result(const sched_result&       slot_result,\n                                               std::chrono::microseconds slot_decision_latency)\n {\n+  data.nof_ue_pdsch_grants += slot_result.dl.ue_grants.size();\n   for (const dl_msg_alloc& dl_grant : slot_result.dl.ue_grants) {\n     auto it = rnti_to_ue_index_lookup.find(dl_grant.pdsch_cfg.rnti);\n     if (it == rnti_to_ue_index_lookup.end()) {\n@@ -326,6 +329,7 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n     u.last_dl_olla = dl_grant.context.olla_offset;\n   }\n \n+  data.nof_ue_pusch_grants += slot_result.ul.puschs.size();\n   for (const ul_sched_info& ul_grant : slot_result.ul.puschs) {\n     auto it = rnti_to_ue_index_lookup.find(ul_grant.pusch_cfg.rnti);\n     if (it == rnti_to_ue_index_lookup.end()) {",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -121,6 +121,10 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n     unsigned nof_dl_slots = 0;\n     // Number of uplink slots.\n     unsigned nof_ul_slots = 0;\n+    // Sum of UE PDSCH grants.\n+    unsigned nof_ue_pdsch_grants = 0;\n+    // Sum of UE PUSCH grants.\n+    unsigned nof_ue_pusch_grants = 0;\n   };\n \n   scheduler_metrics_notifier&     notifier;",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\4373d26.json"
+}

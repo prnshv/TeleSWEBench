@@ -1,0 +1,155 @@
+{
+  "commit_id": "d80386353f4e1fbb23ac8ed084778962c2da4bc0",
+  "commit_sha_short": "d803863",
+  "commit_folder": "d803863",
+  "commit_message": "sched: make scheduler cell removal not an awaitable",
+  "commit_message_first_line": "sched: make scheduler cell removal not an awaitable",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/d80386353f4e1fbb23ac8ed084778962c2da4bc0",
+  "commit_date": "2025-03-24T14:30:57Z",
+  "parent_sha": "88d022d13a07d54f47f2e05fe01ff0bea4c1e6a1",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/88d022d13a07d54f47f2e05fe01ff0bea4c1e6a1",
+  "code_changes": [
+    {
+      "filename": "include/srsran/scheduler/scheduler_configurator.h",
+      "patch": "@@ -220,9 +220,6 @@ class sched_configuration_notifier\n public:\n   virtual ~sched_configuration_notifier() = default;\n \n-  /// Called by scheduler when cell removal is completed.\n-  virtual void on_cell_removal_complete(du_cell_index_t cell_index) = 0;\n-\n   /// Called by scheduler when UE creation/modification is completed.\n   virtual void on_ue_config_complete(du_ue_index_t ue_index, bool ue_creation_result) = 0;\n ",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_ctrl/mac_scheduler_configurator.h",
+      "patch": "@@ -33,7 +33,7 @@ class mac_scheduler_configurator\n   /// \\brief Removes an existing cell from the scheduler.\n   ///\n   /// \\param cell_index DU-specific index of the cell to remove.\n-  virtual async_task<void> remove_cell(du_cell_index_t cell_index) = 0;\n+  virtual void remove_cell(du_cell_index_t cell_index) = 0;\n \n   /// \\brief Adds a new UE configuration to the scheduler.\n   ///",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.cpp",
+      "patch": "@@ -60,24 +60,14 @@ void srsran_scheduler_adapter::add_cell(const mac_cell_creation_request& msg)\n   sched_impl->handle_cell_configuration_request(msg.sched_req);\n }\n \n-async_task<void> srsran_scheduler_adapter::remove_cell(du_cell_index_t cell_index)\n+void srsran_scheduler_adapter::remove_cell(du_cell_index_t cell_index)\n {\n-  return launch_async([this, cell_index](coro_context<async_task<void>>& ctx) {\n-    CORO_BEGIN(ctx);\n-\n-    if (not cell_handlers.contains(cell_index)) {\n-      CORO_EARLY_RETURN();\n-    }\n-\n-    // Request cell removal from scheduler.\n-    sched_impl->handle_cell_removal_request(cell_index);\n-\n-    // Await scheduler completion.\n-    CORO_AWAIT(cell_handlers[cell_index].cell_update_ready);\n-    cell_handlers[cell_index].cell_update_ready.reset();\n+  if (not cell_handlers.contains(cell_index)) {\n+    return;\n+  }\n \n-    CORO_RETURN();\n-  });\n+  // Request cell removal from scheduler.\n+  sched_impl->handle_cell_removal_request(cell_index);\n }\n \n async_task<bool> srsran_scheduler_adapter::handle_ue_creation_request(const mac_ue_create_request& msg)\n@@ -313,16 +303,6 @@ srsran_scheduler_adapter::handle_positioning_measurement_request(du_cell_index_t\n   return cell_handlers[cell_index].pos_handler->handle_positioning_measurement_request(req);\n }\n \n-void srsran_scheduler_adapter::sched_config_notif_adapter::on_cell_removal_complete(du_cell_index_t cell_index)\n-{\n-  // Continuation of task in ctrl executor.\n-  if (not parent.ctrl_exec.defer(\n-          [this, cell_index]() { parent.cell_handlers[cell_index].cell_update_ready.set(true); })) {\n-    parent.logger.error(\"cell={}: Unable to remove cell configuration. Cause: DU task queue is full.\",\n-                        fmt::underlying(cell_index));\n-  }\n-}\n-\n void srsran_scheduler_adapter::sched_config_notif_adapter::on_ue_config_complete(du_ue_index_t ue_index,\n                                                                                  bool          ue_creation_result)\n {",
+      "additions": 6,
+      "deletions": 26,
+      "changes": 32
+    },
+    {
+      "filename": "lib/mac/mac_sched/srsran_scheduler_adapter.h",
+      "patch": "@@ -33,7 +33,7 @@ class srsran_scheduler_adapter final : public mac_scheduler_adapter\n \n   void add_cell(const mac_cell_creation_request& msg) override;\n \n-  async_task<void> remove_cell(du_cell_index_t cell_index) override;\n+  void remove_cell(du_cell_index_t cell_index) override;\n \n   void start_cell(du_cell_index_t cell_index) override { sched_impl->handle_cell_start_request(cell_index); }\n \n@@ -104,8 +104,6 @@ class srsran_scheduler_adapter final : public mac_scheduler_adapter\n \n     std::unique_ptr<positioning_handler> pos_handler;\n \n-    manual_event<bool> cell_update_ready;\n-\n   private:\n     const du_cell_index_t     cell_idx = INVALID_DU_CELL_INDEX;\n     srsran_scheduler_adapter& parent;\n@@ -118,7 +116,6 @@ class srsran_scheduler_adapter final : public mac_scheduler_adapter\n   {\n   public:\n     explicit sched_config_notif_adapter(srsran_scheduler_adapter& parent_) : parent(parent_) {}\n-    void on_cell_removal_complete(du_cell_index_t cell_index) override;\n     void on_ue_config_complete(du_ue_index_t ue_index, bool ue_creation_result) override;\n     void on_ue_delete_response(du_ue_index_t ue_index) override;\n ",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/cell_scheduler.h",
+      "patch": "@@ -53,6 +53,9 @@ class cell_scheduler\n \n   const sched_result& last_result() const { return res_grid[0].result; }\n \n+  /// Check if the cell is running.\n+  bool is_running() const { return not stopped.load(std::memory_order_acquire); }\n+\n   void handle_sib1_update_indication(const sib1_pdu_update_request& msg)\n   {\n     sib1_sch.handle_sib1_update_indication(msg.pdu_version, msg.payload_size);",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3
+    },
+    {
+      "filename": "lib/scheduler/config/sched_config_manager.cpp",
+      "patch": "@@ -16,13 +16,6 @@\n \n using namespace srsran;\n \n-cell_removal_event::~cell_removal_event()\n-{\n-  if (parent != nullptr) {\n-    parent->handle_cell_removal_complete(cell_index);\n-  }\n-}\n-\n ue_config_update_event::ue_config_update_event(du_ue_index_t                     ue_index_,\n                                                sched_config_manager&             parent_,\n                                                std::unique_ptr<ue_configuration> next_cfg,\n@@ -99,6 +92,20 @@ const cell_configuration* sched_config_manager::add_cell(const sched_cell_config\n   return added_cells[msg.cell_index].get();\n }\n \n+void sched_config_manager::rem_cell(du_cell_index_t cell_index)\n+{\n+  const du_cell_group_index_t group_index = added_cells[cell_index]->cell_group_index;\n+\n+  // Eliminate metrics.\n+  metrics_handler.rem_cell(cell_index);\n+\n+  // Eliminate respective cell configuration.\n+  added_cells.erase(cell_index);\n+\n+  // Remove cell configs from the group.\n+  group_cfg_pool[group_index]->rem_cell(cell_index);\n+}\n+\n ue_config_update_event sched_config_manager::add_ue(const sched_ue_creation_request_message& cfg_req)\n {\n   srsran_assert(cfg_req.ue_index < MAX_NOF_DU_UES, \"Invalid ue_index={}\", fmt::underlying(cfg_req.ue_index));\n@@ -212,20 +219,6 @@ ue_config_delete_event sched_config_manager::remove_ue(du_ue_index_t ue_index)\n   return ue_config_delete_event{ue_index, *this};\n }\n \n-void sched_config_manager::handle_cell_removal_complete(du_cell_index_t cell_index)\n-{\n-  const du_cell_group_index_t group_index = added_cells[cell_index]->cell_group_index;\n-\n-  // Eliminate respective cell configuration.\n-  added_cells.erase(cell_index);\n-\n-  // Remove cell configs from the group.\n-  group_cfg_pool[group_index]->rem_cell(cell_index);\n-\n-  // Notifies MAC that event is complete.\n-  config_notifier.on_cell_removal_complete(cell_index);\n-}\n-\n void sched_config_manager::handle_ue_config_complete(du_ue_index_t ue_index, std::unique_ptr<ue_configuration> next_cfg)\n {\n   if (next_cfg != nullptr) {",
+      "additions": 14,
+      "deletions": 21,
+      "changes": 35
+    },
+    {
+      "filename": "lib/scheduler/config/sched_config_manager.h",
+      "patch": "@@ -23,25 +23,6 @@ namespace srsran {\n class sched_config_manager;\n class scheduler_metrics_handler;\n \n-/// Unique event to remove cell.\n-class cell_removal_event\n-{\n-public:\n-  cell_removal_event() = default;\n-  cell_removal_event(du_cell_index_t cell_index_, sched_config_manager& parent_) :\n-    cell_index(cell_index_), parent(&parent_)\n-  {\n-  }\n-  ~cell_removal_event();\n-\n-  du_cell_index_t get_cell_index() const { return cell_index; }\n-\n-private:\n-  du_cell_index_t cell_index = INVALID_DU_CELL_INDEX;\n-  // We use a unique_ptr with no deleter to automatically set the ptr to null on move.\n-  std::unique_ptr<sched_config_manager, noop_operation> parent;\n-};\n-\n /// Event to create/reconfigure a UE in the scheduler.\n class ue_config_update_event\n {\n@@ -126,7 +107,7 @@ class sched_config_manager\n \n   const cell_configuration* add_cell(const sched_cell_configuration_request_message& msg);\n \n-  cell_removal_event rem_cell(du_cell_index_t cell_index);\n+  void rem_cell(du_cell_index_t cell_index);\n \n   ue_config_update_event add_ue(const sched_ue_creation_request_message& cfg_req);\n \n@@ -156,7 +137,6 @@ class sched_config_manager\n \n   void flush_ues_to_rem();\n \n-  void handle_cell_removal_complete(du_cell_index_t cell_index);\n   void handle_ue_config_complete(du_ue_index_t ue_index, std::unique_ptr<ue_configuration> next_cfg);\n   void handle_ue_delete_complete(du_ue_index_t ue_index);\n ",
+      "additions": 1,
+      "deletions": 21,
+      "changes": 22
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -493,3 +493,8 @@ cell_metrics_handler* scheduler_metrics_handler::add_cell(const cell_configurati\n \n   return cells[cell_cfg.cell_index].get();\n }\n+\n+void scheduler_metrics_handler::rem_cell(du_cell_index_t cell_index)\n+{\n+  cells.erase(cell_index);\n+}",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -226,6 +226,8 @@ class scheduler_metrics_handler\n \n   cell_metrics_handler* add_cell(const cell_configuration& cell_cfg);\n \n+  void rem_cell(du_cell_index_t cell_index);\n+\n   cell_metrics_handler& at(du_cell_index_t cell_idx) { return *cells[cell_idx]; }\n \n private:",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.cpp",
+      "patch": "@@ -46,8 +46,16 @@ bool scheduler_impl::handle_cell_configuration_request(const sched_cell_configur\n void scheduler_impl::handle_cell_removal_request(du_cell_index_t cell_index)\n {\n   srsran_assert(cells.contains(cell_index), \"cell={} does not exist\", fmt::underlying(cell_index));\n+  srsran_assert(not cells[cell_index]->is_running(), \"cell={} is not stopped\", fmt::underlying(cell_index));\n \n-  cells[cell_index]->cell_cfg.cell_group_index;\n+  // Remove cell from ue scheduler.\n+  groups[cells[cell_index]->cell_cfg.cell_group_index]->rem_cell(cell_index);\n+\n+  // Remove cell.\n+  cells.erase(cell_index);\n+\n+  // Remove cell from config.\n+  cfg_mng.rem_cell(cell_index);\n }\n \n void scheduler_impl::handle_cell_start_request(du_cell_index_t cell_index)",
+      "additions": 9,
+      "deletions": 1,
+      "changes": 10
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.h",
+      "patch": "@@ -76,11 +76,11 @@ class scheduler_impl final : public mac_scheduler\n   // Manager of configurations forwarded to the scheduler.\n   sched_config_manager cfg_mng;\n \n-  /// Container of DU Cell-specific resources.\n-  slotted_id_table<du_cell_index_t, std::unique_ptr<cell_scheduler>, MAX_NOF_DU_CELLS> cells;\n-\n   /// Container of DU Cell Group-specific resources.\n   slotted_id_table<du_cell_group_index_t, std::unique_ptr<ue_scheduler>, MAX_DU_CELL_GROUPS> groups;\n+\n+  /// Container of DU Cell-specific resources.\n+  slotted_id_table<du_cell_index_t, std::unique_ptr<cell_scheduler>, MAX_NOF_DU_CELLS> cells;\n };\n \n } // namespace srsran",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -956,6 +956,17 @@ void ue_event_manager::add_cell(const cell_creation_event& cell_ev)\n   }\n }\n \n+void ue_event_manager::rem_cell(du_cell_index_t cell_index)\n+{\n+  // Flush pending cell-specific events.\n+  cell_event_t ev{INVALID_DU_UE_INDEX, [](ue_cell&) {}, \"invalid\", true};\n+  while (cell_specific_events[cell_index].try_pop(ev)) {\n+  }\n+\n+  // Remove cell entry.\n+  du_cells[cell_index] = {};\n+}\n+\n bool ue_event_manager::cell_exists(du_cell_index_t cell_index) const\n {\n   return cell_index < MAX_NOF_DU_CELLS and du_cells[cell_index].cfg != nullptr;",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.h",
+      "patch": "@@ -52,6 +52,7 @@ class ue_event_manager final : public sched_ue_configuration_handler,\n   ~ue_event_manager() override;\n \n   void add_cell(const cell_creation_event& cell_ev);\n+  void rem_cell(du_cell_index_t cell_index);\n \n   /// UE Add/Mod/Remove interface.\n   void handle_ue_creation(ue_config_update_event ev) override;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler.h",
+      "patch": "@@ -41,6 +41,8 @@ class ue_scheduler\n \n   virtual void add_cell(const ue_scheduler_cell_params& params) = 0;\n \n+  virtual void rem_cell(du_cell_index_t cell_index) = 0;\n+\n   /// Schedule UE DL and UL grants for a given {slot, cell}.\n   virtual void run_slot(slot_point slot_tx) = 0;\n ",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler_impl.cpp",
+      "patch": "@@ -33,6 +33,15 @@ void ue_scheduler_impl::add_cell(const ue_scheduler_cell_params& params)\n                                          *params.ev_logger});\n }\n \n+void ue_scheduler_impl::rem_cell(du_cell_index_t cell_index)\n+{\n+  // Remove cell from UE event manager.\n+  event_mng.rem_cell(cell_index);\n+\n+  // Remove cell from UE scheduler.\n+  cells.erase(cell_index);\n+}\n+\n void ue_scheduler_impl::run_sched_strategy(du_cell_index_t cell_index)\n {\n   auto& cell = cells[cell_index];",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler_impl.h",
+      "patch": "@@ -35,6 +35,7 @@ class ue_scheduler_impl final : public ue_scheduler\n   explicit ue_scheduler_impl(const scheduler_ue_expert_config& expert_cfg_);\n \n   void add_cell(const ue_scheduler_cell_params& params) override;\n+  void rem_cell(du_cell_index_t cell_index) override;\n \n   /// Schedule UE DL grants for a given {slot, cell}.\n   void run_slot(slot_point slot_tx) override;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/benchmarks/scheduler/scheduler_test_doubles.h",
+      "patch": "@@ -18,7 +18,6 @@ namespace srsran {\n class sched_cfg_dummy_notifier : public sched_configuration_notifier\n {\n public:\n-  void on_cell_removal_complete(du_cell_index_t cell_index) override {}\n   void on_ue_config_complete(du_ue_index_t ue_index, bool ue_creation_result) override {}\n   void on_ue_delete_response(du_ue_index_t ue_index) override {}\n };",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ctrl_test_dummies.h",
+      "patch": "@@ -159,7 +159,7 @@ class mac_scheduler_dummy_adapter : public mac_scheduler_configurator\n \n   void add_cell(const mac_cell_creation_request& msg) override {}\n \n-  async_task<void> remove_cell(du_cell_index_t cell_index) override { return launch_no_op_task(); }\n+  void remove_cell(du_cell_index_t cell_index) override {}\n \n   async_task<bool> handle_ue_creation_request(const mac_ue_create_request& msg) override;\n   async_task<bool> handle_ue_reconfiguration_request(const mac_ue_reconfiguration_request& msg) override;\n@@ -168,7 +168,6 @@ class mac_scheduler_dummy_adapter : public mac_scheduler_configurator\n \n   class dummy_notifier : public sched_configuration_notifier\n   {\n-    void on_cell_removal_complete(du_cell_index_t cell_index) override {}\n     void on_ue_config_complete(du_ue_index_t ue_index, bool success) override {}\n     void on_ue_delete_response(du_ue_index_t ue_index) override {}\n   } notifier;",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/scheduler/test_utils/config_generators.cpp",
+      "patch": "@@ -20,7 +20,6 @@ namespace {\n class dummy_sched_configuration_notifier : public sched_configuration_notifier\n {\n public:\n-  void on_cell_removal_complete(du_cell_index_t cell_index) override {}\n   void on_ue_config_complete(du_ue_index_t ue_index, bool ue_creation_result) override {}\n   void on_ue_delete_response(du_ue_index_t ue_index) override {}\n };",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/scheduler/test_utils/dummy_test_components.h",
+      "patch": "@@ -145,7 +145,6 @@ class sched_cfg_dummy_notifier : public sched_configuration_notifier\n   std::optional<du_ue_index_t>   last_ue_index_cfg;\n   std::optional<du_ue_index_t>   last_ue_index_deleted;\n \n-  void on_cell_removal_complete(du_cell_index_t cell_index) override { last_rem_cell = cell_index; }\n   void on_ue_config_complete(du_ue_index_t ue_index, bool ue_creation_result) override { last_ue_index_cfg = ue_index; }\n   void on_ue_delete_response(du_ue_index_t ue_index) override { last_ue_index_deleted = ue_index; }\n };",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 20,
+  "commit_details_path": ".\\commit_metadata\\d803863.json"
+}

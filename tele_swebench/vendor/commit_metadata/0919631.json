@@ -1,0 +1,29 @@
+{
+  "commit_id": "0919631b95a3d22e57566cb90fcc0d697f90456e",
+  "commit_sha_short": "0919631",
+  "commit_folder": "0919631",
+  "commit_message": "asn1: fix overflow during bitstring to number conversion",
+  "commit_message_first_line": "asn1: fix overflow during bitstring to number conversion",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/0919631b95a3d22e57566cb90fcc0d697f90456e",
+  "commit_date": "2023-02-23T16:10:40Z",
+  "parent_sha": "344d33aee5405a53a806c77cf5910a6c7cf638cb",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/344d33aee5405a53a806c77cf5910a6c7cf638cb",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1242,7 +1242,7 @@ uint64_t to_number(const uint8_t* ptr, uint32_t nbits)\n   uint64_t val       = 0;\n   uint32_t nof_bytes = ceil_frac(nbits, 8u);\n   for (uint32_t i = 0; i < nof_bytes; ++i) {\n-    val += ptr[i] << (i * 8u);\n+    val += static_cast<uint64_t>(ptr[i]) << static_cast<uint64_t>(i * 8u);\n   }\n   return val;\n }",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/asn1/asn1_utils_test.cpp",
+      "patch": "@@ -248,6 +248,12 @@ TEST(asn1_octet_string_test, pack_unpack_operators)\n   TESTASSERT(b.distance() == (int)(hexstr.size() * 8 / 2 + 16));\n }\n \n+TEST(asn1_fixed_bit_string, integer_conversion)\n+{\n+  fixed_bitstring<48> bitstr;\n+  ASSERT_EQ(bitstr.from_number(4211117727).to_number(), 4211117727);\n+}\n+\n TEST(asn1_bit_string_test, pack_unpack_operators)\n {\n   fixed_bitstring<10>      bstr1;",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\0919631.json"
+}

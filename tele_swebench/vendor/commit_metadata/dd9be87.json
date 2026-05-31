@@ -1,0 +1,22 @@
+{
+  "commit_id": "dd9be87fee1c2d173f347dd51fdc56a744129920",
+  "commit_sha_short": "dd9be87",
+  "commit_folder": "dd9be87",
+  "commit_message": "ran: remove incomplete comment\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "ran: remove incomplete comment",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/dd9be87fee1c2d173f347dd51fdc56a744129920",
+  "commit_date": "2023-05-02T17:20:10Z",
+  "parent_sha": "a13707d5f63e0fea6cc4e5b9f8fdc71feafbba50",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/a13707d5f63e0fea6cc4e5b9f8fdc71feafbba50",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -1013,7 +1013,6 @@ min_channel_bandwidth srsran::band_helper::get_min_channel_bw(nr_band nr_band, s\n     case nr_band::n46:\n     case nr_band::n77:\n     case nr_band::n78: {\n-      // N\n       if (scs <= subcarrier_spacing::kHz60) {\n         return min_channel_bandwidth::MHz10;\n       } else {",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\dd9be87.json"
+}

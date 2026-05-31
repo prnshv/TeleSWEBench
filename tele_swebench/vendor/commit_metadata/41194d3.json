@@ -1,0 +1,57 @@
+{
+  "commit_id": "41194d3d35ab1c3391a543f4800c4036c57e7f9a",
+  "commit_sha_short": "41194d3",
+  "commit_folder": "41194d3",
+  "commit_message": "sched: crc delay metrics",
+  "commit_message_first_line": "sched: crc delay metrics",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/41194d3d35ab1c3391a543f4800c4036c57e7f9a",
+  "commit_date": "2025-02-11T17:57:37Z",
+  "parent_sha": "fb09de34a809c3ebb6420b18f3fbecbaba293e7a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/fb09de34a809c3ebb6420b18f3fbecbaba293e7a",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -420,9 +420,9 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n                    \" ul_error_rate={}%\",\n                    ul_total > 0 ? to_percentage<int>(ue.ul_nof_nok, ul_total) : 0);\n     if (ul_total > 0) {\n-      fmt::format_to(std::back_inserter(buffer), \" crc_delay={:.3}ms\", ue.crc_delay_ms);\n+      fmt::format_to(std::back_inserter(buffer), \" avg_crc_delay={:.3}ms\", ue.avg_crc_delay_ms);\n     } else {\n-      fmt::format_to(std::back_inserter(buffer), \" crc_delay=n/a\");\n+      fmt::format_to(std::back_inserter(buffer), \" avg_crc_delay=n/a\");\n     }\n     fmt::format_to(std::back_inserter(buffer), \" ul_nof_prbs={}\", ue.tot_ul_prbs_used);\n     fmt::format_to(std::back_inserter(buffer), \" bsr={}\", scaled_fmt_integer(ue.bsr, false));\n@@ -446,10 +446,10 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n     } else {\n       fmt::format_to(std::back_inserter(buffer), \" last_phr=n/a\");\n     }\n-    if (ue.mean_ce_delay_msec.has_value()) {\n-      fmt::format_to(std::back_inserter(buffer), \" ul_ce_delay={:.2}ms\", ue.mean_ce_delay_msec.value());\n+    if (ue.avg_ce_delay_ms.has_value()) {\n+      fmt::format_to(std::back_inserter(buffer), \" avg_ul_ce_delay={:.2}ms\", ue.avg_ce_delay_ms.value());\n     } else {\n-      fmt::format_to(std::back_inserter(buffer), \" ul_ce_delay=n/a\");\n+      fmt::format_to(std::back_inserter(buffer), \" avg_ul_ce_delay=n/a\");\n     }\n \n     logger.info(\"{}\", to_c_str(buffer));",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -36,7 +36,8 @@ struct scheduler_ue_metrics {\n   sch_mcs_index        ul_mcs;\n   unsigned             tot_ul_prbs_used;\n   double               ul_brate_kbps;\n-  double               crc_delay_ms;\n+  double               avg_crc_delay_ms;\n+  double               max_crc_delay_ms;\n   unsigned             ul_nof_ok;\n   unsigned             ul_nof_nok;\n   unsigned             bsr;\n@@ -50,7 +51,7 @@ struct scheduler_ue_metrics {\n   std::optional<float> last_dl_olla;\n   std::optional<float> last_ul_olla;\n   std::optional<int>   last_phr;\n-  std::optional<float> mean_ce_delay_msec;\n+  std::optional<float> avg_ce_delay_ms;\n   /// Time advance statistics in seconds.\n   sample_statistics<float> ta_stats;\n   sample_statistics<float> pusch_ta_stats;",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/e2/e2sm/e2sm_kpm/e2sm_kpm_du_meas_provider_impl.cpp",
+      "patch": "@@ -601,7 +601,7 @@ bool e2sm_kpm_du_meas_provider_impl::get_delay_ul(const asn1::e2sm::label_info_l\n         std::accumulate(last_ue_metrics.begin(),\n                         last_ue_metrics.end(),\n                         0,\n-                        [](size_t sum, const scheduler_ue_metrics& metric) { return sum + metric.crc_delay_ms; }) /\n+                        [](size_t sum, const scheduler_ue_metrics& metric) { return sum + metric.avg_crc_delay_ms; }) /\n         last_ue_metrics.size();\n     meas_record_item_c meas_record_item;\n     if (mean_ul_delay_ms) {\n@@ -617,8 +617,8 @@ bool e2sm_kpm_du_meas_provider_impl::get_delay_ul(const asn1::e2sm::label_info_l\n     gnb_cu_ue_f1ap_id_t gnb_cu_ue_f1ap_id = int_to_gnb_cu_ue_f1ap_id(ue.gnb_du_ue_id().gnb_cu_ue_f1ap_id);\n     uint32_t            ue_idx            = f1ap_ue_id_provider.get_ue_index(gnb_cu_ue_f1ap_id);\n     meas_record_item_c  meas_record_item;\n-    if (last_ue_metrics[ue_idx].crc_delay_ms) {\n-      meas_record_item.set_real().value = static_cast<float>(last_ue_metrics[ue_idx].crc_delay_ms);\n+    if (last_ue_metrics[ue_idx].avg_crc_delay_ms) {\n+      meas_record_item.set_real().value = static_cast<float>(last_ue_metrics[ue_idx].avg_crc_delay_ms);\n     } else {\n       meas_record_item.set_no_value();\n     }",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -85,6 +85,9 @@ void cell_metrics_handler::handle_crc_indication(slot_point                   sl\n       u.data.pusch_ta.update(crc_pdu.time_advance_offset.value().to_seconds());\n     }\n     u.data.sum_crc_delay_slots += last_slot_tx - sl_rx;\n+    if (static_cast<unsigned>(last_slot_tx - sl_rx) > u.data.max_crc_delay_slots) {\n+      u.data.max_crc_delay_slots = last_slot_tx - sl_rx;\n+    }\n   }\n }\n \n@@ -387,10 +390,17 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.pucch_snr_db     = data.nof_pucch_snr_reports > 0 ? data.sum_pucch_snrs / data.nof_pucch_snr_reports : 0;\n   ret.last_dl_olla     = last_dl_olla;\n   ret.last_ul_olla     = last_ul_olla;\n-  ret.crc_delay_ms = (data.count_crc_pdus > 0) ? data.sum_crc_delay_slots / (data.count_crc_pdus * slots_per_sf) : 0;\n-  ret.bsr          = last_bsr;\n-  ret.sr_count     = data.count_sr;\n-  ret.dl_bs        = 0;\n+  if (data.count_crc_pdus > 0) {\n+    ret.max_crc_delay_ms = data.max_crc_delay_slots;\n+    ret.avg_crc_delay_ms =\n+        static_cast<double>(data.sum_crc_delay_slots) / static_cast<double>(data.count_crc_pdus * slots_per_sf);\n+  } else {\n+    ret.avg_crc_delay_ms = 0;\n+    ret.max_crc_delay_ms = 0;\n+  }\n+  ret.bsr      = last_bsr;\n+  ret.sr_count = data.count_sr;\n+  ret.dl_bs    = 0;\n   for (const unsigned value : last_dl_bs) {\n     ret.dl_bs += value;\n   }\n@@ -400,7 +410,7 @@ cell_metrics_handler::ue_metric_context::compute_report(std::chrono::millisecond\n   ret.srs_ta_stats   = data.srs_ta;\n   ret.last_phr       = last_phr;\n   if (data.nof_ul_ces > 0) {\n-    ret.mean_ce_delay_msec = (static_cast<float>(data.sum_ul_ce_delay_slots) / (data.nof_ul_ces * slots_per_sf));\n+    ret.avg_ce_delay_ms = (static_cast<float>(data.sum_ul_ce_delay_slots) / (data.nof_ul_ces * slots_per_sf));\n   }\n   ret.nof_pucch_f0f1_invalid_harqs   = data.nof_pucch_f0f1_invalid_harqs;\n   ret.nof_pucch_f2f3f4_invalid_harqs = data.nof_pucch_f2f3f4_invalid_harqs;",
+      "additions": 15,
+      "deletions": 5,
+      "changes": 20
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -49,6 +49,7 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n       double   sum_pucch_snrs                 = 0;\n       double   sum_pusch_rsrp                 = 0;\n       unsigned sum_crc_delay_slots            = 0;\n+      unsigned max_crc_delay_slots            = 0;\n       unsigned nof_pucch_snr_reports          = 0;\n       unsigned nof_pucch_f0f1_invalid_harqs   = 0;\n       unsigned nof_pucch_f2f3f4_invalid_harqs = 0;",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1
+    },
+    {
+      "filename": "tests/unittests/e2/e2sm_kpm_meas_provider_metrics_test.cpp",
+      "patch": "@@ -85,7 +85,7 @@ scheduler_cell_metrics generate_non_zero_sched_metrics()\n   ue_metrics.rnti                 = static_cast<rnti_t>(0x1000 + 1);\n   ue_metrics.tot_dl_prbs_used     = 1200;\n   ue_metrics.tot_ul_prbs_used     = 1200;\n-  ue_metrics.crc_delay_ms         = 100;\n+  ue_metrics.avg_crc_delay_ms     = 100;\n   ue_metrics.pusch_snr_db         = 10;\n   for (auto i = 0; i < 10; i++) {\n     ue_metrics.cqi_stats.update(i);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 6,
+  "commit_details_path": ".\\commit_metadata\\41194d3.json"
+}

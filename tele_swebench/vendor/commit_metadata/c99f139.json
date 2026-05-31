@@ -1,0 +1,288 @@
+{
+  "commit_id": "c99f139ac3f3dacc484d0e8627417545eb594e0e",
+  "commit_sha_short": "c99f139",
+  "commit_folder": "c99f139",
+  "commit_message": "RAN: move SSB related to a subfolder and add PBCH packing",
+  "commit_message_first_line": "RAN: move SSB related to a subfolder and add PBCH packing",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/c99f139ac3f3dacc484d0e8627417545eb594e0e",
+  "commit_date": "2025-04-23T12:17:13Z",
+  "parent_sha": "3df0f3c7828ff639b3f3f58f7392a71412971d4a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3df0f3c7828ff639b3f3f58f7392a71412971d4a",
+  "code_changes": [
+    {
+      "filename": "apps/examples/phy/upper_phy_ssb_example.h",
+      "patch": "@@ -16,7 +16,7 @@\n #include \"srsran/phy/upper/upper_phy_timing_handler.h\"\n #include \"srsran/ran/cyclic_prefix.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/srslog/logger.h\"\n #include <memory>\n #include <string>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/du/du_cell_config.h",
+      "patch": "@@ -17,7 +17,7 @@\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/sib/system_info_config.h\"\n #include \"srsran/ran/srs/srs_configuration.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/ran/tac.h\"\n #include \"srsran/ran/tdd/tdd_ul_dl_config.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/fapi/messages/config_request_tlvs.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/ran/prach/prach_format_type.h\"\n #include \"srsran/ran/prach/prach_subcarrier_spacing.h\"\n #include \"srsran/ran/prach/restricted_set_config.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include <array>\n #include <cstdint>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/fapi/messages/dl_tti_request.h",
+      "patch": "@@ -20,7 +20,7 @@\n #include \"srsran/ran/pdsch/pdsch_context.h\"\n #include \"srsran/ran/prs/prs.h\"\n #include \"srsran/ran/sch/ldpc_base_graph.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/support/units.h\"\n #include <array>\n #include <bitset>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/mac/cell_configuration.h",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/ran/carrier_configuration.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"srsran/scheduler/scheduler_sys_info_handler.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/mac/mac_cell_result.h",
+      "patch": "@@ -8,7 +8,7 @@\n #include \"srsran/ran/pdcch/dci_packing.h\"\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/support/shared_transport_block.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/ssb/pbch_encoder.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include <array>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/phy/upper/channel_processors/ssb/ssb_processor.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/band_helper.h",
+      "patch": "@@ -18,7 +18,7 @@\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/n_ta_offset.h\"\n #include \"srsran/ran/nr_band.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include <cstdint>\n #include <optional>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/dmrs.h",
+      "patch": "@@ -10,6 +10,8 @@\n \n #pragma once\n \n+#include <cstdint>\n+\n namespace srsran {\n \n /// \\brief Position of first DM-RS for Downlink (see TS 38.211, clause 7.4.1.1.1) and Uplink (see TS 38.211,",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/positioning/common.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/ran/pci.h\"\n #include \"srsran/ran/scs_specific_carrier.h\"\n #include \"srsran/ran/srs/srs_configuration.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include <cstdint>\n #include <optional>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ptrs.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/du_types.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n #include <cstdint>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/pusch/pusch_configuration.h",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/ran/csi_rs/csi_rs_id.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n #include \"srsran/ran/pusch/tx_scheme_configuration.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/ran/uci/uci_configuration.h\"\n #include \"srsran/scheduler/config/dmrs.h\"\n #include <optional>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/srs/srs_configuration.h",
+      "patch": "@@ -14,7 +14,7 @@\n #include \"srsran/ran/csi_rs/csi_rs_id.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n #include <variant>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ssb/pbch_mib_message.h",
+      "patch": "@@ -0,0 +1,46 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/dmrs.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n+#include \"srsran/ran/subcarrier_spacing.h\"\n+#include <cstdint>\n+\n+namespace srsran {\n+\n+/// \\brief Collects the PBCH message contents for the Master Information Block (MIB) parameters.\n+///\n+/// The MIB is defined by Information Element \\e MIB in TS38.331 Section 6.2.2.\n+struct pbch_mib_message {\n+  /// System frame number (0..1023). Parameter \\e systemFrameNumber.\n+  uint32_t sfn;\n+  /// \\c true if the SS/PBCH block transmission is in an odd half frame, \\c false otherwise.\n+  bool hrf;\n+  /// Parameter \\e subCarrierSpacingCommon.\n+  subcarrier_spacing scs_common;\n+  /// Parameter \\e ssb-SubcarrierOffset.\n+  ssb_subcarrier_offset subcarrier_offset;\n+  /// Field \\e dmrs-TypeA-Position.\n+  dmrs_typeA_position dmrs_typeA_pos;\n+  /// Field \\e pdcch-ConfigSIB1.\n+  uint8_t pdcch_config_sib1;\n+  /// Field \\e pdcch-ConfigSIB1.\n+  bool cell_barred;\n+  /// Field \\e intraFreqReselection.\n+  bool intrafreq_reselection;\n+  /// Maximum number of SS/PBCH block candidates in a 5ms burst, described in TS38.213 Section 4.1.\n+  uint8_t L_max;\n+  /// SSB opportunity index in a 5ms burst.\n+  uint8_t ssb_block_index;\n+};\n+\n+} // namespace srsran",
+      "additions": 46,
+      "deletions": 0,
+      "changes": 46
+    },
+    {
+      "filename": "include/srsran/ran/ssb/pbch_mib_pack.h",
+      "patch": "@@ -0,0 +1,24 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/ssb/pbch_mib_message.h\"\n+#include <cstdint>\n+\n+namespace srsran {\n+\n+/// \\brief Packs the PBCH payload including the Master Information Block (MIB).\n+///\n+/// The PBCH payload generation is described in TS38.212 Section 7.1.1. The MIB contents are described by the\n+/// Information Element \\e MIB in TS38.331 Section 6.2.2.\n+uint32_t pbch_mib_pack(const pbch_mib_message& msg);\n+\n+} // namespace srsran",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24
+    },
+    {
+      "filename": "include/srsran/ran/ssb/ssb_configuration.h",
+      "patch": "@@ -10,7 +10,7 @@\n \n #pragma once\n \n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ssb/ssb_mapping.h",
+      "patch": "@@ -15,7 +15,7 @@\n #include \"srsran/ran/frequency_range.h\"\n #include \"srsran/ran/resource_allocation/rb_interval.h\"\n #include \"srsran/ran/slot_point.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/support/math/math_utils.h\"\n #include <array>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/tci.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/ran/csi_rs/csi_rs_id.h\"\n #include \"srsran/ran/du_types.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n #include <cstdint>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/config/cell_config_builder_params.h",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n #include \"srsran/ran/tdd/tdd_ul_dl_config.h\"\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_configurator.h",
+      "patch": "@@ -21,7 +21,7 @@\n #include \"srsran/ran/slot_pdu_capacity_constants.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/ran/sr_configuration.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/ran/tdd/tdd_ul_dl_config.h\"\n #include \"srsran/ran/time_alignment_config.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du/du_cell_config_validation.cpp",
+      "patch": "@@ -18,7 +18,7 @@\n #include \"srsran/ran/prach/prach_configuration.h\"\n #include \"srsran/ran/prach/prach_frequency_mapping.h\"\n #include \"srsran/ran/prach/prach_preamble_information.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/scheduler/config/pucch_resource_generator.h\"\n #include \"srsran/scheduler/config/sched_cell_config_helpers.h\"\n #include \"srsran/scheduler/config/serving_cell_config_validator.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/phy/messages/ssb.cpp",
+      "patch": "@@ -9,6 +9,7 @@\n  */\n \n #include \"srsran/fapi_adaptor/phy/messages/ssb.h\"\n+#include \"srsran/ran/ssb/pbch_mib_pack.h\"\n #include \"srsran/srsvec/bit.h\"\n \n using namespace srsran;\n@@ -43,54 +44,25 @@ static uint32_t fill_phy_timing_info_in_bch_payload(const fapi::dl_ssb_pdu& fapi\n static uint32_t\n generate_bch_payload(const fapi::dl_ssb_pdu& fapi_pdu, uint32_t sfn, bool hrf, subcarrier_spacing scs_common)\n {\n-  const fapi::dl_ssb_phy_mib_pdu& mib     = fapi_pdu.bch_payload.phy_mib_pdu;\n-  uint32_t                        payload = 0;\n-\n-  // CHOICE in BCCH-BCH-MessageType - 1 bit.\n-  // Set to zero.\n-\n-  // Pack MIB.\n-\n-  // systemFrameNumber - 6 bits MSB.\n-  payload |= (((sfn >> 4U) & 0x3fU) << 25U);\n-\n-  // subCarrierSpacingCommon - 1 bit.\n-  bool scs_flag = (scs_common == subcarrier_spacing::kHz30 || scs_common == subcarrier_spacing::kHz120);\n-  payload |= (scs_flag << 24U);\n-\n-  // ssb-SubcarrierOffset - 4 bits.\n-  payload |= ((fapi_pdu.ssb_subcarrier_offset & 0xfU) << 20U);\n-\n-  // dmrs-TypeA-Position - 1 bit.\n-  payload |= ((static_cast<std::underlying_type_t<fapi::dmrs_typeA_pos>>(mib.dmrs_typeA_position) & 0x1U) << 19U);\n-\n-  // pdcch-ConfigSIB1 - 8 bits.\n-  payload |= ((mib.pdcch_config_sib1 & 0xffU) << 11U);\n-\n-  // Barred - 1 bit.\n-  payload |= ((mib.cell_barred ? 0U : 1U) << 10U);\n-\n-  // intraFreqReselection - 1 bit.\n-  payload |= ((mib.intrafreq_reselection ? 0U : 1U) << 9U);\n-\n-  // Spare - 1 bit.\n-  // Leave to zero.\n-\n-  // Add the SFN. - 4 bit LSB.\n-  payload |= ((sfn & 0xfU) << 4U);\n-\n-  // Half radio frame bit.\n-  payload |= (hrf << 3U);\n-\n-  if (fapi_pdu.ssb_maintenance_v3.L_max == 64) {\n-    // Pack the 6th, 5th and 4th bits of SS/PBCH block index.\n-    payload |= ((fapi_pdu.ssb_block_index >> 3U) & 7U);\n-  } else {\n-    // 3rd LSB set to MSB of the SSB subcarrier offset. 2nd and 1st bits are reserved.\n-    payload |= (((fapi_pdu.ssb_subcarrier_offset >> 7U) & 1U) << 2U);\n-  }\n-\n-  return payload;\n+  const fapi::dl_ssb_phy_mib_pdu& mib = fapi_pdu.bch_payload.phy_mib_pdu;\n+\n+  // Prepare message parameters.\n+  pbch_mib_message msg = {.sfn               = sfn,\n+                          .hrf               = hrf,\n+                          .scs_common        = scs_common,\n+                          .subcarrier_offset = fapi_pdu.ssb_subcarrier_offset,\n+                          .dmrs_typeA_pos =\n+                              fapi_pdu.bch_payload.phy_mib_pdu.dmrs_typeA_position == fapi::dmrs_typeA_pos::pos2\n+                                  ? dmrs_typeA_position::pos2\n+                                  : dmrs_typeA_position::pos3,\n+                          .pdcch_config_sib1     = mib.pdcch_config_sib1,\n+                          .cell_barred           = mib.cell_barred,\n+                          .intrafreq_reselection = mib.intrafreq_reselection,\n+                          .L_max                 = fapi_pdu.ssb_maintenance_v3.L_max,\n+                          .ssb_block_index       = fapi_pdu.ssb_block_index};\n+\n+  // Generate payload.\n+  return pbch_mib_pack(msg);\n }\n \n /// \\brief Fills the contents of the BCH payload.",
+      "additions": 20,
+      "deletions": 48,
+      "changes": 68
+    },
+    {
+      "filename": "lib/mac/mac_dl/ssb_assembler.cpp",
+      "patch": "@@ -10,7 +10,7 @@\n \n #include \"ssb_assembler.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/scheduler/result/pdsch_info.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/ssb_assembler.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/mac/cell_configuration.h\"\n #include \"srsran/ran/pci.h\"\n-#include \"srsran/ran/ssb_configuration.h\"\n+#include \"srsran/ran/ssb/ssb_configuration.h\"\n #include \"srsran/scheduler/config/dmrs.h\"\n #include <cstddef>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/CMakeLists.txt",
+      "patch": "@@ -47,9 +47,10 @@ add_library(srsran_ran\n         sch/sch_segmentation.cpp\n         srs/srs_bandwidth_configuration.cpp\n         srs/srs_information.cpp\n-        ssb_freq_position_generator.cpp\n-        ssb_gscn.cpp\n-        ssb_mapping.cpp\n+        ssb/pbch_mib_pack.cpp\n+        ssb/ssb_freq_position_generator.cpp\n+        ssb/ssb_gscn.cpp\n+        ssb/ssb_mapping.cpp\n         tdd_ul_dl_config.cpp\n         drx_config.cpp)\n target_link_libraries(srsran_ran srslog)",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -9,14 +9,14 @@\n  */\n \n #include \"srsran/ran/band_helper.h\"\n-#include \"ssb_freq_position_generator.h\"\n+#include \"ssb/ssb_freq_position_generator.h\"\n #include \"srsran/adt/interval.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/duplex_mode.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_occasions.h\"\n-#include \"srsran/ran/ssb_gscn.h\"\n+#include \"srsran/ran/ssb/ssb_gscn.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/support/srsran_assert.h\"",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/ran/ssb/pbch_mib_pack.cpp",
+      "patch": "@@ -0,0 +1,64 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#include \"srsran/ran/ssb/pbch_mib_pack.h\"\n+\n+using namespace srsran;\n+\n+uint32_t srsran::pbch_mib_pack(const pbch_mib_message& msg)\n+{\n+  uint32_t payload = 0;\n+\n+  // CHOICE in BCCH-BCH-MessageType - 1 bit.\n+  // Set to zero.\n+\n+  // Pack msg.\n+\n+  // systemFrameNumber - 6 bits MSB.\n+  payload |= (((msg.sfn >> 4U) & 0x3fU) << 25U);\n+\n+  // subCarrierSpacingCommon - 1 bit.\n+  bool scs_flag = (msg.scs_common == subcarrier_spacing::kHz30 || msg.scs_common == subcarrier_spacing::kHz120);\n+  payload |= (scs_flag << 24U);\n+\n+  // ssb-SubcarrierOffset - 4 bits.\n+  payload |= ((msg.subcarrier_offset.value() & 0xfU) << 20U);\n+\n+  // dmrs-TypeA-Position - 1 bit.\n+  payload |= ((static_cast<std::underlying_type_t<dmrs_typeA_position>>(msg.dmrs_typeA_pos) & 0x1U) << 19U);\n+\n+  // pdcch-ConfigSIB1 - 8 bits.\n+  payload |= ((msg.pdcch_config_sib1 & 0xffU) << 11U);\n+\n+  // Barred - 1 bit.\n+  payload |= ((msg.cell_barred ? 0U : 1U) << 10U);\n+\n+  // intraFreqReselection - 1 bit.\n+  payload |= ((msg.intrafreq_reselection ? 0U : 1U) << 9U);\n+\n+  // Spare - 1 bit.\n+  // Leave to zero.\n+\n+  // Add the SFN. - 4 bit LSB.\n+  payload |= ((msg.sfn & 0xfU) << 4U);\n+\n+  // Half radio frame bit.\n+  payload |= (msg.hrf << 3U);\n+\n+  if (msg.L_max == 64) {\n+    // Pack the 6th, 5th and 4th bits of SS/PBCH block index.\n+    payload |= ((msg.ssb_block_index >> 3U) & 7U);\n+  } else {\n+    // 3rd LSB set to MSB of the SSB subcarrier offset. 2nd and 1st bits are reserved.\n+    payload |= (((msg.subcarrier_offset.value() >> 7U) & 1U) << 2U);\n+  }\n+\n+  return payload;\n+}",
+      "additions": 64,
+      "deletions": 0,
+      "changes": 64
+    },
+    {
+      "filename": "lib/ran/ssb/ssb_freq_position_generator.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"ssb_freq_position_generator.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/ran/band_helper_constants.h\"\n-#include \"srsran/ran/ssb_gscn.h\"\n+#include \"srsran/ran/ssb/ssb_gscn.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb/ssb_freq_position_generator.h",
+      "patch": "@@ -12,7 +12,7 @@\n \n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/ran/ssb_properties.h\"\n+#include \"srsran/ran/ssb/ssb_properties.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb/ssb_gscn.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"srsran/ran/ssb_gscn.h\"\n+#include \"srsran/ran/ssb/ssb_gscn.h\"\n #include \"srsran/ran/band_helper_constants.h\"\n #include <math.h>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/ssb/ssb_mapping.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/support/error_handling.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ssb_scheduler.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"ssb_scheduler.h\"\n #include \"srsran/ran/frame_types.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/srslog/srslog.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/config/cell_configuration.cpp",
+      "patch": "@@ -11,7 +11,7 @@\n #include \"cell_configuration.h\"\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/resource_block.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/ssb_coreset0_freq_pos_checker.cpp",
+      "patch": "@@ -9,7 +9,7 @@\n  */\n \n #include \"ssb_coreset0_freq_pos_checker.h\"\n-#include \"lib/ran/ssb_freq_position_generator.h\"\n+#include \"lib/ran/ssb/ssb_freq_position_generator.h\"\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/ssb_gscn_test.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"srsran/ran/ssb_gscn.h\"\n+#include \"srsran/ran/ssb/ssb_gscn.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/ssb_mapping_test.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/support/test_utils.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/test_ssb_coreset0_freq_pos_generator.cpp",
+      "patch": "@@ -8,7 +8,7 @@\n  *\n  */\n \n-#include \"lib/ran/ssb_freq_position_generator.h\"\n+#include \"lib/ran/ssb/ssb_freq_position_generator.h\"\n #include \"ssb_coreset0_freq_pos_checker.h\"\n #include \"srsran/ran/band_helper.h\"\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/ssb_scheduler_test.cpp",
+      "patch": "@@ -13,7 +13,7 @@\n #include \"tests/test_doubles/scheduler/scheduler_config_helper.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/ran/frame_types.h\"\n-#include \"srsran/ran/ssb_mapping.h\"\n+#include \"srsran/ran/ssb/ssb_mapping.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 39,
+  "commit_details_path": ".\\commit_metadata\\c99f139.json"
+}

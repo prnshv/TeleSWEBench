@@ -1,0 +1,29 @@
+{
+  "commit_id": "9cfc3e97336466ebd936912a36b61bfbfc89a6cc",
+  "commit_sha_short": "9cfc3e9",
+  "commit_folder": "9cfc3e9",
+  "commit_message": "asn1: adding json support for REAL() type",
+  "commit_message_first_line": "asn1: adding json support for REAL() type",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9cfc3e97336466ebd936912a36b61bfbfc89a6cc",
+  "commit_date": "2024-02-05T14:05:24Z",
+  "parent_sha": "89baf78f5bc884c913e818457b1a1a58ec5ef796",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/89baf78f5bc884c913e818457b1a1a58ec5ef796",
+  "code_changes": [
+    {
+      "filename": "include/srsran/asn1/asn1_utils.h",
+      "patch": "@@ -1490,6 +1490,8 @@ class json_writer\n   void        write_int(int64_t value);\n   void        write_bool(const char* fieldname, bool value);\n   void        write_bool(bool value);\n+  void        write_float(const char* fieldname, float value);\n+  void        write_float(float value);\n   void        write_null(const char* fieldname);\n   void        write_null();\n   void        start_obj(const char* fieldname = \"\");\n@@ -1557,7 +1559,7 @@ class real_s\n   real_s() = default;\n   SRSASN_CODE pack(bit_ref& bref) const { return pack_unconstrained_real(bref, value, true); };\n   SRSASN_CODE unpack(cbit_ref& bref) { return unpack_unconstrained_real(value, bref, true); };\n-  void to_json(json_writer& j) const { printf(\" WARNING using unimplemented REAL json function\\n\"); };\n+  void        to_json(json_writer& j) const { j.write_float(value); };\n };\n \n /*******************",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1543,6 +1543,17 @@ void json_writer::write_bool(bool value)\n   write_bool(\"\", value);\n }\n \n+void json_writer::write_float(const char* fieldname, float value)\n+{\n+  write_fieldname(fieldname);\n+  fmt::format_to(buffer, \"{}\", value);\n+  sep = COMMA;\n+}\n+\n+void json_writer::write_float(float value)\n+{\n+  write_float(\"\", value);\n+}\n void json_writer::write_null(const char* fieldname)\n {\n   write_fieldname(fieldname);",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\9cfc3e9.json"
+}

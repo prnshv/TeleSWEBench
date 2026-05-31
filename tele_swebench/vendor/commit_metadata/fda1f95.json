@@ -1,0 +1,22 @@
+{
+  "commit_id": "fda1f956c275281b67a34f6e59c08bffb4be8649",
+  "commit_sha_short": "fda1f95",
+  "commit_folder": "fda1f95",
+  "commit_message": "asn1: fix unpacking on constrained whole numbers. We needed to add a post bound check",
+  "commit_message_first_line": "asn1: fix unpacking on constrained whole numbers. We needed to add a post bound check",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/fda1f956c275281b67a34f6e59c08bffb4be8649",
+  "commit_date": "2023-07-19T19:14:20Z",
+  "parent_sha": "917950bf009a4fbb60424a7f107ed7720ffef18a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/917950bf009a4fbb60424a7f107ed7720ffef18a",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -467,10 +467,6 @@ SRSASN_CODE unpack_constrained_whole_number(IntType& n, cbit_ref& bref, IntType\n     // UNALIGNED variant\n     HANDLE_CODE(bref.unpack(n, n_bits));\n     n += lb;\n-    if (n > ub) {\n-      log_error(\"The condition lb <= n <= ub ({} <= {} <= {}) was not met\", (long)lb, (long)n, (long)ub);\n-      return SRSASN_ERROR_DECODE_FAIL;\n-    }\n   } else {\n     // ALIGNED variant\n     if (ra < 256) {\n@@ -490,6 +486,12 @@ SRSASN_CODE unpack_constrained_whole_number(IntType& n, cbit_ref& bref, IntType\n     }\n     n += lb;\n   }\n+\n+  if (n > ub) {\n+    log_error(\"The condition lb <= n <= ub ({} <= {} <= {}) was not met\\n\", lb, n, ub);\n+    return SRSASN_ERROR_DECODE_FAIL;\n+  }\n+\n   return SRSASN_SUCCESS;\n }\n template SRSASN_CODE",
+      "additions": 6,
+      "deletions": 4,
+      "changes": 10
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\fda1f95.json"
+}

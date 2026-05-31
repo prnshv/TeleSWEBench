@@ -1,0 +1,78 @@
+{
+  "commit_id": "f3a9c7c21b4da1ced59f5dc191fc315a745463e7",
+  "commit_sha_short": "f3a9c7c",
+  "commit_folder": "f3a9c7c",
+  "commit_message": "Use static constexpr consistently",
+  "commit_message_first_line": "Use static constexpr consistently",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/f3a9c7c21b4da1ced59f5dc191fc315a745463e7",
+  "commit_date": "2025-02-26T12:25:13Z",
+  "parent_sha": "2deb6edbd12b50d0b201ff016a29b23e112d0328",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/2deb6edbd12b50d0b201ff016a29b23e112d0328",
+  "code_changes": [
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -61,7 +61,7 @@ class test_ue_mac_sdu_tx_builder_adapter : public mac_sdu_tx_builder\n size_t get_ring_size(const mac_cell_creation_request& cell_cfg)\n {\n   // Estimation of the time it takes the UL lower-layers to process and forward CRC/UCI indications.\n-  constexpr static unsigned MAX_UL_PHY_DELAY = 40;\n+  static constexpr unsigned MAX_UL_PHY_DELAY = 40;\n   // Note: The history ring size has to be a multiple of the TDD frame size in slots.\n   // Number of slots managed by this container.\n   return get_allocator_ring_size_gt_min(get_max_slot_ul_alloc_delay(cell_cfg.sched_req.ntn_cs_koffset) +",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/config/mac_config_helpers.cpp",
+      "patch": "@@ -69,7 +69,7 @@ prioritized_bit_rate srsran::get_pbr_ceil(uint64_t bitrate_bps)\n   // Convert given bitrate (bps) to kilo Bytes per second.\n   const float given_bitrate_kBps = bitrate_bps / (1000 * 8);\n   // Prioritized bitrate values as per TS 38.331, \\c prioritisedBitRate.\n-  constexpr static std::array<unsigned, 15> pbr_kBps{\n+  static constexpr std::array<unsigned, 15> pbr_kBps{\n       0, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};\n   // Find PBR value greater than or equal to give bitrate.\n   for (unsigned pbr : pbr_kBps) {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -65,7 +65,7 @@ mac_cell_processor::mac_cell_processor(const mac_cell_creation_request& cell_cfg\n \n static void initialize_cell_tracer(du_cell_index_t cell_idx, subcarrier_spacing scs)\n {\n-  constexpr static size_t MAX_EVENTS = 8;\n+  static constexpr size_t MAX_EVENTS = 8;\n \n   std::chrono::microseconds slot_dur{1000 / get_nof_slots_per_subframe(scs)};\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_sched/uci_cell_decoder.cpp",
+      "patch": "@@ -22,7 +22,7 @@ static size_t get_ring_size(const sched_cell_configuration_request_message& cell\n {\n   // Estimation of the time it takes the UL lower-layers to process and forward CRC/UCI indications.\n   // Note: The size of this ring has to be larger than that of the test mode internal buffer.\n-  constexpr static unsigned MAX_UL_PHY_DELAY = 80;\n+  static constexpr unsigned MAX_UL_PHY_DELAY = 80;\n   // Note: The history ring size has to be a multiple of the TDD frame size in slots.\n   // Number of slots managed by this container.\n   return get_allocator_ring_size_gt_min(get_max_slot_ul_alloc_delay(cell_cfg.ntn_cs_koffset) + MAX_UL_PHY_DELAY);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/cell/cell_harq_manager.cpp",
+      "patch": "@@ -672,7 +672,7 @@ void dl_harq_process_handle::increment_pucch_counter()\n \n void dl_harq_process_handle::save_grant_params(const dl_harq_alloc_context& ctx, const dl_msg_alloc& ue_pdsch)\n {\n-  constexpr static size_t CW_INDEX = 0;\n+  static constexpr size_t CW_INDEX = 0;\n \n   const pdsch_information& pdsch = ue_pdsch.pdsch_cfg;\n   srsran_assert(pdsch.codewords.size() == 1, \"Only one codeword supported\");",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_context/dl_logical_channel_manager.cpp",
+      "patch": "@@ -318,7 +318,7 @@ unsigned dl_logical_channel_manager::allocate_mac_sdu(dl_msg_lc_info& subpdu, lc\n   channels[lcid].buf_st -= channels[lcid].last_sched_bytes;\n \n   if (lcid != LCID_SRB0 and channels[lcid].buf_st > 0) {\n-    constexpr static unsigned RLC_SEGMENTATION_OVERHEAD = 4;\n+    static constexpr unsigned RLC_SEGMENTATION_OVERHEAD = 4;\n     // Allocation was not enough to empty the logical channel. In this specific case, we add some bytes to account\n     // for the RLC segmentation overhead.\n     // Note: This update is only relevant for PDSCH allocations for slots > slot_tx. For the case of PDSCH",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_context/ue.cpp",
+      "patch": "@@ -160,7 +160,7 @@ void ue::handle_dl_buffer_state_indication(lcid_t lcid, unsigned bs, slot_point\n   // reported RLC DL buffer occupancy report (reminder: we haven't built the RLC PDU yet!). If we account for this\n   // overhead in the computation of pending bytes, the final value will be too low, which will lead to one extra\n   // tiny grant. To avoid this, we make the pessimization that every HARQ contains one RLC header due to segmentation.\n-  constexpr static unsigned RLC_AM_HEADER_SIZE_ESTIM = 4;\n+  static constexpr unsigned RLC_AM_HEADER_SIZE_ESTIM = 4;\n   for (unsigned c = 0, ce = nof_cells(); c != ce; ++c) {\n     auto& ue_cc = *ue_cells[c];\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.cpp",
+      "patch": "@@ -119,11 +119,11 @@ class ue_event_manager::ue_dl_buffer_occupancy_manager final : public scheduler_\n \n class srsran::pdu_indication_pool\n {\n-  constexpr static size_t UCI_INITIAL_POOL_SIZE = MAX_PUCCH_PDUS_PER_SLOT;\n-  constexpr static size_t PHR_INITIAL_POOL_SIZE = 8;\n-  constexpr static size_t CRC_INITIAL_POOL_SIZE = MAX_PUSCH_PDUS_PER_SLOT;\n-  constexpr static size_t SRS_INITIAL_POOL_SIZE = MAX_SRS_PDUS_PER_SLOT;\n-  constexpr static size_t BSR_INITIAL_POOL_SIZE = MAX_PUSCH_PDUS_PER_SLOT;\n+  static constexpr size_t UCI_INITIAL_POOL_SIZE = MAX_PUCCH_PDUS_PER_SLOT;\n+  static constexpr size_t PHR_INITIAL_POOL_SIZE = 8;\n+  static constexpr size_t CRC_INITIAL_POOL_SIZE = MAX_PUSCH_PDUS_PER_SLOT;\n+  static constexpr size_t SRS_INITIAL_POOL_SIZE = MAX_SRS_PDUS_PER_SLOT;\n+  static constexpr size_t BSR_INITIAL_POOL_SIZE = MAX_PUSCH_PDUS_PER_SLOT;\n \n public:\n   using uci_ptr     = unbounded_object_pool<uci_indication::uci_pdu>::ptr;",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10
+    },
+    {
+      "filename": "lib/support/timers.cpp",
+      "patch": "@@ -58,9 +58,9 @@ struct cmd_t {\n /// Queue used by timer frontend to report that they have a new pending action to be processed by the backend.\n class timer_update_signaller\n {\n-  constexpr static size_t initial_batch_size            = 128;\n-  constexpr static size_t warn_on_nof_dequeues_per_tick = 4096U;\n-  constexpr static size_t default_queue_capacity        = 16384;\n+  static constexpr size_t initial_batch_size            = 128;\n+  static constexpr size_t warn_on_nof_dequeues_per_tick = 4096U;\n+  static constexpr size_t default_queue_capacity        = 16384;\n \n public:\n   explicit timer_update_signaller(srslog::basic_logger& logger_, size_t initial_capacity = default_queue_capacity) :\n@@ -261,7 +261,7 @@ class frontend_handle : public frontend_state\n /// Implementation of timer_manager.\n class timer_manager::manager_impl\n {\n-  constexpr static size_t TIMER_CREATION_QUEUE_INITIAL_CAPACITY = 32;\n+  static constexpr size_t TIMER_CREATION_QUEUE_INITIAL_CAPACITY = 32;\n \n public:\n   /// Timer context used solely by the back-end side of the timer manager.",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    }
+  ],
+  "num_files_changed": 9,
+  "commit_details_path": ".\\commit_metadata\\f3a9c7c.json"
+}

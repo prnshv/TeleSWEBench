@@ -1,0 +1,722 @@
+{
+  "commit_id": "ea358bba6af8683426a775e1aa3d20c7443fb8b2",
+  "commit_sha_short": "ea358bb",
+  "commit_folder": "ea358bb",
+  "commit_message": "clang-format: srsgnb to srsran\n\nA lot of files needed reformatting after the change.",
+  "commit_message_first_line": "clang-format: srsgnb to srsran",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/ea358bba6af8683426a775e1aa3d20c7443fb8b2",
+  "commit_date": "2023-02-22T15:53:48Z",
+  "parent_sha": "2da620b5d31a919ec4a49f00715d7eea8ea204aa",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/2da620b5d31a919ec4a49f00715d7eea8ea204aa",
+  "code_changes": [
+    {
+      "filename": ".clang-format",
+      "patch": "@@ -62,7 +62,7 @@ ForEachMacros:\n   - BOOST_FOREACH\n IncludeBlocks:   Preserve\n IncludeCategories: #Changed\n-  - Regex:           '^\"(srsgnb|llvm|llvm-c|clang|clang-c)/'\n+  - Regex:           '^\"(srsran|llvm|llvm-c|clang|clang-c)/'\n     Priority:        2\n   - Regex:           '^(<|\"(CLI|fmt|gtest|gmock|isl|json|variant)/)'\n     Priority:        3",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/examples/phy/radio_ssb.cpp",
+      "patch": "@@ -21,6 +21,7 @@\n #include \"../radio/radio_notifier_sample.h\"\n #include \"lower_phy_example_factory.h\"\n #include \"rx_symbol_handler_example.h\"\n+#include \"upper_phy_ssb_example.h\"\n #include \"srsran/phy/adapters/phy_error_adapter.h\"\n #include \"srsran/phy/adapters/phy_rg_gateway_adapter.h\"\n #include \"srsran/phy/adapters/phy_rx_symbol_adapter.h\"\n@@ -29,7 +30,6 @@\n #include \"srsran/radio/radio_factory.h\"\n #include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/math_utils.h\"\n-#include \"upper_phy_ssb_example.h\"\n #include <atomic>\n #include <csignal>\n #include <getopt.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "apps/gnb/helpers/gnb_console_helper.cpp",
+      "patch": "@@ -9,11 +9,11 @@\n  */\n \n #include \"gnb_console_helper.h\"\n+#include \"string_helpers.h\"\n #include \"srsran/radio/radio_factory.h\"\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/support/build_info/build_info.h\"\n-#include \"string_helpers.h\"\n #include <fcntl.h>\n #include <list>\n #include <signal.h>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/adt/slotted_array.h",
+      "patch": "@@ -11,8 +11,8 @@\n #pragma once\n \n #include \"span.h\"\n-#include \"srsran/support/srsran_assert.h\"\n #include \"tiny_optional.h\"\n+#include \"srsran/support/srsran_assert.h\"\n #include <array>\n \n /// \\file Definitions of slotted_array<T, N>, slotted_vector<T> used to manage containers with optional elements. All",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/cu_cp/du_processor_factory.h",
+      "patch": "@@ -12,10 +12,10 @@\n \n #include \"du_processor.h\"\n #include \"du_processor_config.h\"\n+#include \"ue_manager.h\"\n #include \"srsran/f1ap/common/f1ap_common.h\"\n #include \"srsran/rrc/rrc_ue.h\"\n #include \"srsran/support/executors/task_executor.h\"\n-#include \"ue_manager.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/mac/mac_cell_group_config.h",
+      "patch": "@@ -12,9 +12,9 @@\n \n #include \"bsr_format.h\"\n #include \"phr_config.h\"\n+#include \"time_alignment_group_config.h\"\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/sr_configuration.h\"\n-#include \"time_alignment_group_config.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/ptrs.h",
+      "patch": "@@ -10,11 +10,11 @@\n \n #pragma once\n \n+#include \"ssb_configuration.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n-#include \"ssb_configuration.h\"\n #include <cstdint>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/ran/tci.h",
+      "patch": "@@ -10,11 +10,11 @@\n \n #pragma once\n \n+#include \"ssb_configuration.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/ran/csi_rs/csi_rs_id.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"\n-#include \"ssb_configuration.h\"\n #include <cstdint>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/security/ciphering.h",
+      "patch": "@@ -14,9 +14,9 @@\n \n #include \"s3g.h\"\n #include \"security.h\"\n-#include \"srsran/adt/byte_buffer.h\"\n #include \"ssl.h\"\n #include \"zuc.h\"\n+#include \"srsran/adt/byte_buffer.h\"\n \n namespace srsran {\n namespace security {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/blocking_task_worker.h",
+      "patch": "@@ -10,8 +10,8 @@\n \n #pragma once\n \n-#include \"srsran/adt/blocking_queue.h\"\n #include \"task_executor.h\"\n+#include \"srsran/adt/blocking_queue.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/manual_task_worker.h",
+      "patch": "@@ -10,8 +10,8 @@\n \n #pragma once\n \n-#include \"srsran/adt/blocking_queue.h\"\n #include \"task_executor.h\"\n+#include \"srsran/adt/blocking_queue.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/executors/task_worker.h",
+      "patch": "@@ -10,11 +10,11 @@\n \n #pragma once\n \n+#include \"task_executor.h\"\n #include \"srsran/adt/blocking_queue.h\"\n #include \"srsran/adt/unique_function.h\"\n #include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/unique_thread.h\"\n-#include \"task_executor.h\"\n #include <atomic>\n #include <condition_variable>\n #include <cstdint>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/math_utils.h",
+      "patch": "@@ -13,8 +13,8 @@\n \n #pragma once\n \n-#include \"srsran/adt/complex.h\"\n #include \"srsran_assert.h\"\n+#include \"srsran/adt/complex.h\"\n #include <cassert>\n #include <cmath>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "include/srsran/support/test_utils.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n+#include \"srsran_test.h\"\n #include \"srsran/srslog/srslog.h\"\n #include \"srsran/support/error_handling.h\"\n-#include \"srsran_test.h\"\n #include <cstdio>\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_cp/cu_cp.h",
+      "patch": "@@ -19,16 +19,16 @@\n #include \"cu_up_processor_impl.h\"\n #include \"du_processor_impl.h\"\n #include \"routine_managers/cu_cp_routine_manager.h\"\n+#include \"task_schedulers/cu_up_task_scheduler.h\"\n+#include \"task_schedulers/du_task_scheduler.h\"\n+#include \"task_schedulers/ue_task_scheduler.h\"\n+#include \"ue_manager_impl.h\"\n #include \"srsran/cu_cp/cu_cp_configuration.h\"\n #include \"srsran/f1ap/cu_cp/f1ap_cu.h\"\n #include \"srsran/support/async/async_task_loop.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/timers.h\"\n-#include \"task_schedulers/cu_up_task_scheduler.h\"\n-#include \"task_schedulers/du_task_scheduler.h\"\n-#include \"task_schedulers/ue_task_scheduler.h\"\n-#include \"ue_manager_impl.h\"\n #include <memory>\n #include <unordered_map>\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/cu_cp/du_processor_impl.h",
+      "patch": "@@ -14,6 +14,7 @@\n #include \"adapters/f1ap_adapters.h\"\n #include \"adapters/rrc_ue_adapters.h\"\n #include \"routine_managers/du_processor_routine_manager.h\"\n+#include \"ue_manager_impl.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/asn1/rrc_nr/rrc_nr.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n@@ -23,7 +24,6 @@\n #include \"srsran/ran/nr_cgi.h\"\n #include \"srsran/rrc/rrc_du_factory.h\"\n #include \"srsran/support/executors/task_executor.h\"\n-#include \"ue_manager_impl.h\"\n #include <string>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/cu_up_impl.h",
+      "patch": "@@ -13,6 +13,7 @@\n #include \"adapters/e1ap_adapters.h\"\n #include \"adapters/gtpu_adapters.h\"\n #include \"adapters/gw_adapters.h\"\n+#include \"ue_manager.h\"\n #include \"srsran/cu_up/cu_up.h\"\n #include \"srsran/cu_up/cu_up_configuration.h\"\n #include \"srsran/e1ap/cu_up/e1ap_cu_up.h\"\n@@ -22,7 +23,6 @@\n #include \"srsran/support/executors/task_worker.h\"\n #include \"srsran/support/io_broker/io_broker.h\"\n #include \"srsran/support/timers.h\"\n-#include \"ue_manager.h\"\n #include <memory>\n #include <unordered_map>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/pdu_session_manager_impl.cpp",
+      "patch": "@@ -9,11 +9,11 @@\n  */\n \n #include \"pdu_session_manager_impl.h\"\n+#include \"ue_context.h\"\n #include \"srsran/e1ap/common/e1ap_types.h\"\n #include \"srsran/e1ap/cu_up/e1ap_config_converters.h\"\n #include \"srsran/pdcp/pdcp_factory.h\"\n #include \"srsran/sdap/sdap_factory.h\"\n-#include \"ue_context.h\"\n \n using namespace srsran;\n using namespace srs_cu_up;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/cu_up/ue_manager.h",
+      "patch": "@@ -10,10 +10,10 @@\n \n #pragma once\n \n+#include \"ue_manager_interfaces.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/f1u/cu_up/f1u_gateway.h\"\n #include \"srsran/support/timers.h\"\n-#include \"ue_manager_interfaces.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/du_manager/du_ue/du_ue_manager.h",
+      "patch": "@@ -11,12 +11,12 @@\n #pragma once\n \n #include \"du_ue.h\"\n+#include \"ue_manager_ctrl_configurator.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/adt/stable_id_map.h\"\n #include \"srsran/du_manager/du_manager.h\"\n #include \"srsran/du_manager/du_manager_params.h\"\n #include \"srsran/support/async/async_task_loop.h\"\n-#include \"ue_manager_ctrl_configurator.h\"\n \n namespace srsran {\n namespace srs_du {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/e1ap/cu_cp/e1ap_cu_cp_impl.h",
+      "patch": "@@ -14,12 +14,12 @@\n #include \"procedures/bearer_context_release_procedure.h\"\n #include \"procedures/bearer_context_setup_procedure.h\"\n #include \"procedures/cu_cp_e1_setup_procedure.h\"\n+#include \"ue_context/e1ap_cu_cp_ue_context.h\"\n #include \"srsran/asn1/e1ap/e1ap.h\"\n #include \"srsran/e1ap/cu_cp/e1ap_cu_cp.h\"\n #include \"srsran/ran/nr_cgi.h\"\n #include \"srsran/support/executors/task_executor.h\"\n #include \"srsran/support/timers.h\"\n-#include \"ue_context/e1ap_cu_cp_ue_context.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/cu_cp/f1ap_cu_impl.h",
+      "patch": "@@ -13,12 +13,12 @@\n #include \"procedures/ue_context_modification_procedure.h\"\n #include \"procedures/ue_context_release_procedure.h\"\n #include \"procedures/ue_context_setup_procedure.h\"\n+#include \"ue_context/f1ap_cu_ue_context.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/asn1/f1ap/f1ap.h\"\n #include \"srsran/f1ap/cu_cp/f1ap_cu.h\"\n #include \"srsran/ran/nr_cgi.h\"\n #include \"srsran/support/executors/task_executor.h\"\n-#include \"ue_context/f1ap_cu_ue_context.h\"\n #include <memory>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/f1ap_du_impl.cpp",
+      "patch": "@@ -13,9 +13,9 @@\n #include \"procedures/f1ap_du_setup_procedure.h\"\n #include \"procedures/f1ap_du_ue_release_procedure.h\"\n #include \"procedures/gnb_cu_configuration_update_procedure.h\"\n+#include \"ue_context/f1ap_du_ue_config_update.h\"\n #include \"srsran/asn1/f1ap/f1ap.h\"\n #include \"srsran/support/async/event_signal.h\"\n-#include \"ue_context/f1ap_du_ue_config_update.h\"\n \n using namespace srsran;\n using namespace asn1::f1ap;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/f1ap/du/ue_context/f1ap_du_ue.h",
+      "patch": "@@ -11,12 +11,12 @@\n #pragma once\n \n #include \"f1ap_ue_context.h\"\n+#include \"ue_bearer_manager.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/adt/stable_id_map.h\"\n #include \"srsran/f1ap/common/f1ap_types.h\"\n #include \"srsran/f1ap/du/f1ap_du.h\"\n #include \"srsran/ran/du_types.h\"\n-#include \"ue_bearer_manager.h\"\n #include <mutex>\n #include <unordered_map>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi/validators/message_validators.cpp",
+      "patch": "@@ -14,11 +14,11 @@\n #include \"dl_pdsch_pdu.h\"\n #include \"dl_ssb_pdu.h\"\n #include \"helpers.h\"\n-#include \"srsran/support/format_utils.h\"\n #include \"uci_pdus.h\"\n #include \"ul_prach_pdu.h\"\n #include \"ul_pucch_pdu.h\"\n #include \"ul_pusch_pdu.h\"\n+#include \"srsran/support/format_utils.h\"\n \n using namespace srsran;\n using namespace fapi;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/gateways/udp_network_gateway_factory.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"srsran/gateways/udp_network_gateway_factory.h\"\n-#include \"srsran/support/error_handling.h\"\n #include \"udp_network_gateway_impl.h\"\n+#include \"srsran/support/error_handling.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.h",
+      "patch": "@@ -15,11 +15,11 @@\n #include \"mac_dl_ue_manager.h\"\n #include \"rar_pdu_assembler.h\"\n #include \"sib_pdu_assembler.h\"\n+#include \"ssb_assembler.h\"\n #include \"srsran/mac/mac.h\"\n #include \"srsran/pcap/pcap.h\"\n #include \"srsran/scheduler/mac_scheduler.h\"\n #include \"srsran/support/memory_pool/ring_buffer_pool.h\"\n-#include \"ssb_assembler.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/mac_ul_sch_pdu.h",
+      "patch": "@@ -11,13 +11,13 @@\n #pragma once\n \n #include \"lcid_ul_sch.h\"\n+#include \"ul_bsr.h\"\n #include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/adt/expected.h\"\n #include \"srsran/adt/span.h\"\n #include \"srsran/adt/static_vector.h\"\n #include \"srsran/ran/rnti.h\"\n #include \"srsran/support/srsran_assert.h\"\n-#include \"ul_bsr.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/mac/mac_ul/pdu_rx_handler.h",
+      "patch": "@@ -13,14 +13,14 @@\n #include \"../du_rnti_table.h\"\n #include \"mac_ul_sch_pdu.h\"\n #include \"mac_ul_ue_manager.h\"\n+#include \"ul_bsr.h\"\n #include \"srsran/adt/slotted_array.h\"\n #include \"srsran/du_high/du_high_ue_executor_mapper.h\"\n #include \"srsran/mac/mac.h\"\n #include \"srsran/pcap/pcap.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/slot_point.h\"\n #include \"srsran/scheduler/scheduler_feedback_handler.h\"\n-#include \"ul_bsr.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/channel_processors/channel_processor_factories.cpp",
+      "patch": "@@ -25,16 +25,16 @@\n #include \"pusch_decoder_impl.h\"\n #include \"pusch_demodulator_impl.h\"\n #include \"pusch_processor_impl.h\"\n+#include \"ssb_processor_impl.h\"\n+#include \"uci_decoder_impl.h\"\n+#include \"ulsch_demultiplex_impl.h\"\n #include \"srsran/phy/upper/channel_modulation/channel_modulation_factories.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_formatters.h\"\n #include \"srsran/phy/upper/sequence_generators/sequence_generator_factories.h\"\n #include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n #include \"srsran/ran/rnti.h\"\n #include \"srsran/srsvec/bit.h\"\n #include \"srsran/srsvec/zero.h\"\n-#include \"ssb_processor_impl.h\"\n-#include \"uci_decoder_impl.h\"\n-#include \"ulsch_demultiplex_impl.h\"\n \n using namespace srsran;\n ",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "lib/phy/upper/signal_processors/signal_processor_factories.cpp",
+      "patch": "@@ -18,8 +18,8 @@\n #include \"pss_processor_impl.h\"\n #include \"pucch/dmrs_pucch_processor_format1_impl.h\"\n #include \"pucch/dmrs_pucch_processor_format2_impl.h\"\n-#include \"srsran/phy/support/support_factories.h\"\n #include \"sss_processor_impl.h\"\n+#include \"srsran/phy/support/support_factories.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_factories.cpp",
+      "patch": "@@ -14,17 +14,17 @@\n #include \"downlink_processor_single_executor_impl.h\"\n #include \"logging_downlink_processor_decorator.h\"\n #include \"logging_uplink_processor_decorator.h\"\n-#include \"srsran/phy/support/support_factories.h\"\n-#include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n-#include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n-#include \"srsran/support/error_handling.h\"\n #include \"uplink_processor_concurrent.h\"\n #include \"uplink_processor_impl.h\"\n #include \"uplink_processor_pool_impl.h\"\n #include \"uplink_processor_task_dispatcher.h\"\n #include \"upper_phy_impl.h\"\n #include \"upper_phy_pdu_validators.h\"\n #include \"upper_phy_rx_symbol_handler_printer_decorator.h\"\n+#include \"srsran/phy/support/support_factories.h\"\n+#include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n+#include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n+#include \"srsran/support/error_handling.h\"\n \n using namespace srsran;\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_impl.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"upper_phy_impl.h\"\n-#include \"srsran/phy/upper/upper_phy_timing_notifier.h\"\n #include \"upper_phy_rx_symbol_handler_printer_decorator.h\"\n+#include \"srsran/phy/upper/upper_phy_timing_notifier.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_impl.h",
+      "patch": "@@ -10,17 +10,17 @@\n \n #pragma once\n \n+#include \"uplink_request_processor_impl.h\"\n+#include \"upper_phy_pdu_validators.h\"\n+#include \"upper_phy_rx_results_notifier_wrapper.h\"\n+#include \"upper_phy_rx_symbol_handler_impl.h\"\n #include \"srsran/phy/support/prach_buffer_pool.h\"\n #include \"srsran/phy/support/resource_grid_pool.h\"\n #include \"srsran/phy/upper/downlink_processor.h\"\n #include \"srsran/phy/upper/uplink_processor.h\"\n #include \"srsran/phy/upper/upper_phy.h\"\n #include \"srsran/phy/upper/upper_phy_timing_handler.h\"\n #include \"srsran/phy/upper/upper_phy_timing_notifier.h\"\n-#include \"uplink_request_processor_impl.h\"\n-#include \"upper_phy_pdu_validators.h\"\n-#include \"upper_phy_rx_results_notifier_wrapper.h\"\n-#include \"upper_phy_rx_symbol_handler_impl.h\"\n \n namespace srsran {\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/phy/upper/upper_phy_rx_symbol_handler_impl.cpp",
+      "patch": "@@ -9,12 +9,12 @@\n  */\n \n #include \"upper_phy_rx_symbol_handler_impl.h\"\n+#include \"upper_phy_rx_results_notifier_wrapper.h\"\n #include \"srsran/phy/support/prach_buffer_context.h\"\n #include \"srsran/phy/support/resource_grid.h\"\n #include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n #include \"srsran/phy/upper/uplink_processor.h\"\n #include \"srsran/support/error_handling.h\"\n-#include \"upper_phy_rx_results_notifier_wrapper.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -9,13 +9,13 @@\n  */\n \n #include \"srsran/ran/band_helper.h\"\n+#include \"ssb_freq_position_generator.h\"\n #include \"srsran/adt/interval.h\"\n #include \"srsran/ran/bs_channel_bandwidth.h\"\n #include \"srsran/ran/duplex_mode.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_coreset_config.h\"\n #include \"srsran/ran/pdcch/pdcch_type0_css_occasions.h\"\n #include \"srsran/ran/subcarrier_spacing.h\"\n-#include \"ssb_freq_position_generator.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/rrc/rrc_du_impl.h",
+      "patch": "@@ -10,9 +10,9 @@\n \n #pragma once\n \n+#include \"ue/rrc_ue_impl.h\"\n #include \"srsran/rrc/rrc_config.h\"\n #include \"srsran/rrc/rrc_du.h\"\n-#include \"ue/rrc_ue_impl.h\"\n #include <unordered_map>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n \n #include \"scheduler_impl.h\"\n #include \"common_scheduling/ssb_scheduler.h\"\n+#include \"ue_scheduling/ue_scheduler_impl.h\"\n #include \"srsran/scheduler/config/scheduler_cell_config_validator.h\"\n #include \"srsran/scheduler/config/scheduler_ue_config_validator.h\"\n-#include \"ue_scheduling/ue_scheduler_impl.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/scheduler_impl.h",
+      "patch": "@@ -14,10 +14,10 @@\n #include \"logging/scheduler_event_logger.h\"\n #include \"logging/scheduler_metrics_handler.h\"\n #include \"logging/scheduler_result_logger.h\"\n+#include \"ue_scheduling/ue_scheduler.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n #include \"srsran/scheduler/mac_scheduler.h\"\n #include \"srsran/scheduler/scheduler_factory.h\"\n-#include \"ue_scheduling/ue_scheduler.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -12,12 +12,12 @@\n #include \"../ue_scheduling/ue_sch_pdu_builder.h\"\n #include \"dmrs_helpers.h\"\n #include \"prbs_calculator.h\"\n+#include \"tbs_calculator.h\"\n #include \"srsran/adt/variant.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"\n #include \"srsran/ran/pusch/pusch_mcs.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n #include \"srsran/ran/uci/uci_mapping.h\"\n-#include \"tbs_calculator.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/uci_scheduling/uci_allocator_impl.h",
+      "patch": "@@ -11,8 +11,8 @@\n #pragma once\n \n #include \"../pucch_scheduling/pucch_allocator.h\"\n-#include \"srsran/adt/circular_array.h\"\n #include \"uci_allocator.h\"\n+#include \"srsran/adt/circular_array.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue.h",
+      "patch": "@@ -11,11 +11,11 @@\n #pragma once\n \n #include \"dl_logical_channel_manager.h\"\n+#include \"ue_cell.h\"\n+#include \"ul_logical_channel_manager.h\"\n #include \"srsran/adt/stable_id_map.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/scheduler/mac_scheduler.h\"\n-#include \"ue_cell.h\"\n-#include \"ul_logical_channel_manager.h\"\n \n namespace srsran {\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell.h",
+      "patch": "@@ -12,9 +12,9 @@\n \n #include \"../support/bwp_helpers.h\"\n #include \"harq_process.h\"\n+#include \"ue_configuration.h\"\n #include \"srsran/ran/uci/uci_constants.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config.h\"\n-#include \"ue_configuration.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n #include \"ue_cell_grid_allocator.h\"\n #include \"../support/mcs_calculator.h\"\n #include \"../support/mcs_tbs_calculator.h\"\n-#include \"srsran/support/error_handling.h\"\n #include \"ue_dci_builder.h\"\n #include \"ue_sch_pdu_builder.h\"\n+#include \"srsran/support/error_handling.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_event_manager.h",
+      "patch": "@@ -12,11 +12,11 @@\n \n #include \"../policy/scheduler_policy.h\"\n #include \"../support/slot_event_list.h\"\n+#include \"ue.h\"\n+#include \"ue_srb0_scheduler.h\"\n #include \"srsran/adt/unique_function.h\"\n #include \"srsran/ran/du_types.h\"\n #include \"srsran/ran/uci/uci_constants.h\"\n-#include \"ue.h\"\n-#include \"ue_srb0_scheduler.h\"\n \n namespace srsran {\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_sch_pdu_builder.h",
+      "patch": "@@ -10,9 +10,9 @@\n #pragma once\n \n #include \"../cell/cell_configuration.h\"\n+#include \"ue_configuration.h\"\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n-#include \"ue_configuration.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler.h",
+      "patch": "@@ -12,8 +12,8 @@\n \n #include \"../pucch_scheduling/pucch_allocator.h\"\n #include \"../uci_scheduling/uci_allocator.h\"\n-#include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"ue.h\" // TEMP\n+#include \"srsran/scheduler/scheduler_configurator.h\"\n \n namespace srsran {\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_scheduler_impl.h",
+      "patch": "@@ -16,14 +16,14 @@\n #include \"../support/slot_event_list.h\"\n #include \"../support/slot_sync_point.h\"\n #include \"../uci_scheduling/uci_scheduler_impl.h\"\n-#include \"srsran/adt/slotted_array.h\"\n-#include \"srsran/adt/unique_function.h\"\n-#include \"srsran/scheduler/config/scheduler_expert_config.h\"\n-#include \"srsran/scheduler/config/serving_cell_config_factory.h\"\n #include \"ue_cell_grid_allocator.h\"\n #include \"ue_event_manager.h\"\n #include \"ue_scheduler.h\"\n #include \"ue_srb0_scheduler.h\"\n+#include \"srsran/adt/slotted_array.h\"\n+#include \"srsran/adt/unique_function.h\"\n+#include \"srsran/scheduler/config/scheduler_expert_config.h\"\n+#include \"srsran/scheduler/config/serving_cell_config_factory.h\"\n \n namespace srsran {\n ",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_srb0_scheduler.h",
+      "patch": "@@ -12,9 +12,9 @@\n \n #include \"../policy/ue_allocator.h\"\n #include \"../support/slot_event_list.h\"\n-#include \"srsran/scheduler/scheduler_configurator.h\"\n #include \"ue.h\"\n #include \"ue_sch_pdu_builder.h\"\n+#include \"srsran/scheduler/scheduler_configurator.h\"\n #include <queue>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/du_high/du_high_benchmark.cpp",
+      "patch": "@@ -13,13 +13,13 @@\n \n #include \"lib/du_high/du_high.h\"\n #include \"lib/du_high/du_high_executor_strategies.h\"\n+#include \"tests/unittests/f1ap/du/f1ap_du_test_helpers.h\"\n+#include \"tests/unittests/mac/mac_test_helpers.h\"\n #include \"srsran/du/du_cell_config_helpers.h\"\n #include \"srsran/du_high/du_high_configuration.h\"\n #include \"srsran/f1u/du/f1u_gateway.h\"\n #include \"srsran/support/benchmark_utils.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/f1ap/du/f1ap_du_test_helpers.h\"\n-#include \"tests/unittests/mac/mac_test_helpers.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/benchmarks/scheduler/scheduler_no_ues_benchmark.cpp",
+      "patch": "@@ -9,9 +9,9 @@\n  */\n \n #include \"lib/scheduler/cell/cell_configuration.h\"\n+#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/scheduler/scheduler_factory.h\"\n #include \"srsran/support/benchmark_utils.h\"\n-#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include <getopt.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/integrationtests/du_cu_cp/cu_du_test.cpp",
+      "patch": "@@ -10,16 +10,16 @@\n \n #include \"../../../lib/du_high/du_high.h\"\n #include \"../../../lib/du_high/du_high_executor_strategies.h\"\n+#include \"tests/unittests/du_high/test_utils/du_high_worker_manager.h\"\n+#include \"tests/unittests/f1ap/common/test_helpers.h\"\n+#include \"tests/unittests/ngap/test_helpers.h\"\n #include \"srsran/cu_cp/cu_cp.h\"\n #include \"srsran/cu_cp/cu_cp_factory.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/cu_cp/du_processor.h\"\n #include \"srsran/du/du_cell_config_helpers.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/du_high/test_utils/du_high_worker_manager.h\"\n-#include \"tests/unittests/f1ap/common/test_helpers.h\"\n-#include \"tests/unittests/ngap/test_helpers.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/integrationtests/ngap/ngap_integration_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"lib/cu_cp/ue_manager_impl.h\"\n #include \"lib/ngap/ngap_asn1_helpers.h\"\n #include \"lib/ngap/ngap_asn1_packer.h\"\n+#include \"tests/unittests/ngap/test_helpers.h\"\n #include \"srsran/gateways/sctp_network_gateway_factory.h\"\n #include \"srsran/ngap/ngap_configuration_helpers.h\"\n #include \"srsran/ngap/ngap_factory.h\"\n@@ -19,7 +20,6 @@\n #include \"srsran/support/io_broker/io_broker_factory.h\"\n #include \"srsran/support/test_utils.h\"\n #include \"srsran/support/timers.h\"\n-#include \"tests/unittests/ngap/test_helpers.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/common/test_helpers.h",
+      "patch": "@@ -12,13 +12,13 @@\n \n #include \"du_processor_test_messages.h\"\n #include \"lib/e1ap/common/e1ap_asn1_helpers.h\"\n+#include \"tests/unittests/e1ap/common/e1ap_cu_cp_test_messages.h\"\n #include \"srsran/cu_cp/cu_cp.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/cu_cp/cu_up_processor.h\"\n #include \"srsran/cu_cp/du_processor.h\"\n #include \"srsran/support/async/async_task_loop.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/e1ap/common/e1ap_cu_cp_test_messages.h\"\n \n namespace srsran {\n namespace srs_cu_cp {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_cp_test.cpp",
+      "patch": "@@ -10,14 +10,14 @@\n \n #include \"common/test_helpers.h\"\n #include \"lib/cu_cp/cu_cp.h\"\n-#include \"srsran/cu_cp/cu_cp_types.h\"\n-#include \"srsran/support/executors/manual_task_worker.h\"\n #include \"tests/unittests/e1ap/common/e1ap_cu_cp_test_messages.h\"\n #include \"tests/unittests/e1ap/common/test_helpers.h\"\n #include \"tests/unittests/f1ap/common/test_helpers.h\"\n #include \"tests/unittests/f1ap/cu_cp/f1ap_cu_test_helpers.h\"\n #include \"tests/unittests/ngap/ngap_test_messages.h\"\n #include \"tests/unittests/ngap/test_helpers.h\"\n+#include \"srsran/cu_cp/cu_cp_types.h\"\n+#include \"srsran/support/executors/manual_task_worker.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/cu_cp/cu_up_processor/cu_up_processor_test_helpers.h",
+      "patch": "@@ -12,12 +12,12 @@\n \n #include \"../common/test_helpers.h\"\n #include \"cu_up_processor_test_helpers.h\"\n+#include \"tests/unittests/e1ap/common/test_helpers.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/cu_cp/cu_up_processor.h\"\n #include \"srsran/cu_cp/cu_up_processor_factory.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/e1ap/common/test_helpers.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/du_processor/du_processor_routine_manager_test_helpers.h",
+      "patch": "@@ -15,8 +15,8 @@\n #include \"lib/cu_cp/routine_managers/du_processor_routine_manager.h\"\n #include \"lib/cu_cp/ue_manager_impl.h\"\n #include \"lib/rrc/ue/drb_manager_impl.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/rrc/rrc_ue_test_messages.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/du_processor/du_processor_test_helpers.h",
+      "patch": "@@ -15,15 +15,15 @@\n #include \"du_processor_test_helpers.h\"\n #include \"lib/cu_cp/ue_manager_impl.h\"\n #include \"lib/f1ap/common/asn1_helpers.h\"\n+#include \"tests/unittests/f1ap/common/test_helpers.h\"\n+#include \"tests/unittests/f1ap/cu_cp/f1ap_cu_test_helpers.h\"\n+#include \"tests/unittests/rrc/test_helpers.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/cu_cp/du_processor.h\"\n #include \"srsran/cu_cp/du_processor_factory.h\"\n #include \"srsran/rrc/rrc.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/f1ap/common/test_helpers.h\"\n-#include \"tests/unittests/f1ap/cu_cp/f1ap_cu_test_helpers.h\"\n-#include \"tests/unittests/rrc/test_helpers.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6
+    },
+    {
+      "filename": "tests/unittests/cu_cp/ue_manager/ue_manager_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/rrc/rrc_ue.h\"\n #include \"ue_manager_test_helpers.h\"\n+#include \"srsran/rrc/rrc_ue.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/cu_cp/ue_manager/ue_manager_test_helpers.h",
+      "patch": "@@ -12,8 +12,8 @@\n \n #include \"../common/test_helpers.h\"\n #include \"lib/cu_cp/ue_manager_impl.h\"\n-#include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"tests/unittests/ngap/test_helpers.h\"\n+#include \"srsran/cu_cp/cu_cp_types.h\"\n \n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/du_high/du_high_test.cpp",
+      "patch": "@@ -12,12 +12,12 @@\n #include \"lib/du_high/du_high_executor_strategies.h\"\n #include \"lib/f1ap/common/f1ap_asn1_packer.h\"\n #include \"lib/gateways/sctp_network_gateway_impl.h\"\n-#include \"srsran/du/du_cell_config_helpers.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"test_utils/du_high_worker_manager.h\"\n #include \"test_utils/dummy_test_components.h\"\n #include \"tests/unittests/f1ap/common/test_helpers.h\"\n #include \"tests/unittests/gateways/test_helpers.h\"\n+#include \"srsran/du/du_cell_config_helpers.h\"\n+#include \"srsran/support/test_utils.h\"\n \n using namespace srsran;\n using namespace srs_du;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/e2/e2_setup_procedure_test.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n \n #include \"lib/e2/common/e2ap_asn1_packer.h\"\n #include \"lib/e2/common/e2ap_asn1_utils.h\"\n+#include \"tests/unittests/e2/common/e2_test_helpers.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/e2/common/e2_test_helpers.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/gateways/sctp_network_gateway_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/gateways/sctp_network_gateway_factory.h\"\n #include \"test_helpers.h\"\n+#include \"srsran/gateways/sctp_network_gateway_factory.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/gateways/udp_network_gateway_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/gateways/udp_network_gateway_factory.h\"\n #include \"test_helpers.h\"\n+#include \"srsran/gateways/udp_network_gateway_factory.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ctrl_test.cpp",
+      "patch": "@@ -11,10 +11,10 @@\n #include \"lib/mac/du_rnti_table.h\"\n #include \"lib/mac/mac_ctrl/mac_controller.h\"\n #include \"mac_ctrl_test_dummies.h\"\n+#include \"tests/unittests/mac/mac_test_helpers.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/mac/mac_test_helpers.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/mac/mac_ue_create_test.cpp",
+      "patch": "@@ -10,11 +10,11 @@\n \n #include \"lib/mac/mac_ctrl/ue_creation_procedure.h\"\n #include \"mac_ctrl_test_dummies.h\"\n+#include \"tests/unittests/mac/mac_test_helpers.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/async/manual_event.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/mac/mac_test_helpers.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ngap/ngap_test_helpers.h",
+      "patch": "@@ -12,12 +12,12 @@\n \n #include \"lib/cu_cp/ue_manager_impl.h\"\n #include \"ngap_test_messages.h\"\n+#include \"test_helpers.h\"\n #include \"srsran/cu_cp/cu_cp_types.h\"\n #include \"srsran/ngap/ngap.h\"\n #include \"srsran/ngap/ngap_configuration.h\"\n #include \"srsran/ngap/ngap_factory.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n-#include \"test_helpers.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/pusch_processor_unittest.cpp",
+      "patch": "@@ -13,11 +13,11 @@\n #include \"../signal_processors/dmrs_pusch_estimator_test_doubles.h\"\n #include \"pusch_decoder_test_doubles.h\"\n #include \"pusch_demodulator_test_doubles.h\"\n+#include \"uci_decoder_test_doubles.h\"\n+#include \"ulsch_demultiplex_test_doubles.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n #include \"srsran/ran/sch_dmrs_power.h\"\n-#include \"uci_decoder_test_doubles.h\"\n-#include \"ulsch_demultiplex_test_doubles.h\"\n #include \"gtest/gtest.h\"\n #include <random>\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/ssb_processor_vectortest.cpp",
+      "patch": "@@ -8,11 +8,11 @@\n  *\n  */\n \n+#include \"ssb_processor_test_data.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"srsran/phy/upper/signal_processors/pss_processor.h\"\n #include \"srsran/phy/upper/signal_processors/signal_processor_factories.h\"\n #include \"srsran/phy/upper/signal_processors/sss_processor.h\"\n-#include \"ssb_processor_test_data.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/uci_decoder_test.cpp",
+      "patch": "@@ -14,10 +14,10 @@\n /// Detects short messages from sequences of log-likelihood ratios. Both the LLR sequences and the corresponding\n /// messages (for comparison purposes) are provided as test vectors.\n \n+#include \"uci_decoder_test_data.h\"\n #include \"srsran/phy/upper/channel_coding/channel_coding_factories.h\"\n #include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"srsran/support/srsran_test.h\"\n-#include \"uci_decoder_test_data.h\"\n \n /// \\cond\n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/channel_processors/ulsch_demultiplex_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"ulsch_demultiplex_test_data.h\"\n+#include \"srsran/phy/upper/channel_processors/channel_processor_factories.h\"\n #include \"fmt/ostream.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/downlink_processor_test.cpp",
+      "patch": "@@ -15,9 +15,9 @@\n #include \"channel_processors/pdsch_processor_test_doubles.h\"\n #include \"channel_processors/ssb_processor_test_doubles.h\"\n #include \"signal_processors/nzp_csi_rs_generator_test_doubles.h\"\n+#include \"upper_phy_rg_gateway_test_doubles.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include \"srsran/support/srsran_test.h\"\n-#include \"upper_phy_rg_gateway_test_doubles.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/uplink_processor_test.cpp",
+      "patch": "@@ -13,8 +13,8 @@\n #include \"channel_processors/prach_detector_test_doubles.h\"\n #include \"channel_processors/pucch_processor_test_doubles.h\"\n #include \"channel_processors/pusch_processor_test_doubles.h\"\n-#include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n #include \"upper_phy_rx_results_notifier_test_doubles.h\"\n+#include \"srsran/phy/upper/unique_rx_softbuffer.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/uplink_request_processor_test.cpp",
+      "patch": "@@ -10,9 +10,9 @@\n \n #include \"../../../lib/phy/upper/uplink_request_processor_impl.h\"\n #include \"../support/prach_buffer_test_doubles.h\"\n+#include \"upper_phy_rx_symbol_request_notifier_test_doubles.h\"\n #include \"srsran/phy/support/prach_buffer_context.h\"\n #include \"srsran/phy/support/support_factories.h\"\n-#include \"upper_phy_rx_symbol_request_notifier_test_doubles.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/phy/upper/upper_phy_rx_symbol_handler_test.cpp",
+      "patch": "@@ -12,9 +12,9 @@\n #include \"../../../lib/phy/upper/upper_phy_rx_symbol_handler_impl.h\"\n #include \"../support/prach_buffer_test_doubles.h\"\n #include \"../support/resource_grid_test_doubles.h\"\n+#include \"uplink_processor_test_doubles.h\"\n #include \"srsran/phy/support/prach_buffer_context.h\"\n #include \"srsran/phy/upper/upper_phy_factories.h\"\n-#include \"uplink_processor_test_doubles.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/pusch/ulsch_info_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/ran/pusch/ulsch_info.h\"\n #include \"ulsch_info_test_data.h\"\n+#include \"srsran/ran/pusch/ulsch_info.h\"\n #include \"fmt/ostream.h\"\n #include <gtest/gtest.h>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/ran/test_ssb_coreset0_freq_pos_generator.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"lib/ran/ssb_freq_position_generator.h\"\n-#include \"srsran/ran/band_helper.h\"\n #include \"ssb_coreset0_freq_pos_checker.h\"\n+#include \"srsran/ran/band_helper.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/rrc/rrc_ue_test_helpers.h",
+      "patch": "@@ -11,12 +11,12 @@\n #pragma once\n \n #include \"lib/rrc/ue/rrc_ue_impl.h\"\n+#include \"test_helpers.h\"\n #include \"srsran/adt/byte_buffer.h\"\n #include \"srsran/rrc/rrc_du_factory.h\"\n #include \"srsran/support/async/async_task_loop.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"test_helpers.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/cell_resource_grid/cell_resource_grid_test.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"lib/scheduler/cell/resource_grid.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/paging_scheduler_test.cpp",
+      "patch": "@@ -15,10 +15,10 @@\n #include \"lib/scheduler/scheduler_impl.h\"\n #include \"lib/scheduler/ue_scheduling/ue_cell_grid_allocator.h\"\n #include \"lib/scheduler/ue_scheduling/ue_srb0_scheduler.h\"\n-#include \"srsran/mac/mac_configuration_helpers.h\"\n-#include \"srsran/ran/duplex_mode.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/mac/mac_configuration_helpers.h\"\n+#include \"srsran/ran/duplex_mode.h\"\n #include <gtest/gtest.h>\n #include <random>\n #include <unordered_map>",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/ra_scheduler_test.cpp",
+      "patch": "@@ -11,11 +11,11 @@\n #include \"lib/scheduler/common_scheduling/ra_scheduler.h\"\n #include \"lib/scheduler/logging/scheduler_event_logger.h\"\n #include \"lib/scheduler/logging/scheduler_result_logger.h\"\n-#include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/dummy_test_components.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n #include <ostream>\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/sib1_scheduler_test.cpp",
+      "patch": "@@ -12,9 +12,9 @@\n #include \"lib/scheduler/common_scheduling/ssb_scheduler.h\"\n #include \"lib/scheduler/logging/scheduler_result_logger.h\"\n #include \"lib/scheduler/support/ssb_helpers.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/common_scheduling/ssb_scheduler_test.cpp",
+      "patch": "@@ -10,11 +10,11 @@\n \n #include \"lib/scheduler/cell/resource_grid.h\"\n #include \"lib/scheduler/common_scheduling/ssb_scheduler.h\"\n+#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/ran/frame_types.h\"\n #include \"srsran/ran/ssb_mapping.h\"\n #include \"srsran/scheduler/sched_consts.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include <gtest/gtest.h>\n \n /// This will be removed once we can get this value from the slot object.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/multiple_ue_sched_test.cpp",
+      "patch": "@@ -14,11 +14,11 @@\n #include \"lib/scheduler/scheduler_impl.h\"\n #include \"lib/scheduler/ue_scheduling/ue_cell_grid_allocator.h\"\n #include \"lib/scheduler/ue_scheduling/ue_srb0_scheduler.h\"\n-#include \"srsran/ran/duplex_mode.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"test_utils/dummy_test_components.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/ran/duplex_mode.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n #include <unordered_map>\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/scheduler_no_ue_test.cpp",
+      "patch": "@@ -16,10 +16,10 @@\n /// - handle RACH indication + RAR allocation.\n \n #include \"lib/scheduler/scheduler_impl.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/dummy_test_components.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/support/test_utils.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/mcs_tbs_calculator_test.cpp",
+      "patch": "@@ -12,11 +12,11 @@\n #include \"lib/scheduler/support/mcs_tbs_calculator.h\"\n #include \"lib/scheduler/support/tbs_calculator.h\"\n #include \"lib/scheduler/ue_scheduling/ue_sch_pdu_builder.h\"\n+#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"\n #include \"srsran/ran/uci/uci_mapping.h\"\n #include \"srsran/support/test_utils.h\"\n-#include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/tbs_calculator_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/support/srsran_test.h\"\n #include \"tbs_calculator_test_data.h\"\n+#include \"srsran/support/srsran_test.h\"\n \n using namespace srsran;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/scheduler_uci_indication_test.cpp",
+      "patch": "@@ -13,11 +13,11 @@\n /// The objective here is to mainly cover and verify the correct integration of the scheduler building blocks.\n \n #include \"lib/scheduler/cell/cell_configuration.h\"\n-#include \"srsran/scheduler/scheduler_factory.h\"\n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_bench.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/scheduler/scheduler_factory.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/uci_scheduling_test.cpp",
+      "patch": "@@ -8,9 +8,9 @@\n  *\n  */\n \n-#include \"srsran/support/test_utils.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n #include \"uci_test_utils.h\"\n+#include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/uci_and_pucch/uci_test_utils.h",
+      "patch": "@@ -14,9 +14,9 @@\n #include \"lib/scheduler/pucch_scheduling/pucch_allocator_impl.h\"\n #include \"lib/scheduler/uci_scheduling/uci_allocator_impl.h\"\n #include \"lib/scheduler/uci_scheduling/uci_scheduler_impl.h\"\n-#include \"srsran/du/du_cell_config_helpers.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/du/du_cell_config_helpers.h\"\n #include <gtest/gtest.h>\n \n namespace srsran {",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/srb0_scheduler_test.cpp",
+      "patch": "@@ -13,9 +13,9 @@\n #include \"lib/scheduler/uci_scheduling/uci_allocator_impl.h\"\n #include \"lib/scheduler/ue_scheduling/ue_cell_grid_allocator.h\"\n #include \"lib/scheduler/ue_scheduling/ue_srb0_scheduler.h\"\n-#include \"srsran/ran/duplex_mode.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"tests/unittests/scheduler/test_utils/scheduler_test_suite.h\"\n+#include \"srsran/ran/duplex_mode.h\"\n #include <gtest/gtest.h>\n #include <random>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/ue_scheduling/ue_configuration_test.cpp",
+      "patch": "@@ -1,7 +1,7 @@\n \n #include \"lib/scheduler/ue_scheduling/ue.h\"\n-#include \"srsran/support/srsran_test.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n+#include \"srsran/support/srsran_test.h\"\n #include <gtest/gtest.h>\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/any_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/srslog/detail/support/any.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/detail/support/any.h\"\n \n using namespace srslog;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/context_test.cpp",
+      "patch": "@@ -8,8 +8,8 @@\n  *\n  */\n \n-#include \"srsran/srslog/context.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/context.h\"\n #include <vector>\n \n using namespace srslog;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/event_trace_test.cpp",
+      "patch": "@@ -8,10 +8,10 @@\n  *\n  */\n \n-#include \"srsran/srslog/event_trace.h\"\n-#include \"srsran/srslog/log_channel.h\"\n #include \"test_dummies.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/event_trace.h\"\n+#include \"srsran/srslog/log_channel.h\"\n #include <thread>\n \n using namespace srslog;",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/srslog/json_formatter_test.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"lib/srslog/formatters/json_formatter.h\"\n-#include \"srsran/srslog/detail/log_entry_metadata.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/detail/log_entry_metadata.h\"\n #include <numeric>\n \n using namespace srslog;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/log_channel_test.cpp",
+      "patch": "@@ -8,9 +8,9 @@\n  *\n  */\n \n-#include \"srsran/srslog/log_channel.h\"\n #include \"test_dummies.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/log_channel.h\"\n \n using namespace srslog;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/logger_test.cpp",
+      "patch": "@@ -8,9 +8,9 @@\n  *\n  */\n \n-#include \"srsran/srslog/logger.h\"\n #include \"test_dummies.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/logger.h\"\n \n using namespace srslog;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/srslog_test.cpp",
+      "patch": "@@ -8,9 +8,9 @@\n  *\n  */\n \n-#include \"srsran/srslog/srslog.h\"\n #include \"test_dummies.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n using namespace srslog;\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/syslog_sink_test.cpp",
+      "patch": "@@ -9,9 +9,9 @@\n  */\n \n #include \"lib/srslog/sinks/syslog_sink.h\"\n-#include \"srsran/srslog/srslog.h\"\n #include \"test_dummies.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/srslog.h\"\n \n #include <fstream>\n #include <sstream>",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/srslog/text_formatter_test.cpp",
+      "patch": "@@ -9,8 +9,8 @@\n  */\n \n #include \"lib/srslog/formatters/text_formatter.h\"\n-#include \"srsran/srslog/detail/log_entry_metadata.h\"\n #include \"testing_helpers.h\"\n+#include \"srsran/srslog/detail/log_entry_metadata.h\"\n #include <numeric>\n \n using namespace srslog;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 101,
+  "commit_details_path": ".\\commit_metadata\\ea358bb.json"
+}

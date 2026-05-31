@@ -1,0 +1,29 @@
+{
+  "commit_id": "aba31687b55f5dea6108b602cd96410855fe4c44",
+  "commit_sha_short": "aba3168",
+  "commit_folder": "aba3168",
+  "commit_message": "support: fix resource_usage library to use RUSAGE_THREAD",
+  "commit_message_first_line": "support: fix resource_usage library to use RUSAGE_THREAD",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/aba31687b55f5dea6108b602cd96410855fe4c44",
+  "commit_date": "2024-10-28T20:02:38Z",
+  "parent_sha": "2f59f128d1f5e52b697baf7fcdb0977092b88ccf",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/2f59f128d1f5e52b697baf7fcdb0977092b88ccf",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/logging/scheduler_tracer.h",
+      "patch": "@@ -52,11 +52,13 @@ class scheduler_slot_tracer\n       diff_resusage           = slot_stop_resusage - slot_start_resusage;\n \n       logger.warning(\"cell={}: Detected slow slot processing. Latency={}usec, voluntary_context_switches={} \"\n-                     \"involutary_context_switches={}\",\n+                     \"involutary_context_switches={} user_telapsed={}usec system_telapsed={}usec\",\n                      cell_index,\n                      slot_dur.count(),\n                      diff_resusage.vol_ctxt_switch_count,\n-                     diff_resusage.invol_ctxt_switch_count);\n+                     diff_resusage.invol_ctxt_switch_count,\n+                     diff_resusage.user_dur.count(),\n+                     diff_resusage.system_dur.count());\n     }\n   }\n ",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "lib/support/tracing/resource_usage.cpp",
+      "patch": "@@ -17,7 +17,7 @@ using namespace resource_usage;\n srsran::expected<snapshot, int> srsran::resource_usage::now()\n {\n   snapshot ret;\n-  if (getrusage(RUSAGE_SELF, &ret) == 0) {\n+  if (getrusage(RUSAGE_THREAD, &ret) == 0) {\n     return ret;\n   }\n   return make_unexpected(errno);",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\aba3168.json"
+}

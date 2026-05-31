@@ -1,0 +1,22 @@
+{
+  "commit_id": "d8c5ba416b3addb205b3d0157d7ab735875121f3",
+  "commit_sha_short": "d8c5ba4",
+  "commit_folder": "d8c5ba4",
+  "commit_message": "ran: replace assert with report_fatal_error\n\nSigned-off-by: Carlo Galiotto <carlo@srs.io>",
+  "commit_message_first_line": "ran: replace assert with report_fatal_error",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/d8c5ba416b3addb205b3d0157d7ab735875121f3",
+  "commit_date": "2024-04-30T09:19:53Z",
+  "parent_sha": "55c5c3eafa60101559b20394d45e61ccbaa93d6a",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/55c5c3eafa60101559b20394d45e61ccbaa93d6a",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -849,8 +849,8 @@ uint8_t srsran::band_helper::get_ssb_l_max(nr_band band, subcarrier_spacing scs,\n       return 64U;\n     }\n     default:\n-      srsran_assertion_failure(\"SSB pattern case is invalid\");\n-      return 64U;\n+      report_fatal_error(\"SSB pattern case is invalid\");\n+      return 0U;\n   }\n }\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\d8c5ba4.json"
+}

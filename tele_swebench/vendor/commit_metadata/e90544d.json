@@ -1,0 +1,29 @@
+{
+  "commit_id": "e90544dcc9db973da901e93ce43b30ce5819c39c",
+  "commit_sha_short": "e90544d",
+  "commit_folder": "e90544d",
+  "commit_message": "sched: handle the case when the effective code rate is equal to zero (e.g. too many UCI bits for the PUSCH grant)",
+  "commit_message_first_line": "sched: handle the case when the effective code rate is equal to zero (e.g. too many UCI bits for the PUSCH grant)",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e90544dcc9db973da901e93ce43b30ce5819c39c",
+  "commit_date": "2023-02-22T15:16:50Z",
+  "parent_sha": "9b65b194166e28ebe4b4996656782ebced11499b",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9b65b194166e28ebe4b4996656782ebced11499b",
+  "code_changes": [
+    {
+      "filename": "include/srsran/ran/pusch/ulsch_info.h",
+      "patch": "@@ -89,9 +89,11 @@ struct ulsch_information {\n   /// number of channel bits.\n   float get_effective_code_rate() const\n   {\n-    srsran_assert(nof_ul_sch_bits.value() != 0, \"UL-SCH number of bits must not be zero.\");\n     srsran_assert(sch.nof_bits_per_cb.value() > sch.nof_filler_bits_per_cb.value(),\n                   \"The number of bits per CB must be greater than the number of filler bits.\");\n+    if (nof_ul_sch_bits.value() == 0) {\n+      return 0;\n+    }\n     return static_cast<float>((sch.nof_bits_per_cb.value() - sch.nof_filler_bits_per_cb.value()) * sch.nof_cb) /\n            static_cast<float>(nof_ul_sch_bits.value());\n   }",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -260,6 +260,11 @@ optional<sch_mcs_tbs> srsran::compute_ul_mcs_tbs(const pusch_config_params&   pu\n     return nullopt;\n   }\n \n+  // If no MCS such that nof bits for PUSCH > 0, return an empty optional object.\n+  if (effective_code_rate == 0) {\n+    return nullopt;\n+  }\n+\n   optional<sch_mcs_tbs> output;\n   return output.emplace(sch_mcs_tbs{.mcs = mcs, .tbs = tbs_bytes});\n }",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\e90544d.json"
+}

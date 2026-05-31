@@ -1,0 +1,43 @@
+{
+  "commit_id": "e22e328694220a3924cc76b44b165bfdd19139b8",
+  "commit_sha_short": "e22e328",
+  "commit_folder": "e22e328",
+  "commit_message": "phy: UL-SCH info CSI Part 1 support",
+  "commit_message_first_line": "phy: UL-SCH info CSI Part 1 support",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e22e328694220a3924cc76b44b165bfdd19139b8",
+  "commit_date": "2023-02-14T11:28:40Z",
+  "parent_sha": "e1835fed00b075e2214de5f72ef8877807af18b9",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/e1835fed00b075e2214de5f72ef8877807af18b9",
+  "code_changes": [
+    {
+      "filename": "lib/phy/upper/channel_processors/pusch_processor_impl.cpp",
+      "patch": "@@ -39,8 +39,9 @@ bool pusch_processor_validator_impl::is_valid(const pusch_processor::pdu_t& pdu)\n     return false;\n   }\n \n-  // CSI-Part1 multiplexing is not supported.\n-  if (pdu.uci.nof_csi_part1 != 0) {\n+  // Currently, each UCI field size cannot exceed 11 bit.\n+  static constexpr unsigned max_uci_len = 11;\n+  if ((pdu.uci.nof_harq_ack > max_uci_len) || (pdu.uci.nof_csi_part1 > max_uci_len)) {\n     return false;\n   }\n ",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/ran/pusch/ulsch_info.cpp",
+      "patch": "@@ -73,6 +73,40 @@ static constexpr unsigned calculate_nof_re_harq_ack_without_sch(units::bits nof_\n   return std::min(left, right);\n }\n \n+static constexpr unsigned calculate_nof_re_csi_part1(units::bits nof_csi_part1_bits,\n+                                                     float       beta_offset_pusch,\n+                                                     unsigned    nof_re_uci,\n+                                                     unsigned    nof_re_harq_ack,\n+                                                     unsigned    sum_nof_cb_size,\n+                                                     float       alpha_scaling)\n+{\n+  using namespace units::literals;\n+\n+  if (nof_csi_part1_bits == 0_bits) {\n+    return 0;\n+  }\n+\n+  units::bits nof_bits_crc = get_crc_size_uci(nof_csi_part1_bits);\n+\n+  unsigned left  = std::ceil(static_cast<float>((nof_csi_part1_bits + nof_bits_crc).value()) * beta_offset_pusch *\n+                            static_cast<float>(nof_re_uci) / static_cast<float>(sum_nof_cb_size));\n+  unsigned right = std::ceil(alpha_scaling * static_cast<float>(nof_re_uci)) - nof_re_harq_ack;\n+\n+  return std::min(left, right);\n+}\n+\n+static constexpr unsigned\n+calculate_nof_re_csi_part1_without_sch(units::bits nof_csi_part1_bits, unsigned nof_re_uci, unsigned nof_re_harq_ack)\n+{\n+  using namespace units::literals;\n+\n+  if (nof_csi_part1_bits == 0_bits) {\n+    return 0;\n+  }\n+\n+  return nof_re_uci - nof_re_harq_ack;\n+}\n+\n ulsch_information srsgnb::get_ulsch_information(const ulsch_configuration& config)\n {\n   ulsch_information result = {};\n@@ -128,7 +162,8 @@ ulsch_information srsgnb::get_ulsch_information(const ulsch_configuration& confi\n   // Count the number of resource elements that can potentially carry UCI after the first burst of OFDM symbols that\n   // contain DM-RS.\n   unsigned nof_re_uci_l0 = 0;\n-  for (unsigned i_symbol = config.start_symbol_index, i_symbol_end = config.start_symbol_index + config.nof_symbols;\n+  for (unsigned i_symbol     = config.dmrs_symbol_mask.find_lowest(),\n+                i_symbol_end = config.start_symbol_index + config.nof_symbols;\n        i_symbol != i_symbol_end;\n        ++i_symbol) {\n     // Skip if the OFDM symbol contains DM-RS.\n@@ -186,9 +221,23 @@ ulsch_information srsgnb::get_ulsch_information(const ulsch_configuration& confi\n     nof_harq_ack_rvd_re = result.nof_harq_ack_re;\n   }\n \n+  // If two or less HARQ-ACK bits are multiplexed, compute the CSI Part 1 RE using the reserved HARQ-ACK resources.\n+  unsigned nof_harq_ack_re_csi = (config.nof_harq_ack_bits < 2_bits) ? nof_harq_ack_rvd_re : result.nof_harq_ack_re;\n+\n   // Calculate the number of RE occupied by CSI-part1.\n-  srsgnb_assert(config.nof_csi_part1_bits == 0_bits, \"CSI Part 1 is not currently implemented.\");\n-  result.nof_csi_part2_re = 0;\n+  if (config.tbs > 0_bits) {\n+    // In case of PUSCH multiplexing SCH.\n+    result.nof_csi_part1_re = calculate_nof_re_csi_part1(config.nof_csi_part1_bits,\n+                                                         config.beta_offset_csi_part1,\n+                                                         nof_re_uci,\n+                                                         nof_harq_ack_re_csi,\n+                                                         result.sch.nof_cb * result.sch.nof_bits_per_cb.value(),\n+                                                         config.alpha_scaling);\n+  } else {\n+    // In case of PUSCH NOT multiplexing SCH.\n+    result.nof_csi_part1_re =\n+        calculate_nof_re_csi_part1_without_sch(config.nof_csi_part1_bits, nof_re_uci, nof_harq_ack_re_csi);\n+  }\n \n   // Calculate the number of RE occupied by CSI-part2.\n   srsgnb_assert(config.nof_csi_part2_bits == 0_bits, \"CSI Part 2 is not currently implemented.\");",
+      "additions": 52,
+      "deletions": 3,
+      "changes": 55
+    },
+    {
+      "filename": "unittests/phy/upper/channel_processors/pusch_processor_test_data.tar.gz",
+      "patch": "@@ -1,3 +1,3 @@\n version https://git-lfs.github.com/spec/v1\n-oid sha256:bc0bfa03ef0ac85e192af9c13c60ad7dd374732745e89422bc8316f969ba9122\n-size 4401391\n+oid sha256:7030dbe62d7c600f56e89228d69b4ccffa4c40acde14515a058a182a7436c897\n+size 16280691",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "unittests/phy/upper/channel_processors/pusch_processor_vectortest.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"../rx_softbuffer_test_doubles.h\"\n #include \"pusch_processor_test_data.h\"\n #include \"srsgnb/phy/upper/channel_processors/channel_processor_factories.h\"\n+#include \"srsgnb/phy/upper/channel_processors/channel_processor_formatters.h\"\n #include \"srsgnb/phy/upper/equalization/equalization_factories.h\"\n #include \"fmt/ostream.h\"\n #include \"gtest/gtest.h\"\n@@ -21,7 +22,7 @@ namespace srsgnb {\n \n std::ostream& operator<<(std::ostream& os, const test_case_t& test_case)\n {\n-  fmt::print(os, \"rg_nof_rb={} rg_nof_symb={}\", test_case.context.rg_nof_rb, test_case.context.rg_nof_symb);\n+  fmt::print(os, \"{:s}\", test_case.context.config);\n   return os;\n }\n \n@@ -173,6 +174,17 @@ TEST_P(PuschProcessorFixture, PuschProcessorVectortest)\n     ASSERT_TRUE(result.harq_ack.payload.empty());\n     ASSERT_EQ(result.harq_ack.status, uci_status::unknown);\n   }\n+\n+  // Verify CSI Part 1 result.\n+  if (config.uci.nof_csi_part1 > 0) {\n+    std::vector<uint8_t> expected_csi_part1 = test_case.csi_part1.read();\n+\n+    ASSERT_EQ(span<const uint8_t>(result.csi_part1.payload), span<const uint8_t>(expected_csi_part1));\n+    ASSERT_EQ(result.csi_part1.status, uci_status::valid);\n+  } else {\n+    ASSERT_TRUE(result.csi_part1.payload.empty());\n+    ASSERT_EQ(result.csi_part1.status, uci_status::unknown);\n+  }\n }\n \n // Creates test suite that combines all possible parameters.",
+      "additions": 13,
+      "deletions": 1,
+      "changes": 14
+    }
+  ],
+  "num_files_changed": 4,
+  "commit_details_path": ".\\commit_metadata\\e22e328.json"
+}

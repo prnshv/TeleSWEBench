@@ -1,0 +1,71 @@
+{
+  "commit_id": "b9646720a8a5ab5b2cd5e3e636ff4b3baa22cc87",
+  "commit_sha_short": "b964672",
+  "commit_folder": "b964672",
+  "commit_message": "sched: add counters for missing grant opportunities in scheduler result",
+  "commit_message_first_line": "sched: add counters for missing grant opportunities in scheduler result",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/b9646720a8a5ab5b2cd5e3e636ff4b3baa22cc87",
+  "commit_date": "2025-03-21T17:58:49Z",
+  "parent_sha": "706cd9cf65862ef16d64c3922627ea6b74c9e00e",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/706cd9cf65862ef16d64c3922627ea6b74c9e00e",
+  "code_changes": [
+    {
+      "filename": "apps/units/flexible_o_du/o_du_high/du_high/metrics/du_high_scheduler_cell_metrics_consumers.cpp",
+      "patch": "@@ -107,12 +107,16 @@ DECLARE_METRIC_SET(\"cell_events\", mset_cell_event, metric_sfn, metric_slot_index\n DECLARE_METRIC(\"error_indication_count\", metric_error_indication_count, unsigned, \"\");\n DECLARE_METRIC(\"average_latency\", metric_average_latency, unsigned, \"\");\n DECLARE_METRIC(\"max_latency\", metric_max_latency, unsigned, \"\");\n+DECLARE_METRIC(\"nof_missed_pdcch_grants\", metric_nof_missed_pdcch_grants, unsigned, \"\");\n+DECLARE_METRIC(\"nof_missed_uci_grants\", metric_nof_missed_uci_grants, unsigned, \"\");\n DECLARE_METRIC(\"latency_histogram\", latency_histogram, std::vector<unsigned>, \"\");\n DECLARE_METRIC_SET(\"cell_metrics\",\n                    cell_metrics,\n                    metric_error_indication_count,\n                    metric_average_latency,\n                    metric_max_latency,\n+                   metric_nof_missed_pdcch_grants,\n+                   metric_nof_missed_uci_grants,\n                    latency_histogram);\n \n /// Metrics root object.\n@@ -341,6 +345,8 @@ void scheduler_cell_metrics_consumer_json::handle_metric(const app_services::met\n   cell_output.write<metric_error_indication_count>(metrics.nof_error_indications);\n   cell_output.write<metric_average_latency>(metrics.average_decision_latency.count());\n   cell_output.write<metric_max_latency>(metrics.max_decision_latency.count());\n+  cell_output.write<metric_nof_missed_pdcch_grants>(metrics.nof_missed_pdcch_grants);\n+  cell_output.write<metric_nof_missed_uci_grants>(metrics.nof_missed_uci_grants);\n   cell_output.write<latency_histogram>(\n       std::vector<unsigned>(metrics.latency_histogram.begin(), metrics.latency_histogram.end()));\n \n@@ -393,8 +399,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n   fmt::format_to(\n       std::back_inserter(buffer),\n       \" total_dl_brate={}bps total_ul_brate={}bps nof_prbs={} nof_dl_slots={} nof_ul_slots={} error_indications={} \"\n-      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} nof_ues={} \"\n-      \"mean_latency={}usec max_latency={}usec max_latency_slot={} latency_hist=[{}]\",\n+      \"pdsch_rbs_per_slot={} pusch_rbs_per_slot={} pdschs_per_slot={:.3} puschs_per_slot={:.3} missed_pdcch={} \"\n+      \"missed_uci={} nof_ues={} mean_latency={}usec max_latency={}usec max_latency_slot={} latency_hist=[{}]\",\n       float_to_eng_string(sum_dl_bitrate_kbps * 1e3, 1, false),\n       float_to_eng_string(sum_ul_bitrate_kbps * 1e3, 1, false),\n       metrics.nof_prbs,\n@@ -405,6 +411,8 @@ void scheduler_cell_metrics_consumer_log::handle_metric(const app_services::metr\n       metrics.nof_ul_slots > 0 ? sum_pusch_rbs / metrics.nof_ul_slots : 0,\n       metrics.nof_dl_slots > 0 ? metrics.dl_grants_count / (float)metrics.nof_dl_slots : 0,\n       metrics.nof_ul_slots > 0 ? metrics.ul_grants_count / (float)metrics.nof_ul_slots : 0,\n+      metrics.nof_missed_pdcch_grants,\n+      metrics.nof_missed_uci_grants,\n       metrics.ue_metrics.size(),\n       metrics.average_decision_latency.count(),\n       metrics.max_decision_latency.count(),",
+      "additions": 10,
+      "deletions": 2,
+      "changes": 12
+    },
+    {
+      "filename": "include/srsran/scheduler/result/sched_result.h",
+      "patch": "@@ -54,6 +54,14 @@ struct ul_sched_result {\n   static_vector<srs_info, MAX_SRS_PDUS_PER_SLOT> srss;\n };\n \n+/// Missed grant opportunities in a given slot.\n+struct missed_grants {\n+  /// Number of missed PDCCH allocation opportunities.\n+  unsigned pdcch = 0;\n+  /// Number of missed UCI allocation opportunities.\n+  unsigned uci = 0;\n+};\n+\n /// Scheduler decision made for DL and UL in a given slot.\n struct sched_result {\n   /// Whether the scheduling for the given slot was successful.\n@@ -62,6 +70,8 @@ struct sched_result {\n   dl_sched_result dl;\n   /// UL allocations for the given slot.\n   ul_sched_result ul;\n+  /// Information about missed grant opportunities for the given slot.\n+  missed_grants missed;\n };\n \n } // namespace srsran",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10
+    },
+    {
+      "filename": "include/srsran/scheduler/scheduler_metrics.h",
+      "patch": "@@ -60,11 +60,14 @@ struct scheduler_ue_metrics {\n   unsigned sr_count;\n   /// Sum of the last DL buffer occupancy reports of all logical channels.\n   unsigned dl_bs;\n+  /// Invalid UCI reception metrics.\n+  /// @{\n   unsigned nof_pucch_f0f1_invalid_harqs;\n   unsigned nof_pucch_f2f3f4_invalid_harqs;\n   unsigned nof_pucch_f2f3f4_invalid_csis;\n   unsigned nof_pusch_invalid_harqs;\n   unsigned nof_pusch_invalid_csis;\n+  /// @}\n   /// Delay metrics.\n   /// @{\n   std::optional<float> avg_ce_delay_ms;\n@@ -128,6 +131,10 @@ struct scheduler_cell_metrics {\n   unsigned dl_grants_count = 0;\n   /// Counter of UE PUSCH grants.\n   unsigned ul_grants_count = 0;\n+  /// Number of missed PDCCH grant opportunities.\n+  unsigned nof_missed_pdcch_grants = 0;\n+  /// Number of missed UCI grant opportunities.\n+  unsigned nof_missed_uci_grants = 0;\n \n   unsigned                                nof_error_indications = 0;\n   std::chrono::microseconds               average_decision_latency{0};",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.cpp",
+      "patch": "@@ -291,6 +291,8 @@ void cell_metrics_handler::report_metrics()\n   next_report.nof_prach_preambles       = data.nof_prach_preambles;\n   next_report.dl_grants_count           = data.nof_ue_pdsch_grants;\n   next_report.ul_grants_count           = data.nof_ue_pusch_grants;\n+  next_report.nof_missed_pdcch_grants   = data.nof_missed_pdcch_grants;\n+  next_report.nof_missed_uci_grants     = data.nof_missed_uci_grants;\n \n   // Reset cell-wide metric counters.\n   data = {};\n@@ -363,6 +365,10 @@ void cell_metrics_handler::handle_slot_result(const sched_result&       slot_res\n   unsigned bin_idx = slot_decision_latency.count() / scheduler_cell_metrics::nof_usec_per_bin;\n   bin_idx          = std::min(bin_idx, scheduler_cell_metrics::latency_hist_bins - 1);\n   ++data.decision_latency_hist[bin_idx];\n+\n+  // Missed grant opportunities.\n+  data.nof_missed_pdcch_grants = slot_result.missed.pdcch;\n+  data.nof_missed_uci_grants   = slot_result.missed.uci;\n }\n \n void cell_metrics_handler::push_result(slot_point                sl_tx,",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_metrics_handler.h",
+      "patch": "@@ -125,6 +125,10 @@ class cell_metrics_handler final : public sched_metrics_ue_configurator\n     unsigned nof_ue_pdsch_grants = 0;\n     // Sum of UE PUSCH grants.\n     unsigned nof_ue_pusch_grants = 0;\n+    // Number of missed PDCCH grant opportunities.\n+    unsigned nof_missed_pdcch_grants = 0;\n+    // Number of missed UCI grant opportunities.\n+    unsigned nof_missed_uci_grants = 0;\n   };\n \n   scheduler_metrics_notifier&     notifier;",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/logging/scheduler_result_logger.cpp",
+      "patch": "@@ -482,4 +482,6 @@ void scheduler_result_logger::on_scheduler_result(const sched_result&       resu\n   } else {\n     log_info(result, decision_latency);\n   }\n+\n+  logger.info(\"Missed grant opportunities on this slot: pdcch={} uci={}\", result.missed.pdcch, result.missed.uci);\n }",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/pucch_scheduling/pucch_allocator_impl.cpp",
+      "patch": "@@ -1115,16 +1115,16 @@ std::optional<unsigned> pucch_allocator_impl::allocate_harq_grant(cell_slot_reso\n   // [Implementation-defined] We only allow a max number of PUCCH + PUSCH grants per slot.\n   if (pucch_slot_alloc.result.ul.pucchs.size() >=\n       get_max_pucch_grants(static_cast<unsigned>(pucch_slot_alloc.result.ul.puschs.size()))) {\n-    logger.info(\"rnti={}: HARQ-ACK allocation on PUCCH Format1 for slot={} skipped. Cause: UL grants reached\",\n-                crnti,\n-                pucch_slot_alloc.slot);\n+    logger.debug(\"rnti={}: HARQ-ACK allocation on PUCCH Format1 for slot={} skipped. Cause: UL grants reached\",\n+                 crnti,\n+                 pucch_slot_alloc.slot);\n     return std::nullopt;\n   }\n \n   if (pucch_grants_alloc_grid[sl_tx.to_uint()].full()) {\n-    logger.info(\"rnti={}: PUCCH HARQ-ACK allocation for slot={} skipped. Cause: PUCCH allocator grant list is full\",\n-                crnti,\n-                pucch_slot_alloc.slot);\n+    logger.debug(\"rnti={}: PUCCH HARQ-ACK allocation for slot={} skipped. Cause: PUCCH allocator grant list is full\",\n+                 crnti,\n+                 pucch_slot_alloc.slot);\n     return std::nullopt;\n   }\n \n@@ -1180,9 +1180,9 @@ void pucch_allocator_impl::allocate_csi_grant(cell_slot_resource_allocator& pucc\n   }\n \n   if (pucch_grants_alloc_grid[sl_tx.to_uint()].full()) {\n-    logger.info(\"rnti={}: PUCCH CSI allocation for slot={} skipped. Cause: PUCCH allocator grant list is full\",\n-                crnti,\n-                pucch_slot_alloc.slot);\n+    logger.debug(\"rnti={}: PUCCH CSI allocation for slot={} skipped. Cause: PUCCH allocator grant list is full\",\n+                 crnti,\n+                 pucch_slot_alloc.slot);\n     return;\n   }\n \n@@ -2226,7 +2226,7 @@ std::optional<unsigned> pucch_allocator_impl::allocate_grants(cell_slot_resource\n       (pucch_slot_alloc.result.ul.pucchs.size() +\n            (grants_to_tx.get_nof_grants() - existing_pdus.get_nof_unallocated_pdu()) >\n        get_max_pucch_grants(static_cast<unsigned>(pucch_slot_alloc.result.ul.puschs.size())))) {\n-    logger.info(\n+    logger.debug(\n         \"rnti={}: PUCCH allocation for slot={} skipped. Cause: UL grants reached\", crnti, pucch_slot_alloc.slot);\n     return std::nullopt;\n   }",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -176,13 +176,15 @@ ue_cell_grid_allocator::setup_dl_grant_builder(const slice_ue&\n   // Allocate PDCCH.\n   auto pdcch_result = alloc_dl_pdcch(ue_cc, ss_info);\n   if (not pdcch_result.has_value()) {\n+    pdcch_alloc.result.missed.pdcch++;\n     return make_unexpected(pdcch_result.error());\n   }\n   pdcch_dl_information* pdcch = pdcch_result.value();\n \n   // Allocate UCI.\n   auto uci_result = alloc_uci(ue_cc, ss_info, pdsch_td_res_index);\n   if (not uci_result.has_value()) {\n+    pdcch_alloc.result.missed.uci++;\n     pdcch_sched.cancel_last_pdcch(pdcch_alloc);\n     return make_unexpected(uci_result.error());\n   }",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 8,
+  "commit_details_path": ".\\commit_metadata\\b964672.json"
+}

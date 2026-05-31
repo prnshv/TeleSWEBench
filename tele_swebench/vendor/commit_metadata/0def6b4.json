@@ -1,0 +1,22 @@
+{
+  "commit_id": "0def6b42c43c6b4a0c257ef28a1dca31983aa4da",
+  "commit_sha_short": "0def6b4",
+  "commit_folder": "0def6b4",
+  "commit_message": "asn1: fix value set for nof. extension unpacked groups in case of invalid UL DCCH message",
+  "commit_message_first_line": "asn1: fix value set for nof. extension unpacked groups in case of invalid UL DCCH message",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/0def6b42c43c6b4a0c257ef28a1dca31983aa4da",
+  "commit_date": "2024-06-07T11:08:18Z",
+  "parent_sha": "3037e9e933669ff848c83e16d9aa72a543cd1914",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/3037e9e933669ff848c83e16d9aa72a543cd1914",
+  "code_changes": [
+    {
+      "filename": "lib/asn1/asn1_utils.cpp",
+      "patch": "@@ -1464,8 +1464,9 @@ SRSASN_CODE ext_groups_unpacker_guard::unpack(cbit_ref& bref)\n {\n   bref_tracker = &bref;\n   // unpack nof of ext groups\n-  HANDLE_CODE(unpack_norm_small_non_neg_whole_number(nof_unpacked_groups, bref));\n-  nof_unpacked_groups += 1;\n+  uint32_t nof_ext_groups = 0;\n+  HANDLE_CODE(unpack_norm_small_non_neg_whole_number(nof_ext_groups, bref));\n+  nof_unpacked_groups += nof_ext_groups + 1;\n   resize(nof_unpacked_groups);\n \n   // unpack each group presence flag",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\0def6b4.json"
+}

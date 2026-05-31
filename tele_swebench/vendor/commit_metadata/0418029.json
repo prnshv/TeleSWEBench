@@ -1,0 +1,36 @@
+{
+  "commit_id": "04180295ab3b37b7ff0f1495426fb29285e23455",
+  "commit_sha_short": "0418029",
+  "commit_folder": "0418029",
+  "commit_message": "support: use dedicated consumers in task workers and task worker pools",
+  "commit_message_first_line": "support: use dedicated consumers in task workers and task worker pools",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/04180295ab3b37b7ff0f1495426fb29285e23455",
+  "commit_date": "2025-07-30T15:27:57Z",
+  "parent_sha": "6e4dcc68a4bf1899146647347e5331ce957c94aa",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/6e4dcc68a4bf1899146647347e5331ce957c94aa",
+  "code_changes": [
+    {
+      "filename": "lib/support/executors/priority_task_worker.cpp",
+      "patch": "@@ -32,9 +32,10 @@ void priority_task_worker::stop()\n \n void priority_task_worker::run_pop_task_loop()\n {\n-  unique_task t;\n+  auto consumer = task_queue.create_consumer();\n \n-  while (task_queue.pop_blocking(t)) {\n+  unique_task t;\n+  while (consumer.pop_blocking(t)) {\n     // Run popped task\n     t();\n ",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    },
+    {
+      "filename": "lib/support/executors/task_worker.cpp",
+      "patch": "@@ -35,8 +35,10 @@ unique_function<void()> general_task_worker<QueuePolicy, WaitPolicy>::make_block\n     auto& logger = srslog::fetch_basic_logger(\"ALL\");\n     logger.info(\"Task worker \\\"{}\\\" started...\", this_thread_name());\n \n+    auto consumer = pending_tasks.create_consumer();\n+\n     unique_task t;\n-    while (pending_tasks.pop_blocking(t)) {\n+    while (consumer.pop_blocking(t)) {\n       // Call task.\n       t();\n ",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "lib/support/executors/task_worker_pool.cpp",
+      "patch": "@@ -25,9 +25,10 @@ std::function<void()> worker_task_factory(Queue& queue, unsigned nof_workers, un\n     execution_context::set_execution_context_description(nof_workers, worker_idx);\n \n     // start worker pop loop.\n+    auto consumer = queue.create_consumer();\n     while (true) {\n       unique_task job;\n-      if (not queue.pop_blocking(job)) {\n+      if (not consumer.pop_blocking(job)) {\n         break;\n       }\n       job();",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    }
+  ],
+  "num_files_changed": 3,
+  "commit_details_path": ".\\commit_metadata\\0418029.json"
+}

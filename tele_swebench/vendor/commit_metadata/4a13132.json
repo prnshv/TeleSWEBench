@@ -1,0 +1,22 @@
+{
+  "commit_id": "4a131323e8b7ab97cfb8c59f97b670b34880ec32",
+  "commit_sha_short": "4a13132",
+  "commit_folder": "4a13132",
+  "commit_message": "gnb: fix band arfcn validation",
+  "commit_message_first_line": "gnb: fix band arfcn validation",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/4a131323e8b7ab97cfb8c59f97b670b34880ec32",
+  "commit_date": "2023-02-20T22:03:26Z",
+  "parent_sha": "b1310ee5bf5fe0599d2f569b37f2e01480f1fa1c",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/b1310ee5bf5fe0599d2f569b37f2e01480f1fa1c",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -285,7 +285,8 @@ nr_band srsran::band_helper::get_band_from_dl_arfcn(uint32_t arfcn)\n {\n   for (const nr_band_raster& band : nr_band_table_fr1) {\n     // Check given ARFCN is between the first and last possible ARFCN.\n-    if (arfcn >= band.dl_nref_first and arfcn <= band.dl_nref_last and (arfcn % band.dl_nref_step) == 0) {\n+    if (arfcn >= band.dl_nref_first and arfcn <= band.dl_nref_last and\n+        ((arfcn - band.dl_nref_first) % band.dl_nref_step) == 0) {\n       return band.band;\n     }\n   }\n@@ -297,7 +298,7 @@ error_type<std::string> srsran::band_helper::is_dl_arfcn_valid_given_band(nr_ban\n   for (const nr_band_raster& raster_band : nr_band_table_fr1) {\n     if (raster_band.band == band) {\n       if (arfcn >= raster_band.dl_nref_first and arfcn <= raster_band.dl_nref_last and\n-          (arfcn % raster_band.dl_nref_step) == 0) {\n+          ((arfcn - raster_band.dl_nref_first) % raster_band.dl_nref_step) == 0) {\n         return {};\n       }\n       return {fmt::format(\"DL ARFCN must be within the interval [{},{}], step {}, for the chosen band\",",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\4a13132.json"
+}

@@ -1,0 +1,29 @@
+{
+  "commit_id": "5db1688b35640c1927ff94486ac4b6df881b82cd",
+  "commit_sha_short": "5db1688",
+  "commit_folder": "5db1688",
+  "commit_message": "ran: propagate max CORESET#0 duration parameter to function finding CORESET#0 index",
+  "commit_message_first_line": "ran: propagate max CORESET#0 duration parameter to function finding CORESET#0 index",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/5db1688b35640c1927ff94486ac4b6df881b82cd",
+  "commit_date": "2023-12-04T13:00:32Z",
+  "parent_sha": "9e9c3460c96bfb671264f8f910c2ec09aa0103e7",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/9e9c3460c96bfb671264f8f910c2ec09aa0103e7",
+  "code_changes": [
+    {
+      "filename": "lib/ran/band_helper.cpp",
+      "patch": "@@ -1155,8 +1155,15 @@ optional<ssb_coreset0_freq_location> srsran::band_helper::get_ssb_coreset0_freq_\n   ssb_freq_location ssb                            = du_cfg.get_next_ssb_location();\n   while (ssb.is_valid) {\n     // Iterate over the searchSpace0_indices and corresponding configurations.\n-    optional<unsigned> cset0_idx = get_coreset0_index(\n-        band, n_rbs, scs_common, scs_ssb, ssb.offset_to_point_A, ssb.k_ssb, du_cfg.get_ssb_first_symbol(), ss0_idx);\n+    optional<unsigned> cset0_idx = get_coreset0_index(band,\n+                                                      n_rbs,\n+                                                      scs_common,\n+                                                      scs_ssb,\n+                                                      ssb.offset_to_point_A,\n+                                                      ssb.k_ssb,\n+                                                      du_cfg.get_ssb_first_symbol(),\n+                                                      ss0_idx,\n+                                                      max_coreset0_duration);\n \n     if (cset0_idx.has_value()) {\n       const unsigned nof_avail_cset0_rbs = get_nof_coreset0_rbs_not_intersecting_ssb(\n@@ -1166,9 +1173,9 @@ optional<ssb_coreset0_freq_location> srsran::band_helper::get_ssb_coreset0_freq_\n           pdcch_type0_css_coreset_get(band, scs_ssb, scs_common, *cset0_idx, ssb.k_ssb.to_uint());\n \n       // If the number of non-intersecting CORESET#0 RBs is the highest so far for the least nof. CORESET#0 RBs and\n-      // largest CORESET#0 duration, save result.\n+      // largest CORESET#0 duration less than max_coreset0_duration, save result.\n       if (nof_avail_cset0_rbs > max_non_intersecting_cset0_rbs and cset0_desc.nof_rb_coreset < min_rbs and\n-          cset0_desc.nof_symb_coreset > max_duration and cset0_desc.nof_symb_coreset <= max_coreset0_duration) {\n+          cset0_desc.nof_symb_coreset > max_duration) {\n         max_non_intersecting_cset0_rbs = nof_avail_cset0_rbs;\n         min_rbs                        = cset0_desc.nof_rb_coreset;\n         max_duration                   = cset0_desc.nof_symb_coreset;",
+      "additions": 11,
+      "deletions": 4,
+      "changes": 15
+    },
+    {
+      "filename": "tests/unittests/ran/test_ssb_coreset0_freq_pos_generator.cpp",
+      "patch": "@@ -541,7 +541,7 @@ INSTANTIATE_TEST_SUITE_P(\n             band_helper::ssb_coreset0_freq_location{26, 0, 712608, 6, 0},\n             cfg_gen_input_params{713328, nr_band::n79, 106, subcarrier_spacing::kHz30, subcarrier_spacing::kHz30}},\n         test_params{\n-            band_helper::ssb_coreset0_freq_location{28, 6, 435650, 14, 0},\n+            band_helper::ssb_coreset0_freq_location{0, 22, 434690, 0, 0},\n             cfg_gen_input_params{435740, nr_band::n66, 51, subcarrier_spacing::kHz30, subcarrier_spacing::kHz30}},\n         test_params{\n             band_helper::ssb_coreset0_freq_location{14, 18, 390730, 2, 0},",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 2,
+  "commit_details_path": ".\\commit_metadata\\5db1688.json"
+}

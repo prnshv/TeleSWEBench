@@ -1,0 +1,127 @@
+{
+  "commit_id": "9a9fcb1c32d7edf6990341a9519dfac120ae56d8",
+  "commit_sha_short": "9a9fcb1",
+  "commit_folder": "9a9fcb1",
+  "commit_message": "mac: handle_slot_indication func uses context with slot and time_point",
+  "commit_message_first_line": "mac: handle_slot_indication func uses context with slot and time_point",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/9a9fcb1c32d7edf6990341a9519dfac120ae56d8",
+  "commit_date": "2025-04-02T11:58:13Z",
+  "parent_sha": "34d1c0c167263da1b755d506136ae7f14eb095ca",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/34d1c0c167263da1b755d506136ae7f14eb095ca",
+  "code_changes": [
+    {
+      "filename": "include/srsran/mac/mac_cell_slot_handler.h",
+      "patch": "@@ -5,6 +5,8 @@\n \n namespace srsran {\n \n+struct mac_cell_timing_context;\n+\n /// Interface used to handle slot indications specific to a cell.\n class mac_cell_slot_handler\n {\n@@ -19,12 +21,13 @@ class mac_cell_slot_handler\n   virtual ~mac_cell_slot_handler() = default;\n \n   /// \\brief Processing of a new Slot Indication.\n+  /// \\param[in] context Indication context.\n   ///\n   /// This operation involves the following sub-tasks:\n   /// - The scheduler generates the scheduling grants for the provided slot and cell.\n   /// - The scheduling grants are passed to the PHY.\n   /// - The MAC DL PDUs are generated and passed to the PHY as well.\n-  virtual void handle_slot_indication(slot_point sl_tx) = 0;\n+  virtual void handle_slot_indication(const mac_cell_timing_context& context) = 0;\n \n   /// \\brief Handles an error indication sent by the lower layers for a given slot.\n   ///",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5
+    },
+    {
+      "filename": "include/srsran/mac/mac_cell_timing_context.h",
+      "patch": "@@ -0,0 +1,26 @@\n+/*\n+ *\n+ * Copyright 2021-2025 Software Radio Systems Limited\n+ *\n+ * By using this file, you agree to the terms and conditions set\n+ * forth in the LICENSE file which can be found at the top level of\n+ * the distribution.\n+ *\n+ */\n+\n+#pragma once\n+\n+#include \"srsran/ran/slot_point.h\"\n+#include <chrono>\n+\n+namespace srsran {\n+\n+/// Describes the context of the current timing boundary.\n+struct mac_cell_timing_context {\n+  /// Indicates the current slot.\n+  slot_point sl_tx;\n+  /// Indicates the system time point associated to the current slot.\n+  std::chrono::time_point<std::chrono::system_clock> time_point;\n+};\n+\n+} // namespace srsran",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26
+    },
+    {
+      "filename": "lib/du/du_high/du_high_impl.cpp",
+      "patch": "@@ -15,6 +15,7 @@\n #include \"test_mode/f1ap_test_mode_adapter.h\"\n #include \"srsran/du/du_high/du_manager/du_manager_factory.h\"\n #include \"srsran/f1ap/du/f1ap_du_factory.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/mac/mac_metrics_notifier.h\"\n #include \"srsran/support/executors/task_redispatcher.h\"\n #include \"srsran/support/timers.h\"\n@@ -60,18 +61,18 @@ class du_high_slot_handler final : public mac_cell_slot_handler\n     logger(srslog::fetch_basic_logger(\"MAC\"))\n   {\n   }\n-  void handle_slot_indication(slot_point sl_tx) override\n+  void handle_slot_indication(const mac_cell_timing_context& context) override\n   {\n     // Step timers by one millisecond.\n-    if (sl_tx.to_uint() % get_nof_slots_per_subframe(to_subcarrier_spacing(sl_tx.numerology())) == 0) {\n+    if (context.sl_tx.to_uint() % get_nof_slots_per_subframe(to_subcarrier_spacing(context.sl_tx.numerology())) == 0) {\n       // The timer tick is handled in a separate execution context.\n       if (not tick_exec.defer()) {\n-        logger.info(\"Discarding timer tick={} due to full queue. Retrying later...\", sl_tx);\n+        logger.info(\"Discarding timer tick={} due to full queue. Retrying later...\", context.sl_tx);\n       }\n     }\n \n     // Handle slot indication in MAC & Scheduler.\n-    mac.get_slot_handler(to_du_cell_index(0)).handle_slot_indication(sl_tx);\n+    mac.get_slot_handler(to_du_cell_index(0)).handle_slot_indication(context);\n   }\n \n   void handle_error_indication(slot_point sl_tx, error_event event) override",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"../adapters/du_high_adapter_factories.h\"\n #include \"mac_test_mode_helpers.h\"\n #include \"srsran/adt/ring_buffer.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/mac/mac_factory.h\"\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/resource_grid_util.h\"\n@@ -92,11 +93,11 @@ mac_test_mode_cell_adapter::mac_test_mode_cell_adapter(\n {\n }\n \n-void mac_test_mode_cell_adapter::handle_slot_indication(slot_point sl_tx)\n+void mac_test_mode_cell_adapter::handle_slot_indication(const mac_cell_timing_context& context)\n {\n   if (test_ue_cfg.auto_ack_indication_delay.has_value()) {\n     // auto-generation of CRC/UCI indication is enabled.\n-    slot_point                   sl_rx = sl_tx - test_ue_cfg.auto_ack_indication_delay.value();\n+    slot_point                   sl_rx = context.sl_tx - test_ue_cfg.auto_ack_indication_delay.value();\n     const slot_decision_history& entry = sched_decision_history[get_ring_idx(sl_rx)];\n     std::unique_lock<std::mutex> lock(entry.mutex);\n     if (entry.slot == sl_rx) {\n@@ -152,7 +153,7 @@ void mac_test_mode_cell_adapter::handle_slot_indication(slot_point sl_tx)\n     }\n   }\n \n-  slot_handler.handle_slot_indication(sl_tx);\n+  slot_handler.handle_slot_indication(context);\n }\n \n void mac_test_mode_cell_adapter::handle_error_indication(slot_point sl_tx, error_event event)",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "lib/du/du_high/test_mode/mac_test_mode_adapter.h",
+      "patch": "@@ -77,7 +77,7 @@ class mac_test_mode_cell_adapter : public mac_cell_control_information_handler,\n \n   void on_cell_results_completion(slot_point slot) override { result_notifier.on_cell_results_completion(slot); }\n \n-  void handle_slot_indication(slot_point sl_tx) override;\n+  void handle_slot_indication(const mac_cell_timing_context& context) override;\n   void handle_error_indication(slot_point sl_tx, error_event event) override;\n \n   void handle_crc(const mac_crc_indication_message& msg) override;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_error_msg_translator.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"fapi_to_mac_error_msg_translator.h\"\n #include \"srsran/fapi/messages/error_indication.h\"\n #include \"srsran/mac/mac_cell_slot_handler.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;\n@@ -20,7 +21,7 @@ namespace {\n class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n {\n public:\n-  void handle_slot_indication(slot_point sl_tx) override {}\n+  void handle_slot_indication(const mac_cell_timing_context& context) override {}\n   void handle_error_indication(slot_point sl_tx, error_event event) override {}\n };\n ",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/fapi_to_mac_time_msg_translator.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"fapi_to_mac_time_msg_translator.h\"\n #include \"srsran/fapi/messages/slot_indication.h\"\n #include \"srsran/mac/mac_cell_slot_handler.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n \n using namespace srsran;\n using namespace fapi_adaptor;\n@@ -20,7 +21,7 @@ namespace {\n class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n {\n public:\n-  void handle_slot_indication(slot_point sl_tx) override {}\n+  void handle_slot_indication(const mac_cell_timing_context& context) override {}\n   void handle_error_indication(slot_point sl_tx, error_event event) override {}\n };\n \n@@ -37,5 +38,6 @@ fapi_to_mac_time_msg_translator::fapi_to_mac_time_msg_translator(subcarrier_spac\n \n void fapi_to_mac_time_msg_translator::on_slot_indication(const fapi::slot_indication_message& msg)\n {\n-  mac_slot_handler.get().handle_slot_indication(slot_point(to_numerology_value(scs), msg.sfn, msg.slot));\n+  mac_slot_handler.get().handle_slot_indication(\n+      {slot_point(to_numerology_value(scs), msg.sfn, msg.slot), msg.time_point});\n }",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6
+    },
+    {
+      "filename": "lib/fapi_adaptor/mac/mac_to_fapi_translator.cpp",
+      "patch": "@@ -19,6 +19,7 @@\n #include \"srsran/fapi_adaptor/mac/messages/pusch.h\"\n #include \"srsran/fapi_adaptor/mac/messages/srs.h\"\n #include \"srsran/fapi_adaptor/mac/messages/ssb.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/ran/bwp/bwp_configuration.h\"\n #include \"srsran/scheduler/result/sched_result.h\"\n \n@@ -50,7 +51,7 @@ struct pdcch_group {\n class mac_cell_slot_handler_dummy : public mac_cell_slot_handler\n {\n public:\n-  void handle_slot_indication(slot_point sl_tx) override\n+  void handle_slot_indication(const mac_cell_timing_context& context) override\n   {\n     report_error(\"Dummy MAC cell slot handler cannot handle slot indication\");\n   }",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.cpp",
+      "patch": "@@ -12,6 +12,7 @@\n #include \"mac_dl_metric_handler.h\"\n #include \"srsran/instrumentation/traces/du_traces.h\"\n #include \"srsran/mac/mac_cell_result.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/pcap/dlt_pcap.h\"\n #include \"srsran/ran/band_helper.h\"\n #include \"srsran/ran/pdsch/pdsch_constants.h\"\n@@ -150,15 +151,15 @@ async_task<mac_cell_reconfig_response> mac_cell_processor::reconfigure(const mac\n   });\n }\n \n-void mac_cell_processor::handle_slot_indication(slot_point sl_tx)\n+void mac_cell_processor::handle_slot_indication(const mac_cell_timing_context& context)\n {\n   trace_point slot_ind_enqueue_tp = metric_clock::now();\n   // Change execution context to slot indication executor.\n-  if (not slot_exec.execute([this, sl_tx, slot_ind_enqueue_tp]() {\n+  if (not slot_exec.execute([this, context, slot_ind_enqueue_tp]() {\n         l2_tracer << trace_event{\"mac_slot_ind_enqueue\", slot_ind_enqueue_tp};\n-        handle_slot_indication_impl(sl_tx, slot_ind_enqueue_tp);\n+        handle_slot_indication_impl(context.sl_tx, slot_ind_enqueue_tp);\n       })) {\n-    logger.warning(\"Skipped slot indication={}. Cause: DL task queue is full.\", sl_tx);\n+    logger.warning(\"Skipped slot indication={}. Cause: DL task queue is full.\", context.sl_tx);\n   }\n }\n ",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9
+    },
+    {
+      "filename": "lib/mac/mac_dl/mac_cell_processor.h",
+      "patch": "@@ -49,7 +49,7 @@ class mac_cell_processor final : public mac_cell_slot_handler, public mac_cell_c\n \n   async_task<mac_cell_reconfig_response> reconfigure(const mac_cell_reconfig_request& request) override;\n \n-  void handle_slot_indication(slot_point sl_tx) override;\n+  void handle_slot_indication(const mac_cell_timing_context& context) override;\n   void handle_error_indication(slot_point sl_tx, error_event event) override;\n \n   /// Creates new UE DL context, updates logical channel MUX, adds UE in scheduler.",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/benchmarks/du_high/du_high_benchmark.cpp",
+      "patch": "@@ -43,6 +43,7 @@\n #include \"srsran/du/du_high/du_high_executor_mapper.h\"\n #include \"srsran/du/du_high/du_qos_config_helpers.h\"\n #include \"srsran/f1u/du/f1u_gateway.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config_factory.h\"\n #include \"srsran/support/benchmark_utils.h\"\n #include \"srsran/support/test_utils.h\"\n@@ -641,7 +642,7 @@ class du_high_bench\n     sim_phy.new_slot();\n \n     // Push slot indication to DU-high.\n-    du_hi->get_slot_handler(to_du_cell_index(0)).handle_slot_indication(next_sl_tx);\n+    du_hi->get_slot_handler(to_du_cell_index(0)).handle_slot_indication({next_sl_tx, std::chrono::system_clock::now()});\n \n     // Wait DU-high to finish handling the slot.\n     sim_phy.wait_slot_complete();",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/integrationtests/du_high/mac_test_mode_adapter_test.cpp",
+      "patch": "@@ -10,6 +10,7 @@\n \n #include \"lib/du/du_high/test_mode/mac_test_mode_adapter.h\"\n #include \"tests/unittests/mac/mac_test_helpers.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/ran/csi_report/csi_report_config_helpers.h\"\n #include \"srsran/ran/csi_report/csi_report_on_pucch_helpers.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n@@ -75,12 +76,12 @@ class mac_dummy : public mac_interface,\n     // TODO: Implement this.\n   }\n   void handle_dl_buffer_state_update(const mac_dl_buffer_state_indication_message& dl_bs) override {}\n-  void handle_slot_indication(slot_point sl_tx) override\n+  void handle_slot_indication(const mac_cell_timing_context& context) override\n   {\n     if (events.next_ul_sched_res.has_value()) {\n       result_notifier.get_cell(to_du_cell_index(0)).on_new_uplink_scheduler_results(events.next_ul_sched_res.value());\n     }\n-    result_notifier.get_cell(to_du_cell_index(0)).on_cell_results_completion(sl_tx);\n+    result_notifier.get_cell(to_du_cell_index(0)).on_cell_results_completion(context.sl_tx);\n   }\n   void                               handle_error_indication(slot_point sl_tx, error_event event) override {}\n   mac_cell_controller&               add_cell(const mac_cell_creation_request& cell_cfg) override { return *this; }\n@@ -171,7 +172,7 @@ class base_mac_test_mode_test\n \n   void run_slot()\n   {\n-    adapter.get_slot_handler(to_du_cell_index(0)).handle_slot_indication(next_slot);\n+    adapter.get_slot_handler(to_du_cell_index(0)).handle_slot_indication({next_slot, std::chrono::system_clock::now()});\n \n     next_slot++;\n ",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7
+    },
+    {
+      "filename": "tests/integrationtests/du_high/test_utils/du_high_env_simulator.cpp",
+      "patch": "@@ -19,6 +19,7 @@\n #include \"srsran/du/du_cell_config_helpers.h\"\n #include \"srsran/du/du_high/du_high_factory.h\"\n #include \"srsran/du/du_high/du_qos_config_helpers.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config_factory.h\"\n #include \"srsran/support/error_handling.h\"\n #include \"srsran/support/test_utils.h\"\n@@ -541,7 +542,7 @@ void du_high_env_simulator::run_slot()\n {\n   // Dispatch a slot indication to all cells in the L2 (fork work across cells).\n   for (unsigned i = 0; i != du_high_cfg.ran.cells.size(); ++i) {\n-    du_hi->get_slot_handler(to_du_cell_index(i)).handle_slot_indication(next_slot);\n+    du_hi->get_slot_handler(to_du_cell_index(i)).handle_slot_indication({next_slot, std::chrono::system_clock::now()});\n   }\n \n   // Wait for slot indication to be processed and the l2 results to be sent back to the l1 (join cell results, in this",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/integrationtests/du_high_cu/du_high_cu_test_simulator.cpp",
+      "patch": "@@ -17,6 +17,7 @@\n #include \"srsran/cu_cp/cu_cp_factory.h\"\n #include \"srsran/du/du_cell_config_helpers.h\"\n #include \"srsran/du/du_high/du_high_factory.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/scheduler/config/scheduler_expert_config_factory.h\"\n #include \"srsran/support/test_utils.h\"\n #include <gtest/gtest.h>\n@@ -159,7 +160,8 @@ void du_high_cu_test_simulator::run_slot()\n     srs_du::du_high& du_hi = *dus[i]->du_high_inst;\n \n     // Signal slot indication to l2.\n-    du_hi.get_slot_handler(to_du_cell_index(0)).handle_slot_indication(dus[i]->next_slot);\n+    du_hi.get_slot_handler(to_du_cell_index(0))\n+        .handle_slot_indication({dus[i]->next_slot, std::chrono::system_clock::now()});\n \n     // Wait for slot indication to be processed and the l2 results to be sent back to the l1 (in this case, the test\n     // main thread).",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4
+    },
+    {
+      "filename": "tests/unittests/fapi_adaptor/mac/mac_to_fapi_translator_test.cpp",
+      "patch": "@@ -18,6 +18,7 @@\n #include \"srsran/fapi/slot_message_gateway.h\"\n #include \"srsran/fapi_adaptor/precoding_matrix_table_generator.h\"\n #include \"srsran/fapi_adaptor/uci_part2_correspondence_generator.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/srslog/srslog.h\"\n #include <gtest/gtest.h>\n \n@@ -95,7 +96,7 @@ class mac_cell_slot_handler_spy : public mac_cell_slot_handler\n   bool        has_been_notified = false;\n \n public:\n-  void handle_slot_indication(slot_point sl_tx) override {}\n+  void handle_slot_indication(const mac_cell_timing_context& context) override {}\n   void handle_error_indication(slot_point sl_tx, error_event event) override\n   {\n     error             = event;",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3
+    },
+    {
+      "filename": "tests/unittests/mac/mac_cell_processor_test.cpp",
+      "patch": "@@ -11,6 +11,7 @@\n #include \"lib/mac/mac_dl/mac_cell_processor.h\"\n #include \"lib/mac/mac_dl/mac_dl_metric_handler.h\"\n #include \"mac_test_helpers.h\"\n+#include \"srsran/mac/mac_cell_timing_context.h\"\n #include \"srsran/support/async/async_test_utils.h\"\n #include \"srsran/support/executors/manual_task_worker.h\"\n #include <gtest/gtest.h>\n@@ -109,8 +110,9 @@ TEST_P(mac_cell_processor_tester, when_cell_is_active_then_slot_indication_trigg\n   ASSERT_TRUE(sched_adapter.active);\n \n   slot_point sl_tx{0, 0};\n+  auto       slot_tp = std::chrono::system_clock::now();\n   ASSERT_FALSE(phy_notifier.is_complete);\n-  mac_cell.handle_slot_indication(sl_tx);\n+  mac_cell.handle_slot_indication({sl_tx, slot_tp});\n \n   ASSERT_TRUE(phy_notifier.last_sched_res.has_value());\n   ASSERT_EQ(phy_notifier.last_dl_data_res.has_value(), is_pdsch_scheduled());\n@@ -125,6 +127,8 @@ TEST_P(mac_cell_processor_tester, when_cell_is_active_then_slot_indication_trigg\n TEST_P(mac_cell_processor_tester, when_cell_is_deactivated_then_scheduler_gets_notified)\n {\n   slot_point sl_tx{0, 0};\n+  auto       slot_tp = std::chrono::system_clock::now();\n+\n   ASSERT_FALSE(phy_notifier.is_complete);\n \n   async_task<void>         t = mac_cell.stop();\n@@ -140,7 +144,7 @@ TEST_P(mac_cell_processor_tester, when_cell_is_deactivated_then_scheduler_gets_n\n   phy_notifier.last_sched_res.reset();\n   phy_notifier.last_ul_res.reset();\n   phy_notifier.last_dl_data_res.reset();\n-  mac_cell.handle_slot_indication(sl_tx);\n+  mac_cell.handle_slot_indication({sl_tx, slot_tp});\n   ASSERT_TRUE(phy_notifier.is_complete);\n }\n ",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8
+    }
+  ],
+  "num_files_changed": 16,
+  "commit_details_path": ".\\commit_metadata\\9a9fcb1.json"
+}

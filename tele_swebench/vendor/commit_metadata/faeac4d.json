@@ -1,0 +1,106 @@
+{
+  "commit_id": "faeac4dcf0bb229e4db114959d01b08e42a9b81c",
+  "commit_sha_short": "faeac4d",
+  "commit_folder": "faeac4d",
+  "commit_message": "sched: move dci and sch builders to support folders",
+  "commit_message_first_line": "sched: move dci and sch builders to support folders",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/faeac4dcf0bb229e4db114959d01b08e42a9b81c",
+  "commit_date": "2023-05-12T17:16:31Z",
+  "parent_sha": "d95c543791edd29bc10a45ca6223b8701ab0192b",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/d95c543791edd29bc10a45ca6223b8701ab0192b",
+  "code_changes": [
+    {
+      "filename": "lib/scheduler/CMakeLists.txt",
+      "patch": "@@ -32,6 +32,8 @@ set(SOURCES\n         support/prbs_calculator.cpp\n         support/mcs_calculator.cpp\n         support/rb_helper.cpp\n+        support/dci_builder.cpp\n+        support/sch_pdu_builder.cpp\n         cell_scheduler.cpp\n         scheduler_factory.cpp\n         scheduler_impl.cpp)",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/common_scheduling/ra_scheduler.cpp",
+      "patch": "@@ -12,10 +12,10 @@\n #include \"../logging/scheduler_event_logger.h\"\n #include \"../pdcch_scheduling/pdcch_config_helpers.h\"\n #include \"../pdcch_scheduling/pdcch_resource_allocator_impl.h\"\n+#include \"../support/dci_builder.h\"\n #include \"../support/dmrs_helpers.h\"\n+#include \"../support/sch_pdu_builder.h\"\n #include \"../support/tbs_calculator.h\"\n-#include \"../ue_scheduling/ue_dci_builder.h\"\n-#include \"../ue_scheduling/ue_sch_pdu_builder.h\"\n #include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n #include \"srsran/support/compiler.h\"\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/support/dci_builder.cpp",
+      "patch": "@@ -7,7 +7,7 @@\n  *\n  */\n \n-#include \"ue_dci_builder.h\"\n+#include \"dci_builder.h\"\n #include \"srsran/adt/optional.h\"\n #include \"srsran/adt/variant.h\"\n #include \"srsran/ran/csi_rs/csi_meas_config.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/dci_builder.h",
+      "patch": "@@ -9,8 +9,8 @@\n \n #pragma once\n \n-#include \"harq_process.h\"\n-#include \"ue_configuration.h\"\n+#include \"../ue_scheduling/harq_process.h\"\n+#include \"../ue_scheduling/ue_configuration.h\"\n #include \"srsran/ran/pdcch/search_space.h\"\n #include \"srsran/ran/resource_allocation/resource_allocation_frequency.h\"\n #include \"srsran/scheduler/config/bwp_configuration.h\"",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/support/mcs_tbs_calculator.cpp",
+      "patch": "@@ -9,9 +9,9 @@\n  */\n \n #include \"mcs_tbs_calculator.h\"\n-#include \"../ue_scheduling/ue_sch_pdu_builder.h\"\n #include \"dmrs_helpers.h\"\n #include \"prbs_calculator.h\"\n+#include \"sch_pdu_builder.h\"\n #include \"tbs_calculator.h\"\n #include \"srsran/adt/variant.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/sch_pdu_builder.cpp",
+      "patch": "@@ -7,7 +7,7 @@\n  *\n  */\n \n-#include \"ue_sch_pdu_builder.h\"\n+#include \"sch_pdu_builder.h\"\n #include \"../support/dmrs_helpers.h\"\n #include \"../support/tbs_calculator.h\"\n #include \"srsran/adt/optional.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/support/sch_pdu_builder.h",
+      "patch": "@@ -11,8 +11,8 @@\n \n #include \"../cell/cell_configuration.h\"\n #include \"../support/mcs_tbs_calculator.h\"\n-#include \"harq_process.h\"\n-#include \"ue_configuration.h\"\n+#include \"../ue_scheduling/harq_process.h\"\n+#include \"../ue_scheduling/ue_configuration.h\"\n #include \"srsran/scheduler/harq_id.h\"\n #include \"srsran/scheduler/scheduler_slot_handler.h\"\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/CMakeLists.txt",
+      "patch": "@@ -17,8 +17,6 @@ set(SOURCES\n         ue_event_manager.cpp\n         ue_srb0_scheduler.cpp\n         ue_scheduler_impl.cpp\n-        ue_dci_builder.cpp\n-        ue_sch_pdu_builder.cpp\n         ue_repository.cpp)\n \n add_library(ue_sched OBJECT ${SOURCES})",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell.cpp",
+      "patch": "@@ -12,7 +12,7 @@\n #include \"../support/dmrs_helpers.h\"\n #include \"../support/mcs_calculator.h\"\n #include \"../support/prbs_calculator.h\"\n-#include \"../ue_scheduling/ue_sch_pdu_builder.h\"\n+#include \"../support/sch_pdu_builder.h\"\n #include \"srsran/scheduler/scheduler_feedback_handler.h\"\n \n using namespace srsran;",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_cell_grid_allocator.cpp",
+      "patch": "@@ -8,11 +8,10 @@\n  */\n \n #include \"ue_cell_grid_allocator.h\"\n+#include \"../support/dci_builder.h\"\n #include \"../support/mcs_calculator.h\"\n #include \"../support/mcs_tbs_calculator.h\"\n-#include \"../support/rb_helper.h\"\n-#include \"ue_dci_builder.h\"\n-#include \"ue_sch_pdu_builder.h\"\n+#include \"../support/sch_pdu_builder.h\"\n #include \"srsran/ran/pdcch/coreset.h\"\n #include \"srsran/scheduler/scheduler_dci.h\"\n #include \"srsran/support/error_handling.h\"",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_srb0_scheduler.cpp",
+      "patch": "@@ -10,11 +10,11 @@\n \n #include \"ue_srb0_scheduler.h\"\n #include \"../support/config_helpers.h\"\n+#include \"../support/dci_builder.h\"\n #include \"../support/dmrs_helpers.h\"\n #include \"../support/prbs_calculator.h\"\n+#include \"../support/sch_pdu_builder.h\"\n #include \"../support/tbs_calculator.h\"\n-#include \"ue_dci_builder.h\"\n-#include \"ue_sch_pdu_builder.h\"\n \n using namespace srsran;\n ",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4
+    },
+    {
+      "filename": "lib/scheduler/ue_scheduling/ue_srb0_scheduler.h",
+      "patch": "@@ -11,9 +11,9 @@\n #pragma once\n \n #include \"../policy/ue_allocator.h\"\n+#include \"../support/sch_pdu_builder.h\"\n #include \"../support/slot_event_list.h\"\n #include \"ue_repository.h\"\n-#include \"ue_sch_pdu_builder.h\"\n #include \"srsran/scheduler/scheduler_configurator.h\"\n #include <queue>\n ",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    },
+    {
+      "filename": "tests/unittests/scheduler/support/mcs_tbs_calculator_test.cpp",
+      "patch": "@@ -10,8 +10,8 @@\n \n #include \"lib/scheduler/support/dmrs_helpers.h\"\n #include \"lib/scheduler/support/mcs_tbs_calculator.h\"\n+#include \"lib/scheduler/support/sch_pdu_builder.h\"\n #include \"lib/scheduler/support/tbs_calculator.h\"\n-#include \"lib/scheduler/ue_scheduling/ue_sch_pdu_builder.h\"\n #include \"tests/unittests/scheduler/test_utils/config_generators.h\"\n #include \"srsran/ran/pdsch/dlsch_info.h\"\n #include \"srsran/ran/pusch/ulsch_info.h\"",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2
+    }
+  ],
+  "num_files_changed": 13,
+  "commit_details_path": ".\\commit_metadata\\faeac4d.json"
+}

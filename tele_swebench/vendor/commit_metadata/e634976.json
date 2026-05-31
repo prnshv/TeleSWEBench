@@ -1,0 +1,22 @@
+{
+  "commit_id": "e634976cfddcca46af4db6d69c5ca463f6d4a77e",
+  "commit_sha_short": "e634976",
+  "commit_folder": "e634976",
+  "commit_message": "support: make the error message clearer when the pool is used before being explicitly initialized",
+  "commit_message_first_line": "support: make the error message clearer when the pool is used before being explicitly initialized",
+  "commit_url": "https://github.com/srsran/srsRAN_Project/commit/e634976cfddcca46af4db6d69c5ca463f6d4a77e",
+  "commit_date": "2024-11-21T17:57:28Z",
+  "parent_sha": "334fd78c870b45397324a2a5da40d6905ffc350f",
+  "before_zip_url": "https://api.github.com/repos/srsran/srsRAN_Project/zipball/334fd78c870b45397324a2a5da40d6905ffc350f",
+  "code_changes": [
+    {
+      "filename": "lib/support/byte_buffer.cpp",
+      "patch": "@@ -35,22 +35,26 @@ detail::byte_buffer_segment_pool& srsran::detail::get_default_byte_buffer_segmen\n void srsran::init_byte_buffer_segment_pool(std::size_t nof_segments, std::size_t memory_block_size)\n {\n   auto& pool = detail::byte_buffer_segment_pool::get_instance(nof_segments, memory_block_size);\n-  report_fatal_error_if_not(nof_segments == pool.nof_memory_blocks(),\n-                            \"The pool was already initialized with a different number of segments ({} != {})\",\n-                            nof_segments,\n-                            pool.nof_memory_blocks());\n+  report_fatal_error_if_not(pool.nof_memory_blocks() >= nof_segments,\n+                            \"The pool was already initialized with a lower number of segments ({} < {})\",\n+                            pool.nof_memory_blocks(),\n+                            nof_segments);\n+  report_fatal_error_if_not(pool.memory_block_size() >= memory_block_size,\n+                            \"The pool was already initialized with a smaller block size ({} < {})\",\n+                            pool.memory_block_size(),\n+                            memory_block_size);\n   report_fatal_error_if_not(memory_block_size > 64U, \"memory blocks must be larger than the segment control header\");\n }\n \n size_t srsran::get_byte_buffer_segment_pool_capacity()\n {\n-  auto& pool = detail::byte_buffer_segment_pool::get_instance();\n+  auto& pool = detail::get_default_byte_buffer_segment_pool();\n   return pool.nof_memory_blocks();\n }\n \n size_t srsran::get_byte_buffer_segment_pool_current_size_approx()\n {\n-  auto& pool = detail::byte_buffer_segment_pool::get_instance();\n+  auto& pool = detail::get_default_byte_buffer_segment_pool();\n   return pool.get_central_cache_approx_size() + pool.get_local_cache_size();\n }\n ",
+      "additions": 10,
+      "deletions": 6,
+      "changes": 16
+    }
+  ],
+  "num_files_changed": 1,
+  "commit_details_path": ".\\commit_metadata\\e634976.json"
+}
