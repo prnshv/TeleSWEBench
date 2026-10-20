@@ -90,3 +90,17 @@ The workspace still needs C/C++ dependencies available to CMake (for example, `G
 - [docs/framework-adapters.md](docs/framework-adapters.md) — frameworks, providers, environment setup  
 - [docs/testcases.md](docs/testcases.md) — `ctest_r_exact` and the bundled task format  
 - [docs/evaluation.md](docs/evaluation.md) — localization and TeleJudge  
+
+## Citation
+
+If you use TeleSWEBench in your research or evaluation, please cite this work. The paper has been accepted to **AACL**; this citation will be updated soon with the venue proceedings details.
+
+```bibtex
+@article{gajjar2026teleswebench,
+  title={TeleSWEBench: A Commit-Driven Benchmark for Evaluating LLM-Powered Software Engineering in Telecommunications},
+  author={Gajjar, Pranshav and Mamaghani, Ali and Bharadia, Dinesh and Shah, Vijay K},
+  journal={arXiv preprint arXiv:2606.05001},
+  year={2026}
+}
+```
+

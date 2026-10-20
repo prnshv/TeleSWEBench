@@ -186,13 +186,15 @@ def _overlay_after_tests(repo_dir: Path, after_archive_path: str, cache_dir: Pat
             zf.extractall(tmp_dir)
         roots = [p for p in tmp_dir.iterdir() if p.is_dir()]
         src_root = roots[0] if len(roots) == 1 else tmp_dir
-        src_tests = src_root / "tests"
-        if not src_tests.is_dir():
-            return
-        dst_tests = repo_dir / "tests"
-        if dst_tests.exists():
-            shutil.rmtree(dst_tests)
-        shutil.copytree(src_tests, dst_tests)
+        for name in ("tests", "unittests"):
+            src = src_root / name
+            if not src.is_dir():
+                continue
+            dst = repo_dir / name
+            if dst.exists():
+                shutil.rmtree(dst)
+            shutil.copytree(src, dst)
+
 
 
 def _prepare_workspace_for_ctest(
