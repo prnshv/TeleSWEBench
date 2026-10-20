@@ -93,7 +93,7 @@ The workspace still needs C/C++ dependencies available to CMake (for example, `G
 
 ## Citation
 
-If you use TeleSWEBench in your research or evaluation, please cite this work. The paper has been accepted to **AACL**; this citation will be updated soon with the venue proceedings details.
+If you use TeleSWEBench in your research or evaluation, please cite this preprint. The paper has been accepted to **AACL**; this citation will be updated soon with the venue proceedings details.
 
 ```bibtex
 @article{gajjar2026teleswebench,
